@@ -16,6 +16,7 @@ export const overridesPreferences = defineOverridesPreferences({
   },
   theme: {
     mode: 'light',
+    semiDarkHeader: true,
   },
   footer: {
     /** 默认关闭 footer 页脚，因为有一定遮挡 */
@@ -27,4 +28,3 @@ export const overridesPreferences = defineOverridesPreferences({
     companySiteLink: 'https://gitee.com/yudaocode/yudao-ui-admin-vben',
   },
 });
-
