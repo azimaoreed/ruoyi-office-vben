@@ -132,6 +132,8 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'remark',
       label: '备注',
       component: 'Input',
+      // 备注字段占据整行
+      formItemClass: 'col-span-2',
       componentProps: {
         placeholder: '请输入备注',
       },
@@ -190,30 +192,13 @@ export function useGridFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'seatNum',
-      label: '车座',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入车座',
-      },
-    },
-    {
-      fieldName: 'barePrice',
-      label: '裸车价',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入裸车价',
-      },
-    },
-    {
       fieldName: 'forceInsurance',
       label: '交强险到期日期',
       component: 'RangePicker',
       componentProps: {
-        ...getRangePickerDefaultProps(),
         allowClear: true,
+        format: 'YYYY-MM-DD',
+        valueFormat: 'YYYY-MM-DD 00:00:00',
       },
     },
     {
@@ -221,8 +206,9 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '商业险到期日期',
       component: 'RangePicker',
       componentProps: {
-        ...getRangePickerDefaultProps(),
         allowClear: true,
+        format: 'YYYY-MM-DD',
+        valueFormat: 'YYYY-MM-DD 00:00:00',
       },
     },
     {
@@ -230,46 +216,12 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '年检日期',
       component: 'RangePicker',
       componentProps: {
-        ...getRangePickerDefaultProps(),
         allowClear: true,
+        format: 'YYYY-MM-DD',
+        valueFormat: 'YYYY-MM-DD 00:00:00',
       },
-    },
-    {
-      fieldName: 'picUrl',
-      label: '上传照片',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入上传照片',
-      },
-    },
-    {
-      fieldName: 'sort',
-      label: '显示顺序',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入显示顺序',
-      },
-    },
-    {
-      fieldName: 'remark',
-      label: '备注',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入备注',
-      },
-    },
-    {
-      fieldName: 'createTime',
-      label: '创建时间',
-      component: 'RangePicker',
-      componentProps: {
-        ...getRangePickerDefaultProps(),
-        allowClear: true,
-      },
-    },
+    }
+   
   ];
 }
 

@@ -92,6 +92,8 @@ async function handleExport() {
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
     schema: useGridFormSchema(),
+    wrapperClass: 'grid-cols-4',
+    collapsed: true,
   },
   gridOptions: {
     columns: useGridColumns(),
@@ -187,4 +189,4 @@ const [Grid, gridApi] = useVbenVxeGrid({
     </Grid>
 
   </Page>
-</template>
+</template>

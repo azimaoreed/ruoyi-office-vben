@@ -315,6 +315,10 @@ enum DICT_TYPE {
   TRADE_ORDER_STATUS = 'trade_order_status', // 订单 - 状态
   TRADE_ORDER_TYPE = 'trade_order_type', // 订单 - 类型
   USER_TYPE = 'user_type',
+
+  // ========== OA 模块 ==========
+  OA_CAR_CLS = 'oa_car_cls', // 车辆分类
+  OA_CAR_TYPE = 'oa_car_type', // 车辆类型
 }
 
 export {

@@ -25,15 +25,19 @@ const [Form, formApi] = useVbenForm({
     componentProps: {
       class: 'w-full',
     },
-    formItemClass: 'col-span-2',
+    formItemClass: 'col-span-1', // 每个表单项占1列
     labelWidth: 80,
   },
+  // 设置表单容器为2列网格布局
+  wrapperClass: 'grid grid-cols-2 gap-4 p-4',
   layout: 'horizontal',
   schema: useFormSchema(),
   showDefaultActions: false
 });
 
 const [Modal, modalApi] = useVbenModal({
+  // 设置弹窗宽度，支持两列显示
+  class: 'w-3/4 max-w-4xl',
   async onConfirm() {
     const { valid } = await formApi.validate();
     if (!valid) {
@@ -81,4 +85,4 @@ const [Modal, modalApi] = useVbenModal({
   <Modal :title="getTitle">
     <Form class="mx-4" />
       </Modal>
-</template>
+</template>
