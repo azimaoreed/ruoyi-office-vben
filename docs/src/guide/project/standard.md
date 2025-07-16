@@ -4,7 +4,6 @@
 
 - 如果你想向项目贡献代码，请确保你的代码符合项目的代码规范。
 - 如果你使用的是 `vscode`，需要安装以下插件：
-
   - [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) - 脚本代码检查
   - [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) - 代码格式化
   - [Code Spell Checker](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker) - 单词语法检查

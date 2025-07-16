@@ -13,6 +13,7 @@ import {
 import {
   erpCountInputFormatter,
   erpNumberFormatter,
+  fenToYuan,
   formatPast2,
   isFunction,
   isString,
@@ -75,10 +76,16 @@ setupVbenVxeTable({
 
     // 表格配置项可以用 cellRender: { name: 'CellImage' },
     vxeUI.renderer.add('CellImage', {
-      renderTableDefault(_renderOpts, params) {
+      renderTableDefault(renderOpts, params) {
+        const { props } = renderOpts;
         const { column, row } = params;
         const src = row[column.field];
-        return h(ElImage, { src, previewSrcList: [src] });
+        return h(ElImage, {
+          src,
+          previewSrcList: [src],
+          class: props?.class,
+          previewTeleported: true,
+        });
       },
     });
 
@@ -289,6 +296,12 @@ setupVbenVxeTable({
     vxeUI.formats.add('formatAmount2', {
       tableCellFormatMethod({ cellValue }, digits = 2) {
         return `${erpNumberFormatter(cellValue, digits)}元`;
+      },
+    });
+
+    vxeUI.formats.add('formatFenToYuanAmount', {
+      tableCellFormatMethod({ cellValue }, digits = 2) {
+        return `${erpNumberFormatter(fenToYuan(cellValue), digits)}元`;
       },
     });
   },

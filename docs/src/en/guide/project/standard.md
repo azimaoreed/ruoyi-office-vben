@@ -4,7 +4,6 @@
 
 - If you want to contribute code to the project, please ensure your code complies with the project's coding standards.
 - If you are using `vscode`, you need to install the following plugins:
-
   - [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) - Script code checking
   - [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) - Code formatting
   - [Code Spell Checker](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker) - Word syntax checking

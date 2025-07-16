@@ -1,3 +1,4 @@
+export * from './bean';
 export * from './constants';
 export * from './dict';
 export * from './formatTime';

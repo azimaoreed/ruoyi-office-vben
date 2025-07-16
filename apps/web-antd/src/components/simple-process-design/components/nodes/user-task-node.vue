@@ -16,25 +16,6 @@ import { NODE_DEFAULT_TEXT } from '../../consts';
 import { useNodeName2, useTaskStatusClass, useWatchNode } from '../../helpers';
 import UserTaskNodeConfig from '../nodes-config/user-task-node-config.vue';
 import TaskListModal from './modules/task-list-modal.vue';
-// // 使用useVbenVxeGrid
-// const [Grid, gridApi] = useVbenVxeGrid({
-//   gridOptions: {
-//     columns: columns.value,
-//     keepSource: true,
-//     border: true,
-//     height: 'auto',
-//     data: selectTasks.value,
-//     rowConfig: {
-//       keyField: 'id',
-//     },
-//     pagerConfig: {
-//       enabled: false,
-//     },
-//     toolbarConfig: {
-//       enabled: false,
-//     },
-//   } as VxeTableGridOptions<any>,
-// });
 import NodeHandler from './node-handler.vue';
 
 defineOptions({ name: 'UserTaskNode' });
@@ -155,7 +136,7 @@ function findReturnTaskNodes(
           </div>
         </div>
       </div>
-      <!-- 传递子节点给添加节点组件。会在子节点前面添加节点 -->
+      <!-- 添加节点组件。会在子节点前面添加节点 -->
       <NodeHandler
         v-if="currentNode"
         v-model:child-node="currentNode.childNode"
