@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { CarApi } from '#/api/oa/car';
+import type { CarApi } from '#/api/oa/car/carinfo';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 import { message, Card, Menu } from 'ant-design-vue';
@@ -10,7 +10,7 @@ import Form from './modules/form.vue';
 import { ref, computed, watch } from 'vue';
 import { $t } from '#/locales';
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getCarPage, deleteCar, deleteCarListByIds, exportCar } from '#/api/oa/car';
+import { getCarPage, deleteCar, deleteCarListByIds, exportCar } from '#/api/oa/car/carinfo';
 import { downloadFileFromBlobPart, isEmpty } from '@vben/utils';
 import { DICT_TYPE, getDictOptions } from '#/utils';
 

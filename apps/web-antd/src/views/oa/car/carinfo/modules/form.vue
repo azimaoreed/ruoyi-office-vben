@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { CarApi } from '#/api/oa/car';
+import type { CarApi } from '#/api/oa/car/carinfo';
 
 import { useVbenModal } from '@vben/common-ui';
 import { message, Tabs, Checkbox, Input, Textarea, Select,RadioGroup,CheckboxGroup, DatePicker } from 'ant-design-vue';
@@ -7,7 +7,7 @@ import { message, Tabs, Checkbox, Input, Textarea, Select,RadioGroup,CheckboxGro
 import { computed, ref } from 'vue';
 import { $t } from '#/locales';
 import { useVbenForm } from '#/adapter/form';
-import { getCar, createCar, updateCar } from '#/api/oa/car';
+import { getCar, createCar, updateCar } from '#/api/oa/car/carinfo';
 
 import { useFormSchema } from '../data';
 

@@ -11,6 +11,7 @@ export namespace CarApi {
     carName?: string; // 车辆名称
     carType?: number; // 车型
     carCls?: number; // 分类
+    status?: number; // 状态
     brand?: string; // 品牌型号
     seatNum?: string; // 车座
     barePrice?: number; // 裸车价

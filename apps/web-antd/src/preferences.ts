@@ -16,7 +16,7 @@ export const overridesPreferences = defineOverridesPreferences({
   },
   theme: {
     mode: 'light',
-    semiDarkHeader: true,
+    semiDarkHeader: false,
   },
   footer: {
     /** 默认关闭 footer 页脚，因为有一定遮挡 */

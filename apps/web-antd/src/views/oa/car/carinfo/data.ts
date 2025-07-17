@@ -1,13 +1,14 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { CarApi } from '#/api/oa/car';
+import type { CarApi } from '#/api/oa/car/carinfo';
 
-import { z } from '#/adapter/form';
-import {
-    DICT_TYPE,
-    getDictOptions,
-    getRangePickerDefaultProps,
-} from '#/utils';
+import { DICT_TYPE, getDictOptions } from '#/utils';
+
+const CAR_STATUS_MAP = {
+  0: { label: '空闲', color: 'success' },
+  1: { label: '停用', color: 'error' },
+  2: { label: '使用中', color: 'processing' },
+};
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -38,6 +39,15 @@ export function useFormSchema(): VbenFormSchema[] {
       },
     },
     {
+      fieldName: 'status',
+      label: '状态',
+      component: 'Select',
+      componentProps: {
+        options: getDictOptions(DICT_TYPE.OA_CAR_USE_STATUS, 'number'),
+        placeholder: '请选择状态',
+      },
+    },
+    {
       fieldName: 'carType',
       label: '车型',
       rules: 'required',
@@ -57,6 +67,7 @@ export function useFormSchema(): VbenFormSchema[] {
         placeholder: '请选择分类',
       },
     },
+
     {
       fieldName: 'brand',
       label: '品牌型号',
@@ -114,7 +125,7 @@ export function useFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'picUrl',
       label: '上传照片',
-      component: 'ImageUpload'
+      component: 'ImageUpload',
     },
     {
       fieldName: 'sort',
@@ -159,6 +170,16 @@ export function useGridFormSchema(): VbenFormSchema[] {
       },
     },
     {
+      fieldName: 'status',
+      label: '状态',
+      component: 'Select',
+      componentProps: {
+        allowClear: true,
+        options: getDictOptions(DICT_TYPE.OA_CAR_USE_STATUS, 'number'),
+        placeholder: '请选择状态',
+      },
+    },
+    {
       fieldName: 'carType',
       label: '车型',
       component: 'Select',
@@ -168,6 +189,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
         placeholder: '请选择车型',
       },
     },
+
     {
       fieldName: 'brand',
       label: '品牌型号',
@@ -206,20 +228,14 @@ export function useGridFormSchema(): VbenFormSchema[] {
         format: 'YYYY-MM-DD',
         valueFormat: 'YYYY-MM-DD',
       },
-    }
-   
+    },
   ];
 }
 
 /** 列表的字段 */
 export function useGridColumns(): VxeTableGridOptions<CarApi.Car>['columns'] {
   return [
-  { type: 'checkbox', width: 40 },
-    {
-      field: 'id',
-      title: 'ID',
-      minWidth: 120,
-    },
+    { type: 'checkbox', width: 40 },
     {
       field: 'carNo',
       title: '车牌号',
@@ -229,6 +245,15 @@ export function useGridColumns(): VxeTableGridOptions<CarApi.Car>['columns'] {
       field: 'carName',
       title: '车辆名称',
       minWidth: 120,
+    },
+    {
+      field: 'status',
+      title: '状态',
+      minWidth: 120,
+      cellRender: {
+        name: 'CellDict',
+        props: { type: DICT_TYPE.OA_CAR_USE_STATUS },
+      },
     },
     {
       field: 'picUrl',
@@ -317,4 +342,3 @@ export function useGridColumns(): VxeTableGridOptions<CarApi.Car>['columns'] {
     },
   ];
 }
-

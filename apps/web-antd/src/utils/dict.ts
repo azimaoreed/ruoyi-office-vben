@@ -319,6 +319,7 @@ enum DICT_TYPE {
   // ========== OA 模块 ==========
   OA_CAR_CLS = 'oa_car_cls', // 车辆分类
   OA_CAR_TYPE = 'oa_car_type', // 车辆类型
+  OA_CAR_USE_STATUS = 'oa_car_use_status', // 车辆使用状态
 }
 
 export {
