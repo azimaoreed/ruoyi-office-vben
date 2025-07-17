@@ -114,10 +114,7 @@ export function useFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'picUrl',
       label: '上传照片',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入上传照片',
-      },
+      component: 'ImageUpload'
     },
     {
       fieldName: 'sort',
@@ -234,6 +231,14 @@ export function useGridColumns(): VxeTableGridOptions<CarApi.Car>['columns'] {
       minWidth: 120,
     },
     {
+      field: 'picUrl',
+      title: '车辆照片',
+      minWidth: 120,
+      cellRender: {
+        name: 'CellImage',
+      },
+    },
+    {
       field: 'carType',
       title: '车型',
       minWidth: 120,
@@ -287,11 +292,7 @@ export function useGridColumns(): VxeTableGridOptions<CarApi.Car>['columns'] {
       minWidth: 120,
       formatter: 'formatDate',
     },
-    {
-      field: 'picUrl',
-      title: '上传照片',
-      minWidth: 120,
-    },
+
     {
       field: 'sort',
       title: '显示顺序',
