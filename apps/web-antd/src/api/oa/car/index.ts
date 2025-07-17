@@ -6,20 +6,20 @@ import { requestClient } from '#/api/request';
 export namespace CarApi {
   /** 车辆信息信息 */
   export interface Car {
-    id: number; // ID
+    id?: number; // ID
     carNo?: string; // 车牌号
-    carName: string; // 车辆名称
+    carName?: string; // 车辆名称
     carType?: number; // 车型
     carCls?: number; // 分类
     brand?: string; // 品牌型号
-    seatNum: string; // 车座
-    barePrice: number; // 裸车价
-    forceInsurance: string | Dayjs; // 交强险到期日期
-    businessInsurance: string | Dayjs; // 商业险到期日期
-    yearCheckDate: string | Dayjs; // 年检日期
-    picUrl: string; // 上传照片
-    sort: number; // 显示顺序
-    remark: string; // 备注
+    seatNum?: string; // 车座
+    barePrice?: number; // 裸车价
+    forceInsuranceDate?: string | Dayjs; // 交强险到期日期
+    businessInsuranceDate?: string | Dayjs; // 商业险到期日期
+    yearCheckDate?: string | Dayjs; // 年检日期
+    picUrl?: string; // 上传照片
+    sort?: number; // 显示顺序
+    remark?: string; // 备注
   }
 }
 
@@ -58,4 +58,4 @@ export function exportCar(params: any) {
   return requestClient.download('/oa/car/export-excel', params);
 }
 
-
+

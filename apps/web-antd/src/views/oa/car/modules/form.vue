@@ -67,16 +67,21 @@ const [Modal, modalApi] = useVbenModal({
       return;
     }
     if (data.id) {
+      // 编辑模式
       modalApi.lock();
       try {
-        data = await getCar(data.id);
+        formData.value = await getCar(data.id);
+              // 设置到 values
+              debugger;
+      await formApi.setValues(formData.value);
       } finally {
         modalApi.unlock();
       }
+    }else{
+      // 新增模式
+      formApi.setValues(data)
     }
-    // 设置到 values
-    formData.value = data;
-    await formApi.setValues(formData.value);
+
   },
 });
 </script>

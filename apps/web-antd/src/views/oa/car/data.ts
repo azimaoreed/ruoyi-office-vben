@@ -77,29 +77,29 @@ export function useFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'barePrice',
       label: '裸车价',
-      component: 'Input',
+      component: 'InputAmount',
       componentProps: {
         placeholder: '请输入裸车价',
+        showUnit: false,
+        precision: 2,
       },
     },
     {
-      fieldName: 'forceInsurance',
+      fieldName: 'forceInsuranceDate',
       label: '交强险到期日期',
       component: 'DatePicker',
       componentProps: {
-        showTime: true,
-        format: 'YYYY-MM-DD HH:mm:ss',
-        valueFormat: 'x',
+        format: 'YYYY-MM-DD',
+        valueFormat: 'YYYY-MM-DD',
       },
     },
     {
-      fieldName: 'businessInsurance',
+      fieldName: 'businessInsuranceDate',
       label: '商业险到期日期',
       component: 'DatePicker',
       componentProps: {
-        showTime: true,
-        format: 'YYYY-MM-DD HH:mm:ss',
-        valueFormat: 'x',
+        format: 'YYYY-MM-DD',
+        valueFormat: 'YYYY-MM-DD',
       },
     },
     {
@@ -107,9 +107,8 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '年检日期',
       component: 'DatePicker',
       componentProps: {
-        showTime: true,
-        format: 'YYYY-MM-DD HH:mm:ss',
-        valueFormat: 'x',
+        format: 'YYYY-MM-DD',
+        valueFormat: 'YYYY-MM-DD',
       },
     },
     {
@@ -173,16 +172,6 @@ export function useGridFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'carCls',
-      label: '分类',
-      component: 'Select',
-      componentProps: {
-        allowClear: true,
-        options: getDictOptions(DICT_TYPE.OA_CAR_CLS, 'number'),
-        placeholder: '请选择分类',
-      },
-    },
-    {
       fieldName: 'brand',
       label: '品牌型号',
       component: 'Input',
@@ -192,23 +181,23 @@ export function useGridFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'forceInsurance',
+      fieldName: 'forceInsuranceDate',
       label: '交强险到期日期',
       component: 'RangePicker',
       componentProps: {
         allowClear: true,
         format: 'YYYY-MM-DD',
-        valueFormat: 'YYYY-MM-DD 00:00:00',
+        valueFormat: 'YYYY-MM-DD',
       },
     },
     {
-      fieldName: 'businessInsurance',
+      fieldName: 'businessInsuranceDate',
       label: '商业险到期日期',
       component: 'RangePicker',
       componentProps: {
         allowClear: true,
         format: 'YYYY-MM-DD',
-        valueFormat: 'YYYY-MM-DD 00:00:00',
+        valueFormat: 'YYYY-MM-DD',
       },
     },
     {
@@ -218,7 +207,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       componentProps: {
         allowClear: true,
         format: 'YYYY-MM-DD',
-        valueFormat: 'YYYY-MM-DD 00:00:00',
+        valueFormat: 'YYYY-MM-DD',
       },
     }
    
@@ -276,24 +265,27 @@ export function useGridColumns(): VxeTableGridOptions<CarApi.Car>['columns'] {
       field: 'barePrice',
       title: '裸车价',
       minWidth: 120,
+      headerAlign: 'center',
+      align: 'right',
+      formatter: 'formatAmount',
     },
     {
-      field: 'forceInsurance',
+      field: 'forceInsuranceDate',
       title: '交强险到期日期',
       minWidth: 120,
-      formatter: 'formatDateTime',
+      formatter: 'formatDate',
     },
     {
-      field: 'businessInsurance',
+      field: 'businessInsuranceDate',
       title: '商业险到期日期',
       minWidth: 120,
-      formatter: 'formatDateTime',
+      formatter: 'formatDate',
     },
     {
       field: 'yearCheckDate',
       title: '年检日期',
       minWidth: 120,
-      formatter: 'formatDateTime',
+      formatter: 'formatDate',
     },
     {
       field: 'picUrl',
