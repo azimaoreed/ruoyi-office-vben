@@ -339,12 +339,31 @@ setupVbenVxeTable({
       },
     });
 
+
+    // 金额格式化（不带元后缀，用于通用金额显示）
+    vxeUI.formats.add('formatAmount', {
+      tableCellFormatMethod({ cellValue }) {
+        if (cellValue === null || cellValue === undefined || cellValue === '') {
+          return '';
+        }
+        const number = parseFloat(cellValue);
+        if (isNaN(number)) {
+          return cellValue;
+        }
+        // 保留两位小数并添加千分位分割
+        return number.toLocaleString('zh-CN', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      },
+    });
+
+    // 金额格式化（带元后缀）
     vxeUI.formats.add('formatAmount2', {
       tableCellFormatMethod({ cellValue }, digits = 2) {
         return `${erpNumberFormatter(cellValue, digits)}元`;
       },
     });
-
     vxeUI.formats.add('formatFenToYuanAmount', {
       tableCellFormatMethod({ cellValue }, digits = 2) {
         return `${erpNumberFormatter(fenToYuan(cellValue), digits)}元`;
