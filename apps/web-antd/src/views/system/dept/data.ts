@@ -22,7 +22,7 @@ export function useFormSchema(): VbenFormSchema[] {
     },
     {
       fieldName: 'parentId',
-      label: '上级部门',
+      label: '上级组织',
       component: 'ApiTreeSelect',
       componentProps: {
         allowClear: true,
@@ -30,24 +30,34 @@ export function useFormSchema(): VbenFormSchema[] {
           const data = await getDeptList();
           data.unshift({
             id: 0,
-            name: '顶级部门',
+            name: '顶级组织',
           });
           return handleTree(data);
         },
         labelField: 'name',
         valueField: 'id',
         childrenField: 'children',
-        placeholder: '请选择上级部门',
+        placeholder: '请选择上级组织',
         treeDefaultExpandAll: true,
       },
       rules: 'selectRequired',
     },
     {
       fieldName: 'name',
-      label: '部门名称',
+      label: '组织名称',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入部门名称',
+        placeholder: '请输入组织名称',
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'orgType',
+      label: '组织类型',
+      component: 'Select',
+      componentProps: {
+        options: getDictOptions(DICT_TYPE.SYSTEM_DEPT_ORG_TYPE, 'string'),
+        placeholder: '请选择组织类型',
       },
       rules: 'required',
     },
@@ -116,10 +126,18 @@ export function useGridColumns(
     { type: 'checkbox', width: 40 },
     {
       field: 'name',
-      title: '部门名称',
+      title: '组织名称',
       align: 'left',
       fixed: 'left',
       treeNode: true,
+    },
+    {
+      field: 'orgType',
+      title: '组织类型',
+      cellRender: {
+        name: 'CellDict',
+        props: { type: DICT_TYPE.SYSTEM_DEPT_ORG_TYPE },
+      },
     },
     {
       field: 'leaderUserId',
@@ -132,7 +150,7 @@ export function useGridColumns(
     },
     {
       field: 'status',
-      title: '部门状态',
+      title: '组织状态',
       cellRender: {
         name: 'CellDict',
         props: { type: DICT_TYPE.COMMON_STATUS },

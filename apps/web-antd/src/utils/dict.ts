@@ -140,6 +140,7 @@ function getDictOptions<T extends DictValueType = 'string'>(
     ? BooleanDictDataType[]
     : StringDictDataType[] {
   // 检查缓存
+  debugger
   const cachedData = dictCache.get(dictType, valueType);
   if (cachedData) {
     return cachedData as any;
@@ -302,6 +303,7 @@ enum DICT_TYPE {
   SYSTEM_SMS_RECEIVE_STATUS = 'system_sms_receive_status',
   SYSTEM_SMS_SEND_STATUS = 'system_sms_send_status',
   SYSTEM_SMS_TEMPLATE_TYPE = 'system_sms_template_type',
+  SYSTEM_DEPT_ORG_TYPE = 'system_dept_org_type', // 部门组织类型
 
   SYSTEM_SOCIAL_TYPE = 'system_social_type',
   // ========== SYSTEM 模块 ==========

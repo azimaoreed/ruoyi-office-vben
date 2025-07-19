@@ -42,22 +42,22 @@ function toggleExpand() {
   gridApi.grid.setAllTreeExpand(isExpanded.value);
 }
 
-/** 创建部门 */
+/** 创建组织 */
 function handleCreate() {
   formModalApi.setData(null).open();
 }
 
-/** 添加下级部门 */
+/** 添加下级组织 */
 function handleAppend(row: SystemDeptApi.Dept) {
   formModalApi.setData({ parentId: row.id }).open();
 }
 
-/** 编辑部门 */
+/** 编辑组织 */
 function handleEdit(row: SystemDeptApi.Dept) {
   formModalApi.setData(row).open();
 }
 
-/** 删除部门 */
+/** 删除组织 */
 async function handleDelete(row: SystemDeptApi.Dept) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.name]),
@@ -84,7 +84,7 @@ function handleRowCheckboxChange({
   checkedIds.value = records.map((item) => item.id as number);
 }
 
-/** 批量删除部门 */
+/** 批量删除组织 */
 async function handleDeleteBatch() {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting'),
@@ -145,12 +145,12 @@ onMounted(async () => {
 <template>
   <Page auto-content-height>
     <FormModal @success="onRefresh" />
-    <Grid table-title="部门列表">
+    <Grid table-title="组织列表">
       <template #toolbar-tools>
         <TableAction
           :actions="[
             {
-              label: $t('ui.actionTitle.create', ['部门']),
+              label: $t('ui.actionTitle.create', ['组织']),
               type: 'primary',
               icon: ACTION_ICON.ADD,
               auth: ['system:dept:create'],

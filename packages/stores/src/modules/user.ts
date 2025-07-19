@@ -22,6 +22,19 @@ interface BasicUserInfo {
    * 用户名
    */
   username: string;
+
+  /**
+   * 部门名称
+   */
+  deptName: string
+  /**
+   * 公司id
+   */
+  companyId: number
+  /**
+   * 公司名称
+   */
+  companyName: string
 }
 
 interface AccessState {

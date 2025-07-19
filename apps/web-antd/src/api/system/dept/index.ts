@@ -11,6 +11,7 @@ export namespace SystemDeptApi {
     leaderUserId: number;
     phone: string;
     email: string;
+    orgType: number;
     createTime: Date;
     children?: Dept[];
   }
