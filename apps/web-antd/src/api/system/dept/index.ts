@@ -1,4 +1,5 @@
 import { requestClient } from '#/api/request';
+import { OrgTypeEnum } from '#/utils/constants';
 
 export namespace SystemDeptApi {
   /** 部门信息 */
@@ -25,6 +26,11 @@ export async function getSimpleDeptList() {
 /** 查询部门列表 */
 export async function getDeptList() {
   return requestClient.get('/system/dept/list');
+}
+
+/** 查询公司列表 */
+export async function getCompanyList() {
+  return requestClient.get('/system/dept/company-list');
 }
 
 /** 查询部门详情 */

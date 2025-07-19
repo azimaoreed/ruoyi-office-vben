@@ -140,7 +140,6 @@ function getDictOptions<T extends DictValueType = 'string'>(
     ? BooleanDictDataType[]
     : StringDictDataType[] {
   // 检查缓存
-  debugger
   const cachedData = dictCache.get(dictType, valueType);
   if (cachedData) {
     return cachedData as any;

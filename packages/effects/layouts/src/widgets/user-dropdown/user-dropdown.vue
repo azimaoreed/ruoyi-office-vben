@@ -64,6 +64,10 @@ interface Props {
   trigger?: 'both' | 'click' | 'hover';
   /** hover触发时，延迟响应的时间 */
   hoverDelay?: number;
+  /** 公司名称 */
+  companyName?: string;
+  /** 部门名称 */
+  deptName?: string;
 }
 
 defineOptions({
@@ -80,6 +84,8 @@ const props = withDefaults(defineProps<Props>(), {
   text: '',
   trigger: 'click',
   hoverDelay: 500,
+  companyName: '',
+  deptName: '',
 });
 
 const emit = defineEmits<{ logout: [] }>();
@@ -222,7 +228,13 @@ if (enableShortcutKey.value) {
               {{ description }}
             </div>
           </div>
+
         </DropdownMenuLabel>
+        <div class="ml-2 w-full text-center">
+            <div class="text-muted-foreground text-xs font-normal">
+              {{ companyName }}/{{ deptName }}
+            </div>
+          </div>
         <DropdownMenuSeparator v-if="menus?.length" />
         <DropdownMenuItem
           v-for="menu in menus"

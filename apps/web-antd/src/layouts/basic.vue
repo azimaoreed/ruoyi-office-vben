@@ -227,6 +227,8 @@ watch(
         :text="userStore.userInfo?.nickname"
         :description="userStore.userInfo?.email"
         :tag-text="userStore.userInfo?.username"
+        :company-name="userStore.userInfo?.companyName"
+        :dept-name="userStore.userInfo?.deptName"
         @logout="handleLogout"
       />
     </template>

@@ -1,8 +1,10 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { CarApi } from '#/api/oa/car/carinfo';
+import { handleTree } from '@vben/utils';
 
 import { DICT_TYPE, getDictOptions } from '#/utils';
+import { getCompanyList } from '#/api/system/dept';
 
 const CAR_STATUS_MAP = {
   0: { label: '空闲', color: 'success' },
@@ -15,6 +17,44 @@ export function useFormSchema(): VbenFormSchema[] {
   return [
     {
       fieldName: 'id',
+      component: 'Input',
+      dependencies: {
+        triggerFields: [''],
+        show: () => false,
+      },
+    },
+    {
+      fieldName: 'companyId',
+      label: '所属公司',
+      component: 'ApiTreeSelect',
+      componentProps: (values, formApi) => ({
+        allowClear: true,
+        api: async () => {
+          let data = await getCompanyList();
+          return handleTree(data);
+        },
+        labelField: 'name',
+        valueField: 'id',
+        childrenField: 'children',
+        placeholder: '请选择公司',
+        treeDefaultExpandAll: true,
+        onChange: (value: any, option: any) => {
+          console.log('值变化了:', value, option);
+          debugger
+          if (value && option) {
+            // 选择了公司，设置公司名称
+            formApi.setFieldValue('companyName', option[0]);
+          } else {
+            // 清空选择，清空公司名称
+            formApi.setFieldValue('companyName', '');
+          }
+        }
+      }),
+      rules: 'selectRequired',
+    },
+    {
+      fieldName: 'companyName',
+      label: '公司名称',
       component: 'Input',
       dependencies: {
         triggerFields: [''],
@@ -152,6 +192,24 @@ export function useFormSchema(): VbenFormSchema[] {
 export function useGridFormSchema(): VbenFormSchema[] {
   return [
     {
+      fieldName: 'companyId',
+      label: '公司ID',
+      component: 'Input',
+      componentProps: {
+        allowClear: true,
+        placeholder: '请输入公司ID',
+      },
+    },
+    {
+      fieldName: 'companyName',
+      label: '公司名称',
+      component: 'Input',
+      componentProps: {
+        allowClear: true,
+        placeholder: '请输入公司名称',
+      },
+    },
+    {
       fieldName: 'carNo',
       label: '车牌号',
       component: 'Input',
@@ -236,6 +294,16 @@ export function useGridFormSchema(): VbenFormSchema[] {
 export function useGridColumns(): VxeTableGridOptions<CarApi.Car>['columns'] {
   return [
     { type: 'checkbox', width: 40 },
+    {
+      field: 'companyId',
+      title: '公司ID',
+      minWidth: 120,
+    },
+    {
+      field: 'companyName',
+      title: '公司名称',
+      minWidth: 120,
+    },
     {
       field: 'carNo',
       title: '车牌号',

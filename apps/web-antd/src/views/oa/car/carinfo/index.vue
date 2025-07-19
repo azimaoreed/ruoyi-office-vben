@@ -13,6 +13,7 @@ import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getCarPage, deleteCar, deleteCarListByIds, exportCar } from '#/api/oa/car/carinfo';
 import { downloadFileFromBlobPart, isEmpty } from '@vben/utils';
 import { DICT_TYPE, getDictOptions } from '#/utils';
+import {  useUserStore } from '@vben/stores';
 
 import { useGridColumns, useGridFormSchema } from './data';
 
@@ -22,6 +23,7 @@ const [FormModal, formModalApi] = useVbenModal({
   destroyOnClose: true,
 });
 
+const userStore = useUserStore();
 // 分类选择相关状态
 const selectedCarCls = ref<number | null>(null);
 const carClsOptions = getDictOptions(DICT_TYPE.OA_CAR_CLS, 'number');
@@ -43,8 +45,12 @@ function handleSelectCarCls(carCls: number | null) {
 
 /** 创建车辆信息 */
 function handleCreate() {
+  // 设置默认值
   const car: CarApi.Car = {
     carCls: selectedCarCls.value || undefined,
+    companyId: userStore.userInfo?.companyId || undefined,
+    companyName: userStore.userInfo?.companyName || undefined,
+    status: 0, //  空闲
   }
   formModalApi.setData(car).open();
 }

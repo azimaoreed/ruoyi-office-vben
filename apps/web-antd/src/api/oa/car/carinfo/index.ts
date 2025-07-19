@@ -21,6 +21,8 @@ export namespace CarApi {
     picUrl?: string; // 上传照片
     sort?: number; // 显示顺序
     remark?: string; // 备注
+    companyId?: number; // 公司ID
+    companyName?: string; // 公司名称
   }
 }
 

@@ -5,6 +5,11 @@
  * 枚举类
  */
 
+export const OrgTypeEnum = {
+  COMPANY: '1', // 公司
+  DEPARTMENT: '0', // 部门
+};
+
 /**
  * AI 平台的枚举
  */
