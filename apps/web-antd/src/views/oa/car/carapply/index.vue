@@ -2,25 +2,26 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { CarApplyBillApi } from '#/api/oa/car/carapply';
 
-import { Page, useVbenModal } from '@vben/common-ui';
-import { message,Tabs } from 'ant-design-vue';
-import Form from './modules/form.vue';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
-
-import { ref, computed } from 'vue';
-import { $t } from '#/locales';
-import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getCarApplyBillPage, deleteCarApplyBill, deleteCarApplyBillListByIds, exportCarApplyBill } from '#/api/oa/car/carapply';
+import { Page } from '@vben/common-ui';
 import { downloadFileFromBlobPart, isEmpty } from '@vben/utils';
+
+import { message } from 'ant-design-vue';
+
+import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
+import {
+  deleteCarApplyBill,
+  deleteCarApplyBillListByIds,
+  exportCarApplyBill,
+  getCarApplyBillPage,
+} from '#/api/oa/car/carapply';
+import { $t } from '#/locales';
 
 import { useGridColumns, useGridFormSchema } from './data';
 
-
-const [FormModal, formModalApi] = useVbenModal({
-  connectedComponent: Form,
-  destroyOnClose: true,
-});
-
+const router = useRouter();
 
 /** 刷新表格 */
 function onRefresh() {
@@ -29,14 +30,18 @@ function onRefresh() {
 
 /** 创建用车申请单 */
 function handleCreate() {
-  formModalApi.setData({}).open();
+  router.push('/oa/car/carapply/create');
 }
 
 /** 编辑用车申请单 */
 function handleEdit(row: CarApplyBillApi.CarApplyBill) {
-  formModalApi.setData(row).open();
+  router.push(`/oa/car/carapply/edit/${row.id}`);
 }
 
+/** 查看用车申请单详情 */
+function handleView(row: CarApplyBillApi.CarApplyBill) {
+  router.push(`/oa/car/carapply/detail/${row.id}`);
+}
 
 /** 删除用车申请单 */
 async function handleDelete(row: CarApplyBillApi.CarApplyBill) {
@@ -74,7 +79,7 @@ async function handleDeleteBatch() {
   }
 }
 
-const checkedIds = ref<number[]>([])
+const checkedIds = ref<number[]>([]);
 function handleRowCheckboxChange({
   records,
 }: {
@@ -121,17 +126,15 @@ const [Grid, gridApi] = useVbenVxeGrid({
       search: true,
     },
   } as VxeTableGridOptions<CarApplyBillApi.CarApplyBill>,
-  gridEvents:{
-      checkboxAll: handleRowCheckboxChange,
-      checkboxChange: handleRowCheckboxChange,
-  }
+  gridEvents: {
+    checkboxAll: handleRowCheckboxChange,
+    checkboxChange: handleRowCheckboxChange,
+  },
 });
 </script>
 
 <template>
   <Page auto-content-height>
-    <FormModal @success="onRefresh" />
-
     <Grid table-title="用车申请单列表">
       <template #toolbar-tools>
         <TableAction
@@ -166,6 +169,12 @@ const [Grid, gridApi] = useVbenVxeGrid({
         <TableAction
           :actions="[
             {
+              label: $t('common.view'),
+              type: 'link',
+              icon: ACTION_ICON.VIEW,
+              onClick: handleView.bind(null, row),
+            },
+            {
               label: $t('common.edit'),
               type: 'link',
               icon: ACTION_ICON.EDIT,
@@ -187,6 +196,5 @@ const [Grid, gridApi] = useVbenVxeGrid({
         />
       </template>
     </Grid>
-
   </Page>
 </template>
