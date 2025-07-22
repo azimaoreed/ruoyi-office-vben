@@ -173,30 +173,12 @@ export function useFormSchema(): VbenFormSchema[] {
 export function useGridFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'id',
-      label: 'ID',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入ID',
-      },
-    },
-    {
       fieldName: 'billCode',
       label: '单据编号',
       component: 'Input',
       componentProps: {
         allowClear: true,
         placeholder: '请输入单据编号',
-      },
-    },
-    {
-      fieldName: 'processInstanceId',
-      label: '流程实例编号',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入流程实例编号',
       },
     },
     {
@@ -220,51 +202,6 @@ export function useGridFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'goTime',
-      label: '出车时间',
-      component: 'RangePicker',
-      componentProps: {
-        ...getRangePickerDefaultProps(),
-        allowClear: true,
-      },
-    },
-    {
-      fieldName: 'returnTime',
-      label: '回车时间',
-      component: 'RangePicker',
-      componentProps: {
-        ...getRangePickerDefaultProps(),
-        allowClear: true,
-      },
-    },
-    {
-      fieldName: 'goArea',
-      label: '出车地点',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入出车地点',
-      },
-    },
-    {
-      fieldName: 'returnArea',
-      label: '回车地点',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入回车地点',
-      },
-    },
-    {
-      fieldName: 'cause',
-      label: '用车事由',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入用车事由',
-      },
-    },
-    {
       fieldName: 'applyer',
       label: '申请人',
       component: 'Select',
@@ -275,12 +212,23 @@ export function useGridFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'passenger',
-      label: '随行人',
-      component: 'Input',
+      fieldName: 'companyId',
+      label: '公司ID',
+      component: 'Select',
       componentProps: {
         allowClear: true,
-        placeholder: '请输入随行人',
+        options: [],
+        placeholder: '请选择公司ID',
+      },
+    },
+    {
+      fieldName: 'deptId',
+      label: '部门ID',
+      component: 'Select',
+      componentProps: {
+        allowClear: true,
+        options: [],
+        placeholder: '请选择部门ID',
       },
     },
     {
@@ -301,44 +249,6 @@ export function useGridFormSchema(): VbenFormSchema[] {
         allowClear: true,
       },
     },
-    {
-      fieldName: 'deptId',
-      label: '部门ID',
-      component: 'Select',
-      componentProps: {
-        allowClear: true,
-        options: [],
-        placeholder: '请选择部门ID',
-      },
-    },
-    {
-      fieldName: 'deptName',
-      label: '部门名称',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入部门名称',
-      },
-    },
-    {
-      fieldName: 'companyId',
-      label: '公司ID',
-      component: 'Select',
-      componentProps: {
-        allowClear: true,
-        options: [],
-        placeholder: '请选择公司ID',
-      },
-    },
-    {
-      fieldName: 'companyName',
-      label: '公司名称',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入公司名称',
-      },
-    },
   ];
 }
 
@@ -346,11 +256,6 @@ export function useGridFormSchema(): VbenFormSchema[] {
 export function useGridColumns(): VxeTableGridOptions<CarApplyBillApi.CarApplyBill>['columns'] {
   return [
   { type: 'checkbox', width: 40 },
-    {
-      field: 'id',
-      title: 'ID',
-      minWidth: 120,
-    },
     {
       field: 'billCode',
       title: '单据编号',
@@ -369,6 +274,16 @@ export function useGridColumns(): VxeTableGridOptions<CarApplyBillApi.CarApplyBi
     {
       field: 'carId',
       title: '车辆',
+      minWidth: 120,
+    },
+    {
+      field: 'applyer',
+      title: '申请人',
+      minWidth: 120,
+    },
+    {
+      field: 'cause',
+      title: '用车事由',
       minWidth: 120,
     },
     {
@@ -394,18 +309,18 @@ export function useGridColumns(): VxeTableGridOptions<CarApplyBillApi.CarApplyBi
       minWidth: 120,
     },
     {
-      field: 'cause',
-      title: '用车事由',
-      minWidth: 120,
-    },
-    {
-      field: 'applyer',
-      title: '申请人',
-      minWidth: 120,
-    },
-    {
       field: 'passenger',
       title: '随行人',
+      minWidth: 120,
+    },
+    {
+      field: 'companyName',
+      title: '公司名称',
+      minWidth: 120,
+    },
+    {
+      field: 'deptName',
+      title: '部门名称',
       minWidth: 120,
     },
     {
@@ -419,26 +334,10 @@ export function useGridColumns(): VxeTableGridOptions<CarApplyBillApi.CarApplyBi
       minWidth: 120,
       formatter: 'formatDateTime',
     },
-    {
-      field: 'deptId',
-      title: '部门ID',
-      minWidth: 120,
-    },
-    {
-      field: 'deptName',
-      title: '部门名称',
-      minWidth: 120,
-    },
-    {
-      field: 'companyId',
-      title: '公司ID',
-      minWidth: 120,
-    },
-    {
-      field: 'companyName',
-      title: '公司名称',
-      minWidth: 120,
-    },
+
+
+
+
     {
       title: '操作',
       width: 200,
