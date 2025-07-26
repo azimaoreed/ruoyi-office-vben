@@ -262,6 +262,28 @@ export function useFormSchema(): VbenFormSchema[] {
         },
       },
     },
+    {
+      fieldName: 'visible',
+      label: '是否显示',
+      component: 'RadioGroup',
+      componentProps: {
+        options: [
+          { label: '显示', value: true },
+          { label: '隐藏', value: false },
+        ],
+        buttonStyle: 'solid',
+        optionType: 'button',
+      },
+      rules: 'required',
+      defaultValue: true,
+      help: '当选择是时，则该菜单会显示在菜单栏中，否则不显示，但是路由注册时，会注册该路由',
+      dependencies: {
+        triggerFields: ['type'],
+        show: (values) => {
+          return [SystemMenuTypeEnum.MENU].includes(values.type);
+        },
+      },
+    },
   ];
 }
 

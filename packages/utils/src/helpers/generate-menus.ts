@@ -147,6 +147,7 @@ function convertServerMenuToRouteRecordStringComponent(
         keepAlive: menu.keepAlive,
         orderNo: menu.sort,
         title: menu.name,
+        activePath: parent, // 用于激活父级菜单，单独路由打开详情时显示菜单用
       },
       name: menu.name + menu.id, // add by 芋艿：防止 name 重复，加上 id
       path: menu.path,
