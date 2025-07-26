@@ -21,22 +21,22 @@ function getStatusClass(status?: number | string) {
   switch (statusStr) {
     case '0':
     case 'DRAFT': {
-      return 'bg-gray-100 text-gray-800';
+      return 'status-draft';
     }
     case '1':
     case 'RUNNING': {
-      return 'bg-blue-100 text-blue-800';
+      return 'status-running';
     }
     case '2':
     case 'APPROVED': {
-      return 'bg-green-100 text-green-800';
+      return 'status-approved';
     }
     case '3':
     case 'REJECTED': {
-      return 'bg-red-100 text-red-800';
+      return 'status-rejected';
     }
     default: {
-      return 'bg-gray-100 text-gray-800';
+      return 'status-draft';
     }
   }
 }
@@ -96,6 +96,7 @@ function formatDateTime(dateTime?: Date | string) {
             class="status-badge relative px-4 py-1 text-xs font-medium"
             :class="getStatusClass(formData.processStatus)"
           >
+            <div class="status-badge-bg"></div>
             <span class="relative z-10">{{
               getStatusText(formData.processStatus)
             }}</span>
@@ -148,6 +149,84 @@ function formatDateTime(dateTime?: Date | string) {
 
 <style scoped>
 .form-header {
-  border-radius: 8px 8px 0 0;
+  border-radius: 12px 12px 0 0;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* 斜梯形状态徽章 */
+.status-badge {
+  min-width: 90px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-left: 10px;
+  overflow: hidden;
+  border-radius: 6px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.status-badge-bg {
+  position: absolute;
+  top: 0;
+  left: -8px;
+  right: -8px;
+  bottom: 0;
+  transform: skewX(-15deg);
+  z-index: 1;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 草稿状态 */
+.status-badge.status-draft .status-badge-bg {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+}
+.status-badge.status-draft {
+  color: white;
+}
+
+/* 审批中状态 */
+.status-badge.status-running .status-badge-bg {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+}
+.status-badge.status-running {
+  color: white;
+}
+
+/* 已审批状态 */
+.status-badge.status-approved .status-badge-bg {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+.status-badge.status-approved {
+  color: white;
+}
+
+/* 已拒绝状态 */
+.status-badge.status-rejected .status-badge-bg {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+.status-badge.status-rejected {
+  color: white;
+}
+
+/* 标题样式优化 */
+.form-header h1 {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 信息网格优化 */
+.form-header .grid {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 8px;
+  backdrop-filter: blur(10px);
 }
 </style>

@@ -52,7 +52,7 @@ function goBack() {
 
 // 关闭按钮处理
 function handleClose() {
-  goBack();
+  router.back();
 }
 
 // 保存表单
@@ -189,46 +189,66 @@ onMounted(() => {
 
 <template>
   <Page auto-content-height>
-    <div class="flex h-full flex-col">
-      <!-- 单据头部 -->
-      <FormHeader :form-data="formData" />
+    <div class="page-container">
+      <div class="content-wrapper">
+        <!-- 单据头部 -->
+        <FormHeader :form-data="formData" />
 
-      <!-- 单据内容 -->
-      <div class="flex-1">
-        <FormContent
-          ref="formContentRef"
-          :form-data="formData"
-          :disabled="isView"
+        <!-- 单据内容 -->
+        <div class="content-area">
+          <FormContent
+            ref="formContentRef"
+            :form-data="formData"
+            :disabled="isView"
+          />
+        </div>
+
+        <!-- 单据底部 -->
+        <FormFooter
+          :is-view="isView"
+          :saving="saving"
+          :submitting="submitting"
+          @close="handleClose"
+          @save="handleSave"
+          @submit="handleSubmit"
         />
       </div>
-
-      <!-- 单据底部 -->
-      <FormFooter
-        :is-view="isView"
-        :saving="saving"
-        :submitting="submitting"
-        @close="handleClose"
-        @save="handleSave"
-        @submit="handleSubmit"
-      />
     </div>
   </Page>
 </template>
 
 <style scoped>
-.flex {
+.page-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  padding: 20px;
+}
+
+.content-wrapper {
   display: flex;
-}
-
-.flex-col {
   flex-direction: column;
-}
-
-.flex-1 {
-  flex: 1;
-}
-
-.h-full {
   height: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.content-area {
+  flex: 1;
+  min-height: 500px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .page-container {
+    padding: 10px;
+  }
+  
+  .content-wrapper {
+    border-radius: 12px;
+  }
 }
 </style>

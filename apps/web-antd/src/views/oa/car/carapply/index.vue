@@ -30,17 +30,34 @@ function onRefresh() {
 
 /** 创建用车申请单 */
 function handleCreate() {
-  router.push('/oa/car/carapply/create');
+  router.push({
+    path: '/oa/car/car-apply-info',
+    query: {
+      editType: 'create',
+    },
+  });
 }
 
 /** 编辑用车申请单 */
 function handleEdit(row: CarApplyBillApi.CarApplyBill) {
-  router.push(`/oa/car/carapply/edit/${row.id}`);
+  router.push({
+    path: '/oa/car/car-apply-info',
+    query: {
+      editType: 'edit',
+      id: row.id,
+    },
+  });
 }
 
 /** 查看用车申请单详情 */
 function handleView(row: CarApplyBillApi.CarApplyBill) {
-  router.push(`/oa/car/carapply/detail/${row.id}`);
+  router.push({
+    path: '/oa/car/car-apply-info',
+    query: {
+      editType: 'view',
+      id: row.id,
+    },
+  });
 }
 
 /** 删除用车申请单 */
