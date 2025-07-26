@@ -6,7 +6,7 @@ const routes: RouteRecordRaw[] = [
     name: 'OACenter',
     meta: {
       title: '办公自动化',
-      hideInMenu: false,
+      hideInMenu: true,
     },
     children: [
       {
@@ -16,7 +16,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: '新建用车申请单',
           activeMenu: '/oa/car/carapply',
-          hideInMenu: false,
+          hideInMenu: true,
         },
       },
       {
@@ -26,7 +26,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: '编辑用车申请单',
           activeMenu: '/oa/car/carapply',
-          hideInMenu: false,
+          hideInMenu: true,
         },
       },
       {
@@ -36,7 +36,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: '用车申请单详情',
           activePath: '/oa/car/carapply',
-          hideInMenu: false,
+          hideInMenu: true,
           hideInBreadcrumb: false,
           hideInTab: false,
         },
