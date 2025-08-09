@@ -321,13 +321,17 @@ enum DICT_TYPE {
   OA_CAR_CLS = 'oa_car_cls', // 车辆分类
   OA_CAR_TYPE = 'oa_car_type', // 车辆类型
   OA_CAR_USE_STATUS = 'oa_car_use_status', // 车辆使用状态
+
+  // ============资产模块==========
+  ASSET_GOODS_UNIT = 'asset_goods_unit',
+
+  // 公共
+  COMMON_YES_NO ='common_yes_no',
 }
 
 export {
-  type ColorType,
-  DICT_TYPE,
-  type DictValueType,
-  getDictLabel,
+  DICT_TYPE, getDictLabel,
   getDictObj,
-  getDictOptions,
+  getDictOptions, type ColorType, type DictValueType
 };
+

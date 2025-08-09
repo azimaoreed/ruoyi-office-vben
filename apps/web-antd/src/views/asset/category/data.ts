@@ -34,6 +34,9 @@ export function useFormSchema(): VbenFormSchema[] {
           data.unshift({
             id: 0,
             categoryName: '顶级资产类别',
+            level: 0,
+            sort: 0,
+            remark: ''
           });
           return handleTree(data);
         },
@@ -57,6 +60,7 @@ export function useFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'categoryName',
       label: '类别名称',
+      rules: 'required',
       component: 'Input',
       componentProps: {
         placeholder: '请输入类别名称',
@@ -65,17 +69,24 @@ export function useFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'level',
       label: '级别',
-      component: 'Input',
+      component: 'InputNumber',
       componentProps: {
-        placeholder: '请输入级别',
+        placeholder: '请输入显示顺序',
+        min: 1,              // 最小值为1
+        precision: 0,        // 不允许小数
+        style: { width: '100%' }
       },
     },
     {
       fieldName: 'sort',
       label: '显示顺序',
-      component: 'Input',
+      rules: 'required',
+      component: 'InputNumber',
       componentProps: {
         placeholder: '请输入显示顺序',
+        min: 1,              // 最小值为1
+        precision: 0,        // 不允许小数
+        style: { width: '100%' }
       },
     },
     {
@@ -121,33 +132,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
         placeholder: '请输入类别名称',
       },
     },
-    {
-      fieldName: 'parentId',
-      label: '上级id',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入上级id',
-      },
-    },
-    {
-      fieldName: 'level',
-      label: '级别',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入级别',
-      },
-    },
-    {
-      fieldName: 'sort',
-      label: '显示顺序',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入显示顺序',
-      },
-    },
+   
 
     {
       fieldName: 'remark',
@@ -178,32 +163,32 @@ export function useGridColumns<T = CategoryApi.Category>(
   ) => PromiseLike<boolean | undefined>,
 ): VxeTableGridOptions<CategoryApi.Category>['columns'] {
   return [
-    {
-      field: 'id',
-      title: '主键',
-      minWidth: 120,
-    },
-    {
-      field: 'categoryCode',
-      title: '类别编码',
-      minWidth: 120,
-    },
+    // {
+    //   field: 'id',
+    //   title: '主键',
+    //   minWidth: 120,
+    // },
+    // {
+    //   field: 'categoryCode',
+    //   title: '类别编码',
+    //   minWidth: 120,
+    // },
     {
       field: 'categoryName',
       title: '类别名称',
       minWidth: 120,
       treeNode: true,
     },
-    {
-      field: 'parentId',
-      title: '上级id',
-      minWidth: 120,
-    },
-    {
-      field: 'level',
-      title: '级别',
-      minWidth: 120,
-    },
+    // {
+    //   field: 'parentId',
+    //   title: '上级id',
+    //   minWidth: 120,
+    // },
+    // {
+    //   field: 'level',
+    //   title: '级别',
+    //   minWidth: 120,
+    // },
     {
       field: 'sort',
       title: '显示顺序',

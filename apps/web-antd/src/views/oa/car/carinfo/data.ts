@@ -3,8 +3,8 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { CarApi } from '#/api/oa/car/carinfo';
 import { handleTree } from '@vben/utils';
 
-import { DICT_TYPE, getDictOptions } from '#/utils';
 import { getCompanyList } from '#/api/system/dept';
+import { DICT_TYPE, getDictOptions } from '#/utils';
 
 const CAR_STATUS_MAP = {
   0: { label: '空闲', color: 'success' },

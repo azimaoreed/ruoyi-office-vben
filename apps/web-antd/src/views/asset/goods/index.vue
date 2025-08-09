@@ -1,67 +1,53 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { CategoryApi } from '#/api/asset/category';
-
-import { ref } from 'vue';
+import type { GoodsApi } from '#/api/asset/goods';
 
 import { Page, useVbenModal } from '@vben/common-ui';
-import { downloadFileFromBlobPart } from '@vben/utils';
-
 import { message } from 'ant-design-vue';
+import Form from './modules/form.vue';
+
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import {
-deleteCategory,
-exportCategory,
-getCategoryList,
-} from '#/api/asset/category';
+import { deleteGoods, deleteGoodsListByIds, exportGoods, getGoodsPage } from '#/api/asset/goods';
 import { $t } from '#/locales';
+import { downloadFileFromBlobPart, isEmpty } from '@vben/utils';
+import { ref } from 'vue';
 
 import { useGridColumns, useGridFormSchema } from './data';
-import Form from './modules/form.vue';
+
 
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: Form,
   destroyOnClose: true,
 });
 
-/** 切换树形展开/收缩状态 */
-const isExpanded = ref(true);
-function toggleExpand() {
-  isExpanded.value = !isExpanded.value;
-  gridApi.grid.setAllTreeExpand(isExpanded.value);
-}
 
 /** 刷新表格 */
 function onRefresh() {
   gridApi.query();
 }
 
-/** 创建资产类别 */
+/** 创建物品信息 */
 function handleCreate() {
   formModalApi.setData({}).open();
 }
 
-/** 编辑资产类别 */
-function handleEdit(row: CategoryApi.Category) {
+/** 编辑物品信息 */
+function handleEdit(row: GoodsApi.Goods) {
   formModalApi.setData(row).open();
 }
 
-/** 新增下级资产类别 */
-function handleAppend(row: CategoryApi.Category) {
-  formModalApi.setData({ parentId: row.id }).open();
-}
 
-/** 删除资产类别 */
-async function handleDelete(row: CategoryApi.Category) {
+/** 删除物品信息 */
+async function handleDelete(row: GoodsApi.Goods) {
   const hideLoading = message.loading({
-    content: $t('ui.actionMessage.deleting', [row.categoryName]),
+    content: $t('ui.actionMessage.deleting', [row.goodsName]),
     key: 'action_key_msg',
   });
   try {
-    await deleteCategory(row.id as number);
+    await deleteGoods(row.id as number);
     message.success({
-      content: $t('ui.actionMessage.deleteSuccess', [row.categoryName]),
+      content: $t('ui.actionMessage.deleteSuccess', [row.goodsName]),
       key: 'action_key_msg',
     });
     onRefresh();
@@ -70,10 +56,37 @@ async function handleDelete(row: CategoryApi.Category) {
   }
 }
 
+/** 批量删除物品信息 */
+async function handleDeleteBatch() {
+  const hideLoading = message.loading({
+    content: $t('ui.actionMessage.deleting'),
+    key: 'action_key_msg',
+  });
+  try {
+    await deleteGoodsListByIds(checkedIds.value);
+    message.success({
+      content: $t('ui.actionMessage.deleteSuccess'),
+      key: 'action_key_msg',
+    });
+    onRefresh();
+  } finally {
+    hideLoading();
+  }
+}
+
+const checkedIds = ref<number[]>([])
+function handleRowCheckboxChange({
+  records,
+}: {
+  records: GoodsApi.Goods[];
+}) {
+  checkedIds.value = records.map((item) => item.id);
+}
+
 /** 导出表格 */
 async function handleExport() {
-  const data = await exportCategory(await gridApi.formApi.getValues());
-  downloadFileFromBlobPart({ fileName: '资产类别.xls', source: data });
+  const data = await exportGoods(await gridApi.formApi.getValues());
+  downloadFileFromBlobPart({ fileName: '物品信息.xls', source: data });
 }
 
 const [Grid, gridApi] = useVbenVxeGrid({
@@ -83,20 +96,17 @@ const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
     columns: useGridColumns(),
     height: 'auto',
-    treeConfig: {
-      parentField: 'parentId',
-      rowField: 'id',
-      transform: true,
-      expandAll: true,
-      reserve: true,
-    },
     pagerConfig: {
-      enabled: false,
+      enabled: true,
     },
     proxyConfig: {
       ajax: {
-        query: async (_, formValues) => {
-          return await getCategoryList(formValues);
+        query: async ({ page }, formValues) => {
+          return await getGoodsPage({
+            pageNo: page.currentPage,
+            pageSize: page.pageSize,
+            ...formValues,
+          });
         },
       },
     },
@@ -108,8 +118,11 @@ const [Grid, gridApi] = useVbenVxeGrid({
       refresh: true,
       search: true,
     },
-  } as VxeTableGridOptions<CategoryApi.Category>,
-  gridEvents: {},
+  } as VxeTableGridOptions<GoodsApi.Goods>,
+  gridEvents:{
+      checkboxAll: handleRowCheckboxChange,
+      checkboxChange: handleRowCheckboxChange,
+  }
 });
 </script>
 
@@ -117,28 +130,32 @@ const [Grid, gridApi] = useVbenVxeGrid({
   <Page auto-content-height>
     <FormModal @success="onRefresh" />
 
-    <Grid table-title="资产类别列表">
+    <Grid table-title="物品信息列表">
       <template #toolbar-tools>
         <TableAction
           :actions="[
             {
-              label: isExpanded ? '收缩' : '展开',
-              type: 'primary',
-              onClick: toggleExpand,
-            },
-            {
-              label: $t('ui.actionTitle.create', ['资产类别']),
+              label: $t('ui.actionTitle.create', ['物品信息']),
               type: 'primary',
               icon: ACTION_ICON.ADD,
-              auth: ['asset:category:create'],
+              auth: ['asset:goods:create'],
               onClick: handleCreate,
             },
             {
               label: $t('ui.actionTitle.export'),
               type: 'primary',
               icon: ACTION_ICON.DOWNLOAD,
-              auth: ['asset:category:export'],
+              auth: ['asset:goods:export'],
               onClick: handleExport,
+            },
+            {
+              label: $t('ui.actionTitle.deleteBatch'),
+              type: 'primary',
+              danger: true,
+              icon: ACTION_ICON.DELETE,
+              disabled: isEmpty(checkedIds),
+              auth: ['asset:goods:delete'],
+              onClick: handleDeleteBatch,
             },
           ]"
         />
@@ -147,17 +164,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
         <TableAction
           :actions="[
             {
-              label: '新增下级',
-              type: 'link',
-              icon: ACTION_ICON.ADD,
-              auth: ['asset:category:create'],
-              onClick: handleAppend.bind(null, row),
-            },
-            {
               label: $t('common.edit'),
               type: 'link',
               icon: ACTION_ICON.EDIT,
-              auth: ['asset:category:update'],
+              auth: ['asset:goods:update'],
               onClick: handleEdit.bind(null, row),
             },
             {
@@ -165,7 +175,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
               type: 'link',
               danger: true,
               icon: ACTION_ICON.DELETE,
-              auth: ['asset:category:delete'],
+              auth: ['asset:goods:delete'],
               popConfirm: {
                 title: $t('ui.actionMessage.deleteConfirm', [row.id]),
                 confirm: handleDelete.bind(null, row),
@@ -175,5 +185,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
         />
       </template>
     </Grid>
+
   </Page>
 </template>
