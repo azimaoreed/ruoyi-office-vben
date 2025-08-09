@@ -2,6 +2,8 @@
 import type { BpmProcessInstanceApi } from '#/api/bpm/processInstance';
 import type { SystemUserApi } from '#/api/system/user';
 
+// TODO @jason：业务表单审批时，读取不到界面，参见 https://t.zsxq.com/eif2e
+
 import { nextTick, onMounted, ref, shallowRef, watch } from 'vue';
 
 import { Page } from '@vben/common-ui';
@@ -249,13 +251,14 @@ onMounted(async () => {
         paddingTop: '12px',
       }"
     >
-      <template #title>
+      <!-- <template #title>
         <span class="text-gray-500">编号：{{ id || '-' }}</span>
-      </template>
+      </template> -->
 
       <div class="flex h-full flex-col">
         <!-- 流程基本信息 -->
         <div class="flex flex-col gap-2">
+          <!--
           <div class="mb-2.5 flex h-10 items-center gap-5">
             <div class="mb-1 text-2xl font-bold">
               {{ processInstance?.name }}
@@ -290,11 +293,11 @@ onMounted(async () => {
               {{ formatDateTime(processInstance?.startTime) }} 提交
             </div>
           </div>
-
+-->
           <component
             v-if="processInstance?.status"
             :is="auditIconsMap[processInstance?.status]"
-            class="absolute right-5 top-2.5 size-36"
+            class="absolute right-5 top-2.5 size-28"
           />
         </div>
 
@@ -306,9 +309,9 @@ onMounted(async () => {
                 <Col
                   :xs="24"
                   :sm="24"
-                  :md="18"
-                  :lg="18"
-                  :xl="16"
+                  :md="20"
+                  :lg="20"
+                  :xl="20"
                   class="h-full"
                 >
                   <!-- 流程表单 -->
@@ -335,7 +338,7 @@ onMounted(async () => {
                     <BusinessFormComponent :id="processInstance?.businessKey" />
                   </div>
                 </Col>
-                <Col :xs="24" :sm="24" :md="6" :lg="6" :xl="8" class="h-full">
+                <Col :xs="24" :sm="24" :md="4" :lg="4" :xl="4" class="h-full">
                   <div class="mt-4 h-full">
                     <ProcessInstanceTimeline :activity-nodes="activityNodes" />
                   </div>
@@ -437,7 +440,6 @@ onMounted(async () => {
 }
 
 .tab-pane-content {
-  height: calc(100vh - 420px);
   padding-right: 12px;
   overflow: hidden auto;
 }
