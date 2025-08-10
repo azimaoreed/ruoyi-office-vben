@@ -1,3 +1,10 @@
+/*
+ * @Author: zhanghui
+ * @Date: 2025-07-14 19:24:36
+ * @LastEditTime: 2025-08-10 14:29:06
+ * @LastEditors: zhanghui
+ * @Description:
+ */
 /**
  * 针对 https://github.com/xaboy/form-create-designer 封装的工具类
  */
@@ -54,5 +61,41 @@ export const setConfAndFields2 = (
   detailPreview.rule = decodeFields(fields);
   if (value) {
     detailPreview.value = value;
+  }
+};
+
+// 获取审批状态颜色
+export const getStatusColor = (val: any) => {
+  switch (val) {
+    case 1: {
+      return {
+        color: '#1677ff',
+        status: 'processing',
+      };
+    }
+    case 2: {
+      return {
+        color: '#87d068',
+        status: 'success',
+      };
+    }
+    case 3: {
+      return {
+        color: '#ff4d4f',
+        status: 'error',
+      };
+    }
+    case 4: {
+      return {
+        color: '#faad14',
+        status: 'orange',
+      };
+    }
+    default: {
+      return {
+        color: '#000005',
+        status: 'default',
+      };
+    }
   }
 };

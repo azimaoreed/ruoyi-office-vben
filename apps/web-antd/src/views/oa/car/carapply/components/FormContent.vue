@@ -3,8 +3,6 @@ import type { CarApplyBillApi } from '#/api/oa/car/carapply';
 
 import { ref, watch } from 'vue';
 
-import { TabPane, Tabs } from 'ant-design-vue';
-
 import { useVbenForm } from '#/adapter/form';
 
 import { useFormSchema } from '../data';
@@ -16,7 +14,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const activeTab = ref('bill');
+// const activeTab = ref('bill');
 const formRef = ref();
 
 // 创建表单实例
@@ -47,13 +45,13 @@ watch(
 );
 
 // 监听disabled状态变化
-watch(
-  () => props.disabled,
-  (disabled) => {
-    // 通过重新设置commonConfig来更新disabled状态
-    // updateSchema方法暂不支持componentProps，使用其他方式处理
-  },
-);
+// watch(
+//   () => props.disabled,
+//   (disabled) => {
+//     // 通过重新设置commonConfig来更新disabled状态
+//     // updateSchema方法暂不支持componentProps，使用其他方式处理
+//   },
+// );
 
 // 暴露方法给父组件
 defineExpose({
@@ -75,21 +73,21 @@ defineExpose({
 
 <template>
   <div class="form-content flex h-full flex-col bg-white">
-    <Tabs v-model:active-key="activeTab" class="flex flex-1 flex-col px-6 pt-4">
-      <TabPane key="bill" tab="单据信息" class="h-full">
-        <div class="h-full overflow-auto pb-6">
-          <Form ref="formRef" />
-        </div>
-      </TabPane>
-      <TabPane key="approval" tab="审批信息" class="h-full">
+    <!-- <Tabs v-model:active-key="activeTab" class="flex flex-1 flex-col px-6 pt-4">
+      <TabPane key="bill" tab="单据信息" class="h-full"> -->
+    <div class="h-full overflow-auto pb-6">
+      <Form ref="formRef" />
+    </div>
+    <!-- </TabPane> -->
+    <!-- <TabPane key="approval" tab="审批信息" class="h-full">
         <div class="flex h-full items-center justify-center pb-6">
           <div class="text-center text-gray-500">
             <Icon icon="lucide:clock" class="mb-2 text-2xl" />
             <p>审批信息暂无数据</p>
           </div>
         </div>
-      </TabPane>
-    </Tabs>
+      </TabPane> -->
+    <!-- </Tabs> -->
   </div>
 </template>
 

@@ -4,7 +4,7 @@ import type { CarApplyBillApi } from '#/api/oa/car/carapply';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { Page } from '@vben/common-ui';
+import { useTabs } from '@vben/hooks';
 
 import { message } from 'ant-design-vue';
 
@@ -13,14 +13,15 @@ import {
   getCarApplyBill,
   updateCarApplyBill,
 } from '#/api/oa/car/carapply';
+import { BasicForm } from '#/components/basicForm';
 import { $t } from '#/locales';
 
 import FormContent from './components/FormContent.vue';
-import FormFooter from './components/FormFooter.vue';
-import FormHeader from './components/FormHeader.vue';
 
 const route = useRoute();
 const router = useRouter();
+
+const { closeCurrentTab } = useTabs();
 
 const formData = ref<
   Partial<CarApplyBillApi.CarApplyBill> & {
@@ -52,7 +53,8 @@ function goBack() {
 
 // 关闭按钮处理
 function handleClose() {
-  router.back();
+  // router.back();
+  closeCurrentTab();
 }
 
 // 保存表单
@@ -141,7 +143,8 @@ async function handleSubmit() {
 
 // 加载数据
 async function loadData() {
-  const id = route.params.id;
+  const id = route.query.id;
+
   if (!id) {
     // 新建时设置默认值
     formData.value = {
@@ -151,7 +154,7 @@ async function loadData() {
       applyDate: new Date().toISOString().split('T')[0],
       companyName: '',
       deptName: '',
-      processStatus: 0, // 草稿状态
+      processStatus: 2, // 草稿状态
     };
     return;
   }
@@ -188,22 +191,22 @@ onMounted(() => {
 </script>
 
 <template>
-  <Page auto-content-height>
-    <div class="flex h-full flex-col">
-      <!-- 单据头部 -->
-      <FormHeader :form-data="formData" />
+  <!-- <Page auto-content-height>
+    <div class="flex h-full flex-col"> -->
+  <!-- 单据头部 -->
+  <!-- <FormHeader :form-data="formData" /> -->
 
-      <!-- 单据内容 -->
-      <div class="flex-1">
+  <!-- 单据内容 -->
+  <!-- <div class="flex-1">
         <FormContent
           ref="formContentRef"
           :form-data="formData"
           :disabled="isView"
         />
-      </div>
+      </div> -->
 
-      <!-- 单据底部 -->
-      <FormFooter
+  <!-- 单据底部 -->
+  <!-- <FormFooter
         :is-view="isView"
         :saving="saving"
         :submitting="submitting"
@@ -212,7 +215,21 @@ onMounted(() => {
         @submit="handleSubmit"
       />
     </div>
-  </Page>
+  </Page> -->
+  <BasicForm
+    :header-data="formData"
+    @close="handleClose"
+    @save="handleSave"
+    @submit="handleSubmit"
+  >
+    <template #base-form>
+      <FormContent
+        ref="formContentRef"
+        :form-data="formData"
+        :disabled="isView"
+      />
+    </template>
+  </BasicForm>
 </template>
 
 <style scoped>
