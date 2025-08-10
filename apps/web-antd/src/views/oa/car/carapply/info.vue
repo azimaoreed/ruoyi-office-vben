@@ -191,31 +191,6 @@ onMounted(() => {
 </script>
 
 <template>
-  <!-- <Page auto-content-height>
-    <div class="flex h-full flex-col"> -->
-  <!-- 单据头部 -->
-  <!-- <FormHeader :form-data="formData" /> -->
-
-  <!-- 单据内容 -->
-  <!-- <div class="flex-1">
-        <FormContent
-          ref="formContentRef"
-          :form-data="formData"
-          :disabled="isView"
-        />
-      </div> -->
-
-  <!-- 单据底部 -->
-  <!-- <FormFooter
-        :is-view="isView"
-        :saving="saving"
-        :submitting="submitting"
-        @close="handleClose"
-        @save="handleSave"
-        @submit="handleSubmit"
-      />
-    </div>
-  </Page> -->
   <BasicForm
     :header-data="formData"
     @close="handleClose"
