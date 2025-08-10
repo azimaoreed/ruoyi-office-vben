@@ -103,7 +103,7 @@ export function useFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'remark',
       label: '备注',
-      component: 'Input',
+      component: 'Textarea',
       componentProps: {
         placeholder: '请输入备注',
       },
@@ -132,7 +132,16 @@ export function useGridFormSchema(): VbenFormSchema[] {
         placeholder: '请输入类别名称',
       },
     },
-   
+    {
+      fieldName: 'status',
+      label: '状态',
+      component: 'Select',
+      componentProps: {
+        allowClear: true,
+        options: getDictOptions(DICT_TYPE.COMMON_STATUS, 'string'),
+        placeholder: '请选择仓库类型',
+      },
+    },
 
     {
       fieldName: 'remark',

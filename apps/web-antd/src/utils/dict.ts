@@ -325,6 +325,8 @@ enum DICT_TYPE {
   // ============资产模块==========
   ASSET_GOODS_UNIT = 'asset_goods_unit',
 
+  // ============仓库管理=================
+  WMS_CATEGORY_CODE ='wms_category_code',
   // 公共
   COMMON_YES_NO ='common_yes_no',
 }

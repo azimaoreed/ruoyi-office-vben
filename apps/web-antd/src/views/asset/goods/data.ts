@@ -185,7 +185,7 @@ export function useFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'remark',
       label: '备注',
-      component: 'Input',
+      component: 'Textarea',
       componentProps: {
         placeholder: '请输入备注',
       },
