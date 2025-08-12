@@ -47,7 +47,7 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'assetCategoryCode',
       label: '资产类别',
       component: 'ApiTreeSelect',
-      componentProps: {
+      componentProps: (_values, formApi) => ({
         allowClear: true,
         api: async () => {
           const data = await getCategoryList({});
@@ -59,13 +59,21 @@ export function useFormSchema(): VbenFormSchema[] {
             remark: ''
           });
           return handleTree(data);
+          
         },
         labelField: 'categoryName',
         valueField: 'id',
         childrenField: 'children',
         placeholder: '请选择资产类别',
         treeDefaultExpandAll: true,
-      },
+        onChange: (value: any, option: any) => {
+          if (value && option) {
+            formApi.setFieldValue('assetCategoryName', option[0]);
+          } else {
+            formApi.setFieldValue('assetCategoryName', '');
+          }
+        }
+      }),
       rules: 'selectRequired',
     },
    

@@ -205,118 +205,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
         allowClear: true,
       },
     },
-    {
-      fieldName: 'companyId',
-      label: '公司id',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入公司id',
-      },
-    },
-    {
-      fieldName: 'companyName',
-      label: '公司名称',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入公司名称',
-      },
-    },
-    {
-      fieldName: 'applicantDeptId',
-      label: '申请部门编码',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入申请部门编码',
-      },
-    },
-    {
-      fieldName: 'applicantDeptName',
-      label: '申请部门名称',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入申请部门名称',
-      },
-    },
-    {
-      fieldName: 'applicantUserId',
-      label: '申请人编码',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入申请人编码',
-      },
-    },
-    {
-      fieldName: 'applicantUserName',
-      label: '申请人名称',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入申请人名称',
-      },
-    },
-    {
-      fieldName: 'supplierCode',
-      label: '供应商编码',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入供应商编码',
-      },
-    },
-    {
-      fieldName: 'supplierName',
-      label: '供应商名称',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入供应商名称',
-      },
-    },
-    {
-      fieldName: 'applicantDesc',
-      label: '申请说明',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入申请说明',
-      },
-    },
-    {
-      fieldName: 'purchaseOrderFile',
-      label: '附件',
-    },
-    {
-      fieldName: 'purchaseOrderTotalData',
-      label: '采购物品合计',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入采购物品合计',
-      },
-    },
-    {
-      fieldName: 'purchaseOrderTotalAmount',
-      label: '采购物品金额合计',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入采购物品金额合计',
-      },
-    },
-    {
-      fieldName: 'processInstanceId',
-      label: '流程实例编号',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入流程实例编号',
-      },
-    },
+   
     {
       fieldName: 'processStatus',
       label: '单据状态',
@@ -325,34 +214,6 @@ export function useGridFormSchema(): VbenFormSchema[] {
         allowClear: true,
         options: [],
         placeholder: '请选择单据状态',
-      },
-    },
-    {
-      fieldName: 'sort',
-      label: '显示顺序',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入显示顺序',
-      },
-    },
-    {
-      fieldName: 'status',
-      label: '状态（0正常 1停用）',
-      component: 'Select',
-      componentProps: {
-        allowClear: true,
-        options: [],
-        placeholder: '请选择状态（0正常 1停用）',
-      },
-    },
-    {
-      fieldName: 'remark',
-      label: '备注',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入备注',
       },
     },
     {
@@ -371,11 +232,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
 export function useGridColumns(): VxeTableGridOptions<PurchaseOrderApi.PurchaseOrder>['columns'] {
   return [
   { type: 'checkbox', width: 40 },
-    {
-      field: 'id',
-      title: '主键',
-      minWidth: 120,
-    },
+   
     {
       field: 'purchaseOrderCode',
       title: '采购订单编码',
@@ -392,44 +249,22 @@ export function useGridColumns(): VxeTableGridOptions<PurchaseOrderApi.PurchaseO
       minWidth: 120,
       formatter: 'formatDateTime',
     },
-    {
-      field: 'companyId',
-      title: '公司id',
-      minWidth: 120,
-    },
+   
     {
       field: 'companyName',
       title: '公司名称',
       minWidth: 120,
     },
-    {
-      field: 'applicantDeptId',
-      title: '申请部门编码',
-      minWidth: 120,
-    },
+    
     {
       field: 'applicantDeptName',
       title: '申请部门名称',
       minWidth: 120,
     },
-    {
-      field: 'applicantUserId',
-      title: '申请人编码',
-      minWidth: 120,
-    },
+  
     {
       field: 'applicantUserName',
       title: '申请人名称',
-      minWidth: 120,
-    },
-    {
-      field: 'supplierCode',
-      title: '供应商编码',
-      minWidth: 120,
-    },
-    {
-      field: 'supplierName',
-      title: '供应商名称',
       minWidth: 120,
     },
     {
@@ -444,34 +279,21 @@ export function useGridColumns(): VxeTableGridOptions<PurchaseOrderApi.PurchaseO
     },
     {
       field: 'purchaseOrderTotalData',
-      title: '采购物品合计',
+      title: '采购数量合计',
       minWidth: 120,
     },
     {
       field: 'purchaseOrderTotalAmount',
-      title: '采购物品金额合计',
+      title: '采购金额合计',
       minWidth: 120,
     },
-    {
-      field: 'processInstanceId',
-      title: '流程实例编号',
-      minWidth: 120,
-    },
+   
     {
       field: 'processStatus',
       title: '单据状态',
       minWidth: 120,
     },
-    {
-      field: 'sort',
-      title: '显示顺序',
-      minWidth: 120,
-    },
-    {
-      field: 'status',
-      title: '状态（0正常 1停用）',
-      minWidth: 120,
-    },
+    
     {
       field: 'remark',
       title: '备注',
