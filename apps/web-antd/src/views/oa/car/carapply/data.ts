@@ -22,36 +22,17 @@ export function useFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'billCode',
       label: '单据编号',
-      rules: 'required',
       component: 'Input',
-      componentProps: {
-        placeholder: '请输入单据编号',
-      },
-    },
-    {
-      fieldName: 'processInstanceId',
-      label: '流程实例编号',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入流程实例编号',
-      },
-    },
-    {
-      fieldName: 'processStatus',
-      label: '单据状态',
-      component: 'RadioGroup',
-      componentProps: {
-        options: [],
-        buttonStyle: 'solid',
-        optionType: 'button',
+      dependencies: {
+        triggerFields: [''],
+        show: () => false,
       },
     },
     {
       fieldName: 'carId',
       label: '车辆',
-      component: 'Select',
+      component: 'CarSelectInput',
       componentProps: {
-        options: [],
         placeholder: '请选择车辆',
       },
     },
@@ -92,14 +73,6 @@ export function useFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'cause',
-      label: '用车事由',
-      component: 'Textarea',
-      componentProps: {
-        placeholder: '请输入用车事由',
-      },
-    },
-    {
       fieldName: 'applyer',
       label: '申请人',
       component: 'Select',
@@ -112,60 +85,29 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'passenger',
       label: '随行人',
       component: 'Input',
+      formItemClass: 'col-span-full', // 添加这行
       componentProps: {
         placeholder: '请输入随行人',
       },
     },
     {
+      fieldName: 'cause',
+      label: '用车事由',
+      component: 'Textarea',
+      formItemClass: 'col-span-full', // 添加这行
+      componentProps: {
+        placeholder: '请输入用车事由',
+      },
+    },
+    {
       fieldName: 'remark',
       label: '备注',
-      component: 'Input',
+      component: 'Textarea',
+      formItemClass: 'col-span-full', // 添加这行
       componentProps: {
         placeholder: '请输入备注',
       },
-    },
-    {
-      fieldName: 'creatorName',
-      label: '创建者姓名',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入创建者姓名',
-      },
-    },
-    {
-      fieldName: 'deptId',
-      label: '部门ID',
-      component: 'Select',
-      componentProps: {
-        options: [],
-        placeholder: '请选择部门ID',
-      },
-    },
-    {
-      fieldName: 'deptName',
-      label: '部门名称',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入部门名称',
-      },
-    },
-    {
-      fieldName: 'companyId',
-      label: '公司ID',
-      component: 'Select',
-      componentProps: {
-        options: [],
-        placeholder: '请选择公司ID',
-      },
-    },
-    {
-      fieldName: 'companyName',
-      label: '公司名称',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入公司名称',
-      },
-    },
+    }
   ];
 }
 
