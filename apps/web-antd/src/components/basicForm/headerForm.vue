@@ -9,7 +9,7 @@
 <script lang="ts" setup>
 import type { headerDataProps } from './typing';
 
-import { BILL_FLOW_STATUS, getStatusColor } from '#/utils';
+import { BILL_FLOW_STATUS, BpmProcessInstanceStatus, getStatusColor } from '#/utils';
 
 interface Props {
   headerData?: headerDataProps;
@@ -22,13 +22,13 @@ const props = withDefaults(defineProps<Props>(), {
     applyDate: '',
     companyName: '',
     deptName: '',
-    processStatus: 0,
+    processStatus: BpmProcessInstanceStatus.NOT_START,
   }),
 });
 // 获取审批状态名称
 const getStatusName = (val: any) => {
   const name: any = BILL_FLOW_STATUS.find((item: any) => item.value === val);
-  return name?.label || '草稿';
+  return name?.label || '未开始';
 };
 </script>
 <template>

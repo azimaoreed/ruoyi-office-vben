@@ -21,6 +21,7 @@ import ProcessInstanceSimpleViewer from '#/views/bpm/processInstance/detail/modu
 import flowSteps from './flowSteps.vue';
 import footerForm from './footerForm.vue';
 import headerForm from './headerForm.vue';
+import { BpmProcessInstanceStatus } from '#/utils';
 
 interface Props {
   headerData?: headerDataProps;
@@ -34,7 +35,7 @@ const props = withDefaults(defineProps<Props>(), {
     applyDate: '',
     companyName: '',
     deptName: '',
-    processStatus: 0,
+    processStatus: BpmProcessInstanceStatus.NOT_START,
   }),
   isFlowHidden: false,
 });

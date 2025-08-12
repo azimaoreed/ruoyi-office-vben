@@ -10,6 +10,7 @@
  */
 // TODO @芋艿：后续这些 form-create 的优化；另外需要使用 form-create-helper 会好点
 import { isRef } from 'vue';
+import { BpmProcessInstanceStatus } from './constants';
 
 // 编码表单 Conf
 export const encodeConf = (designerRef: any) => {
@@ -66,26 +67,27 @@ export const setConfAndFields2 = (
 
 // 获取审批状态颜色
 export const getStatusColor = (val: any) => {
+  debugger
   switch (val) {
-    case 1: {
+    case BpmProcessInstanceStatus.RUNNING: {
       return {
         color: '#1677ff',
         status: 'processing',
       };
     }
-    case 2: {
+    case BpmProcessInstanceStatus.APPROVE: {
       return {
         color: '#87d068',
         status: 'success',
       };
     }
-    case 3: {
+    case BpmProcessInstanceStatus.REJECT: {
       return {
         color: '#ff4d4f',
         status: 'error',
       };
     }
-    case 4: {
+    case BpmProcessInstanceStatus.CANCEL: {
       return {
         color: '#faad14',
         status: 'orange',

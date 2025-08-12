@@ -28,17 +28,17 @@ export type headerDataProps = {
   /**
    * 所属单位
    */
-  companyId?: string;
+  companyId?: number;
   companyName?: string;
   /**
    * 所属部门
    */
   deptCode?: string;
-  deptId?: string;
+  deptId?: number;
   deptName?: string;
 
   /**
    * 审批状态
    */
-  processStatus?: string;
+  processStatus?: number;
 };

@@ -17,9 +17,12 @@ import { BasicForm } from '#/components/basicForm';
 import { $t } from '#/locales';
 
 import FormContent from './components/FormContent.vue';
+import { useUserStore } from '@vben/stores';
+import { BpmProcessInstanceStatus } from '#/utils';
 
 const route = useRoute();
 const router = useRouter();
+const userStore = useUserStore();
 
 const { closeCurrentTab } = useTabs();
 
@@ -150,11 +153,11 @@ async function loadData() {
     formData.value = {
       billName: '用车申请单',
       billNo: '待生成',
-      applicantName: '当前用户',
+      applicantName: userStore.userInfo?.name,
       applyDate: new Date().toISOString().split('T')[0],
       companyName: '',
       deptName: '',
-      processStatus: 2, // 草稿状态
+      processStatus: BpmProcessInstanceStatus.NOT_START, // 草稿状态
     };
     return;
   }

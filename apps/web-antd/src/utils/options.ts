@@ -9,25 +9,27 @@
  * 审批状态枚举
  */
 
+import { BpmProcessInstanceStatus } from "./constants";
+
 export const BILL_FLOW_STATUS = [
   {
-    value: 0,
-    label: '草稿',
+    value: BpmProcessInstanceStatus.NOT_START,
+    label: '未开始',
   },
   {
-    value: 1,
+    value: BpmProcessInstanceStatus.RUNNING,
     label: '审批中',
   },
   {
-    value: 2,
+    value: BpmProcessInstanceStatus.APPROVE,
     label: '审批通过',
   },
   {
-    value: 3,
+    value: BpmProcessInstanceStatus.REJECT,
     label: '审批拒绝',
   },
   {
-    value: 4,
+    value: BpmProcessInstanceStatus.CANCEL,
     label: '已撤销',
   },
 ];
