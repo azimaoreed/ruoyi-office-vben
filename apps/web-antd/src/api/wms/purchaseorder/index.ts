@@ -24,6 +24,8 @@ export namespace PurchaseOrderApi {
 
   /** 采购订单信息 */
   export interface PurchaseOrder {
+purchaseOrderDetails: PurchaseOrderDetail[] | undefined;
+[x: string]: PurchaseOrderDetail[] | undefined;
     id: number; // 主键
     purchaseOrderCode?: string; // 采购订单编码
     purchaseOrderName: string; // 采购订单名称
@@ -63,6 +65,12 @@ export function getPurchaseOrder(id: number) {
 export function createPurchaseOrder(data: PurchaseOrderApi.PurchaseOrder) {
   return requestClient.post('/wms/purchase-order/create', data);
 }
+
+/** 提交采购订单 */
+export function submitPurchaseOrder(data: PurchaseOrderApi.PurchaseOrder) {
+  return requestClient.post('/wms/purchase-order/submit', data);
+}
+
 
 /** 修改采购订单 */
 export function updatePurchaseOrder(data: PurchaseOrderApi.PurchaseOrder) {

@@ -2,13 +2,13 @@
 import type { PurchaseOrderApi } from '#/api/wms/purchaseorder';
 
 import { useVbenModal } from '@vben/common-ui';
-import { message, Tabs, Checkbox, Input, Textarea, Select,RadioGroup,CheckboxGroup, DatePicker } from 'ant-design-vue';
-  import PurchaseOrderDetailForm from './purchase-order-detail-form.vue'
+import { Tabs, message } from 'ant-design-vue';
+import PurchaseOrderDetailForm from './purchase-order-detail-form.vue';
 
-import { computed, ref } from 'vue';
-import { $t } from '#/locales';
 import { useVbenForm } from '#/adapter/form';
-import { getPurchaseOrder, createPurchaseOrder, updatePurchaseOrder } from '#/api/wms/purchaseorder';
+import { getPurchaseOrder, submitPurchaseOrder, updatePurchaseOrder } from '#/api/wms/purchaseorder';
+import { $t } from '#/locales';
+import { computed, ref } from 'vue';
 
 import { useFormSchema } from '../data';
 
@@ -51,7 +51,7 @@ const [Modal, modalApi] = useVbenModal({
             // 拼接子表的数据
             data.purchaseOrderDetails = purchaseOrderDetailFormRef.value?.getData();
     try {
-      await (formData.value?.id ? updatePurchaseOrder(data) : createPurchaseOrder(data));
+      await (formData.value?.id ? updatePurchaseOrder(data) : submitPurchaseOrder(data));
       // 关闭并提示
       await modalApi.close();
       emit('success');
@@ -95,4 +95,4 @@ const [Modal, modalApi] = useVbenModal({
           </Tabs.TabPane>
       </Tabs>
   </Modal>
-</template>
+</template>
