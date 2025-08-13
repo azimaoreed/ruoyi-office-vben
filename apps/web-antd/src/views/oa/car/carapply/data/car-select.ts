@@ -1,22 +1,39 @@
-import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { VbenFormSchema } from '#/adapter/form';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { CarApi } from '#/api/oa/car/carinfo';
 
 import { h } from 'vue';
 
 import { Tag } from 'ant-design-vue';
 
-import { $t } from '#/locales';
+import { DICT_TYPE, getDictOptions } from '#/utils';
 
 /** 车辆选择搜索表单配置 */
 export function useCarSelectFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'companyName',
-      label: '公司名称',
+      fieldName: 'carNo',
+      label: '车牌号',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入公司名称',
+        placeholder: '请输入车牌号',
+      },
+    },
+    {
+      fieldName: 'brand',
+      label: '品牌型号',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入品牌型号',
+      },
+    },
+    {
+      fieldName: 'carType',
+      label: '车型',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请选择车型',
+        options: getDictOptions(DICT_TYPE.OA_CAR_TYPE, 'number'),
       },
     },
     {
@@ -25,20 +42,7 @@ export function useCarSelectFormSchema(): VbenFormSchema[] {
       component: 'Select',
       componentProps: {
         placeholder: '请选择车辆分类',
-        options: [
-          { label: '轿车', value: 1 },
-          { label: 'SUV', value: 2 },
-          { label: '商务车', value: 3 },
-          { label: '货车', value: 4 },
-        ],
-      },
-    },
-    {
-      fieldName: 'carName',
-      label: '车辆名称',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入车辆名称',
+        options: getDictOptions(DICT_TYPE.OA_CAR_CLS, 'number'),
       },
     },
   ];
@@ -78,7 +82,7 @@ export function useCarSelectColumns(): VxeTableGridOptions<CarApi.Car>['columns'
       width: 100,
       slots: {
         default: ({ row }: { row: CarApi.Car }) => {
-          const clsMap: Record<number, { text: string; color: string }> = {
+          const clsMap: Record<number, { color: string; text: string }> = {
             1: { text: '轿车', color: 'blue' },
             2: { text: 'SUV', color: 'green' },
             3: { text: '商务车', color: 'orange' },
@@ -96,11 +100,6 @@ export function useCarSelectColumns(): VxeTableGridOptions<CarApi.Car>['columns'
       align: 'center',
     },
     {
-      field: 'companyName',
-      title: '所属公司',
-      width: 150,
-    },
-    {
       field: 'status',
       title: '状态',
       width: 80,
@@ -111,15 +110,10 @@ export function useCarSelectColumns(): VxeTableGridOptions<CarApi.Car>['columns'
           return h(
             Tag,
             { color: isAvailable ? 'green' : 'red' },
-            { default: () => (isAvailable ? '可用' : '不可用') }
+            { default: () => (isAvailable ? '可用' : '不可用') },
           );
         },
       },
     },
-    {
-      field: 'remark',
-      title: '备注',
-      minWidth: 150,
-    },
   ];
-} 
+}

@@ -10,9 +10,11 @@ import { message } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getCarPage } from '#/api/oa/car/carinfo';
-import { $t } from '#/locales';
 
-import { useCarSelectColumns, useCarSelectFormSchema } from '../data/car-select';
+import {
+  useCarSelectColumns,
+  useCarSelectFormSchema,
+} from '../data/car-select';
 
 /** 定义组件事件 */
 const emit = defineEmits<{
@@ -25,32 +27,26 @@ const formData = reactive({
 
 /** 表格实例 */
 const [Grid, gridApi] = useVbenVxeGrid({
+  separator: false,
   formOptions: {
     schema: useCarSelectFormSchema(),
     submitOnChange: true,
+    collapsed: true,
   },
   gridOptions: {
     columns: useCarSelectColumns(),
-    height: 500,
+    height: 440,
     keepSource: true,
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
-          const params = {
+          // 合并分类筛选条件
+          const queryParams = {
             pageNo: page.currentPage,
             pageSize: page.pageSize,
-            companyName: formValues.companyName,
-            carCls: formValues.carCls,
-            carName: formValues.carName,
+            ...formValues,
           };
-          
-          const result = await getCarPage(params);
-          return {
-            result: result.list || [],
-            page: {
-              total: result.total || 0,
-            },
-          };
+          return await getCarPage(queryParams);
         },
       },
     },
@@ -82,7 +78,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
 /** 模态框实例 */
 const [Modal, modalApi] = useVbenModal({
   title: '选择车辆',
-  class: 'w-4/5 max-w-6xl',
+  class: 'w-3/5 max-w-4xl',
   async onConfirm() {
     return handleConfirm();
   },
@@ -94,7 +90,7 @@ async function handleConfirm() {
     message.error('请选择车辆');
     return false;
   }
-  
+
   emit('select', formData.selectedCar);
   formData.selectedCar = null;
   await modalApi.close();
@@ -111,4 +107,4 @@ defineExpose({
   <Modal>
     <Grid />
   </Modal>
-</template> 
+</template>
