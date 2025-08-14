@@ -25,8 +25,8 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'update:value', value: number | undefined): void;
-  (e: 'change', value: number | undefined, car: CarApi.Car | undefined): void;
+  (e: 'update:value', value: number | string | undefined): void;
+  (e: 'change', value: number | string | undefined, car: CarApi.Car | undefined): void;
 }
 
 const modalRef = ref<InstanceType<typeof CarSelectModal>>();
@@ -35,7 +35,7 @@ const selectedCar = ref<CarApi.Car>();
 // 显示值（车牌号 + 车辆名称）
 const displayValue = computed(() => {
   if (selectedCar.value) {
-    return `${selectedCar.value.carNo} - ${selectedCar.value.carName}`;
+    return `${selectedCar.value.carNo}`;
   }
   return '';
 });
@@ -49,7 +49,7 @@ const handleClick = () => {
 // 选择车辆
 const handleCarSelect = (car: CarApi.Car) => {
   selectedCar.value = car;
-  emit('update:value', car.id);
+  emit('update:value', car.id); // 将车辆ID赋值给表单字段
   emit('change', car.id, car);
 };
 

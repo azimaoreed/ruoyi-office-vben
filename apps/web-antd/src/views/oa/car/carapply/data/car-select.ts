@@ -69,7 +69,7 @@ export function useCarSelectColumns(): VxeTableGridOptions<CarApi.Car>['columns'
     {
       field: 'carName',
       title: '车辆名称',
-      width: 150,
+      width: 200,
     },
     {
       field: 'brand',
@@ -96,24 +96,7 @@ export function useCarSelectColumns(): VxeTableGridOptions<CarApi.Car>['columns'
     {
       field: 'seatNum',
       title: '座位数',
-      width: 80,
       align: 'center',
-    },
-    {
-      field: 'status',
-      title: '状态',
-      width: 80,
-      align: 'center',
-      slots: {
-        default: ({ row }: { row: CarApi.Car }) => {
-          const isAvailable = row.status === 1;
-          return h(
-            Tag,
-            { color: isAvailable ? 'green' : 'red' },
-            { default: () => (isAvailable ? '可用' : '不可用') },
-          );
-        },
-      },
     },
   ];
 }

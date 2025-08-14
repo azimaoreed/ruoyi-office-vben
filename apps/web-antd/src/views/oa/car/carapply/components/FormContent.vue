@@ -28,10 +28,13 @@ const [Form, formApi] = useVbenForm({
     disabled: props.disabled,
   },
   layout: 'horizontal',
-  schema: useFormSchema(),
+  schema: useFormSchema(null), // 先传入 null，后续更新
   showDefaultActions: false,
   wrapperClass: 'grid-cols-4', // 设置为4列布局
 });
+
+// 更新 schema 以传入 formApi
+formApi.setState({ schema: useFormSchema(formApi) });
 
 // 监听表单数据变化
 watch(
