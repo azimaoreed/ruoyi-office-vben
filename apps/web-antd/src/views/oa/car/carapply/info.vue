@@ -5,6 +5,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import { useTabs } from '@vben/hooks';
+import { Loading } from '@vben/common-ui';
 
 import { message } from 'ant-design-vue';
 
@@ -13,50 +14,41 @@ import {
   getCarApplyBill,
   updateCarApplyBill,
 } from '#/api/oa/car/carapply';
-import { BasicForm } from '#/components/basicForm';
+import { BasicForm, type headerDataProps } from '#/components/basicForm';
 import { $t } from '#/locales';
 
 import FormContent from './components/FormContent.vue';
 import { useUserStore } from '@vben/stores';
 import { BpmProcessInstanceStatus } from '#/utils';
+import type { Dayjs, UnitType, ManipulateType, OpUnitType, ConfigType, QUnitType } from 'dayjs';
+import { formatDate } from '@vben/utils';
 
 const route = useRoute();
-const router = useRouter();
 const userStore = useUserStore();
 
 const { closeCurrentTab } = useTabs();
 
 const formData = ref<
-  Partial<CarApplyBillApi.CarApplyBill> & {
-    applicantName?: string;
-    applyDate?: string;
-    billName?: string;
-    billNo?: string;
-    companyName?: string;
-    createTime?: string;
-    deptName?: string;
-  }
+  Partial<CarApplyBillApi.CarApplyBill> 
 >({});
+const headerData = computed(() => {
+  return {
+    ...formData.value,
+    billName: '用车申请单'
+    };
+});
 
-const isEdit = computed(
-  () => !!route.params.id && route.name !== 'OACarApplyCreate',
-);
-const isView = computed(() => route.name === 'OACarApplyDetail');
-const saving = ref(false);
-const submitting = ref(false);
+const isView = computed(() => route.query.editType === 'view');
+const isEdit = computed(() => route.query.editType === 'edit');
+let id:number | undefined = undefined;
 const loading = ref(false);
 
 // FormContent组件引用
 const formContentRef = ref();
 
-// 返回列表页
-function goBack() {
-  router.push('/oa/car/carapply');
-}
 
 // 关闭按钮处理
 function handleClose() {
-  // router.back();
   closeCurrentTab();
 }
 
@@ -64,22 +56,16 @@ function handleClose() {
 async function handleSave() {
   if (!formContentRef.value) return;
 
-  const { valid } = await formContentRef.value.validateForm();
-  if (!valid) {
-    return;
-  }
-
-  saving.value = true;
-  const hideLoading = message.loading({
-    content: $t('ui.actionMessage.saving'),
-    key: 'action_key_msg',
-  });
-
+  loading.value = true;
   try {
-    const data =
+    const formValues =
       (await formContentRef.value.getFormValues()) as CarApplyBillApi.CarApplyBill;
-    if (isEdit.value) {
-      data.id = Number(route.params.id);
+    const data = {
+      ...formData.value,
+      ...formValues,
+    };
+    if (route.query.id) {
+      data.id = Number(route.query.id);
       await updateCarApplyBill(data);
     } else {
       await createCarApplyBill(data);
@@ -98,8 +84,7 @@ async function handleSave() {
       key: 'action_key_msg',
     });
   } finally {
-    saving.value = false;
-    hideLoading();
+    loading.value = false;
   }
 }
 
@@ -107,56 +92,51 @@ async function handleSave() {
 async function handleSubmit() {
   if (!formContentRef.value) return;
 
+  // 提交前校验
   const { valid } = await formContentRef.value.validateForm();
   if (!valid) {
     return;
   }
 
-  submitting.value = true;
-  const hideLoading = message.loading({
-    content: '提交中...',
-    key: 'action_key_msg',
-  });
+  loading.value = true;
 
   try {
     const data =
       (await formContentRef.value.getFormValues()) as CarApplyBillApi.CarApplyBill;
     if (isEdit.value) {
-      data.id = Number(route.params.id);
-      await updateCarApplyBill(data);
-    } else {
-      await createCarApplyBill(data);
+        data.id = Number(route.query.id);
+        await updateCarApplyBill(data);
+      } else {
+        await createCarApplyBill(data);
     }
 
     message.success({
       content: '提交成功',
       key: 'action_key_msg',
     });
-    goBack();
   } catch {
     message.error({
       content: '提交失败',
       key: 'action_key_msg',
     });
   } finally {
-    submitting.value = false;
-    hideLoading();
+
   }
 }
 
 // 加载数据
 async function loadData() {
-  const id = route.query.id;
-
-  if (!id) {
+  
+  id = route.query.id ? Number(route.query.id) : undefined;
+  if (id==undefined) {
     // 新建时设置默认值
     formData.value = {
-      billName: '用车申请单',
-      billNo: '待生成',
-      applicantName: userStore.userInfo?.name,
-      applyDate: new Date().toISOString().split('T')[0],
-      companyName: '',
-      deptName: '',
+      creator: userStore.userInfo?.id,
+      creatorName: userStore.userInfo?.nickname,
+      companyId: userStore.userInfo?.companyId,
+      companyName: userStore.userInfo?.companyName,
+      deptId: userStore.userInfo?.deptId,
+      deptName: userStore.userInfo?.deptName,
       processStatus: BpmProcessInstanceStatus.NOT_START, // 草稿状态
     };
     return;
@@ -164,17 +144,10 @@ async function loadData() {
 
   loading.value = true;
   try {
-    const data = await getCarApplyBill(Number(id));
+    const data = await getCarApplyBill(id);
     // 扩展数据，添加显示需要的字段
     formData.value = {
       ...data,
-      billName: '用车申请单',
-      billNo: (data as any).billNo || `CA${data.id}`,
-      applicantName: (data as any).applicantName || '申请人',
-      applyDate:
-        (data as any).applyDate || new Date().toISOString().split('T')[0],
-      companyName: (data as any).companyName || '公司名称',
-      deptName: (data as any).deptName || '部门名称',
     };
 
     // 设置表单值
@@ -191,23 +164,30 @@ async function loadData() {
 onMounted(() => {
   loadData();
 });
+
+
 </script>
 
 <template>
-  <BasicForm
-    :header-data="formData"
-    @close="handleClose"
-    @save="handleSave"
-    @submit="handleSubmit"
-  >
-    <template #base-form>
-      <FormContent
-        ref="formContentRef"
-        :form-data="formData"
-        :disabled="isView"
-      />
-    </template>
-  </BasicForm>
+  <Loading :spinning="loading">
+    <BasicForm
+      :header-data="{
+        ...formData,
+        billName: '用车申请单',
+      }"
+      @close="handleClose"
+      @save="handleSave"
+      @submit="handleSubmit"
+    >
+      <template #base-form>
+        <FormContent
+          ref="formContentRef"
+          :form-data="formData"
+          :disabled="isView"
+        />
+      </template>
+    </BasicForm>
+  </Loading>
 </template>
 
 <style scoped>

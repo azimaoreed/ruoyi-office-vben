@@ -67,7 +67,6 @@ export const setConfAndFields2 = (
 
 // 获取审批状态颜色
 export const getStatusColor = (val: any) => {
-  debugger
   switch (val) {
     case BpmProcessInstanceStatus.RUNNING: {
       return {

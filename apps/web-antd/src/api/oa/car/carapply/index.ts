@@ -19,11 +19,13 @@ export namespace CarApplyBillApi {
     applyer: string; // 申请人
     passenger: string; // 随行人
     remark: string; // 备注
+    creator: number; // 创建者ID
     creatorName: string; // 创建者姓名
     deptId: number; // 部门ID
     deptName: string; // 部门名称
     companyId: number; // 公司ID
     companyName: string; // 公司名称
+    createTime: Date;// 创建时间
   }
 }
 
@@ -62,4 +64,4 @@ export function exportCarApplyBill(params: any) {
   return requestClient.download('/oa/car-apply-bill/export-excel', params);
 }
 
-
+
