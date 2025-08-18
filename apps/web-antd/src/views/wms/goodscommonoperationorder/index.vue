@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { PurchaseOrderApi } from '#/api/wms/purchaseorder';
+import type { GoodsCommonOperationOrderApi } from '#/api/wms/goodscommonoperationorder';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 import { message } from 'ant-design-vue';
@@ -8,7 +8,7 @@ import Form from './modules/form.vue';
 
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { deletePurchaseOrder, deletePurchaseOrderListByIds, exportPurchaseOrder, getPurchaseOrderPage } from '#/api/wms/purchaseorder';
+import { deleteGoodsCommonOperationOrder, deleteGoodsCommonOperationOrderListByIds, exportGoodsCommonOperationOrder, getGoodsCommonOperationOrderPage } from '#/api/wms/goodscommonoperationorder';
 import { $t } from '#/locales';
 import { downloadFileFromBlobPart, isEmpty } from '@vben/utils';
 import { ref } from 'vue';
@@ -27,26 +27,25 @@ function onRefresh() {
   gridApi.query();
 }
 
-/** 创建采购订单 */
+/** 创建领用、退库、归还、借用、调拨主 */
 function handleCreate() {
   formModalApi.setData({}).open();
 }
 
-
-/** 编辑采购订单 */
-function handleEdit(row: PurchaseOrderApi.PurchaseOrder) {
+/** 编辑领用、退库、归还、借用、调拨主 */
+function handleEdit(row: GoodsCommonOperationOrderApi.GoodsCommonOperationOrder) {
   formModalApi.setData(row).open();
 }
 
 
-/** 删除采购订单 */
-async function handleDelete(row: PurchaseOrderApi.PurchaseOrder) {
+/** 删除领用、退库、归还、借用、调拨主 */
+async function handleDelete(row: GoodsCommonOperationOrderApi.GoodsCommonOperationOrder) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.id]),
     key: 'action_key_msg',
   });
   try {
-    await deletePurchaseOrder(row.id as number);
+    await deleteGoodsCommonOperationOrder(row.id as number);
     message.success({
       content: $t('ui.actionMessage.deleteSuccess', [row.id]),
       key: 'action_key_msg',
@@ -57,14 +56,14 @@ async function handleDelete(row: PurchaseOrderApi.PurchaseOrder) {
   }
 }
 
-/** 批量删除采购订单 */
+/** 批量删除领用、退库、归还、借用、调拨主 */
 async function handleDeleteBatch() {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting'),
     key: 'action_key_msg',
   });
   try {
-    await deletePurchaseOrderListByIds(checkedIds.value);
+    await deleteGoodsCommonOperationOrderListByIds(checkedIds.value);
     message.success({
       content: $t('ui.actionMessage.deleteSuccess'),
       key: 'action_key_msg',
@@ -79,15 +78,15 @@ const checkedIds = ref<number[]>([])
 function handleRowCheckboxChange({
   records,
 }: {
-  records: PurchaseOrderApi.PurchaseOrder[];
+  records: GoodsCommonOperationOrderApi.GoodsCommonOperationOrder[];
 }) {
   checkedIds.value = records.map((item) => item.id);
 }
 
 /** 导出表格 */
 async function handleExport() {
-  const data = await exportPurchaseOrder(await gridApi.formApi.getValues());
-  downloadFileFromBlobPart({ fileName: '采购订单.xls', source: data });
+  const data = await exportGoodsCommonOperationOrder(await gridApi.formApi.getValues());
+  downloadFileFromBlobPart({ fileName: '领用、退库、归还、借用、调拨主.xls', source: data });
 }
 
 const [Grid, gridApi] = useVbenVxeGrid({
@@ -103,7 +102,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
-          return await getPurchaseOrderPage({
+          return await getGoodsCommonOperationOrderPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
             ...formValues,
@@ -119,7 +118,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       refresh: true,
       search: true,
     },
-  } as VxeTableGridOptions<PurchaseOrderApi.PurchaseOrder>,
+  } as VxeTableGridOptions<GoodsCommonOperationOrderApi.GoodsCommonOperationOrder>,
   gridEvents:{
       checkboxAll: handleRowCheckboxChange,
       checkboxChange: handleRowCheckboxChange,
@@ -131,22 +130,22 @@ const [Grid, gridApi] = useVbenVxeGrid({
   <Page auto-content-height>
     <FormModal @success="onRefresh" />
 
-    <Grid table-title="采购订单列表">
+    <Grid table-title="领用、退库、归还、借用、调拨主列表">
       <template #toolbar-tools>
         <TableAction
           :actions="[
             {
-              label: $t('ui.actionTitle.create', ['采购订单']),
+              label: $t('ui.actionTitle.create', ['领用、退库、归还、借用、调拨主']),
               type: 'primary',
               icon: ACTION_ICON.ADD,
-              auth: ['wms:purchase-order:create'],
+              auth: ['wms:goods-common-operation-order:create'],
               onClick: handleCreate,
             },
             {
               label: $t('ui.actionTitle.export'),
               type: 'primary',
               icon: ACTION_ICON.DOWNLOAD,
-              auth: ['wms:purchase-order:export'],
+              auth: ['wms:goods-common-operation-order:export'],
               onClick: handleExport,
             },
             {
@@ -155,7 +154,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
               danger: true,
               icon: ACTION_ICON.DELETE,
               disabled: isEmpty(checkedIds),
-              auth: ['wms:purchase-order:delete'],
+              auth: ['wms:goods-common-operation-order:delete'],
               onClick: handleDeleteBatch,
             },
           ]"
@@ -168,7 +167,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
               label: $t('common.edit'),
               type: 'link',
               icon: ACTION_ICON.EDIT,
-              auth: ['wms:purchase-order:update'],
+              auth: ['wms:goods-common-operation-order:update'],
               onClick: handleEdit.bind(null, row),
             },
             {
@@ -176,7 +175,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
               type: 'link',
               danger: true,
               icon: ACTION_ICON.DELETE,
-              auth: ['wms:purchase-order:delete'],
+              auth: ['wms:goods-common-operation-order:delete'],
               popConfirm: {
                 title: $t('ui.actionMessage.deleteConfirm', [row.id]),
                 confirm: handleDelete.bind(null, row),
