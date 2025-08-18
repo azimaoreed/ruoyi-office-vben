@@ -3,6 +3,7 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { CategoryApi } from '#/api/asset/category';
 
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 import { downloadFileFromBlobPart } from '@vben/utils';
@@ -11,14 +12,16 @@ import { message } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
-deleteCategory,
-exportCategory,
-getCategoryList,
+  deleteCategory,
+  exportCategory,
+  getCategoryList,
 } from '#/api/asset/category';
 import { $t } from '#/locales';
 
 import { useGridColumns, useGridFormSchema } from './data';
 import Form from './modules/form.vue';
+
+const router = useRouter();
 
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: Form,
@@ -39,12 +42,25 @@ function onRefresh() {
 
 /** 创建资产类别 */
 function handleCreate() {
-  formModalApi.setData({}).open();
+  // formModalApi.setData({}).open();
+  router.push({
+    path: '/asset/category-info',
+    query: {
+      editType: 'add',
+    },
+  });
 }
 
 /** 编辑资产类别 */
 function handleEdit(row: CategoryApi.Category) {
-  formModalApi.setData(row).open();
+  // formModalApi.setData(row).open();
+  router.push({
+    path: '/asset/category-info',
+    query: {
+      editType: 'edit',
+      id: row.id,
+    },
+  });
 }
 
 /** 新增下级资产类别 */

@@ -9,12 +9,12 @@ export type headerDataProps = {
   /**
    * 申请人
    */
-  applicantName?: string;
+  creatorName?: string;
 
   /**
    * 申请日期
    */
-  applyDate?: string;
+  createDate?: string;
 
   /**
    * 标题
@@ -24,7 +24,7 @@ export type headerDataProps = {
   /**
    * 申请单编号
    */
-  billNo?: string;
+  billCode?: string;
   /**
    * 所属单位
    */
@@ -33,7 +33,6 @@ export type headerDataProps = {
   /**
    * 所属部门
    */
-  deptCode?: string;
   deptId?: number;
   deptName?: string;
 

@@ -36,6 +36,7 @@ const [Form, formApi] = useVbenForm({
 
 const [Modal, modalApi] = useVbenModal({
   async onConfirm() {
+    debugger;
     const { valid } = await formApi.validate();
     if (!valid) {
       return;

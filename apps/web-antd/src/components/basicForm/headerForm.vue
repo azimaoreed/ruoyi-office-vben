@@ -17,14 +17,15 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   headerData: () => ({
     billName: '',
-    applicant: '',
-    billNo: '',
-    applyDate: '',
+    creatorName: '',
+    billCode: '',
+    createDate: new Date().toISOString().split('T')[0],
     companyName: '',
     deptName: '',
     processStatus: BpmProcessInstanceStatus.NOT_START,
   }),
 });
+debugger
 // 获取审批状态名称
 const getStatusName = (val: any) => {
   const name: any = BILL_FLOW_STATUS.find((item: any) => item.value === val);
@@ -38,7 +39,7 @@ const getStatusName = (val: any) => {
         <div>
           <span class="title-name">{{ props.headerData.billName }}</span>
           <span class="document-num">
-            单据编号: {{ props.headerData.billNo }}
+            单据编号: {{ props.headerData.billCode }}
           </span>
         </div>
         <div>
@@ -52,8 +53,8 @@ const getStatusName = (val: any) => {
     </a-row>
     <a-row class="mt-4">
       <a-flex wrap="wrap" gap="50">
-        <span> 申请人 : {{ props.headerData.applicantName }} </span>
-        <span> 申请日期 : {{ props.headerData.applyDate }} </span>
+        <span> 申请人 : {{ props.headerData.creatorName }} </span>
+        <span> 申请日期 : {{ props.headerData.createDate }} </span>
         <span> 所属单位 : {{ props.headerData.companyName }} </span>
         <span> 所属部门 : {{ props.headerData.deptName }} </span>
       </a-flex>

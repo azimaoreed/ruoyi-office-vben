@@ -30,9 +30,9 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   headerData: () => ({
     billName: '',
-    applicant: '',
-    billNo: '',
-    applyDate: '',
+    creatorName: '',
+    billCode: '',
+    createDate: new Date().toISOString().split('T')[0],
     companyName: '',
     deptName: '',
     processStatus: BpmProcessInstanceStatus.NOT_START,
@@ -160,8 +160,8 @@ onMounted(async () => {
 });
 </script>
 <template>
-  <Page auto-content-height class="mx-6 border-b bg-white">
-    <a-layout style="min-height: 100%; background: #fff">
+  <Page  auto-content-height class="mx-6 border-b bg-white">
+    <a-layout  style="min-height: 100%; background: #fff">
       <a-layout-header :style="headerStyle">
         <!-- 表头部分 -->
         <headerForm :header-data="props.headerData" />
