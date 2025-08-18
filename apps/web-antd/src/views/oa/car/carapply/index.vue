@@ -157,7 +157,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
         <TableAction
           :actions="[
             {
-              label: $t('ui.actionTitle.create', ['用车申请单']),
+              label: $t('ui.actionTitle.create'),
               type: 'primary',
               icon: ACTION_ICON.ADD,
               auth: ['oa:car-apply-bill:create'],
@@ -186,7 +186,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
         <TableAction
           :actions="[
             {
-              label: $t('common.view'),
+              label: $t('ui.actionTitle.view'),
               type: 'link',
               icon: ACTION_ICON.VIEW,
               onClick: handleView.bind(null, row),

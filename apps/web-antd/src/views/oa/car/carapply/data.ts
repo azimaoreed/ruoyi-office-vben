@@ -3,9 +3,8 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { CarApplyBillApi } from '#/api/oa/car/carapply';
 import type { CarApi } from '#/api/oa/car/carinfo';
 
-import { z } from '#/adapter/form';
 import {
-    getDictOptions,
+    DICT_TYPE,
     getRangePickerDefaultProps,
 } from '#/utils';
 
@@ -84,15 +83,6 @@ export function useFormSchema(formApi?: any): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'applyer',
-      label: '申请人',
-      component: 'Select',
-      componentProps: {
-        options: [],
-        placeholder: '请选择申请人',
-      },
-    },
-    {
       fieldName: 'passenger',
       label: '随行人',
       component: 'Input',
@@ -155,16 +145,6 @@ export function useGridFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'applyer',
-      label: '申请人',
-      component: 'Select',
-      componentProps: {
-        allowClear: true,
-        options: [],
-        placeholder: '请选择申请人',
-      },
-    },
-    {
       fieldName: 'companyId',
       label: '公司ID',
       component: 'Select',
@@ -212,89 +192,111 @@ export function useGridColumns(): VxeTableGridOptions<CarApplyBillApi.CarApplyBi
     {
       field: 'billCode',
       title: '单据编号',
-      minWidth: 120,
+      minWidth: 150,
+      headerAlign: 'center',
+      align: 'left',
     },
     {
       field: 'processInstanceId',
       title: '流程实例编号',
       minWidth: 120,
+      headerAlign: 'center',
+      align: 'left',
     },
     {
       field: 'processStatus',
       title: '单据状态',
       minWidth: 120,
+      cellRender: {
+        name: 'CellDict',
+        props: { type: DICT_TYPE.BPM_PROCESS_INSTANCE_STATUS },
+      },
     },
     {
-      field: 'carId',
+      field: 'carNo',
       title: '车辆',
       minWidth: 120,
-    },
-    {
-      field: 'applyer',
-      title: '申请人',
-      minWidth: 120,
+      headerAlign: 'center',
+      align: 'left',
     },
     {
       field: 'cause',
       title: '用车事由',
       minWidth: 120,
+      headerAlign: 'center',
+      align: 'left',
     },
     {
       field: 'goTime',
       title: '出车时间',
       minWidth: 120,
       formatter: 'formatDateTime',
+      headerAlign: 'center',
+      align: 'left',
     },
     {
       field: 'returnTime',
       title: '回车时间',
       minWidth: 120,
       formatter: 'formatDateTime',
+      headerAlign: 'center',
+      align: 'left',
     },
     {
       field: 'goArea',
       title: '出车地点',
       minWidth: 120,
+      headerAlign: 'center',
+      align: 'left',
     },
     {
       field: 'returnArea',
       title: '回车地点',
       minWidth: 120,
+      headerAlign: 'center',
+      align: 'left',
     },
     {
       field: 'passenger',
       title: '随行人',
       minWidth: 120,
+      headerAlign: 'center',
+      align: 'left',
     },
     {
       field: 'companyName',
       title: '公司名称',
       minWidth: 120,
+      headerAlign: 'center',
+      align: 'left',
     },
     {
       field: 'deptName',
       title: '部门名称',
       minWidth: 120,
+      headerAlign: 'center',
+      align: 'left',
     },
     {
       field: 'creatorName',
       title: '创建者姓名',
       minWidth: 120,
+      headerAlign: 'center',
+      align: 'left',
     },
     {
       field: 'createTime',
       title: '创建时间',
       minWidth: 120,
       formatter: 'formatDateTime',
+      headerAlign: 'center',
+      align: 'left',
     },
-
-
-
-
     {
       title: '操作',
       width: 200,
       fixed: 'right',
+      headerAlign: 'center',
       slots: { default: 'actions' },
     },
   ];

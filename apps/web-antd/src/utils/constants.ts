@@ -1070,7 +1070,7 @@ export const BpmModelFormType = {
  * 流程实例状态
  */
 export const BpmProcessInstanceStatus = {
-  NOT_START: -1, // 未开始
+  NOT_START: -1, // 未提交
   RUNNING: 1, // 审批中
   APPROVE: 2, // 审批通过
   REJECT: 3, // 审批不通过

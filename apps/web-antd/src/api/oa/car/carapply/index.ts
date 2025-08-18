@@ -11,6 +11,7 @@ export namespace CarApplyBillApi {
     processInstanceId: string; // 流程实例编号
     processStatus: number; // 单据状态
     carId: number; // 车辆
+    carNo: string; // 车牌号码
     goTime: string | Dayjs; // 出车时间
     returnTime: string | Dayjs; // 回车时间
     goArea: string; // 出车地点
