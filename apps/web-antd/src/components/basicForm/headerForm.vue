@@ -10,6 +10,7 @@
 import type { headerDataProps } from './typing';
 
 import { BILL_FLOW_STATUS, BpmProcessInstanceStatus, getStatusColor } from '#/utils';
+import { formatDate } from '@vben/utils';
 
 interface Props {
   headerData?: headerDataProps;
@@ -19,7 +20,7 @@ const props = withDefaults(defineProps<Props>(), {
     billName: '',
     creatorName: '',
     billCode: '',
-    createDate: new Date().toISOString().split('T')[0],
+    createTime: '',
     companyName: '',
     deptName: '',
     processStatus: BpmProcessInstanceStatus.NOT_START,
@@ -54,7 +55,7 @@ const getStatusName = (val: any) => {
     <a-row class="mt-4">
       <a-flex wrap="wrap" gap="50">
         <span> 申请人 : {{ props.headerData.creatorName }} </span>
-        <span> 申请日期 : {{ props.headerData.createDate }} </span>
+        <span> 申请日期 : {{ formatDate(props.headerData.createTime) }} </span>
         <span> 所属单位 : {{ props.headerData.companyName }} </span>
         <span> 所属部门 : {{ props.headerData.deptName }} </span>
       </a-flex>

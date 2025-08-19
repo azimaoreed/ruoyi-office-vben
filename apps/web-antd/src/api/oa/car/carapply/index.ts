@@ -26,7 +26,7 @@ export namespace CarApplyBillApi {
     deptName: string; // 部门名称
     companyId: number; // 公司ID
     companyName: string; // 公司名称
-    createTime: Date;// 创建时间
+    createTime: string | Date;// 创建时间
   }
 }
 
@@ -38,6 +38,16 @@ export function getCarApplyBillPage(params: PageParam) {
 /** 查询用车申请单详情 */
 export function getCarApplyBill(id: number) {
   return requestClient.get<CarApplyBillApi.CarApplyBill>(`/oa/car-apply-bill/get?id=${id}`);
+}
+
+/** 保存用车申请单  */
+export function saveCarApplyBill(data: CarApplyBillApi.CarApplyBill) {
+  return requestClient.post(`/oa/car-apply-bill/save`, data);
+}
+
+/** 提交用车申请单  */
+export function submitCarApplyBill(data: CarApplyBillApi.CarApplyBill) {
+  return requestClient.post(`/oa/car-apply-bill/submit`, data);
 }
 
 /** 新增用车申请单 */
@@ -64,5 +74,6 @@ export function deleteCarApplyBillListByIds(ids: number[]) {
 export function exportCarApplyBill(params: any) {
   return requestClient.download('/oa/car-apply-bill/export-excel', params);
 }
+
 
 

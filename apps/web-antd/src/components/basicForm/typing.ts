@@ -1,3 +1,5 @@
+import type { Dayjs } from "dayjs";
+
 /*
  * @Author: zhanghui
  * @Date: 2025-07-26 17:16:44
@@ -14,7 +16,7 @@ export type headerDataProps = {
   /**
    * 申请日期
    */
-  createDate?: string;
+  createTime?: string | Date;
 
   /**
    * 标题

@@ -10,18 +10,17 @@ import { Loading } from '@vben/common-ui';
 import { message } from 'ant-design-vue';
 
 import {
-  createCarApplyBill,
   getCarApplyBill,
-  updateCarApplyBill,
+  saveCarApplyBill,
+  submitCarApplyBill,
 } from '#/api/oa/car/carapply';
-import { BasicForm, type headerDataProps } from '#/components/basicForm';
+import { BasicForm } from '#/components/basicForm';
 import { $t } from '#/locales';
+import dayjs from 'dayjs';
 
 import FormContent from './components/FormContent.vue';
 import { useUserStore } from '@vben/stores';
 import { BpmProcessInstanceStatus } from '#/utils';
-import type { Dayjs, UnitType, ManipulateType, OpUnitType, ConfigType, QUnitType } from 'dayjs';
-import { formatDate } from '@vben/utils';
 
 const route = useRoute();
 const userStore = useUserStore();
@@ -31,16 +30,9 @@ const { closeCurrentTab } = useTabs();
 const formData = ref<
   Partial<CarApplyBillApi.CarApplyBill> 
 >({});
-const headerData = computed(() => {
-  return {
-    ...formData.value,
-    billName: '用车申请单'
-    };
-});
 
-const isView = computed(() => route.query.editType === 'view');
-const isEdit = computed(() => route.query.editType === 'edit');
-let id:number | undefined = undefined;
+const isEdit = ref(true);
+let id:number | undefined = route.query.id ? Number(route.query.id) : undefined;
 const loading = ref(false);
 
 // FormContent组件引用
@@ -52,23 +44,37 @@ function handleClose() {
   closeCurrentTab();
 }
 
-// 保存表单
-async function handleSave() {
+// 保存及提交
+async function handleSaveAndSubmit(isSubmit: boolean) {
+  debugger
+  loading.value = true;
+
   if (!formContentRef.value) return;
 
-  loading.value = true;
+  // 提交前校验
+  if (isSubmit) {
+    const { valid } = await formContentRef.value.validateForm();
+    // 如果校验不通过，则不允许提交
+    if (!valid) {
+      loading.value = false;
+      return; 
+    }
+  }
+  
   try {
+    // 获取表单值
     const formValues =
       (await formContentRef.value.getFormValues()) as CarApplyBillApi.CarApplyBill;
+    // 合并表单值和其他数据
     const data = {
       ...formData.value,
       ...formValues,
     };
-    if (route.query.id) {
-      data.id = Number(route.query.id);
-      await updateCarApplyBill(data);
+    
+    if (isSubmit) {
+      id = await submitCarApplyBill(data);
     } else {
-      await createCarApplyBill(data);
+      id = await saveCarApplyBill(data);
     }
 
     message.success({
@@ -88,47 +94,12 @@ async function handleSave() {
   }
 }
 
-// 提交表单
-async function handleSubmit() {
-  if (!formContentRef.value) return;
-
-  // 提交前校验
-  const { valid } = await formContentRef.value.validateForm();
-  if (!valid) {
-    return;
-  }
-
-  loading.value = true;
-
-  try {
-    const data =
-      (await formContentRef.value.getFormValues()) as CarApplyBillApi.CarApplyBill;
-    if (isEdit.value) {
-        data.id = Number(route.query.id);
-        await updateCarApplyBill(data);
-      } else {
-        await createCarApplyBill(data);
-    }
-
-    message.success({
-      content: '提交成功',
-      key: 'action_key_msg',
-    });
-  } catch {
-    message.error({
-      content: '提交失败',
-      key: 'action_key_msg',
-    });
-  } finally {
-
-  }
-}
 
 // 加载数据
 async function loadData() {
-  
-  id = route.query.id ? Number(route.query.id) : undefined;
-  if (id==undefined) {
+  debugger
+  // 新建默认数据
+  if (id==undefined || id==null) {
     // 新建时设置默认值
     formData.value = {
       creator: userStore.userInfo?.id,
@@ -138,10 +109,12 @@ async function loadData() {
       deptId: userStore.userInfo?.deptId,
       deptName: userStore.userInfo?.deptName,
       processStatus: BpmProcessInstanceStatus.NOT_START, // 草稿状态
+      createTime: new Date()
     };
     return;
   }
 
+  // 加载数据
   loading.value = true;
   try {
     const data = await getCarApplyBill(id);
@@ -149,6 +122,12 @@ async function loadData() {
     formData.value = {
       ...data,
     };
+    // 如果流程状态为未开始和审批不通过，则可以编辑
+    if (formData.value.processStatus === BpmProcessInstanceStatus.NOT_START || formData.value.processStatus === BpmProcessInstanceStatus.REJECT) {
+      isEdit.value = true;
+    }else{
+      isEdit.value = false;
+    }
 
     // 设置表单值
     if (formContentRef.value) {
@@ -176,14 +155,14 @@ onMounted(() => {
         billName: '用车申请单',
       }"
       @close="handleClose"
-      @save="handleSave"
-      @submit="handleSubmit"
+      @save="handleSaveAndSubmit(false)"
+      @submit="handleSaveAndSubmit(true)"
     >
       <template #base-form>
         <FormContent
           ref="formContentRef"
           :form-data="formData"
-          :disabled="isView"
+          :disabled="!isEdit"
         />
       </template>
     </BasicForm>

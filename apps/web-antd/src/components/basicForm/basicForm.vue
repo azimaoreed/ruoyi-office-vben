@@ -32,7 +32,7 @@ const props = withDefaults(defineProps<Props>(), {
     billName: '',
     creatorName: '',
     billCode: '',
-    createDate: new Date().toISOString().split('T')[0],
+    createDate: '',
     companyName: '',
     deptName: '',
     processStatus: BpmProcessInstanceStatus.NOT_START,

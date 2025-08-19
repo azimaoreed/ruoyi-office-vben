@@ -49,6 +49,7 @@ export function useFormSchema(formApi?: any): VbenFormSchema[] {
     {
       fieldName: 'goTime',
       label: '出车时间',
+      rules: 'required',
       component: 'DatePicker',
       componentProps: {
         showTime: true,
@@ -59,6 +60,7 @@ export function useFormSchema(formApi?: any): VbenFormSchema[] {
     {
       fieldName: 'returnTime',
       label: '回车时间',
+      rules: 'required',
       component: 'DatePicker',
       componentProps: {
         showTime: true,
@@ -69,6 +71,7 @@ export function useFormSchema(formApi?: any): VbenFormSchema[] {
     {
       fieldName: 'goArea',
       label: '出车地点',
+      rules: 'required',
       component: 'Input',
       componentProps: {
         placeholder: '请输入出车地点',
@@ -77,6 +80,7 @@ export function useFormSchema(formApi?: any): VbenFormSchema[] {
     {
       fieldName: 'returnArea',
       label: '回车地点',
+      rules: 'required',
       component: 'Input',
       componentProps: {
         placeholder: '请输入回车地点',
@@ -94,6 +98,7 @@ export function useFormSchema(formApi?: any): VbenFormSchema[] {
     {
       fieldName: 'cause',
       label: '用车事由',
+      rules: 'required',
       component: 'Textarea',
       formItemClass: 'col-span-full', // 添加这行
       componentProps: {

@@ -48,13 +48,22 @@ watch(
 );
 
 // 监听disabled状态变化
-// watch(
-//   () => props.disabled,
-//   (disabled) => {
-//     // 通过重新设置commonConfig来更新disabled状态
-//     // updateSchema方法暂不支持componentProps，使用其他方式处理
-//   },
-// );
+watch(
+  () => props.disabled,
+  (disabled) => {
+    // 更新所有表单项的disabled状态
+    const currentSchema = useFormSchema(formApi);
+    const updatedSchema = currentSchema.map((schema) => ({
+      ...schema,
+      componentProps: {
+        ...schema.componentProps,
+        disabled: disabled,
+      },
+    }));
+    formApi.updateSchema(updatedSchema);
+  },
+  { immediate: true },
+);
 
 // 暴露方法给父组件
 defineExpose({
