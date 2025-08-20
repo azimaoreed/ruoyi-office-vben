@@ -42,4 +42,9 @@ export type headerDataProps = {
    * 审批状态
    */
   processStatus?: number;
+
+  /**
+   * 流程实例ID
+   */
+  processInstanceId?: string;
 };

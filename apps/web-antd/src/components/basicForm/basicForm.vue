@@ -202,7 +202,7 @@ onMounted(async () => {
       <a-divider style="width: auto; margin: -5px -15px -10px" />
       <a-layout-footer :style="footerStyle">
         <!-- 底部按钮 -->
-        <footerForm @submit="submitForm" @close="closeForm" @save="saveForm" />
+        <footerForm @submit="submitForm" @close="closeForm" @save="saveForm" :process-status="props.headerData.processStatus" />
       </a-layout-footer>
     </a-layout>
   </Page>

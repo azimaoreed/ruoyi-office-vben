@@ -7,22 +7,24 @@
 -->
 
 <script lang="ts" setup>
+import { BpmProcessInstanceStatus } from '#/utils';
+
 // 传入组件参数
 const props = defineProps({
   status: {
     type: String as any,
     default: '',
   },
-  flowStatus: {
+  processStatus: {
     type: String as any,
-    default: '',
+    default: BpmProcessInstanceStatus.NOT_START,
   },
   submitText: {
     type: String,
     default: '提交',
   },
 });
-const emit = defineEmits(['close', 'save', 'submit']);
+const emit = defineEmits(['close', 'save', 'submit', 'revoke']);
 console.warn(props);
 // 关闭
 const closeForm = () => {
@@ -36,12 +38,17 @@ const saveForm = () => {
 const submitForm = () => {
   emit('submit');
 };
+// 撤回
+const revokeForm = () => {
+  emit('revoke');
+};
 </script>
 <template>
   <a-space>
     <a-button @click="closeForm">关闭</a-button>
-    <a-button @click="saveForm">保存</a-button>
-    <a-button type="primary" @click="submitForm">提交</a-button>
+    <a-button type="primary" @click="revokeForm" v-if="processStatus === BpmProcessInstanceStatus.RUNNING">撤回</a-button>
+    <a-button @click="saveForm" v-if="processStatus === BpmProcessInstanceStatus.NOT_START">保存</a-button>
+    <a-button type="primary" @click="submitForm" v-if="processStatus === BpmProcessInstanceStatus.NOT_START">提交</a-button>
   </a-space>
 </template>
 <style scoped></style>
