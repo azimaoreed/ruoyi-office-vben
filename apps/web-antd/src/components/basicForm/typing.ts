@@ -47,4 +47,9 @@ export type headerDataProps = {
    * 流程实例ID
    */
   processInstanceId?: string;
+
+  /**
+   * 单据ID
+   */
+  id?: number;
 };

@@ -47,8 +47,8 @@ const revokeForm = () => {
   <a-space>
     <a-button @click="closeForm">关闭</a-button>
     <a-button type="primary" @click="revokeForm" v-if="processStatus === BpmProcessInstanceStatus.RUNNING">撤回</a-button>
-    <a-button @click="saveForm" v-if="processStatus === BpmProcessInstanceStatus.NOT_START">保存</a-button>
-    <a-button type="primary" @click="submitForm" v-if="processStatus === BpmProcessInstanceStatus.NOT_START">提交</a-button>
+    <a-button @click="saveForm" v-if="processStatus === BpmProcessInstanceStatus.NOT_START || processStatus === BpmProcessInstanceStatus.REJECT || processStatus === BpmProcessInstanceStatus.CANCEL">保存</a-button>
+    <a-button type="primary" @click="submitForm" v-if="processStatus === BpmProcessInstanceStatus.NOT_START || processStatus === BpmProcessInstanceStatus.REJECT || processStatus === BpmProcessInstanceStatus.CANCEL">提交</a-button>
   </a-space>
 </template>
 <style scoped></style>

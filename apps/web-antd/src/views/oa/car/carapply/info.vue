@@ -16,11 +16,11 @@ import {
 } from '#/api/oa/car/carapply';
 import { BasicForm } from '#/components/basicForm';
 import { $t } from '#/locales';
-import dayjs from 'dayjs';
 
 import FormContent from './components/FormContent.vue';
 import { useUserStore } from '@vben/stores';
 import { BpmProcessInstanceStatus } from '#/utils';
+import { cancelProcessInstanceByStartUser } from '#/api/bpm/processInstance';
 
 const route = useRoute();
 const userStore = useUserStore();
@@ -94,6 +94,16 @@ async function handleSaveAndSubmit(isSubmit: boolean) {
   }
 }
 
+// 撤回
+async function handleRevoke() {
+  if (formData.value.processInstanceId !== undefined && formData.value.processInstanceId !== null) {
+    loading.value = true;
+    await cancelProcessInstanceByStartUser(formData.value.processInstanceId, '撤回');
+    message.success('撤回成功');
+    await loadData();
+  }
+}
+
 
 // 加载数据
 async function loadData() {
@@ -123,7 +133,7 @@ async function loadData() {
       ...data,
     };
     // 如果流程状态为未开始和审批不通过，则可以编辑
-    if (formData.value.processStatus === BpmProcessInstanceStatus.NOT_START || formData.value.processStatus === BpmProcessInstanceStatus.REJECT) {
+    if (formData.value.processStatus === BpmProcessInstanceStatus.NOT_START || formData.value.processStatus === BpmProcessInstanceStatus.REJECT || formData.value.processStatus === BpmProcessInstanceStatus.CANCEL) {
       isEdit.value = true;
     }else{
       isEdit.value = false;
@@ -157,6 +167,7 @@ onMounted(() => {
       @close="handleClose"
       @save="handleSaveAndSubmit(false)"
       @submit="handleSaveAndSubmit(true)"
+      @revoke="handleRevoke"
     >
       <template #base-form>
         <FormContent
