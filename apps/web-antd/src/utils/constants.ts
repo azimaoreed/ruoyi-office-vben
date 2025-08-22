@@ -1078,6 +1078,11 @@ export const BpmProcessInstanceStatus = {
 };
 
 /**
+ * 可以编辑的流程实例状态
+ */
+export const BpmProcessInstanceStatusEditValue = [BpmProcessInstanceStatus.NOT_START, BpmProcessInstanceStatus.REJECT, BpmProcessInstanceStatus.CANCEL];
+
+/**
  * 自动审批类型
  */
 export const BpmAutoApproveType = {

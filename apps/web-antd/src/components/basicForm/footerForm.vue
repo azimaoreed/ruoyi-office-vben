@@ -7,7 +7,7 @@
 -->
 
 <script lang="ts" setup>
-import { BpmProcessInstanceStatus } from '#/utils';
+import { BpmProcessInstanceStatus, BpmProcessInstanceStatusEditValue } from '#/utils';
 
 // 传入组件参数
 const props = defineProps({
@@ -45,10 +45,10 @@ const revokeForm = () => {
 </script>
 <template>
   <a-space>
-    <a-button @click="closeForm">关闭</a-button>
-    <a-button type="primary" @click="revokeForm" v-if="processStatus === BpmProcessInstanceStatus.RUNNING">撤回</a-button>
-    <a-button @click="saveForm" v-if="processStatus === BpmProcessInstanceStatus.NOT_START || processStatus === BpmProcessInstanceStatus.REJECT || processStatus === BpmProcessInstanceStatus.CANCEL">保存</a-button>
-    <a-button type="primary" @click="submitForm" v-if="processStatus === BpmProcessInstanceStatus.NOT_START || processStatus === BpmProcessInstanceStatus.REJECT || processStatus === BpmProcessInstanceStatus.CANCEL">提交</a-button>
+    <a-button @click="closeForm">{{ $t('common.close') }}</a-button>
+    <a-button type="primary" @click="revokeForm" v-if="processStatus === BpmProcessInstanceStatus.RUNNING">{{ $t('common.revoke') }}</a-button>
+    <a-button @click="saveForm" v-if="processStatus && BpmProcessInstanceStatusEditValue.includes(processStatus)">{{ $t('common.save') }}</a-button>
+    <a-button type="primary" @click="submitForm" v-if="processStatus && BpmProcessInstanceStatusEditValue.includes(processStatus)">{{ $t('common.submit') }}</a-button>
   </a-space>
 </template>
 <style scoped></style>

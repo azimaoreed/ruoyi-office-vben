@@ -14,7 +14,7 @@ import { getCarPage } from '#/api/oa/car/carinfo';
 import {
   useCarSelectColumns,
   useCarSelectFormSchema,
-} from '../data/car-select';
+} from './car-select-data';
 
 /** 定义组件事件 */
 const emit = defineEmits<{

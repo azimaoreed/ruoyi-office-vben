@@ -174,12 +174,12 @@ onMounted(async () => {
       <a-layout-content :style="contentStyle">
         <!-- 主体部分 -->
         <a-tabs v-model:active-key="activeKey">
-          <a-tab-pane key="1" tab="单据信息">
+          <a-tab-pane key="1" :tab="$t('common.billInfo')">
             <slot name="base-form"></slot>
           </a-tab-pane>
           <a-tab-pane
             key="2"
-            tab="审批信息"
+            :tab="$t('common.approvalInfo')"
             v-if="props.headerData.processStatus && !props.isFlowHidden"
           >
             <flowSteps
@@ -190,7 +190,7 @@ onMounted(async () => {
           </a-tab-pane>
           <a-tab-pane
             key="3"
-            tab="流程图"
+            :tab="$t('common.processFlow')"
             :force-render="true"
             v-if="props.headerData.processStatus && !props.isFlowHidden"
           >

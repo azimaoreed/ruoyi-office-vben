@@ -5,7 +5,7 @@ import { ref, watch } from 'vue';
 
 import { useVbenForm } from '#/adapter/form';
 
-import { useFormSchema } from '../data';
+import { useFormSchema } from '../info/data';
 
 interface Props {
   formData: Partial<CarApplyBillApi.CarApplyBill>;
@@ -14,7 +14,6 @@ interface Props {
 
 const props = defineProps<Props>();
 
-// const activeTab = ref('bill');
 const formRef = ref();
 
 // 创建表单实例
@@ -85,21 +84,9 @@ defineExpose({
 
 <template>
   <div class="form-content flex h-full flex-col bg-white">
-    <!-- <Tabs v-model:active-key="activeTab" class="flex flex-1 flex-col px-6 pt-4">
-      <TabPane key="bill" tab="单据信息" class="h-full"> -->
     <div class="h-full overflow-auto pb-6">
       <Form ref="formRef" />
     </div>
-    <!-- </TabPane> -->
-    <!-- <TabPane key="approval" tab="审批信息" class="h-full">
-        <div class="flex h-full items-center justify-center pb-6">
-          <div class="text-center text-gray-500">
-            <Icon icon="lucide:clock" class="mb-2 text-2xl" />
-            <p>审批信息暂无数据</p>
-          </div>
-        </div>
-      </TabPane> -->
-    <!-- </Tabs> -->
   </div>
 </template>
 

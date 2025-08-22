@@ -18,6 +18,8 @@ import {
   getCarApplyBillPage,
 } from '#/api/oa/car/carapply';
 import { $t } from '#/locales';
+import { BpmProcessInstanceStatus, BpmProcessInstanceStatusEditValue } from '#/utils';
+
 
 import { useGridColumns, useGridFormSchema } from './data';
 
@@ -28,34 +30,13 @@ function onRefresh() {
   gridApi.query();
 }
 
-/** 创建用车申请单 */
-function handleCreate() {
-  router.push({
-    path: '/oa/car/car-apply-info',
-    query: {
-      editType: 'create',
-    },
-  });
-}
-
-/** 编辑用车申请单 */
-function handleEdit(row: CarApplyBillApi.CarApplyBill) {
-  router.push({
-    path: '/oa/car/car-apply-info',
-    query: {
-      editType: 'edit',
-      id: row.id,
-    },
-  });
-}
 
 /** 查看用车申请单详情 */
-function handleView(row: CarApplyBillApi.CarApplyBill) {
+function handleView(row?: CarApplyBillApi.CarApplyBill) {
   router.push({
     path: '/oa/car/car-apply-info',
     query: {
-      editType: 'view',
-      id: row.id,
+      id: row?.id,
     },
   });
 }
@@ -161,7 +142,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
               type: 'primary',
               icon: ACTION_ICON.ADD,
               auth: ['oa:car-apply-bill:create'],
-              onClick: handleCreate,
+              onClick: handleView,
             },
             {
               label: $t('ui.actionTitle.export'),
@@ -185,29 +166,37 @@ const [Grid, gridApi] = useVbenVxeGrid({
       <template #actions="{ row }">
         <TableAction
           :actions="[
-            {
-              label: $t('ui.actionTitle.view'),
-              type: 'link',
-              icon: ACTION_ICON.VIEW,
-              onClick: handleView.bind(null, row),
-            },
-            {
-              label: $t('common.edit'),
-              type: 'link',
-              icon: ACTION_ICON.EDIT,
-              auth: ['oa:car-apply-bill:update'],
-              onClick: handleEdit.bind(null, row),
-            },
+            // {
+            //   label: $t('common.view'),
+            //   type: 'link',
+            //   icon: ACTION_ICON.VIEW,
+            //   ifShow: () => !BpmProcessInstanceStatusEditValue.includes(row.processStatus as number),
+            //   onClick: handleView.bind(null, row),
+            // },
+            // {
+            //   label: $t('common.edit'),
+            //   type: 'link',
+            //   icon: ACTION_ICON.EDIT,
+            //   ifShow: () => BpmProcessInstanceStatusEditValue.includes(row.processStatus as number),
+            //   auth: ['oa:car-apply-bill:update'],
+            //   onClick: handleView.bind(null, row),
+            // },
             {
               label: $t('common.delete'),
               type: 'link',
-              danger: true,
-              icon: ACTION_ICON.DELETE,
+              ifShow: () => BpmProcessInstanceStatusEditValue.includes(row.processStatus as number),
               auth: ['oa:car-apply-bill:delete'],
               popConfirm: {
                 title: $t('ui.actionMessage.deleteConfirm', [row.id]),
                 confirm: handleDelete.bind(null, row),
               },
+            },
+            {
+              label: $t('common.delete'),
+              type: 'link',
+              ifShow: () => !BpmProcessInstanceStatusEditValue.includes(row.processStatus as number),
+              disabled: true,
+              auth: ['oa:car-apply-bill:delete'],
             },
           ]"
         />

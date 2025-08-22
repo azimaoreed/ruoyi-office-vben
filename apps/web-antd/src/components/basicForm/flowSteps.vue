@@ -30,7 +30,7 @@ const props = defineProps({
 <template>
   <div>
     <div class="card-head">
-      <span class="card-head-text">审批信息</span>
+      <span class="card-head-text">{{ $t('common.approvalProgress') }}</span>
     </div>
     <!-- 基础步骤组件 -->
     <Steps :current="props.currentStep" class="vertical-title-steps">
@@ -77,7 +77,7 @@ const props = defineProps({
       </Steps.Step>
     </Steps>
     <div class="card-head">
-      <span class="card-head-text">审批记录</span>
+      <span class="card-head-text">{{ $t('common.approvalRecord') }}</span>
     </div>
     <div class="card-record">
       <div

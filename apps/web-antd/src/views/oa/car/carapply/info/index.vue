@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import type { CarApplyBillApi } from '#/api/oa/car/carapply';
 
-import { computed, onMounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 
 import { useTabs } from '@vben/hooks';
 import { Loading } from '@vben/common-ui';
@@ -17,7 +17,7 @@ import {
 import { BasicForm } from '#/components/basicForm';
 import { $t } from '#/locales';
 
-import FormContent from './components/FormContent.vue';
+import FormContent from '../components/FormContent.vue';
 import { useUserStore } from '@vben/stores';
 import { BpmProcessInstanceStatus } from '#/utils';
 import { cancelProcessInstanceByStartUser } from '#/api/bpm/processInstance';
