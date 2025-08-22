@@ -2,6 +2,7 @@ import type { VxeTableGridOptions } from '@vben/plugins/vxe-table';
 import type { Recordable } from '@vben/types';
 
 import { h } from 'vue';
+import { useRouter } from 'vue-router';
 
 import { IconifyIcon } from '@vben/icons';
 import { $te } from '@vben/locales';
@@ -112,6 +113,46 @@ setupVbenVxeTable({
           Button,
           { size: 'small', type: 'link' },
           { default: () => props?.text },
+        );
+      },
+    });
+
+    // 表格配置项可以用 cellRender: { name: 'CellRouterLink', props: { path: '/path', field: 'fieldName', idField: 'id' } },
+    // 推荐使用 createRouterLinkColumn() 辅助函数，自动设置默认宽度为180
+    vxeUI.renderer.add('CellRouterLink', {
+      renderTableDefault(renderOpts, params) {
+        const { props } = renderOpts;
+        const { column, row } = params;
+        const router = useRouter();
+        
+        if (!props?.path) {
+          console.warn('CellRouterLink: path 属性是必需的');
+          return row[column.field];
+        }
+
+        const handleClick = () => {
+          const routeConfig: any = {
+            path: props.path,
+          };
+
+          // 如果指定了 idField，则作为查询参数传递
+          if (props.idField && row[props.idField]) {
+            routeConfig.query = {
+              [props.queryParam || 'id']: row[props.idField],
+            };
+          }
+
+          router.push(routeConfig);
+        };
+
+        return h(
+          Button,
+          {
+            size: 'small',
+            type: 'link',
+            onClick: handleClick,
+          },
+          { default: () => row[props.field || column.field] }
         );
       },
     });
@@ -375,6 +416,39 @@ setupVbenVxeTable({
 });
 
 export { createRequiredValidation, useVbenVxeGrid };
+
+/**
+ * 创建路由链接列配置的辅助函数
+ * @param config 列配置选项
+ * @returns 完整的列配置对象
+ */
+export function createRouterLinkColumn(config: {
+  field: string;
+  title: string;
+  path: string;
+  idField?: string;
+  queryParam?: string;
+  minWidth?: number;
+  headerAlign?: 'left' | 'center' | 'right';
+  align?: 'left' | 'center' | 'right';
+}) {
+  return {
+    field: config.field,
+    title: config.title,
+    minWidth: config.minWidth ?? 180, // 默认宽度180
+    headerAlign: config.headerAlign ?? 'center',
+    align: config.align ?? 'left',
+    cellRender: {
+      name: 'CellRouterLink',
+      props: {
+        path: config.path,
+        field: config.field,
+        idField: config.idField,
+        queryParam: config.queryParam,
+      },
+    },
+  };
+}
 
 const [VxeTable, VxeColumn, VxeToolbar] = AsyncComponents;
 export { VxeColumn, VxeTable, VxeToolbar };
