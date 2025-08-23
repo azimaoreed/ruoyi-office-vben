@@ -15,9 +15,10 @@ import { $t } from '@vben/locales';
 
 import { notification } from 'ant-design-vue';
 
+import HelpInput from '#/components/help-input/index.vue';
+import InputAmount from '#/components/input-amount/index.vue';
 import { Tinymce as RichTextarea } from '#/components/tinymce';
 import { FileUpload, ImageUpload } from '#/components/upload';
-import InputAmount from '#/components/input-amount/index.vue';
 
 const AutoComplete = defineAsyncComponent(
   () => import('ant-design-vue/es/auto-complete'),
@@ -101,7 +102,6 @@ const withDefaultPlaceholder = <T extends Component>(
 
 // 这里需要自行根据业务组件库进行适配，需要用到的组件都需要在这里类型说明
 export type ComponentType =
-  | 'InputAmount'
   | 'ApiSelect'
   | 'ApiTreeSelect'
   | 'AutoComplete'
@@ -112,9 +112,11 @@ export type ComponentType =
   | 'DefaultButton'
   | 'Divider'
   | 'FileUpload'
+  | 'HelpInput'
   | 'IconPicker'
   | 'ImageUpload'
   | 'Input'
+  | 'InputAmount'
   | 'InputNumber'
   | 'InputPassword'
   | 'Mentions'
@@ -168,7 +170,9 @@ async function initComponentAdapter() {
       },
     ),
     AutoComplete,
-    CarSelectInput: defineAsyncComponent(() => import('#/views/oa/car/carapply/components/CarSelectInput.vue')),
+    CarSelectInput: defineAsyncComponent(
+      () => import('#/views/oa/car/carapply/components/CarSelectInput.vue'),
+    ),
     Checkbox,
     CheckboxGroup,
     DatePicker,
@@ -204,6 +208,7 @@ async function initComponentAdapter() {
     Upload,
     FileUpload,
     ImageUpload,
+    HelpInput: withDefaultPlaceholder(HelpInput, 'input'),
   };
 
   // 将组件注册到全局共享状态中

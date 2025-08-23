@@ -1,10 +1,7 @@
 import type { VbenFormSchema } from '#/adapter/form';
-import type { CarApi } from '#/api/oa/car/carinfo';
-
-
 
 /** 新增/修改的表单 */
-export function useFormSchema(formApi?: any): VbenFormSchema[] {
+export function useFormSchema(modalRef?: any): VbenFormSchema[] {
   return [
     {
       fieldName: 'id',
@@ -24,19 +21,14 @@ export function useFormSchema(formApi?: any): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'carId',
+      fieldName: 'carNo',
       label: '车辆',
       rules: 'required',
-      component: 'CarSelectInput',
+      component: 'HelpInput',
       componentProps: {
         placeholder: '请选择车辆',
-        onChange: (value: number | string | undefined, car: CarApi.Car | undefined) => {
-          debugger;
-          console.log(value, car);
-          // 如果需要设置其他字段，可以通过 formApi
-          if (formApi && car?.carNo) {
-            formApi.setFieldValue('carNo', car.carNo);
-          }
+        onClick: () => {
+          modalRef.value?.modalApi.open();
         },
       },
     },
@@ -108,8 +100,6 @@ export function useFormSchema(formApi?: any): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入备注',
       },
-    }
+    },
   ];
 }
-
-

@@ -6,6 +6,7 @@ import { ref, watch } from 'vue';
 import { useVbenForm } from '#/adapter/form';
 
 import { useFormSchema } from '../info/data';
+import CarSelectModal from './CarSelectModal.vue';
 
 interface Props {
   formData: Partial<CarApplyBillApi.CarApplyBill>;
@@ -13,6 +14,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const modalRef = ref<InstanceType<typeof CarSelectModal>>();
 
 const formRef = ref();
 
@@ -27,13 +29,13 @@ const [Form, formApi] = useVbenForm({
     disabled: props.disabled,
   },
   layout: 'horizontal',
-  schema: useFormSchema(null), // 先传入 null，后续更新
+  schema: useFormSchema(modalRef), // 先传入 null，后续更新
   showDefaultActions: false,
   wrapperClass: 'grid-cols-4', // 设置为4列布局
 });
 
 // 更新 schema 以传入 formApi
-formApi.setState({ schema: useFormSchema(formApi) });
+formApi.setState({ schema: useFormSchema(modalRef) });
 
 // 监听表单数据变化
 watch(
@@ -51,12 +53,12 @@ watch(
   () => props.disabled,
   (disabled) => {
     // 更新所有表单项的disabled状态
-    const currentSchema = useFormSchema(formApi);
+    const currentSchema = useFormSchema(modalRef);
     const updatedSchema = currentSchema.map((schema) => ({
       ...schema,
       componentProps: {
         ...schema.componentProps,
-        disabled: disabled,
+        disabled,
       },
     }));
     formApi.updateSchema(updatedSchema);
@@ -80,6 +82,11 @@ defineExpose({
     formApi.setValues({});
   },
 });
+
+function handleCarSelect(val: any) {
+  formApi.setFieldValue('carNo', val.carNo);
+  formApi.setFieldValue('carId', val.id);
+}
 </script>
 
 <template>
@@ -87,6 +94,8 @@ defineExpose({
     <div class="h-full overflow-auto pb-6">
       <Form ref="formRef" />
     </div>
+    <!-- 车辆选择弹窗 -->
+    <CarSelectModal ref="modalRef" @select="handleCarSelect" />
   </div>
 </template>
 
