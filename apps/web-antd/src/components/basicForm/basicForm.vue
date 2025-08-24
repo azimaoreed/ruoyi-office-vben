@@ -11,7 +11,7 @@ import type { CSSProperties } from 'vue';
 
 import type { headerDataProps } from './typing';
 
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 import { Page } from '@vben/common-ui';
 
@@ -85,6 +85,31 @@ const steps = [
     tags: '或签',
   },
   {
+    title: '资金计划虚拟节点',
+    content: '填写基本信息完成账户创建',
+    tags: '或签',
+  },
+  {
+    title: '资金计划虚拟节点',
+    content: '填写基本信息完成账户创建',
+    tags: '或签',
+  },
+  {
+    title: '资金计划虚拟节点',
+    content: '填写基本信息完成账户创建',
+    tags: '或签',
+  },
+  {
+    title: '资金计划虚拟节点',
+    content: '填写基本信息完成账户创建',
+    tags: '或签',
+  },
+  {
+    title: '资金计划虚拟节点',
+    content: '填写基本信息完成账户创建',
+    tags: '或签',
+  },
+  {
     title: '主管',
     content: '8451256615',
   },
@@ -128,17 +153,28 @@ const approvalData = [
 ];
 /** 获取流程模型视图*/
 async function getProcessModelView() {
-  // if (BpmModelType.BPMN === processDefinition.value?.modelType) {
-  //   // 重置，解决 BPMN 流程图刷新不会重新渲染问题
-  processModelView.value = {
-    bpmnXml: '',
-  };
-  // }
-  const data = await getProcessInstanceBpmnModelView(
-    '7d58300b-74fb-11f0-a00c-366f242a7421',
-  );
-  if (data) {
-    processModelView.value = data;
+  // 如果没有流程实例ID，则不获取流程模型视图
+  if (!props.headerData.processInstanceId) {
+    return;
+  }
+  
+  try {
+    processInstanceLoading.value = true;
+    // 重置，解决 BPMN 流程图刷新不会重新渲染问题
+    processModelView.value = {
+      bpmnXml: '',
+    };
+    
+    const data = await getProcessInstanceBpmnModelView(
+      props.headerData.processInstanceId
+    );
+    if (data) {
+      processModelView.value = data;
+    }
+  } catch (error) {
+    console.error('获取流程模型视图失败:', error);
+  } finally {
+    processInstanceLoading.value = false;
   }
 }
 // 关闭
@@ -157,10 +193,23 @@ const submitForm = () => {
 const revokeForm = () => {
   emit('revoke');
 };
+// 监听 processInstanceId 变化，有值时加载流程图
+watch(
+  () => props.headerData.processInstanceId,
+  (newProcessInstanceId) => {
+    if (newProcessInstanceId) {
+      getProcessModelView();
+    }
+  },
+  { immediate: true }
+);
+
 /** 初始化 */
 onMounted(async () => {
-  // 获得流程模型视图
-  getProcessModelView();
+  // 如果已经有 processInstanceId，立即加载流程模型视图
+  if (props.headerData.processInstanceId) {
+    getProcessModelView();
+  }
 });
 </script>
 <template>
