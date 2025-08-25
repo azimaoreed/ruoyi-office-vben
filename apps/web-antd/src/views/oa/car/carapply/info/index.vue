@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { CarApplyBillApi } from '#/api/oa/car/carapply';
 
-import { onMounted, ref } from 'vue';
+import { nextTick, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { useTabs } from '@vben/hooks';
@@ -37,6 +37,9 @@ const loading = ref(false);
 
 // FormContent组件引用
 const formContentRef = ref();
+
+// BasicForm组件引用
+const basicFormRef = ref();
 
 
 // 关闭按钮处理
@@ -143,10 +146,16 @@ async function loadData() {
     if (formContentRef.value) {
       await formContentRef.value.setFormValues(data);
     }
+    
   } catch {
     message.error('获取用车申请单详情失败');
   } finally {
     loading.value = false;
+    
+    // 数据加载完成后，刷新BasicForm组件数据
+    nextTick(() => {
+      basicFormRef.value?.refreshAllData();
+    });
   }
 }
 
@@ -160,10 +169,12 @@ onMounted(() => {
 <template>
   <Loading :spinning="loading">
     <BasicForm
+      ref="basicFormRef"
       :header-data="{
         ...formData,
         billName: '用车申请单',
       }"
+
       @close="handleClose"
       @save="handleSaveAndSubmit(false)"
       @submit="handleSaveAndSubmit(true)"

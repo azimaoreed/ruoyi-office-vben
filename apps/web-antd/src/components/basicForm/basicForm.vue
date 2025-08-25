@@ -15,17 +15,20 @@ import { onMounted, ref, watch } from 'vue';
 
 import { Page } from '@vben/common-ui';
 
-import { getProcessInstanceBpmnModelView } from '#/api/bpm/processInstance';
+import { getProcessInstanceBpmnModelView, getApprovalDetail } from '#/api/bpm/processInstance';
 import ProcessInstanceSimpleViewer from '#/views/bpm/processInstance/detail/modules/simple-bpm-viewer.vue';
 
-import flowSteps from './flowSteps.vue';
-import footerForm from './footerForm.vue';
-import headerForm from './headerForm.vue';
+import FooterForm from './footerForm.vue';
+import HeaderForm from './headerForm.vue';
+import BpmProcessInstanceTimeline from '#/views/bpm/processInstance/detail/modules/time-line.vue';
+import BpmProcessInstanceTaskList from '#/views/bpm/processInstance/detail/modules/task-list.vue';
 import { BpmProcessInstanceStatus } from '#/utils';
 
 interface Props {
   headerData?: headerDataProps;
   isFlowHidden?: boolean; // 是否隐藏流程信息
+  timelineDirection?: 'vertical' | 'horizontal'; // 时间轴方向
+  activityNodes?: any[]; // 审批节点信息
 }
 const props = withDefaults(defineProps<Props>(), {
   headerData: () => ({
@@ -38,13 +41,17 @@ const props = withDefaults(defineProps<Props>(), {
     processStatus: BpmProcessInstanceStatus.NOT_START,
   }),
   isFlowHidden: false,
+  timelineDirection: 'horizontal',
+  activityNodes: () => [],
 });
 
 const emit = defineEmits(['close', 'save', 'submit', 'revoke']);
 
 const processInstanceLoading = ref(false); // 流程实例的加载中
 const processModelView = ref<any>({}); // 流程模型视图
-
+const approvalDetailLoading = ref(false); // 审批详情的加载中
+const activityNodes = ref<any[]>([]); // 审批节点数据
+const taskListRef = ref<any>(null); // 任务列表引用
 // 表头样式
 const headerStyle: CSSProperties = {
   textAlign: 'center',
@@ -72,85 +79,6 @@ const footerStyle: CSSProperties = {
 };
 // 当前tab标签
 const activeKey = ref('1');
-// 当前步骤
-const currentStep = ref(1);
-const steps = [
-  {
-    title: '填写申请单',
-    content: '填写',
-  },
-  {
-    title: '资金计划虚拟节点',
-    content: '填写基本信息完成账户创建',
-    tags: '或签',
-  },
-  {
-    title: '资金计划虚拟节点',
-    content: '填写基本信息完成账户创建',
-    tags: '或签',
-  },
-  {
-    title: '资金计划虚拟节点',
-    content: '填写基本信息完成账户创建',
-    tags: '或签',
-  },
-  {
-    title: '资金计划虚拟节点',
-    content: '填写基本信息完成账户创建',
-    tags: '或签',
-  },
-  {
-    title: '资金计划虚拟节点',
-    content: '填写基本信息完成账户创建',
-    tags: '或签',
-  },
-  {
-    title: '资金计划虚拟节点',
-    content: '填写基本信息完成账户创建',
-    tags: '或签',
-  },
-  {
-    title: '主管',
-    content: '8451256615',
-  },
-  {
-    title: '分管领导',
-    content: '8451256615',
-  },
-];
-const approvalData = [
-  {
-    approName: '主管',
-    approContent: [
-      {
-        userName: '张三',
-        time: '2023-08-10 10:10:10',
-        option: '同',
-        status: 4,
-        statusName: '撤回',
-      },
-      {
-        userName: '李四',
-        time: '2023-08-10 12:10:10',
-        option: '同意',
-        status: 1,
-        statusName: '同意',
-      },
-    ],
-  },
-  {
-    approName: '领导领导',
-    approContent: [
-      {
-        userName: '张三',
-        time: '2023-08-10 10:10:10',
-        option: '同意',
-        status: 2,
-        statusName: '同意',
-      },
-    ],
-  },
-];
 /** 获取流程模型视图*/
 async function getProcessModelView() {
   // 如果没有流程实例ID，则不获取流程模型视图
@@ -177,6 +105,32 @@ async function getProcessModelView() {
     processInstanceLoading.value = false;
   }
 }
+
+/** 获取审批详情 */
+async function getApprovalDetailData() {
+  // 如果没有流程实例ID，则不获取审批详情
+  if (!props.headerData.processInstanceId) {
+    return;
+  }
+  
+  try {
+    approvalDetailLoading.value = true;
+    // 重置审批节点数据
+    activityNodes.value = [];
+    
+    const data = await getApprovalDetail({
+      processInstanceId: props.headerData.processInstanceId
+    });
+    
+    if (data && data.activityNodes) {
+      activityNodes.value = data.activityNodes;
+    }
+  } catch (error) {
+    console.error('获取审批详情失败:', error);
+  } finally {
+    approvalDetailLoading.value = false;
+  }
+}
 // 关闭
 const closeForm = () => {
   emit('close');
@@ -193,23 +147,42 @@ const submitForm = () => {
 const revokeForm = () => {
   emit('revoke');
 };
-// 监听 processInstanceId 变化，有值时加载流程图
+// 监听 processInstanceId 变化，有值时加载流程图和审批详情
 watch(
   () => props.headerData.processInstanceId,
   (newProcessInstanceId) => {
     if (newProcessInstanceId) {
       getProcessModelView();
+      getApprovalDetailData();
+      taskListRef.value?.refresh();
     }
   },
   { immediate: true }
 );
 
-/** 初始化 */
-onMounted(async () => {
-  // 如果已经有 processInstanceId，立即加载流程模型视图
+
+
+/** 手动刷新所有数据 */
+function refreshAllData() {
   if (props.headerData.processInstanceId) {
     getProcessModelView();
+    getApprovalDetailData();
+    taskListRef.value?.refresh();
   }
+}
+
+/** 初始化 */
+onMounted(async () => {
+  // 如果已经有 processInstanceId，立即加载流程模型视图和审批详情
+  if (props.headerData.processInstanceId) {
+    getProcessModelView();
+    getApprovalDetailData();
+  }
+});
+
+// 暴露方法给父组件使用
+defineExpose({
+  refreshAllData
 });
 </script>
 <template>
@@ -217,7 +190,7 @@ onMounted(async () => {
     <a-layout  style="min-height: 100%; background: #fff">
       <a-layout-header :style="headerStyle">
         <!-- 表头部分 -->
-        <headerForm :header-data="props.headerData" />
+        <HeaderForm :header-data="props.headerData" />
       </a-layout-header>
       <a-divider style="width: auto; margin: -5px -15px -10px" />
       <a-layout-content :style="contentStyle">
@@ -231,11 +204,32 @@ onMounted(async () => {
             :tab="$t('common.approvalInfo')"
             v-if="props.headerData.processStatus && !props.isFlowHidden"
           >
-            <flowSteps
-              :steps="steps"
-              :current-step="currentStep"
-              :approval-data="approvalData"
-            />
+            <div v-if="approvalDetailLoading" class="flex justify-center items-center py-20">
+              <a-spin size="large" />
+            </div>
+            <div v-else>
+              <div class="card-head">
+                <span class="card-head-text">{{ $t('common.approvalProgress') }}</span>
+              </div>
+              <BpmProcessInstanceTimeline
+                :activity-nodes="activityNodes.length > 0 ? activityNodes : props.activityNodes"
+                :direction="props.timelineDirection"
+                :show-status-icon="true"
+                :enable-approve-user-select="false"
+              />
+            </div>
+
+            <div class="card-head">
+                <span class="card-head-text">{{ $t('common.approvalRecord') }}</span>
+              </div>
+            <div class="h-full">
+                <BpmProcessInstanceTaskList
+                  v-if="props.headerData.processInstanceId"
+                  ref="taskListRef"
+                  :loading="processInstanceLoading"
+                  :id="props.headerData.processInstanceId"
+                />
+              </div>
           </a-tab-pane>
           <a-tab-pane
             key="3"
@@ -255,7 +249,7 @@ onMounted(async () => {
       <a-divider style="width: auto; margin: -5px -15px -10px" />
       <a-layout-footer :style="footerStyle">
         <!-- 底部按钮 -->
-        <footerForm @submit="submitForm" @close="closeForm" @save="saveForm" @revoke="revokeForm" :process-status="props.headerData.processStatus" />
+        <FooterForm @submit="submitForm" @close="closeForm" @save="saveForm" @revoke="revokeForm" :process-status="props.headerData.processStatus" />
       </a-layout-footer>
     </a-layout>
   </Page>
@@ -265,4 +259,25 @@ onMounted(async () => {
   height: calc(100vh - 360px);
   overflow-y: auto;
 }
+.card-head {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  margin-bottom: 20px;
+  font-weight: 700;
+  color: hsl(var(--primary));
+
+  .card-head-text::before {
+    display: inline-block;
+    width: 4px;
+    height: 12px;
+    margin-right: 8px;
+    content: ' ';
+    background: hsl(var(--primary));
+    border-radius: 2px;
+  }
+}
+
 </style>

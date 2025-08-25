@@ -9,7 +9,7 @@ import { useVbenModal } from '@vben/common-ui';
 import { IconifyIcon } from '@vben/icons';
 import { formatDateTime, isEmpty } from '@vben/utils';
 
-import { Avatar, Button, Image, Timeline, Tooltip } from 'ant-design-vue';
+import { Avatar, Button, Image, Steps, Timeline, Tooltip } from 'ant-design-vue';
 
 import { UserSelectModal } from '#/components/select-modal';
 import {
@@ -25,10 +25,12 @@ const props = withDefaults(
     activityNodes: BpmProcessInstanceApi.ApprovalNodeInfo[]; // 审批节点信息
     enableApproveUserSelect?: boolean; // 是否开启审批人自选功能
     showStatusIcon?: boolean; // 是否显示头像右下角状态图标
+    direction?: 'vertical' | 'horizontal'; // 时间轴方向：vertical(垂直) | horizontal(水平)
   }>(),
   {
     showStatusIcon: true, // 默认值为 true
     enableApproveUserSelect: false, // 默认值为 false
+    direction: 'vertical', // 默认值为垂直
   },
 );
 
@@ -239,13 +241,111 @@ const batchSetCustomApproveUsers = (data: Record<string, any[]>) => {
   });
 };
 
+// 转换审批节点数据为Steps格式
+function convertActivityNodesToSteps() {
+  return props.activityNodes.map((activity, index) => {
+    // 确定步骤状态
+    let status: 'wait' | 'process' | 'finish' | 'error' = 'wait';
+    if (activity.status === 2) {
+      status = 'finish'; // 审批通过
+    } else if (activity.status === 1 || activity.status === 0) {
+      status = 'process'; // 审批中或待审批
+    } else if (activity.status === 3 || activity.status === 5) {
+      status = 'error'; // 审批不通过或退回
+    }
+
+    // 构建描述信息
+    const getDescription = () => {
+      const tasks = activity.tasks || [];
+      const candidateUsers = activity.candidateUsers || [];
+      
+      if (tasks.length > 0) {
+        return tasks.map((task: any) => {
+          const user = task.assigneeUser || task.ownerUser;
+          const userName = user?.nickname || '未知用户';
+          const time = getApprovalNodeTime(activity);
+          return time ? `${userName} (${time})` : userName;
+        }).join(', ');
+      } else if (candidateUsers.length > 0) {
+        return candidateUsers.map((user: any) => user.nickname).join(', ');
+      }
+      return '';
+    };
+
+    return {
+      title: activity.name,
+      status,
+      description: getDescription(),
+      // subTitle: getApprovalNodeTime(activity),
+      icon: activity.nodeType === BpmNodeTypeEnum.END_EVENT_NODE ? 'CheckCircleOutlined' : undefined, // 结束节点使用特殊图标
+    };
+  });
+}
+
+// 获取当前激活的步骤索引
+function getCurrentStepIndex() {
+  const currentIndex = props.activityNodes.findIndex(activity => 
+    activity.status === 1 || activity.status === 0 // 审批中或待审批
+  );
+  return currentIndex === -1 ? props.activityNodes.length - 1 : currentIndex;
+}
+
 // 暴露方法给父组件
 defineExpose({ setCustomApproveUsers, batchSetCustomApproveUsers });
 </script>
 
 <template>
   <div>
-    <Timeline class="pt-5">
+    <!-- 水平布局：使用Steps组件 -->
+    <div v-if="props.direction === 'horizontal'" class="px-6 py-4">
+      <Steps
+        :current="getCurrentStepIndex()"
+        :items="convertActivityNodesToSteps()"
+        class="custom-steps"
+      />
+      
+      <!-- 显示审批意见和签名 -->
+      <div class="mt-6 space-y-4">
+        <div
+          v-for="(activity, index) in props.activityNodes"
+          :key="activity.id"
+          v-show="activity.tasks && activity.tasks.length > 0"
+        >
+          <div
+            v-for="(task, taskIndex) in activity.tasks"
+            :key="task.id || taskIndex"
+          >
+            <!-- 审批意见 -->
+            <div
+              v-if="shouldShowApprovalReason(task, activity.nodeType)"
+              class="rounded-md bg-gray-100 p-3 text-sm"
+            >
+              <div class="font-medium text-gray-700 mb-1">{{ activity.name }} - 审批意见：</div>
+              <div class="text-gray-600">{{ task.reason }}</div>
+            </div>
+            
+            <!-- 签名 -->
+            <div
+              v-if="task.signPicUrl && activity.nodeType === BpmNodeTypeEnum.USER_TASK_NODE"
+              class="rounded-md bg-gray-100 p-3 text-sm"
+            >
+              <div class="font-medium text-gray-700 mb-2">{{ activity.name }} - 签名：</div>
+              <Image
+                class="h-10 w-24"
+                :src="task.signPicUrl"
+                :preview="{ src: task.signPicUrl }"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 垂直布局：使用Timeline组件 -->
+    <Timeline 
+      v-else
+      class="pt-5"
+    >
       <!-- 遍历每个审批节点 -->
       <Timeline.Item
         v-for="(activity, index) in activityNodes"
@@ -280,8 +380,8 @@ defineExpose({ setCustomApproveUsers, batchSetCustomApproveUsers });
         </template>
 
         <div
-          class="ml-2 flex flex-col items-start gap-2"
           :id="`activity-task-${activity.id}-${index}`"
+          class="ml-2 flex flex-col items-start gap-2"
         >
           <!-- 第一行：节点名称、时间 -->
           <div class="flex w-full">
@@ -489,3 +589,31 @@ defineExpose({ setCustomApproveUsers, batchSetCustomApproveUsers });
     />
   </div>
 </template>
+
+<style scoped>
+/* Steps组件自定义样式 */
+.custom-steps :deep(.ant-steps-item-title) {
+  font-weight: 600;
+}
+
+.custom-steps :deep(.ant-steps-item-description) {
+  margin-top: 4px;
+  color: #666;
+  font-size: 12px;
+}
+
+.custom-steps :deep(.ant-steps-item-subtitle) {
+  color: #999;
+  font-size: 11px;
+}
+
+/* Timeline垂直样式（保持原有样式） */
+:deep(.ant-timeline-item) {
+  padding-bottom: 20px;
+}
+
+:deep(.ant-timeline-item-content) {
+  margin-left: 20px;
+  padding-left: 0;
+}
+</style>
