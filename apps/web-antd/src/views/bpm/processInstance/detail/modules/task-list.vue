@@ -91,7 +91,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       ajax: {
         query: async () => {
           return await getTaskListByProcessInstanceId(props.id);
-        },
+        }
       },
     },
     rowConfig: {

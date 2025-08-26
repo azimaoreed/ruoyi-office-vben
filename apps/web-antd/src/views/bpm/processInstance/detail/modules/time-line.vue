@@ -262,9 +262,7 @@ function convertActivityNodesToSteps() {
       if (tasks.length > 0) {
         return tasks.map((task: any) => {
           const user = task.assigneeUser || task.ownerUser;
-          const userName = user?.nickname || '未知用户';
-          const time = getApprovalNodeTime(activity);
-          return time ? `${userName} (${time})` : userName;
+          return user?.nickname || '未知用户';
         }).join(', ');
       } else if (candidateUsers.length > 0) {
         return candidateUsers.map((user: any) => user.nickname).join(', ');
@@ -303,42 +301,7 @@ defineExpose({ setCustomApproveUsers, batchSetCustomApproveUsers });
         :items="convertActivityNodesToSteps()"
         class="custom-steps"
       />
-      
-      <!-- 显示审批意见和签名 -->
-      <div class="mt-6 space-y-4">
-        <div
-          v-for="(activity, index) in props.activityNodes"
-          :key="activity.id"
-          v-show="activity.tasks && activity.tasks.length > 0"
-        >
-          <div
-            v-for="(task, taskIndex) in activity.tasks"
-            :key="task.id || taskIndex"
-          >
-            <!-- 审批意见 -->
-            <div
-              v-if="shouldShowApprovalReason(task, activity.nodeType)"
-              class="rounded-md bg-gray-100 p-3 text-sm"
-            >
-              <div class="font-medium text-gray-700 mb-1">{{ activity.name }} - 审批意见：</div>
-              <div class="text-gray-600">{{ task.reason }}</div>
-            </div>
-            
-            <!-- 签名 -->
-            <div
-              v-if="task.signPicUrl && activity.nodeType === BpmNodeTypeEnum.USER_TASK_NODE"
-              class="rounded-md bg-gray-100 p-3 text-sm"
-            >
-              <div class="font-medium text-gray-700 mb-2">{{ activity.name }} - 签名：</div>
-              <Image
-                class="h-10 w-24"
-                :src="task.signPicUrl"
-                :preview="{ src: task.signPicUrl }"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+    
     </div>
 
     <!-- 垂直布局：使用Timeline组件 -->

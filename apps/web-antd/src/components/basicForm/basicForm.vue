@@ -20,13 +20,13 @@ import ProcessInstanceSimpleViewer from '#/views/bpm/processInstance/detail/modu
 
 import FooterForm from './footerForm.vue';
 import HeaderForm from './headerForm.vue';
+import CardContainer from './cardContainer.vue';
 import BpmProcessInstanceTimeline from '#/views/bpm/processInstance/detail/modules/time-line.vue';
 import BpmProcessInstanceTaskList from '#/views/bpm/processInstance/detail/modules/task-list.vue';
 import { BpmProcessInstanceStatus } from '#/utils';
 
 interface Props {
   headerData?: headerDataProps;
-  isFlowHidden?: boolean; // 是否隐藏流程信息
   timelineDirection?: 'vertical' | 'horizontal'; // 时间轴方向
   activityNodes?: any[]; // 审批节点信息
 }
@@ -40,7 +40,6 @@ const props = withDefaults(defineProps<Props>(), {
     deptName: '',
     processStatus: BpmProcessInstanceStatus.NOT_START,
   }),
-  isFlowHidden: false,
   timelineDirection: 'horizontal',
   activityNodes: () => [],
 });
@@ -147,27 +146,16 @@ const submitForm = () => {
 const revokeForm = () => {
   emit('revoke');
 };
-// 监听 processInstanceId 变化，有值时加载流程图和审批详情
-watch(
-  () => props.headerData.processInstanceId,
-  (newProcessInstanceId) => {
-    if (newProcessInstanceId) {
-      getProcessModelView();
-      getApprovalDetailData();
-      taskListRef.value?.refresh();
-    }
-  },
-  { immediate: true }
-);
-
-
 
 /** 手动刷新所有数据 */
 function refreshAllData() {
   if (props.headerData.processInstanceId) {
     getProcessModelView();
     getApprovalDetailData();
-    taskListRef.value?.refresh();
+    setTimeout(() => {
+      // 设置延迟，防止数据还没加载完，导致刷新失败
+      taskListRef.value?.refresh();
+    }, 500);
   }
 }
 
@@ -202,40 +190,36 @@ defineExpose({
           <a-tab-pane
             key="2"
             :tab="$t('common.approvalInfo')"
-            v-if="props.headerData.processStatus && !props.isFlowHidden"
+            v-if="props.headerData.processInstanceId"
           >
             <div v-if="approvalDetailLoading" class="flex justify-center items-center py-20">
               <a-spin size="large" />
             </div>
             <div v-else>
-              <div class="card-head">
-                <span class="card-head-text">{{ $t('common.approvalProgress') }}</span>
-              </div>
-              <BpmProcessInstanceTimeline
-                :activity-nodes="activityNodes.length > 0 ? activityNodes : props.activityNodes"
-                :direction="props.timelineDirection"
-                :show-status-icon="true"
-                :enable-approve-user-select="false"
-              />
+              <CardContainer :title="$t('common.approvalProgress')">
+                <BpmProcessInstanceTimeline
+                  :activity-nodes="activityNodes.length > 0 ? activityNodes : props.activityNodes"
+                  :direction="props.timelineDirection"
+                  :show-status-icon="true"
+                  :enable-approve-user-select="false"
+                />
+              </CardContainer>
             </div>
 
-            <div class="card-head">
-                <span class="card-head-text">{{ $t('common.approvalRecord') }}</span>
-              </div>
-            <div class="h-full">
-                <BpmProcessInstanceTaskList
-                  v-if="props.headerData.processInstanceId"
-                  ref="taskListRef"
-                  :loading="processInstanceLoading"
-                  :id="props.headerData.processInstanceId"
-                />
-              </div>
+            <CardContainer :title="$t('common.approvalRecord')">
+              <BpmProcessInstanceTaskList
+                v-if="props.headerData.processInstanceId"
+                ref="taskListRef"
+                :loading="processInstanceLoading"
+                :id="props.headerData.processInstanceId"
+              />
+            </CardContainer>
           </a-tab-pane>
           <a-tab-pane
             key="3"
             :tab="$t('common.processFlow')"
             :force-render="true"
-            v-if="props.headerData.processStatus && !props.isFlowHidden"
+            v-if="props.headerData.processInstanceId"
           >
             <div class="h-full">
               <ProcessInstanceSimpleViewer
@@ -259,25 +243,6 @@ defineExpose({
   height: calc(100vh - 360px);
   overflow-y: auto;
 }
-.card-head {
-  display: inline-flex;
-  flex: 1;
-  align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-  margin-bottom: 20px;
-  font-weight: 700;
-  color: hsl(var(--primary));
 
-  .card-head-text::before {
-    display: inline-block;
-    width: 4px;
-    height: 12px;
-    margin-right: 8px;
-    content: ' ';
-    background: hsl(var(--primary));
-    border-radius: 2px;
-  }
-}
 
 </style>

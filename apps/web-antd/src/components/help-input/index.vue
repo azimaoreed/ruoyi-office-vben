@@ -21,6 +21,7 @@ function onPaste(e: any) {
     placeholder="请选择"
     class="help-input"
     allow-clear
+    readonly
     @paste="onPaste"
     @keydown="onKeyDown"
   >
