@@ -409,7 +409,7 @@ onMounted(async () => {
       </template>
     </Card>
     <Card v-else>
-        <BusinessFormComponent :id="processInstance?.businessKey"  readonly="true"/>
+        <BusinessFormComponent :id="processInstance?.businessKey"  isApproval="true" />
         <template #actions>
         <div class="px-4">
           <ProcessInstanceOperationButton

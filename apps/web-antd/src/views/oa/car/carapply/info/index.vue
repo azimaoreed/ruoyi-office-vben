@@ -45,7 +45,7 @@ const props = defineProps<{
   id?: string | number; // 从 BusinessFormComponent 传递的 id
   processInstance?: any; // 流程实例信息
   processDefinition?: any; // 流程定义信息
-  readonly?: boolean; // 是否只读模式
+  isApproval?: boolean; // 是否审批态
 }>();
 
 // 优先使用 props 传递的 id，如果没有则使用路由参数
@@ -149,9 +149,9 @@ async function loadData() {
     formData.value = {
       ...data,
     };
-    // 如果有 readonly prop，则以 prop 为准；否则根据流程状态判断
-    if (props.readonly !== undefined) {
-      readonly.value = props.readonly;
+    // 如果有 isApproval prop，则以 prop 为准；否则根据流程状态判断
+    if (props.isApproval !== undefined) {
+      readonly.value = props.isApproval;
     } else {
       // 原有的流程状态判断逻辑
       if (BpmProcessInstanceStatusEditValue.includes(formData.value.processStatus as number)) {
@@ -198,6 +198,7 @@ onMounted(() => {
       @save="handleSaveAndSubmit(false)"
       @submit="handleSaveAndSubmit(true)"
       @revoke="handleRevoke"
+      :hide-footer="isApproval"
     >
       <template #base-form>
         <FormContent

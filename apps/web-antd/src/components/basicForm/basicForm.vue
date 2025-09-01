@@ -29,6 +29,7 @@ interface Props {
   headerData?: headerDataProps;
   timelineDirection?: 'vertical' | 'horizontal'; // 时间轴方向
   activityNodes?: any[]; // 审批节点信息
+  hideFooter?: boolean; // 是否隐藏底部
 }
 const props = withDefaults(defineProps<Props>(), {
   headerData: () => ({
@@ -42,6 +43,7 @@ const props = withDefaults(defineProps<Props>(), {
   }),
   timelineDirection: 'horizontal',
   activityNodes: () => [],
+  hideFooter: false,
 });
 
 const emit = defineEmits(['close', 'save', 'submit', 'revoke']);
@@ -230,10 +232,10 @@ defineExpose({
           </a-tab-pane>
         </a-tabs>
       </a-layout-content>
-      <a-divider style="width: auto; margin: -5px -15px -10px" />
-      <a-layout-footer :style="footerStyle">
+      <a-divider v-if="!props.hideFooter" style="width: auto; margin: -5px -15px -10px" />
+      <a-layout-footer v-if="!props.hideFooter" :style="footerStyle">
         <!-- 底部按钮 -->
-        <FooterForm @submit="submitForm" @close="closeForm" @save="saveForm" @revoke="revokeForm" :process-status="props.headerData.processStatus" />
+        <FooterForm  @submit="submitForm" @close="closeForm" @save="saveForm" @revoke="revokeForm" :process-status="props.headerData.processStatus" />
       </a-layout-footer>
     </a-layout>
   </Page>
