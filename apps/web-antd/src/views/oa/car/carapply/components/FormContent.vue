@@ -90,8 +90,8 @@ function handleCarSelect(val: any) {
 </script>
 
 <template>
-  <div class="form-content flex h-full flex-col bg-white">
-    <div class="h-full overflow-auto pb-6">
+  <div class="form-content flex flex-col bg-white">
+    <div class="pb-6">
       <Form ref="formRef" />
     </div>
     <!-- 车辆选择弹窗 -->
@@ -102,6 +102,8 @@ function handleCarSelect(val: any) {
 <style scoped>
 .form-content {
   min-height: 400px;
+  /* 移除高度限制，让内容自然延展 */
+  height: auto;
 }
 
 :deep(.ant-tabs-content-holder) {

@@ -207,4 +207,14 @@ onMounted(() => {
 .h-full {
   height: 100%;
 }
+
+/* 确保页面内容能够自适应高度，不出现不必要的滚动条 */
+:deep(.ant-spin-nested-loading) {
+  height: auto;
+  min-height: 100vh;
+}
+
+:deep(.ant-spin-container) {
+  height: auto;
+}
 </style>

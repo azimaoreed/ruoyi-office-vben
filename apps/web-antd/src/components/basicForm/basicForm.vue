@@ -174,7 +174,7 @@ defineExpose({
 });
 </script>
 <template>
-  <Page  auto-content-height class="mx-6 border-b bg-white">
+  <Page class="mx-6 border-b bg-white">
     <a-layout  style="min-height: 100%; background: #fff">
       <a-layout-header :style="headerStyle">
         <!-- 表头部分 -->
@@ -239,10 +239,18 @@ defineExpose({
   </Page>
 </template>
 <style lang="scss" scoped>
+/* 移除固定高度限制，让内容自然延展 */
 :deep(.ant-tabs-content) {
-  height: calc(100vh - 360px);
-  overflow-y: auto;
+  min-height: 300px;
+  overflow: visible;
 }
 
+/* 确保整个布局能够自适应内容高度 */
+:deep(.ant-layout) {
+  min-height: auto;
+}
 
+:deep(.ant-layout-content) {
+  flex: none;
+}
 </style>
