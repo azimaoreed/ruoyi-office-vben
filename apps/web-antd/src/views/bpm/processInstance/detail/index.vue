@@ -245,7 +245,7 @@ onMounted(async () => {
 
 <template>
   <Page auto-content-height>
-    <Card
+    <Card v-if="processDefinition?.formType === BpmModelFormType.NORMAL"
       :body-style="{
         overflowY: 'auto',
         paddingTop: '12px',
@@ -316,9 +316,7 @@ onMounted(async () => {
                 >
                   <!-- 流程表单 -->
                   <div
-                    v-if="
-                      processDefinition?.formType === BpmModelFormType.NORMAL
-                    "
+
                     class="h-full"
                   >
                     <form-create
@@ -329,14 +327,14 @@ onMounted(async () => {
                     />
                   </div>
 
-                  <div
+                  <!-- <div
                     v-if="
                       processDefinition?.formType === BpmModelFormType.CUSTOM
                     "
                     class="h-full"
                   >
                     <BusinessFormComponent :id="processInstance?.businessKey" />
-                  </div>
+                  </div> -->
                 </Col>
                 <Col :xs="24" :sm="24" :md="4" :lg="4" :xl="4" class="h-full">
                   <div class="mt-4 h-full">
@@ -396,6 +394,23 @@ onMounted(async () => {
       </div>
 
       <template #actions>
+        <div class="px-4">
+          <ProcessInstanceOperationButton
+            ref="operationButtonRef"
+            :process-instance="processInstance"
+            :process-definition="processDefinition"
+            :user-options="userOptions"
+            :normal-form="detailForm"
+            :normal-form-api="fApi"
+            :writable-fields="writableFields"
+            @success="getDetail"
+          />
+        </div>
+      </template>
+    </Card>
+    <Card v-else>
+        <BusinessFormComponent :id="processInstance?.businessKey"  readonly="true"/>
+        <template #actions>
         <div class="px-4">
           <ProcessInstanceOperationButton
             ref="operationButtonRef"

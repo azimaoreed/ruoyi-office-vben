@@ -19,7 +19,7 @@ import { $t } from '#/locales';
 
 import FormContent from '../components/FormContent.vue';
 import { useUserStore } from '@vben/stores';
-import { BpmProcessInstanceStatus } from '#/utils';
+import { BpmProcessInstanceStatus, BpmProcessInstanceStatusEditValue } from '#/utils';
 import { cancelProcessInstanceByStartUser } from '#/api/bpm/processInstance';
 
 const route = useRoute();
@@ -31,8 +31,7 @@ const formData = ref<
   Partial<CarApplyBillApi.CarApplyBill> 
 >({});
 
-const isEdit = ref(true);
-let id:number | undefined = route.query.id ? Number(route.query.id) : undefined;
+const readonly = ref(false);
 const loading = ref(false);
 
 // FormContent组件引用
@@ -41,6 +40,21 @@ const formContentRef = ref();
 // BasicForm组件引用
 const basicFormRef = ref();
 
+// 定义组件 props
+const props = defineProps<{
+  id?: string | number; // 从 BusinessFormComponent 传递的 id
+  processInstance?: any; // 流程实例信息
+  processDefinition?: any; // 流程定义信息
+  readonly?: boolean; // 是否只读模式
+}>();
+
+// 优先使用 props 传递的 id，如果没有则使用路由参数
+let id: number | undefined = (() => {
+  if (props.id) {
+    return typeof props.id === 'string' ? Number(props.id) : props.id;
+  }
+  return route.query.id ? Number(route.query.id) : undefined;
+})();
 
 // 关闭按钮处理
 function handleClose() {
@@ -135,11 +149,16 @@ async function loadData() {
     formData.value = {
       ...data,
     };
-    // 如果流程状态为未开始和审批不通过，则可以编辑
-    if (formData.value.processStatus === BpmProcessInstanceStatus.NOT_START || formData.value.processStatus === BpmProcessInstanceStatus.REJECT || formData.value.processStatus === BpmProcessInstanceStatus.CANCEL) {
-      isEdit.value = true;
-    }else{
-      isEdit.value = false;
+    // 如果有 readonly prop，则以 prop 为准；否则根据流程状态判断
+    if (props.readonly !== undefined) {
+      readonly.value = props.readonly;
+    } else {
+      // 原有的流程状态判断逻辑
+      if (BpmProcessInstanceStatusEditValue.includes(formData.value.processStatus as number)) {
+          readonly.value = false;
+      } else {
+        readonly.value = true;
+      }
     }
 
     // 设置表单值
@@ -184,7 +203,7 @@ onMounted(() => {
         <FormContent
           ref="formContentRef"
           :form-data="formData"
-          :disabled="!isEdit"
+          :disabled="readonly"
         />
       </template>
     </BasicForm>
