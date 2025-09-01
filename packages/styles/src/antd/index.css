@@ -77,3 +77,128 @@
 .ant-layout-content {
   text-align: left !important;
 }
+
+/* =================
+   只读/禁用表单控件样式优化
+   ================= */
+
+/* 输入框只读状态 */
+.ant-input[readonly],
+.ant-input[disabled] {
+  color: #262626 !important; /* 深色字体，提高可读性 */
+  background-color: #fafafa !important; /* 浅灰背景，区分可编辑状态 */
+  border-color: #d9d9d9 !important;
+  cursor: default !important;
+  opacity: 1 !important; /* 确保不透明 */
+}
+
+/* 隐藏只读/禁用状态下的 placeholder */
+.ant-input[readonly]::placeholder,
+.ant-input[disabled]::placeholder,
+textarea[readonly]::placeholder,
+textarea[disabled]::placeholder {
+  color: transparent !important;
+}
+
+/* 文本域只读状态 */
+.ant-input[readonly]:focus,
+.ant-input[disabled]:focus {
+  border-color: #d9d9d9 !important;
+  box-shadow: none !important;
+}
+
+/* 下拉选择器禁用状态 */
+.ant-select.ant-select-disabled .ant-select-selector {
+  color: #262626 !important;
+  background-color: #fafafa !important;
+  border-color: #d9d9d9 !important;
+  opacity: 1 !important;
+}
+
+.ant-select.ant-select-disabled .ant-select-selection-item {
+  color: #262626 !important;
+}
+
+/* 隐藏下拉选择器禁用状态下的 placeholder */
+.ant-select.ant-select-disabled .ant-select-selection-placeholder {
+  color: transparent !important;
+}
+
+/* 日期选择器禁用状态 */
+.ant-picker.ant-picker-disabled {
+  background-color: #fafafa !important;
+  border-color: #d9d9d9 !important;
+  opacity: 1 !important;
+}
+
+.ant-picker.ant-picker-disabled .ant-picker-input > input {
+  color: #262626 !important;
+}
+
+/* 隐藏日期选择器禁用状态下的 placeholder */
+.ant-picker.ant-picker-disabled .ant-picker-input > input::placeholder {
+  color: transparent !important;
+}
+
+/* 数字输入框禁用状态 */
+.ant-input-number.ant-input-number-disabled {
+  background-color: #fafafa !important;
+  border-color: #d9d9d9 !important;
+  opacity: 1 !important;
+}
+
+.ant-input-number.ant-input-number-disabled .ant-input-number-input {
+  color: #262626 !important;
+}
+
+/* 隐藏数字输入框禁用状态下的 placeholder */
+.ant-input-number.ant-input-number-disabled .ant-input-number-input::placeholder {
+  color: transparent !important;
+}
+
+/* 多行文本框禁用状态 */
+.ant-mentions.ant-mentions-disabled {
+  background-color: #fafafa !important;
+  border-color: #d9d9d9 !important;
+  opacity: 1 !important;
+}
+
+.ant-mentions.ant-mentions-disabled .ant-mentions-input {
+  color: #262626 !important;
+}
+
+/* 隐藏多行文本框禁用状态下的 placeholder */
+.ant-mentions.ant-mentions-disabled .ant-mentions-input::placeholder {
+  color: transparent !important;
+}
+
+/* 开关禁用状态 */
+.ant-switch-disabled {
+  opacity: 0.8 !important;
+}
+
+/* 单选框/复选框禁用状态 */
+.ant-radio.ant-radio-disabled .ant-radio-inner,
+.ant-checkbox.ant-checkbox-disabled .ant-checkbox-inner {
+  opacity: 0.8 !important;
+}
+
+.ant-radio.ant-radio-disabled + span,
+.ant-checkbox.ant-checkbox-disabled + span {
+  color: #262626 !important;
+}
+
+/* 滑块禁用状态 */
+.ant-slider.ant-slider-disabled {
+  opacity: 0.8 !important;
+}
+
+/* 通用规则：隐藏所有禁用/只读表单控件的 placeholder */
+[disabled]::placeholder,
+[readonly]::placeholder,
+.ant-input-disabled::placeholder,
+.ant-select-disabled .ant-select-selection-placeholder,
+*[aria-disabled="true"]::placeholder {
+  color: transparent !important;
+  opacity: 0 !important;
+}
