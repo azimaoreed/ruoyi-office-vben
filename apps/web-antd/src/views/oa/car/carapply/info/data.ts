@@ -101,5 +101,41 @@ export function useFormSchema(modalRef?: any): VbenFormSchema[] {
         placeholder: '请输入备注',
       },
     },
+    {
+      fieldName: 'remark',
+      label: '备注',
+      component: 'Textarea',
+      formItemClass: 'col-span-full', // 添加这行
+      componentProps: {
+        placeholder: '请输入备注',
+      },
+    },
+    {
+      fieldName: 'remark',
+      label: '备注',
+      component: 'Textarea',
+      formItemClass: 'col-span-full', // 添加这行
+      componentProps: {
+        placeholder: '请输入备注',
+      },
+    },
+    {
+      fieldName: 'remark',
+      label: '备注',
+      component: 'Textarea',
+      formItemClass: 'col-span-full', // 添加这行
+      componentProps: {
+        placeholder: '请输入备注',
+      },
+    },
+    {
+      fieldName: 'remark',
+      label: '备注',
+      component: 'Textarea',
+      formItemClass: 'col-span-full', // 添加这行
+      componentProps: {
+        placeholder: '请输入备注',
+      },
+    },
   ];
 }

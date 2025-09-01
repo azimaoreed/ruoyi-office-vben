@@ -84,14 +84,14 @@ async function getProcessModelView() {
   if (!props.headerData.processInstanceId) {
     return;
   }
-  
+
   try {
     processInstanceLoading.value = true;
     // 重置，解决 BPMN 流程图刷新不会重新渲染问题
     processModelView.value = {
       bpmnXml: '',
     };
-    
+
     const data = await getProcessInstanceBpmnModelView(
       props.headerData.processInstanceId
     );
@@ -111,16 +111,16 @@ async function getApprovalDetailData() {
   if (!props.headerData.processInstanceId) {
     return;
   }
-  
+
   try {
     approvalDetailLoading.value = true;
     // 重置审批节点数据
     activityNodes.value = [];
-    
+
     const data = await getApprovalDetail({
       processInstanceId: props.headerData.processInstanceId
     });
-    
+
     if (data && data.activityNodes) {
       activityNodes.value = data.activityNodes;
     }
@@ -183,7 +183,7 @@ defineExpose({
       <a-divider style="width: auto; margin: -5px -15px -10px" />
       <a-layout-content :style="contentStyle">
         <!-- 主体部分 -->
-        <a-tabs v-model:active-key="activeKey">
+        <a-tabs v-model:active-key="activeKey" class="custom-tabs">
           <a-tab-pane key="1" :tab="$t('common.billInfo')">
             <slot name="base-form"></slot>
           </a-tab-pane>
@@ -252,5 +252,13 @@ defineExpose({
 
 :deep(.ant-layout-content) {
   flex: none;
+}
+
+
+/* 自定义 tabs 样式 - 只修改页签下线条颜色 */
+:deep(.custom-tabs) {
+  .ant-tabs-nav::before {
+    border-bottom: 1px solid #006be6 !important;
+  }
 }
 </style>
