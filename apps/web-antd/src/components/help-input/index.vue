@@ -14,6 +14,7 @@ function onKeyDown(e: any) {
 function onPaste(e: any) {
   e.preventDefault();
 }
+
 </script>
 <template>
   <a-input
@@ -21,9 +22,10 @@ function onPaste(e: any) {
     placeholder="请选择"
     class="help-input"
     allow-clear
-    readonly
     @paste="onPaste"
     @keydown="onKeyDown"
+    inputmode="none"
+    enterkeyhint="none"
   >
     <template #suffix>
       <svg
@@ -43,6 +45,9 @@ function onPaste(e: any) {
 <style scoped>
 .help-input :deep(.ant-input) {
   cursor: pointer;
+  caret-color: transparent; /* 隐藏输入光标 */
+  user-select: none; /* 禁止文本选择 */
+  -webkit-text-size-adjust: 100%;
 }
 
 .search-icon {

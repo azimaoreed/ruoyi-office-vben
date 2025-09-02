@@ -45,7 +45,7 @@ const props = defineProps<{
   id?: string | number; // 从 BusinessFormComponent 传递的 id
   processInstance?: any; // 流程实例信息
   processDefinition?: any; // 流程定义信息
-  isApproval?: boolean; // 是否审批态
+  isApproval: { type: [Boolean, null], default: undefined }; // 是否审批态
 }>();
 
 // 优先使用 props 传递的 id，如果没有则使用路由参数
