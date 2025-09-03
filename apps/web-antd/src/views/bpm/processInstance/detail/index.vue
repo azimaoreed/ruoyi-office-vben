@@ -244,56 +244,16 @@ onMounted(async () => {
 </script>
 
 <template>
-  <Page auto-content-height>
-    <Card v-if="processDefinition?.formType === BpmModelFormType.NORMAL"
+  <Page auto-content-height v-if="processDefinition?.formType === BpmModelFormType.NORMAL">
+    <Card 
       :body-style="{
         overflowY: 'auto',
-        paddingTop: '12px',
+        padding: '0px',
       }"
     >
-      <!-- <template #title>
-        <span class="text-gray-500">编号：{{ id || '-' }}</span>
-      </template> -->
-
       <div class="flex h-full flex-col">
         <!-- 流程基本信息 -->
         <div class="flex flex-col gap-2">
-          <!--
-          <div class="mb-2.5 flex h-10 items-center gap-5">
-            <div class="mb-1 text-2xl font-bold">
-              {{ processInstance?.name }}
-            </div>
-            <DictTag
-              v-if="processInstance?.status"
-              :type="DICT_TYPE.BPM_PROCESS_INSTANCE_STATUS"
-              :value="processInstance.status"
-            />
-          </div>
-
-          <div class="mb-2.5 flex h-12 items-center gap-5 text-sm">
-            <div
-              class="flex items-center gap-2 rounded-3xl bg-gray-100 px-2.5 py-1 dark:bg-gray-600"
-            >
-              <Avatar
-                :size="28"
-                v-if="processInstance?.startUser?.avatar"
-                :src="processInstance?.startUser?.avatar"
-              />
-              <Avatar
-                :size="28"
-                v-else-if="processInstance?.startUser?.nickname"
-              >
-                {{ processInstance?.startUser?.nickname.substring(0, 1) }}
-              </Avatar>
-              <span class="text-sm">{{
-                processInstance?.startUser?.nickname
-              }}</span>
-            </div>
-            <div class="text-gray-500">
-              {{ formatDateTime(processInstance?.startTime) }} 提交
-            </div>
-          </div>
--->
           <component
             v-if="processInstance?.status"
             :is="auditIconsMap[processInstance?.status]"
@@ -408,7 +368,14 @@ onMounted(async () => {
         </div>
       </template>
     </Card>
-    <Card v-else>
+  </Page>
+  <div v-else>
+    <Card
+    :body-style="{
+        overflowY: 'auto',
+        padding: '0px',
+      }"
+    >
         <BusinessFormComponent :id="processInstance?.businessKey"  isApproval="true" />
         <template #actions>
         <div class="px-4">
@@ -425,7 +392,7 @@ onMounted(async () => {
         </div>
       </template>
     </Card>
-  </Page>
+  </div>
 </template>
 
 <style lang="scss" scoped>
@@ -458,4 +425,7 @@ onMounted(async () => {
   padding-right: 12px;
   overflow: hidden auto;
 }
+
+
+
 </style>

@@ -64,15 +64,14 @@ const headerStyle: CSSProperties = {
   height: 'auto',
   lineHeight: '20px',
   backgroundColor: '#fff',
-  padding: '20px',
+  padding: '20px 20px 0px',
 };
 
 const contentStyle: CSSProperties = {
   textAlign: 'center',
   minHeight: 120,
   lineHeight: '120px',
-  padding: '20px',
-  paddingBottom: '80px', // 预留底部空间，避免被固定按钮遮挡
+  padding: '0px 20px 80px',// 预留底部空间，避免被固定按钮遮挡
 };
 
 
@@ -179,13 +178,12 @@ defineExpose({
 });
 </script>
 <template>
-  <Page class="mx-6 border-b bg-white">
-    <a-layout  style="min-height: 100%; background: #fff">
+  <Page class="min-h-full bg-gray-50">
+    <a-layout  class="bg-white">
       <a-layout-header :style="headerStyle">
         <!-- 表头部分 -->
         <HeaderForm :header-data="props.headerData" />
       </a-layout-header>
-      <a-divider style="width: auto; margin: -5px -15px -10px" />
       <a-layout-content :style="contentStyle">
         <!-- 主体部分 -->
         <a-tabs v-model:active-key="activeKey" class="custom-tabs">
@@ -264,9 +262,9 @@ defineExpose({
 
 
 /* 自定义 tabs 样式 - 只修改页签下线条颜色 */
-::deep(.custom-tabs) {
+:deep(.custom-tabs) {
   .ant-tabs-nav::before {
-    border-bottom: 1px solid #006be6 !important;
+    border-bottom: 1px solid var(--ant-primary-color, #1890ff) !important;
   }
 }
 </style>
