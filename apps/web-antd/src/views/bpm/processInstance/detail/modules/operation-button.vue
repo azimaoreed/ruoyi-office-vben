@@ -8,9 +8,10 @@ import { computed, nextTick, reactive, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { useVbenModal } from '@vben/common-ui';
-import { IconifyIcon } from '@vben/icons';
 import { useUserStore } from '@vben/stores';
 import { isEmpty } from '@vben/utils';
+
+import { useFooterLeft } from '#/utils/useFooterLeft';
 
 import FormCreate from '@form-create/ant-design-vue';
 import {
@@ -75,6 +76,7 @@ function openSignatureModal() {
 const router = useRouter(); // 路由
 const userStore = useUserStore();
 const userId = userStore.userInfo?.id;
+const { footerLeft } = useFooterLeft(); // 获取侧边栏宽度
 const formLoading = ref(false); // 表单加载中
 const popOverVisible: any = ref({
   approve: false,
@@ -705,7 +707,7 @@ function handlePopoverVisible(visible: boolean) {
 defineExpose({ loadTodoTask });
 </script>
 <template>
-  <div class="flex items-center">
+  <div class="operation-button-container" :style="{ left: footerLeft + 'px' }">
     <!-- <div>是否处理中 {{ !!isHandleTaskStatus() }}</div> -->
 
     <!-- 【通过】按钮 -->
@@ -723,8 +725,7 @@ defineExpose({ loadTodoTask });
           isShowButton(BpmTaskOperationButtonTypeEnum.APPROVE)
         "
       >
-        <Button ghost type="primary" @click="openPopover('approve')">
-          <IconifyIcon icon="lucide:check" />
+        <Button type="primary" @click="openPopover('approve')">
           {{ getButtonDisplayName(BpmTaskOperationButtonTypeEnum.APPROVE) }}
         </Button>
         <template #content>
@@ -829,8 +830,7 @@ defineExpose({ loadTodoTask });
           isShowButton(BpmTaskOperationButtonTypeEnum.REJECT)
         "
       >
-        <Button ghost danger type="primary" @click="openPopover('reject')">
-          <IconifyIcon icon="lucide:x" />
+        <Button danger type="primary" @click="openPopover('reject')">
           {{ getButtonDisplayName(BpmTaskOperationButtonTypeEnum.REJECT) }}
         </Button>
         <template #content>
@@ -886,8 +886,7 @@ defineExpose({ loadTodoTask });
           isShowButton(BpmTaskOperationButtonTypeEnum.COPY)
         "
       >
-        <Button type="dashed" @click="openPopover('copy')">
-          <IconifyIcon icon="lucide:copy" />
+        <Button @click="openPopover('copy')">
           {{ getButtonDisplayName(BpmTaskOperationButtonTypeEnum.COPY) }}
         </Button>
         <template #content>
@@ -958,8 +957,7 @@ defineExpose({ loadTodoTask });
           isShowButton(BpmTaskOperationButtonTypeEnum.TRANSFER)
         "
       >
-        <Button type="dashed" @click="openPopover('transfer')">
-          <IconifyIcon icon="icon-park-outline:share-two" />
+        <Button @click="openPopover('transfer')">
           {{ getButtonDisplayName(BpmTaskOperationButtonTypeEnum.TRANSFER) }}
         </Button>
         <template #content>
@@ -1031,8 +1029,7 @@ defineExpose({ loadTodoTask });
           isShowButton(BpmTaskOperationButtonTypeEnum.DELEGATE)
         "
       >
-        <Button type="dashed" @click="openPopover('delegate')">
-          <IconifyIcon :size="14" icon="icon-park-outline:user-positioning" />
+        <Button @click="openPopover('delegate')">
           {{ getButtonDisplayName(BpmTaskOperationButtonTypeEnum.DELEGATE) }}
         </Button>
         <template #content>
@@ -1104,8 +1101,7 @@ defineExpose({ loadTodoTask });
           isShowButton(BpmTaskOperationButtonTypeEnum.ADD_SIGN)
         "
       >
-        <Button type="dashed" @click="openPopover('addSign')">
-          <IconifyIcon :size="14" icon="icon-park-outline:plus" />
+        <Button @click="openPopover('addSign')">
           {{ getButtonDisplayName(BpmTaskOperationButtonTypeEnum.ADD_SIGN) }}
         </Button>
         <template #content>
@@ -1185,8 +1181,8 @@ defineExpose({ loadTodoTask });
         trigger="click"
         v-if="runningTask?.children.length > 0"
       >
-        <Button type="dashed" @click="openPopover('deleteSign')">
-          <IconifyIcon :size="14" icon="icon-park-outline:minus" /> 减签
+        <Button @click="openPopover('deleteSign')">
+          减签
         </Button>
         <template #content>
           <div class="flex flex-1 flex-col px-5 pt-5" v-loading="formLoading">
@@ -1255,8 +1251,7 @@ defineExpose({ loadTodoTask });
           isShowButton(BpmTaskOperationButtonTypeEnum.RETURN)
         "
       >
-        <Button type="dashed" @click="openPopover('return')">
-          <IconifyIcon :size="14" icon="lucide:arrow-left" />
+        <Button @click="openPopover('return')">
           {{ getButtonDisplayName(BpmTaskOperationButtonTypeEnum.RETURN) }}
         </Button>
         <template #content>
@@ -1327,8 +1322,7 @@ defineExpose({ loadTodoTask });
           !isEndProcessStatus(processInstance?.status)
         "
       >
-        <Button type="dashed" @click="openPopover('cancel')">
-          <IconifyIcon :size="14" icon="icon-park-outline:back" />
+        <Button @click="openPopover('cancel')">
           取消
         </Button>
         <template #content>
@@ -1380,7 +1374,6 @@ defineExpose({ loadTodoTask });
       </Popover>
       <!-- 【再次提交】 按钮-->
       <Button
-        type="dashed"
         @click="handleReCreate()"
         v-if="
           userId === processInstance?.startUser?.id &&
@@ -1388,7 +1381,7 @@ defineExpose({ loadTodoTask });
           processDefinition?.formType === 10
         "
       >
-        <IconifyIcon :size="14" icon="lucide:refresh-cw" /> 再次提交
+        再次提交
       </Button>
     </Space>
   </div>
@@ -1396,3 +1389,7 @@ defineExpose({ loadTodoTask });
   <!-- 签名弹窗 -->
   <SignatureModal @success="handleSignFinish" />
 </template>
+
+<style lang="scss" scoped>
+@import '#/styles/fixed-footer.scss';
+</style>

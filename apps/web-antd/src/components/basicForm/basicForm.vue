@@ -14,7 +14,7 @@ import type { headerDataProps } from './typing';
 import { onMounted, ref, watch, computed } from 'vue';
 
 import { Page } from '@vben/common-ui';
-import { preferences, usePreferences } from '@vben/preferences';
+import { useFooterLeft } from '#/utils/useFooterLeft';
 
 import { getProcessInstanceBpmnModelView, getApprovalDetail } from '#/api/bpm/processInstance';
 import ProcessInstanceSimpleViewer from '#/views/bpm/processInstance/detail/modules/simple-bpm-viewer.vue';
@@ -55,14 +55,8 @@ const approvalDetailLoading = ref(false); // 审批详情的加载中
 const activityNodes = ref<any[]>([]); // 审批节点数据
 const taskListRef = ref<any>(null); // 任务列表引用
 
-// 使用 Vben 的 preferences 获取布局状态
-const { 
-  sidebarCollapsed, 
-  isMobile, 
-  isHeaderMixedNav, 
-  isSideMixedNav, 
-  isMixedNav 
-} = usePreferences();
+// 使用公共的 footerLeft composable
+const { footerLeft } = useFooterLeft();
 
 // 表头样式
 const headerStyle: CSSProperties = {
@@ -81,40 +75,9 @@ const contentStyle: CSSProperties = {
   paddingBottom: '80px', // 预留底部空间，避免被固定按钮遮挡
 };
 
-const footerStyle: CSSProperties = {
-  textAlign: 'center',
-  background: '#fff',
-  display: 'flex',
-  justifyContent: 'center',
-  gap: '15px',
-  margin: '0',
-  padding: '10px 16px',
-};
 
-/**
- * 动态获取侧边宽度（参考 vben-layout.vue 的 getSidebarWidth 逻辑）
- */
-const footerLeft = computed(() => {
-  const { sidebar } = preferences;
-  let width = 0;
 
-  if (sidebar.hidden) {
-    return width;
-  }
 
-  if (!sidebar.enable) {
-    return width;
-  }
-
-  if ((isHeaderMixedNav.value || isSideMixedNav.value) && !isMobile.value) {
-    width = sidebar.mixedWidth;
-  } else if (sidebarCollapsed.value) {
-    width = isMobile.value ? 0 : sidebar.collapseWidth;
-  } else {
-    width = sidebar.width;
-  }
-  return width;
-});
 
 
 
@@ -273,7 +236,7 @@ defineExpose({
         </a-tabs>
       </a-layout-content>
       <!-- 固定底部操作栏 -->
-      <a-layout-footer v-if="!props.hideFooter" :style="{...footerStyle, left: footerLeft + 'px'}" class="fixed-footer">
+      <a-layout-footer v-if="!props.hideFooter" :style="{ left: footerLeft + 'px' }" class="fixed-footer-form">
         <!-- 底部按钮 -->
         <FooterForm  @submit="submitForm" @close="closeForm" @save="saveForm" @revoke="revokeForm" :process-status="props.headerData.processStatus" />
       </a-layout-footer>
@@ -281,6 +244,8 @@ defineExpose({
   </Page>
 </template>
 <style lang="scss" scoped>
+@import '#/styles/fixed-footer.scss';
+
 /* 移除固定高度限制，让内容自然延展 */
 ::deep(.ant-tabs-content) {
   min-height: 300px;
@@ -296,17 +261,7 @@ defineExpose({
   flex: none;
 }
 
-/* 固定底部操作栏 */
-.fixed-footer {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: #fff;
-  z-index: 100;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
-  border-top: 1px solid #f0f0f0;
-}
+
 
 /* 自定义 tabs 样式 - 只修改页签下线条颜色 */
 ::deep(.custom-tabs) {

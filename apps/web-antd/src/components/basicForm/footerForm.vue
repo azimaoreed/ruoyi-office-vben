@@ -7,6 +7,8 @@
 -->
 
 <script lang="ts" setup>
+import { Button, Space } from 'ant-design-vue';
+
 import { BpmProcessInstanceStatus, BpmProcessInstanceStatusEditValue } from '#/utils';
 
 // 传入组件参数
@@ -44,11 +46,11 @@ const revokeForm = () => {
 };
 </script>
 <template>
-  <a-space>
-    <a-button @click="closeForm">{{ $t('common.close') }}</a-button>
-    <a-button type="primary" @click="revokeForm" v-if="processStatus === BpmProcessInstanceStatus.RUNNING">{{ $t('common.revoke') }}</a-button>
-    <a-button @click="saveForm" v-if="processStatus && BpmProcessInstanceStatusEditValue.includes(processStatus)">{{ $t('common.save') }}</a-button>
-    <a-button type="primary" @click="submitForm" v-if="processStatus && BpmProcessInstanceStatusEditValue.includes(processStatus)">{{ $t('common.submit') }}</a-button>
-  </a-space>
+  <Space>
+    <Button @click="closeForm">{{ $t('common.close') }}</Button>
+    <Button type="primary" @click="revokeForm" v-if="processStatus === BpmProcessInstanceStatus.RUNNING">{{ $t('common.revoke') }}</Button>
+    <Button @click="saveForm" v-if="processStatus && BpmProcessInstanceStatusEditValue.includes(processStatus)">{{ $t('common.save') }}</Button>
+    <Button type="primary" @click="submitForm" v-if="processStatus && BpmProcessInstanceStatusEditValue.includes(processStatus)">{{ $t('common.submit') }}</Button>
+  </Space>
 </template>
 <style scoped></style>
