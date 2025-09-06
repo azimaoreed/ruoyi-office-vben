@@ -1391,5 +1391,5 @@ defineExpose({ loadTodoTask });
 </template>
 
 <style lang="scss" scoped>
-@import '#/styles/fixed-footer.scss';
+@use '#/styles/fixed-footer.scss' as *;
 </style>

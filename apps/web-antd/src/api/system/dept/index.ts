@@ -1,5 +1,4 @@
 import { requestClient } from '#/api/request';
-import { OrgTypeEnum } from '#/utils/constants';
 
 export namespace SystemDeptApi {
   /** 部门信息 */
@@ -12,7 +11,7 @@ export namespace SystemDeptApi {
     leaderUserId: number;
     phone: string;
     email: string;
-    orgType: number;
+    orgType: string;
     createTime: Date;
     children?: Dept[];
   }

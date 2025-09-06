@@ -242,7 +242,7 @@ defineExpose({
   </Page>
 </template>
 <style lang="scss" scoped>
-@import '#/styles/fixed-footer.scss';
+@use '#/styles/fixed-footer.scss' as *;
 
 /* 移除固定高度限制，让内容自然延展 */
 ::deep(.ant-tabs-content) {

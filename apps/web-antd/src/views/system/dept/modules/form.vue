@@ -10,6 +10,7 @@ import { message } from 'ant-design-vue';
 import { useVbenForm } from '#/adapter/form';
 import { createDept, getDept, updateDept } from '#/api/system/dept';
 import { $t } from '#/locales';
+import { OrgTypeEnum } from '#/utils/constants';
 
 import { useFormSchema } from '../data';
 
@@ -40,9 +41,25 @@ const [Modal, modalApi] = useVbenModal({
     if (!valid) {
       return;
     }
-    modalApi.lock();
     // 提交表单
     const data = (await formApi.getValues()) as SystemDeptApi.Dept;
+    debugger
+    // 当前节点为部门，校验上级组织类型与当前组织类型的合理性
+    if (data.orgType === OrgTypeEnum.COMPANY && data.parentId) {
+      try {
+        const parentDept = await getDept(data.parentId);
+        if (parentDept.orgType === OrgTypeEnum.DEPARTMENT) {
+          message.error('部门组织下不能添加公司');
+          return;
+        }
+      } catch (error) {
+        console.error('获取上级组织信息失败:', error);
+        message.error('获取上级组织信息失败，请重试');
+        return;
+      }
+    }
+    
+    modalApi.lock();
     try {
       await (formData.value?.id ? updateDept(data) : createDept(data));
       // 关闭并提示

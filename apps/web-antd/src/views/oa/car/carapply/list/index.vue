@@ -2,7 +2,7 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { CarApplyBillApi } from '#/api/oa/car/carapply';
 
-import { ref } from 'vue';
+import { ref, onActivated } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { Page } from '@vben/common-ui';
@@ -18,11 +18,14 @@ import {
   getCarApplyBillPage,
 } from '#/api/oa/car/carapply';
 import { $t } from '#/locales';
-import { BpmProcessInstanceStatus, BpmProcessInstanceStatusEditValue } from '#/utils';
+import { BpmProcessInstanceStatusEditValue } from '#/utils';
 
 
 import { useGridColumns, useGridFormSchema } from './data';
+import { useUserStore } from '@vben/stores';
 
+const userStore = useUserStore();
+console.log(userStore.userInfo);
 const router = useRouter();
 
 /** 刷新表格 */
@@ -31,15 +34,16 @@ function onRefresh() {
 }
 
 
-/** 查看用车申请单详情 */
-function handleView(row?: CarApplyBillApi.CarApplyBill) {
+/** 新增用车申请单 */
+function handleCreate() {
   router.push({
     path: '/oa/car/car-apply-info',
     query: {
-      id: row?.id,
+      t: Date.now(), // 添加时间戳作为随机串
     },
   });
 }
+
 
 /** 删除用车申请单 */
 async function handleDelete(row: CarApplyBillApi.CarApplyBill) {
@@ -61,6 +65,19 @@ async function handleDelete(row: CarApplyBillApi.CarApplyBill) {
 
 /** 批量删除用车申请单 */
 async function handleDeleteBatch() {
+  // 检查选中的记录是否都可以删除
+  const checkedRecords = gridApi.grid.getCheckboxRecords();
+  const notAllowedRecords = checkedRecords.filter(
+    (record: CarApplyBillApi.CarApplyBill) => 
+      !BpmProcessInstanceStatusEditValue.includes(record.processStatus as number)
+  );
+  
+  if (notAllowedRecords.length > 0) {
+    const billCodes = notAllowedRecords.map((record: CarApplyBillApi.CarApplyBill) => record.billCode || record.id).join(', ');
+    message.warning(`以下单据不允许删除：${billCodes}`);
+    return;
+  }
+  
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting'),
     key: 'action_key_msg',
@@ -72,6 +89,7 @@ async function handleDeleteBatch() {
       key: 'action_key_msg',
     });
     onRefresh();
+    checkedIds.value = [];
   } finally {
     hideLoading();
   }
@@ -111,6 +129,8 @@ const [Grid, gridApi] = useVbenVxeGrid({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
             ...formValues,
+            companyId: userStore.userInfo?.companyId,
+            creator: userStore.userInfo?.id,
           });
         },
       },
@@ -129,6 +149,11 @@ const [Grid, gridApi] = useVbenVxeGrid({
     checkboxChange: handleRowCheckboxChange,
   },
 });
+
+// 页签切换时自动刷新表格数据
+onActivated(() => {
+  onRefresh();
+});
 </script>
 
 <template>
@@ -142,7 +167,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
               type: 'primary',
               icon: ACTION_ICON.ADD,
               auth: ['oa:car-apply-bill:create'],
-              onClick: handleView,
+              onClick: handleCreate,
             },
             {
               label: $t('ui.actionTitle.export'),

@@ -3,7 +3,9 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { CarApplyBillApi } from '#/api/oa/car/carapply';
 
 import { createRouterLinkColumn } from '#/adapter/vxe-table';
+import { handleTree } from '@vben/utils';
 
+import { getCompanyList } from '#/api/system/dept';
 import {
     DICT_TYPE,
     getRangePickerDefaultProps,
@@ -43,12 +45,23 @@ export function useGridFormSchema(): VbenFormSchema[] {
     },
     {
       fieldName: 'companyId',
-      label: '公司ID',
-      component: 'Select',
+      label: '所属公司',
+      component: 'ApiTreeSelect',
+      dependencies: {
+        triggerFields: [''],
+        show: () => false,
+      },
       componentProps: {
         allowClear: true,
-        options: [],
-        placeholder: '请选择公司ID',
+        api: async () => {
+          let data = await getCompanyList();
+          return handleTree(data);
+        },
+        labelField: 'name',
+        valueField: 'id',
+        childrenField: 'children',
+        placeholder: '请选择公司',
+        treeDefaultExpandAll: true,
       },
     },
     {
@@ -59,15 +72,6 @@ export function useGridFormSchema(): VbenFormSchema[] {
         allowClear: true,
         options: [],
         placeholder: '请选择部门ID',
-      },
-    },
-    {
-      fieldName: 'creatorName',
-      label: '创建者姓名',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入创建者姓名',
       },
     },
     {
