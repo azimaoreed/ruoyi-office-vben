@@ -9,10 +9,12 @@ import { getCompanyList } from '#/api/system/dept';
 import {
     DICT_TYPE,
     getRangePickerDefaultProps,
+    getDictOptions,
 } from '#/utils';
+import { getCurrentUserCompanyDeptTree } from '#/utils/dept-tree';
 
 /** 列表的搜索表单 */
-export function useGridFormSchema(): VbenFormSchema[] {
+export function useGridFormSchema(modalRef?: any): VbenFormSchema[] {
   return [
     {
       fieldName: 'billCode',
@@ -29,18 +31,23 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'Select',
       componentProps: {
         allowClear: true,
-        options: [],
+        options: getDictOptions(
+          DICT_TYPE.BPM_PROCESS_INSTANCE_STATUS,
+          'number',
+        ),
         placeholder: '请选择单据状态',
       },
     },
     {
-      fieldName: 'carId',
+      fieldName: 'carNo',
       label: '车辆',
-      component: 'Select',
+      component: 'HelpInput',
       componentProps: {
         allowClear: true,
-        options: [],
         placeholder: '请选择车辆',
+        onClick: () => {
+          modalRef.value?.modalApi.open();
+        },
       },
     },
     {
@@ -66,12 +73,16 @@ export function useGridFormSchema(): VbenFormSchema[] {
     },
     {
       fieldName: 'deptId',
-      label: '部门ID',
-      component: 'Select',
+      label: '申请部门',
+      component: 'ApiTreeSelect',
       componentProps: {
         allowClear: true,
-        options: [],
-        placeholder: '请选择部门ID',
+        api: () => getCurrentUserCompanyDeptTree(false), // false表示不包含公司本身
+        labelField: 'name',
+        valueField: 'id',
+        childrenField: 'children',
+        placeholder: '请选择申请部门',
+        treeDefaultExpandAll: true,
       },
     },
     {
@@ -173,7 +184,7 @@ export function useGridColumns(): VxeTableGridOptions<CarApplyBillApi.CarApplyBi
     },
     {
       field: 'deptName',
-      title: '部门名称',
+      title: '申请部门',
       minWidth: 120,
       headerAlign: 'center',
       align: 'left',

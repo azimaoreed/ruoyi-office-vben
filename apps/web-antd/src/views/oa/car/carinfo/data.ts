@@ -6,12 +6,6 @@ import { handleTree } from '@vben/utils';
 import { getCompanyList } from '#/api/system/dept';
 import { DICT_TYPE, getDictOptions } from '#/utils';
 
-const CAR_STATUS_MAP = {
-  0: { label: '空闲', color: 'success' },
-  1: { label: '停用', color: 'error' },
-  2: { label: '使用中', color: 'processing' },
-};
-
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
   return [

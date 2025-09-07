@@ -23,10 +23,14 @@ import { BpmProcessInstanceStatusEditValue } from '#/utils';
 
 import { useGridColumns, useGridFormSchema } from './data';
 import { useUserStore } from '@vben/stores';
+import CarSelectModal from '../components/CarSelectModal.vue';
 
 const userStore = useUserStore();
 console.log(userStore.userInfo);
 const router = useRouter();
+
+// 车辆选择弹窗引用
+const modalRef = ref<InstanceType<typeof CarSelectModal>>();
 
 /** 刷新表格 */
 function onRefresh() {
@@ -110,9 +114,15 @@ async function handleExport() {
   downloadFileFromBlobPart({ fileName: '用车申请单.xls', source: data });
 }
 
+// 处理车辆选择
+function handleCarSelect(car: any) {
+  gridApi.formApi.setFieldValue('carNo', car.carNo);
+  gridApi.formApi.setFieldValue('carId', car.id);
+}
+
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
-    schema: useGridFormSchema(),
+    schema: useGridFormSchema(modalRef),
     wrapperClass: 'grid-cols-4',
     collapsed: true,
   },
@@ -227,5 +237,8 @@ onActivated(() => {
         />
       </template>
     </Grid>
+    
+    <!-- 车辆选择弹窗 -->
+    <CarSelectModal ref="modalRef" @select="handleCarSelect" />
   </Page>
 </template>
