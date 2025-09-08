@@ -14,6 +14,13 @@ export const overridesPreferences = defineOverridesPreferences({
     enableRefreshToken: true,
     layout: 'mixed-nav',
   },
+  // 自定义应用 Logo（将图片放在 apps/web-antd/public/static/imgs/ 目录下）
+  logo: {
+    enable: true,
+    fit: 'contain',
+    // 示例：/static/imgs/logo.png，对应路径 apps/web-antd/public/static/imgs/logo.png
+    source: '/static/imgs/logo.png',
+  },
   theme: {
     mode: 'light',
     semiDarkHeader: false,
