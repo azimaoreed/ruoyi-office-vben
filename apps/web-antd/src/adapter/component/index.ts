@@ -105,7 +105,6 @@ export type ComponentType =
   | 'ApiSelect'
   | 'ApiTreeSelect'
   | 'AutoComplete'
-  | 'CarSelectInput'
   | 'Checkbox'
   | 'CheckboxGroup'
   | 'DatePicker'
@@ -170,9 +169,6 @@ async function initComponentAdapter() {
       },
     ),
     AutoComplete,
-    CarSelectInput: defineAsyncComponent(
-      () => import('#/views/oa/car/carapply/components/CarSelectInput.vue'),
-    ),
     Checkbox,
     CheckboxGroup,
     DatePicker,
