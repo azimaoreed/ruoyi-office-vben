@@ -2,10 +2,11 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { CarApplyBillApi } from '#/api/oa/car/carapply';
 
-import { ref, onActivated } from 'vue';
+import { onActivated, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { Page } from '@vben/common-ui';
+import { useUserStore } from '@vben/stores';
 import { downloadFileFromBlobPart, isEmpty } from '@vben/utils';
 
 import { message } from 'ant-design-vue';
@@ -20,13 +21,10 @@ import {
 import { $t } from '#/locales';
 import { BpmProcessInstanceStatusEditValue } from '#/utils';
 
-
-import { useGridColumns, useGridFormSchema } from './data';
-import { useUserStore } from '@vben/stores';
 import CarSelectModal from '../components/CarSelectModal.vue';
+import { useGridColumns, useGridFormSchema } from './data';
 
 const userStore = useUserStore();
-console.log(userStore.userInfo);
 const router = useRouter();
 
 // 车辆选择弹窗引用
@@ -37,7 +35,6 @@ function onRefresh() {
   gridApi.query();
 }
 
-
 /** 新增用车申请单 */
 function handleCreate() {
   router.push({
@@ -47,7 +44,6 @@ function handleCreate() {
     },
   });
 }
-
 
 /** 删除用车申请单 */
 async function handleDelete(row: CarApplyBillApi.CarApplyBill) {
@@ -72,16 +68,22 @@ async function handleDeleteBatch() {
   // 检查选中的记录是否都可以删除
   const checkedRecords = gridApi.grid.getCheckboxRecords();
   const notAllowedRecords = checkedRecords.filter(
-    (record: CarApplyBillApi.CarApplyBill) => 
-      !BpmProcessInstanceStatusEditValue.includes(record.processStatus as number)
+    (record: CarApplyBillApi.CarApplyBill) =>
+      !BpmProcessInstanceStatusEditValue.includes(
+        record.processStatus as number,
+      ),
   );
-  
+
   if (notAllowedRecords.length > 0) {
-    const billCodes = notAllowedRecords.map((record: CarApplyBillApi.CarApplyBill) => record.billCode || record.id).join(', ');
+    const billCodes = notAllowedRecords
+      .map(
+        (record: CarApplyBillApi.CarApplyBill) => record.billCode || record.id,
+      )
+      .join(', ');
     message.warning(`以下单据不允许删除：${billCodes}`);
     return;
   }
-  
+
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting'),
     key: 'action_key_msg',
@@ -219,7 +221,10 @@ onActivated(() => {
             {
               label: $t('common.delete'),
               type: 'link',
-              ifShow: () => BpmProcessInstanceStatusEditValue.includes(row.processStatus as number),
+              ifShow: () =>
+                BpmProcessInstanceStatusEditValue.includes(
+                  row.processStatus as number,
+                ),
               auth: ['oa:car-apply-bill:delete'],
               popConfirm: {
                 title: $t('ui.actionMessage.deleteConfirm', [row.id]),
@@ -229,7 +234,10 @@ onActivated(() => {
             {
               label: $t('common.delete'),
               type: 'link',
-              ifShow: () => !BpmProcessInstanceStatusEditValue.includes(row.processStatus as number),
+              ifShow: () =>
+                !BpmProcessInstanceStatusEditValue.includes(
+                  row.processStatus as number,
+                ),
               disabled: true,
               auth: ['oa:car-apply-bill:delete'],
             },
@@ -237,7 +245,7 @@ onActivated(() => {
         />
       </template>
     </Grid>
-    
+
     <!-- 车辆选择弹窗 -->
     <CarSelectModal ref="modalRef" @select="handleCarSelect" />
   </Page>

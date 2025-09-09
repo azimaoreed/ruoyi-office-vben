@@ -1,5 +1,6 @@
-import type { PageParam, PageResult } from '@vben/request';
 import type { Dayjs } from 'dayjs';
+
+import type { PageParam, PageResult } from '@vben/request';
 
 import { requestClient } from '#/api/request';
 
@@ -12,8 +13,8 @@ export namespace CarApplyBillApi {
     processStatus: number; // 单据状态
     carId: number; // 车辆
     carNo: string; // 车牌号码
-    goTime: string | Dayjs; // 出车时间
-    returnTime: string | Dayjs; // 回车时间
+    goTime: Dayjs | string; // 出车时间
+    returnTime: Dayjs | string; // 回车时间
     goArea: string; // 出车地点
     returnArea: string; // 回车地点
     cause: string; // 用车事由
@@ -26,18 +27,23 @@ export namespace CarApplyBillApi {
     deptName: string; // 部门名称
     companyId: number; // 公司ID
     companyName: string; // 公司名称
-    createTime: string | Date;// 创建时间
+    createTime: Date | string; // 创建时间
   }
 }
 
 /** 查询用车申请单分页 */
 export function getCarApplyBillPage(params: PageParam) {
-  return requestClient.get<PageResult<CarApplyBillApi.CarApplyBill>>('/oa/car-apply-bill/page', { params });
+  return requestClient.get<PageResult<CarApplyBillApi.CarApplyBill>>(
+    '/oa/car-apply-bill/page',
+    { params },
+  );
 }
 
 /** 查询用车申请单详情 */
 export function getCarApplyBill(id: number) {
-  return requestClient.get<CarApplyBillApi.CarApplyBill>(`/oa/car-apply-bill/get?id=${id}`);
+  return requestClient.get<CarApplyBillApi.CarApplyBill>(
+    `/oa/car-apply-bill/get?id=${id}`,
+  );
 }
 
 /** 保存用车申请单  */
@@ -48,11 +54,6 @@ export function saveCarApplyBill(data: CarApplyBillApi.CarApplyBill) {
 /** 提交用车申请单  */
 export function submitCarApplyBill(data: CarApplyBillApi.CarApplyBill) {
   return requestClient.post(`/oa/car-apply-bill/submit`, data);
-}
-
-/** 新增用车申请单 */
-export function createCarApplyBill(data: CarApplyBillApi.CarApplyBill) {
-  return requestClient.post('/oa/car-apply-bill/create', data);
 }
 
 /** 修改用车申请单 */
@@ -67,13 +68,12 @@ export function deleteCarApplyBill(id: number) {
 
 /** 批量删除用车申请单 */
 export function deleteCarApplyBillListByIds(ids: number[]) {
-  return requestClient.delete(`/oa/car-apply-bill/delete-list?ids=${ids.join(',')}`)
+  return requestClient.delete(
+    `/oa/car-apply-bill/delete-list?ids=${ids.join(',')}`,
+  );
 }
 
 /** 导出用车申请单 */
 export function exportCarApplyBill(params: any) {
   return requestClient.download('/oa/car-apply-bill/export-excel', params);
 }
-
-
-

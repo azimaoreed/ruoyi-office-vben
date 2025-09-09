@@ -1,20 +1,17 @@
 <script lang="ts" setup>
-import type { CarApplyBillApi } from '#/api/oa/car/carapply';
+import type { VbenFormSchema } from '#/adapter/form';
 
 import { ref, watch } from 'vue';
 
 import { useVbenForm } from '#/adapter/form';
 
-import { useFormSchema } from '../info/data';
-import CarSelectModal from './CarSelectModal.vue';
-
 interface Props {
-  formData: Partial<CarApplyBillApi.CarApplyBill>;
-  disabled?: boolean;
+  formData?: Record<string, any>; // 表单数据
+  formSchema: VbenFormSchema[]; // 表单schema
+  disabled?: boolean; // 是否禁用表单
 }
 
 const props = defineProps<Props>();
-const modalRef = ref<InstanceType<typeof CarSelectModal>>();
 
 const formRef = ref();
 
@@ -29,13 +26,10 @@ const [Form, formApi] = useVbenForm({
     disabled: props.disabled,
   },
   layout: 'horizontal',
-  schema: useFormSchema(modalRef), // 先传入 null，后续更新
+  schema: props.formSchema,
   showDefaultActions: false,
   wrapperClass: 'grid-cols-4', // 设置为4列布局
 });
-
-// 更新 schema 以传入 formApi
-formApi.setState({ schema: useFormSchema(modalRef) });
 
 // 监听表单数据变化
 watch(
@@ -53,8 +47,7 @@ watch(
   () => props.disabled,
   (disabled) => {
     // 更新所有表单项的disabled状态
-    const currentSchema = useFormSchema(modalRef);
-    const updatedSchema = currentSchema.map((schema) => ({
+    const updatedSchema = props.formSchema.map((schema) => ({
       ...schema,
       componentProps: {
         ...schema.componentProps,
@@ -82,11 +75,6 @@ defineExpose({
     formApi.setValues({});
   },
 });
-
-function handleCarSelect(val: any) {
-  formApi.setFieldValue('carNo', val.carNo);
-  formApi.setFieldValue('carId', val.id);
-}
 </script>
 
 <template>
@@ -94,24 +82,16 @@ function handleCarSelect(val: any) {
     <div class="pb-6">
       <Form ref="formRef" />
     </div>
-    <!-- 车辆选择弹窗 -->
-    <CarSelectModal ref="modalRef" @select="handleCarSelect" />
+    <!-- 扩展插槽，用于明细表格等 -->
+    <slot name="extension"></slot>
   </div>
 </template>
 
 <style scoped>
 .form-content {
-  min-height: 400px;
   /* 移除高度限制，让内容自然延展 */
   height: auto;
-}
-
-:deep(.ant-tabs-content-holder) {
-  padding: 0;
-}
-
-:deep(.ant-tabs-tabpane) {
-  padding: 0;
+  min-height: 400px;
 }
 
 /* 表单布局优化 */

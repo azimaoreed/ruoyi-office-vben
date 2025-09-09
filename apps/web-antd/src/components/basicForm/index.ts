@@ -6,5 +6,6 @@
  * @Description:
  */
 export { default as BasicForm } from './basicForm.vue';
+export { default as FormContent } from './FormContent.vue';
 export { default as NoFlowForm } from './noFlowForm.vue';
 export * from './typing';

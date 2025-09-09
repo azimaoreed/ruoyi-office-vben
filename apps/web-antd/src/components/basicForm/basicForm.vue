@@ -11,26 +11,36 @@ import type { CSSProperties } from 'vue';
 
 import type { headerDataProps } from './typing';
 
-import { onMounted, ref, watch, computed } from 'vue';
+import type { VbenFormSchema } from '#/adapter/form';
+
+import { onMounted, ref, watch } from 'vue';
 
 import { Page } from '@vben/common-ui';
+
+import { useVbenForm } from '#/adapter/form';
+import {
+  getApprovalDetail,
+  getProcessInstanceBpmnModelView,
+} from '#/api/bpm/processInstance';
+import { BpmProcessInstanceStatus } from '#/utils';
 import { useFooterLeft } from '#/utils/useFooterLeft';
-
-import { getProcessInstanceBpmnModelView, getApprovalDetail } from '#/api/bpm/processInstance';
 import ProcessInstanceSimpleViewer from '#/views/bpm/processInstance/detail/modules/simple-bpm-viewer.vue';
+import BpmProcessInstanceTaskList from '#/views/bpm/processInstance/detail/modules/task-list.vue';
+import BpmProcessInstanceTimeline from '#/views/bpm/processInstance/detail/modules/time-line.vue';
 
+import CardContainer from './cardContainer.vue';
 import FooterForm from './footerForm.vue';
 import HeaderForm from './headerForm.vue';
-import CardContainer from './cardContainer.vue';
-import BpmProcessInstanceTimeline from '#/views/bpm/processInstance/detail/modules/time-line.vue';
-import BpmProcessInstanceTaskList from '#/views/bpm/processInstance/detail/modules/task-list.vue';
-import { BpmProcessInstanceStatus } from '#/utils';
 
 interface Props {
   headerData?: headerDataProps;
-  timelineDirection?: 'vertical' | 'horizontal'; // 时间轴方向
+  timelineDirection?: 'horizontal' | 'vertical'; // 时间轴方向
   activityNodes?: any[]; // 审批节点信息
   hideFooter?: boolean; // 是否隐藏底部
+  // 表单相关props
+  formData?: Record<string, any>; // 表单数据
+  formSchema?: VbenFormSchema[]; // 表单schema
+  disabled?: boolean; // 是否禁用表单
 }
 const props = withDefaults(defineProps<Props>(), {
   headerData: () => ({
@@ -45,6 +55,9 @@ const props = withDefaults(defineProps<Props>(), {
   timelineDirection: 'horizontal',
   activityNodes: () => [],
   hideFooter: false,
+  formData: () => ({}),
+  formSchema: () => [],
+  disabled: false,
 });
 
 const emit = defineEmits(['close', 'save', 'submit', 'revoke']);
@@ -58,6 +71,49 @@ const taskListRef = ref<any>(null); // 任务列表引用
 // 使用公共的 footerLeft composable
 const { footerLeft } = useFooterLeft();
 
+// 表单实例
+let formApi: null | ReturnType<typeof useVbenForm>[1] = null;
+let FormComponent: null | ReturnType<typeof useVbenForm>[0] = null;
+const formRef = ref<InstanceType<ReturnType<typeof useVbenForm>[0]>>();
+
+// 创建表单实例（当有formSchema时）
+function initForm() {
+  if (props.formSchema && props.formSchema.length > 0 && !formApi) {
+    const [Form, api] = useVbenForm({
+      commonConfig: {
+        componentProps: {
+          class: 'w-full',
+        },
+        formItemClass: 'col-span-1', // 每行四列，所以每个表单项占1/4
+        labelWidth: 120,
+        disabled: props.disabled,
+      },
+      layout: 'horizontal',
+      schema: props.formSchema,
+      showDefaultActions: false,
+      wrapperClass: 'grid-cols-4', // 设置为4列布局
+    });
+
+    FormComponent = Form;
+    formApi = api;
+  }
+}
+
+// 监听schema变化，重新初始化表单
+watch(
+  () => props.formSchema,
+  (newSchema) => {
+    if (newSchema && newSchema.length > 0 && formApi) {
+      // 更新现有表单的schema
+      formApi.updateSchema(newSchema);
+    } else if (newSchema && newSchema.length > 0 && !formApi) {
+      // 初始化表单
+      initForm();
+    }
+  },
+  { immediate: false, deep: true },
+);
+
 // 表头样式
 const headerStyle: CSSProperties = {
   textAlign: 'center',
@@ -69,16 +125,10 @@ const headerStyle: CSSProperties = {
 
 const contentStyle: CSSProperties = {
   textAlign: 'center',
-  minHeight: 120,
-  lineHeight: '120px',
-  padding: '0px 20px 80px',// 预留底部空间，避免被固定按钮遮挡
+  minHeight: 'calc(100vh - 180px)',
+  padding: '0px 20px 80px', // 预留底部空间，避免被固定按钮遮挡
+  overflow: 'auto',
 };
-
-
-
-
-
-
 
 // 当前tab标签
 const activeKey = ref('1');
@@ -97,7 +147,7 @@ async function getProcessModelView() {
     };
 
     const data = await getProcessInstanceBpmnModelView(
-      props.headerData.processInstanceId
+      props.headerData.processInstanceId,
     );
     if (data) {
       processModelView.value = data;
@@ -122,7 +172,7 @@ async function getApprovalDetailData() {
     activityNodes.value = [];
 
     const data = await getApprovalDetail({
-      processInstanceId: props.headerData.processInstanceId
+      processInstanceId: props.headerData.processInstanceId,
     });
 
     if (data && data.activityNodes) {
@@ -163,8 +213,41 @@ function refreshAllData() {
   }
 }
 
+// 监听表单数据变化
+watch(
+  () => props.formData,
+  async (newData) => {
+    if (formApi && newData && Object.keys(newData).length > 0) {
+      await formApi.setValues(newData);
+    }
+  },
+  { immediate: true, deep: true },
+);
+
+// 监听disabled状态变化
+watch(
+  () => props.disabled,
+  (disabled) => {
+    if (formApi && props.formSchema) {
+      // 更新所有表单项的disabled状态
+      const updatedSchema = props.formSchema.map((schema) => ({
+        ...schema,
+        componentProps: {
+          ...schema.componentProps,
+          disabled,
+        },
+      }));
+      formApi.updateSchema(updatedSchema);
+    }
+  },
+  { immediate: true },
+);
+
 /** 初始化 */
 onMounted(async () => {
+  // 初始化表单
+  initForm();
+
   // 如果已经有 processInstanceId，立即加载流程模型视图和审批详情
   if (props.headerData.processInstanceId) {
     getProcessModelView();
@@ -174,12 +257,27 @@ onMounted(async () => {
 
 // 暴露方法给父组件使用
 defineExpose({
-  refreshAllData
+  refreshAllData,
+  // 表单相关方法
+  async getFormValues() {
+    return formApi ? await formApi.getValues() : {};
+  },
+  async validateForm() {
+    return formApi ? await formApi.validate() : { valid: true };
+  },
+  async setFormValues(values: any) {
+    return formApi ? await formApi.setValues(values) : undefined;
+  },
+  resetForm() {
+    if (formApi) {
+      formApi.setValues({});
+    }
+  },
 });
 </script>
 <template>
-  <Page class="min-h-full bg-gray-50">
-    <a-layout  class="bg-white">
+  <Page class="h-screen bg-gray-50">
+    <a-layout class="h-full bg-white">
       <a-layout-header :style="headerStyle">
         <!-- 表头部分 -->
         <HeaderForm :header-data="props.headerData" />
@@ -188,20 +286,36 @@ defineExpose({
         <!-- 主体部分 -->
         <a-tabs v-model:active-key="activeKey" class="custom-tabs">
           <a-tab-pane key="1" :tab="$t('common.billInfo')">
-            <slot name="base-form"></slot>
+            <div class="form-content flex flex-col bg-white">
+              <div class="pb-6">
+                <!-- 如果有formSchema则渲染内置表单 -->
+                <component v-if="formApi" :is="FormComponent" ref="formRef" />
+                <!-- 否则使用插槽 -->
+                <slot v-else name="base-form"></slot>
+              </div>
+              <!-- 扩展插槽，用于明细表格等 -->
+              <slot name="form-extension"></slot>
+            </div>
           </a-tab-pane>
           <a-tab-pane
             key="2"
             :tab="$t('common.approvalInfo')"
             v-if="props.headerData.processInstanceId"
           >
-            <div v-if="approvalDetailLoading" class="flex justify-center items-center py-20">
+            <div
+              v-if="approvalDetailLoading"
+              class="flex items-center justify-center py-20"
+            >
               <a-spin size="large" />
             </div>
             <div v-else>
               <CardContainer :title="$t('common.approvalProgress')">
                 <BpmProcessInstanceTimeline
-                  :activity-nodes="activityNodes.length > 0 ? activityNodes : props.activityNodes"
+                  :activity-nodes="
+                    activityNodes.length > 0
+                      ? activityNodes
+                      : props.activityNodes
+                  "
                   :direction="props.timelineDirection"
                   :show-status-icon="true"
                   :enable-approve-user-select="false"
@@ -234,9 +348,19 @@ defineExpose({
         </a-tabs>
       </a-layout-content>
       <!-- 固定底部操作栏 -->
-      <a-layout-footer v-if="!props.hideFooter" :style="{ left: footerLeft + 'px' }" class="fixed-footer-form">
+      <a-layout-footer
+        v-if="!props.hideFooter"
+        :style="{ left: `${footerLeft}px` }"
+        class="fixed-footer-form"
+      >
         <!-- 底部按钮 -->
-        <FooterForm  @submit="submitForm" @close="closeForm" @save="saveForm" @revoke="revokeForm" :process-status="props.headerData.processStatus" />
+        <FooterForm
+          @submit="submitForm"
+          @close="closeForm"
+          @save="saveForm"
+          @revoke="revokeForm"
+          :process-status="props.headerData.processStatus"
+        />
       </a-layout-footer>
     </a-layout>
   </Page>
@@ -259,12 +383,63 @@ defineExpose({
   flex: none;
 }
 
-
-
 /* 自定义 tabs 样式 - 只修改页签下线条颜色 */
 :deep(.custom-tabs) {
   .ant-tabs-nav::before {
     border-bottom: 1px solid var(--ant-primary-color, #1890ff) !important;
   }
+}
+
+/* 全局样式封装 - 业务页面不需要再定义这些样式 */
+
+/* 确保页面内容能够自适应高度，不出现不必要的滚动条 */
+:deep(.ant-spin-nested-loading) {
+  height: auto;
+  min-height: 100vh;
+}
+
+:deep(.ant-spin-container) {
+  height: auto;
+}
+
+/* 通用flex布局样式 */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.h-full {
+  height: 100%;
+}
+
+/* 表单内容样式 */
+.form-content {
+  height: auto;
+  min-height: 400px;
+}
+
+/* 表单布局优化 */
+:deep(.vben-form) {
+  .grid-cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+}
+
+/* 表单项样式调整 */
+:deep(.ant-form-item) {
+  margin-bottom: 16px;
+}
+
+:deep(.ant-form-item-label) {
+  font-weight: 500;
+  text-align: left;
 }
 </style>

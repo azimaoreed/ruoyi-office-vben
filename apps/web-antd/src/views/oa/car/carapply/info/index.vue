@@ -1,14 +1,17 @@
 <script lang="ts" setup>
+import type { VbenFormSchema } from '#/adapter/form';
 import type { CarApplyBillApi } from '#/api/oa/car/carapply';
 
-import { nextTick, onMounted, ref } from 'vue';
+import { nextTick, onMounted, ref, shallowRef } from 'vue';
 import { useRoute } from 'vue-router';
 
-import { useTabs } from '@vben/hooks';
 import { Loading } from '@vben/common-ui';
+import { useTabs } from '@vben/hooks';
+import { useUserStore } from '@vben/stores';
 
 import { message } from 'ant-design-vue';
 
+import { cancelProcessInstanceByStartUser } from '#/api/bpm/processInstance';
 import {
   getCarApplyBill,
   saveCarApplyBill,
@@ -16,37 +19,44 @@ import {
 } from '#/api/oa/car/carapply';
 import { BasicForm } from '#/components/basicForm';
 import { $t } from '#/locales';
+import {
+  BpmProcessInstanceStatus,
+  BpmProcessInstanceStatusEditValue,
+} from '#/utils';
 
-import FormContent from '../components/FormContent.vue';
-import { useUserStore } from '@vben/stores';
-import { BpmProcessInstanceStatus, BpmProcessInstanceStatusEditValue } from '#/utils';
-import { cancelProcessInstanceByStartUser } from '#/api/bpm/processInstance';
+import CarSelectModal from '../components/CarSelectModal.vue';
+import { useFormSchema } from './data';
 
+// 定义组件 props
+const props = defineProps<{
+  id?: number | string; // 从 BusinessFormComponent 传递的 id
+  isApproval?: boolean; // 是否审批态
+  processDefinition?: any; // 流程定义信息
+  processInstance?: any; // 流程实例信息
+}>();
 const route = useRoute();
 const userStore = useUserStore();
 
 const { closeCurrentTab } = useTabs();
 
-const formData = ref<
-  Partial<CarApplyBillApi.CarApplyBill> 
->({});
+const formData = ref<Partial<CarApplyBillApi.CarApplyBill>>({});
 
 const readonly = ref(false);
 const loading = ref(false);
 
-// FormContent组件引用
-const formContentRef = ref();
-
 // BasicForm组件引用
 const basicFormRef = ref();
 
-// 定义组件 props
-const props = defineProps<{
-  id?: string | number; // 从 BusinessFormComponent 传递的 id
-  processInstance?: any; // 流程实例信息
-  processDefinition?: any; // 流程定义信息
-  isApproval: { type: [Boolean, null], default: undefined }; // 是否审批态
-}>();
+// 车辆选择弹窗引用
+const modalRef = ref<InstanceType<typeof CarSelectModal>>();
+
+// 表单schema - 使用shallowRef避免深度响应式
+const formSchema = shallowRef<VbenFormSchema[]>([]);
+
+// 初始化表单schema
+function initFormSchema() {
+  formSchema.value = useFormSchema(modalRef, basicFormRef.value);
+}
 
 // 优先使用 props 传递的 id，如果没有则使用路由参数
 let id: number | undefined = (() => {
@@ -63,36 +73,31 @@ function handleClose() {
 
 // 保存及提交
 async function handleSaveAndSubmit(isSubmit: boolean) {
-  debugger
   loading.value = true;
 
-  if (!formContentRef.value) return;
+  if (!basicFormRef.value) return;
 
   // 提交前校验
   if (isSubmit) {
-    const { valid } = await formContentRef.value.validateForm();
+    const { valid } = await basicFormRef.value.validateForm();
     // 如果校验不通过，则不允许提交
     if (!valid) {
       loading.value = false;
-      return; 
+      return;
     }
   }
-  
+
   try {
     // 获取表单值
     const formValues =
-      (await formContentRef.value.getFormValues()) as CarApplyBillApi.CarApplyBill;
+      (await basicFormRef.value.getFormValues()) as CarApplyBillApi.CarApplyBill;
     // 合并表单值和其他数据
     const data = {
       ...formData.value,
       ...formValues,
     };
-    
-    if (isSubmit) {
-      id = await submitCarApplyBill(data);
-    } else {
-      id = await saveCarApplyBill(data);
-    }
+
+    id = await (isSubmit ? submitCarApplyBill(data) : saveCarApplyBill(data));
 
     message.success({
       content: $t('ui.actionMessage.operationSuccess'),
@@ -101,11 +106,13 @@ async function handleSaveAndSubmit(isSubmit: boolean) {
 
     // 保存后重新加载数据
     await loadData();
-  } catch {
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : '保存失败';
     message.error({
-      content: '保存失败',
+      content: errorMessage,
       key: 'action_key_msg',
     });
+    console.error('保存用车申请单失败:', error);
   } finally {
     loading.value = false;
   }
@@ -113,20 +120,25 @@ async function handleSaveAndSubmit(isSubmit: boolean) {
 
 // 撤回
 async function handleRevoke() {
-  if (formData.value.processInstanceId !== undefined && formData.value.processInstanceId !== null) {
+  if (
+    formData.value.processInstanceId !== undefined &&
+    formData.value.processInstanceId !== null
+  ) {
     loading.value = true;
-    await cancelProcessInstanceByStartUser(formData.value.processInstanceId, '撤回');
+    await cancelProcessInstanceByStartUser(
+      formData.value.processInstanceId,
+      '撤回',
+    );
     message.success('撤回成功');
     await loadData();
   }
 }
 
-
 // 加载数据
 async function loadData() {
-  debugger
+  debugger;
   // 新建默认数据
-  if (id==undefined || id==null) {
+  if (id == undefined || id == null) {
     // 新建时设置默认值
     formData.value = {
       creator: userStore.userInfo?.id,
@@ -136,7 +148,7 @@ async function loadData() {
       deptId: userStore.userInfo?.deptId,
       deptName: userStore.userInfo?.deptName,
       processStatus: BpmProcessInstanceStatus.NOT_START, // 草稿状态
-      createTime: new Date()
+      createTime: new Date(),
     };
     return;
   }
@@ -150,27 +162,27 @@ async function loadData() {
       ...data,
     };
     // 如果有 isApproval prop，则以 prop 为准；否则根据流程状态判断
-    if (props.isApproval !== undefined) {
+    if (props.isApproval) {
       readonly.value = props.isApproval;
     } else {
       // 原有的流程状态判断逻辑
-      if (BpmProcessInstanceStatusEditValue.includes(formData.value.processStatus as number)) {
-          readonly.value = false;
-      } else {
-        readonly.value = true;
-      }
+      readonly.value = !BpmProcessInstanceStatusEditValue.includes(
+        formData.value.processStatus as number,
+      );
     }
 
     // 设置表单值
-    if (formContentRef.value) {
-      await formContentRef.value.setFormValues(data);
+    if (basicFormRef.value) {
+      await basicFormRef.value.setFormValues(data);
     }
-    
-  } catch {
-    message.error('获取用车申请单详情失败');
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : '获取用车申请单详情失败';
+    message.error(errorMessage);
+    console.error('获取用车申请单详情失败:', error);
   } finally {
     loading.value = false;
-    
+
     // 数据加载完成后，刷新BasicForm组件数据
     nextTick(() => {
       basicFormRef.value?.refreshAllData();
@@ -178,11 +190,20 @@ async function loadData() {
   }
 }
 
+// 处理车辆选择
+function handleCarSelect(val: any) {
+  if (basicFormRef.value && val && val.carNo && val.id) {
+    basicFormRef.value.setFormValues({
+      carNo: val.carNo,
+      carId: val.id,
+    });
+  }
+}
+
 onMounted(() => {
+  initFormSchema();
   loadData();
 });
-
-
 </script>
 
 <template>
@@ -193,48 +214,26 @@ onMounted(() => {
         ...formData,
         billName: '用车申请单',
       }"
-
+      :form-data="formData"
+      :form-schema="formSchema"
+      :disabled="readonly"
       @close="handleClose"
       @save="handleSaveAndSubmit(false)"
       @submit="handleSaveAndSubmit(true)"
       @revoke="handleRevoke"
-      :hide-footer="isApproval"
+      :hide-footer="props.isApproval"
     >
-      <template #base-form>
-        <FormContent
-          ref="formContentRef"
-          :form-data="formData"
-          :disabled="readonly"
-        />
+      <!-- 扩展插槽，用于明细表格等 -->
+      <template #form-extension>
+        <!-- 这里可以添加明细表格或其他扩展内容 -->
       </template>
     </BasicForm>
+
+    <!-- 车辆选择弹窗 -->
+    <CarSelectModal ref="modalRef" @select="handleCarSelect" />
   </Loading>
 </template>
 
 <style scoped>
-.flex {
-  display: flex;
-}
-
-.flex-col {
-  flex-direction: column;
-}
-
-.flex-1 {
-  flex: 1;
-}
-
-.h-full {
-  height: 100%;
-}
-
-/* 确保页面内容能够自适应高度，不出现不必要的滚动条 */
-:deep(.ant-spin-nested-loading) {
-  height: auto;
-  min-height: 100vh;
-}
-
-:deep(.ant-spin-container) {
-  height: auto;
-}
+/* 业务页面样式已封装到BasicForm组件中，无需重复定义 */
 </style>

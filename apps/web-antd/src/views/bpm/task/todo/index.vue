@@ -14,7 +14,7 @@ defineOptions({ name: 'BpmTodoTask' });
 
 /** 办理任务 */
 function handleAudit(row: BpmTaskApi.Task) {
-  console.warn(row);
+  console.log(row);
   router.push({
     name: 'BpmProcessInstanceDetail',
     query: {
