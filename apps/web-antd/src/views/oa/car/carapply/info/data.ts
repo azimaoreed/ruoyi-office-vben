@@ -1,9 +1,14 @@
+import type { Ref } from 'vue';
+
 import type { VbenFormSchema } from '#/adapter/form';
 
 import { message } from 'ant-design-vue';
 
 /** 新增/修改的表单 */
-export function useFormSchema(modalRef?: any, formApi?: any): VbenFormSchema[] {
+export function useFormSchema(
+  modalRef?: any,
+  readonly?: Ref<boolean>,
+): VbenFormSchema[] {
   return [
     {
       fieldName: 'id',
@@ -29,12 +34,17 @@ export function useFormSchema(modalRef?: any, formApi?: any): VbenFormSchema[] {
       component: 'HelpInput',
       componentProps: {
         placeholder: '请选择车辆',
+        bind: {
+          readonly,
+          onClick: () => {
+            modalRef.value?.modalApi.open();
+          },
+        },
         onClick: () => {
           modalRef.value?.modalApi.open();
         },
       },
     },
-
     {
       fieldName: 'goTime',
       label: '出车时间',

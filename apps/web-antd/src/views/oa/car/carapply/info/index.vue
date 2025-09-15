@@ -55,7 +55,7 @@ const formSchema = shallowRef<VbenFormSchema[]>([]);
 
 // 初始化表单schema
 function initFormSchema() {
-  formSchema.value = useFormSchema(modalRef, basicFormRef.value);
+  formSchema.value = useFormSchema(modalRef, readonly);
 }
 
 // 优先使用 props 传递的 id，如果没有则使用路由参数
@@ -136,9 +136,8 @@ async function handleRevoke() {
 
 // 加载数据
 async function loadData() {
-  debugger;
   // 新建默认数据
-  if (id == undefined || id == null) {
+  if (id === undefined || id === null) {
     // 新建时设置默认值
     formData.value = {
       creator: userStore.userInfo?.id,
