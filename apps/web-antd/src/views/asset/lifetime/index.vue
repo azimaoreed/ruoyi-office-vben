@@ -10,7 +10,7 @@ import Form from './modules/form.vue';
 import { ref, computed } from 'vue';
 import { $t } from '#/locales';
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getLifeTimePage, deleteLifeTime, deleteLifeTimeList, exportLifeTime } from '#/api/asset/lifetime';
+import { getLifeTimePage, deleteLifeTime, deleteLifeTimeListByIds, exportLifeTime } from '#/api/asset/lifetime';
 import { downloadFileFromBlobPart, isEmpty } from '@vben/utils';
 
 import { useGridColumns, useGridFormSchema } from './data';
@@ -63,7 +63,7 @@ async function handleDeleteBatch() {
     key: 'action_key_msg',
   });
   try {
-    await deleteLifeTimeList(checkedIds.value);
+    await deleteLifeTimeListByIds(checkedIds.value);
     message.success({
       content: $t('ui.actionMessage.deleteSuccess'),
       key: 'action_key_msg',
@@ -187,4 +187,4 @@ const [Grid, gridApi] = useVbenVxeGrid({
     </Grid>
 
   </Page>
-</template>
+</template>
