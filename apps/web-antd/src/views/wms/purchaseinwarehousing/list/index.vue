@@ -2,25 +2,32 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { PurchaseInWarehousingApi } from '#/api/wms/purchaseinwarehousing';
 
-import { Page, useVbenModal } from '@vben/common-ui';
-import { message } from 'ant-design-vue';
-import Form from './modules/form.vue';
+import { ref } from 'vue';
+// import { useRouter } from 'vue-router';
 
+import { Page, useVbenModal } from '@vben/common-ui';
+import { downloadFileFromBlobPart, isEmpty } from '@vben/utils';
+
+import { message } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { deletePurchaseInWarehousing, deletePurchaseInWarehousingListByIds, exportPurchaseInWarehousing, getPurchaseInWarehousingPage } from '#/api/wms/purchaseinwarehousing';
+import {
+  deletePurchaseInWarehousing,
+  deletePurchaseInWarehousingListByIds,
+  exportPurchaseInWarehousing,
+  getPurchaseInWarehousingPage,
+} from '#/api/wms/purchaseinwarehousing';
 import { $t } from '#/locales';
-import { downloadFileFromBlobPart, isEmpty } from '@vben/utils';
-import { ref } from 'vue';
 
+import Form from '../modules/form.vue';
 import { useGridColumns, useGridFormSchema } from './data';
-
 
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: Form,
   destroyOnClose: true,
 });
 
+// const router = useRouter();
 
 /** 刷新表格 */
 function onRefresh() {
@@ -30,6 +37,13 @@ function onRefresh() {
 /** 创建采购入库 */
 function handleCreate() {
   formModalApi.setData({}).open();
+
+  // router.push({
+  //   path: '/wms/purchase-in-warehousing-info',
+  //   query: {
+  //     t: Date.now(), // 添加时间戳作为随机串
+  //   },
+  // });
 }
 
 /** 编辑采购入库 */
@@ -37,9 +51,10 @@ function handleEdit(row: PurchaseInWarehousingApi.PurchaseInWarehousing) {
   formModalApi.setData(row).open();
 }
 
-
 /** 删除采购入库 */
-async function handleDelete(row: PurchaseInWarehousingApi.PurchaseInWarehousing) {
+async function handleDelete(
+  row: PurchaseInWarehousingApi.PurchaseInWarehousing,
+) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.id]),
     key: 'action_key_msg',
@@ -74,7 +89,7 @@ async function handleDeleteBatch() {
   }
 }
 
-const checkedIds = ref<number[]>([])
+const checkedIds = ref<number[]>([]);
 function handleRowCheckboxChange({
   records,
 }: {
@@ -85,7 +100,9 @@ function handleRowCheckboxChange({
 
 /** 导出表格 */
 async function handleExport() {
-  const data = await exportPurchaseInWarehousing(await gridApi.formApi.getValues());
+  const data = await exportPurchaseInWarehousing(
+    await gridApi.formApi.getValues(),
+  );
   downloadFileFromBlobPart({ fileName: '采购入库.xls', source: data });
 }
 
@@ -119,10 +136,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
       search: true,
     },
   } as VxeTableGridOptions<PurchaseInWarehousingApi.PurchaseInWarehousing>,
-  gridEvents:{
-      checkboxAll: handleRowCheckboxChange,
-      checkboxChange: handleRowCheckboxChange,
-  }
+  gridEvents: {
+    checkboxAll: handleRowCheckboxChange,
+    checkboxChange: handleRowCheckboxChange,
+  },
 });
 </script>
 
@@ -185,6 +202,5 @@ const [Grid, gridApi] = useVbenVxeGrid({
         />
       </template>
     </Grid>
-
   </Page>
 </template>
