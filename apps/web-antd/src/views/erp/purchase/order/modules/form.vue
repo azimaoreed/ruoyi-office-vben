@@ -15,7 +15,7 @@ import {
 } from '#/api/erp/purchase/order';
 
 import { useFormSchema } from '../data';
-import PurchaseOrderItemForm from './PurchaseOrderItemForm.vue';
+import PurchaseOrderItemForm from './purchase-order-item-form.vue';
 
 const emit = defineEmits(['success']);
 const formData = ref<ErpPurchaseOrderApi.PurchaseOrder>();
@@ -71,6 +71,7 @@ const handleUpdateTotalPrice = (totalPrice: number) => {
   }
 };
 
+// TODO @nehc：这里的注释使用 /** */ 和别的模块一致哈；
 /**
  * 创建或更新采购订单
  */
@@ -82,6 +83,7 @@ const [Modal, modalApi] = useVbenModal({
     }
     await nextTick();
 
+    // TODO @nehc：应该不会不存在，直接校验，简洁一点！另外，可以看看别的模块，主子表的处理哈；
     const itemFormInstance = Array.isArray(itemFormRef.value)
       ? itemFormRef.value[0]
       : itemFormRef.value;
@@ -92,7 +94,7 @@ const [Modal, modalApi] = useVbenModal({
           message.error('子表单验证失败');
           return;
         }
-      } catch (error) {
+      } catch (error: any) {
         message.error(error.message || '子表单验证失败');
         return;
       }
@@ -148,6 +150,7 @@ const [Modal, modalApi] = useVbenModal({
       // 初始化空的表单数据
       formData.value = { items: [] } as ErpPurchaseOrderApi.PurchaseOrder;
       await nextTick();
+      // TODO @nehc：看看有没办法简化
       const itemFormInstance = Array.isArray(itemFormRef.value)
         ? itemFormRef.value[0]
         : itemFormRef.value;
@@ -160,15 +163,6 @@ const [Modal, modalApi] = useVbenModal({
     modalApi.lock();
     try {
       formData.value = await getPurchaseOrder(data.id);
-      // 将字符串形式的文件URL转换为数组形式以适配FileUpload组件
-      if (
-        formData.value.fileUrl &&
-        typeof formData.value.fileUrl === 'string'
-      ) {
-        formData.value.fileUrl = formData.value.fileUrl
-          ? [formData.value.fileUrl]
-          : [];
-      }
       // 设置到 values
       await formApi.setValues(formData.value);
       // 初始化子表单

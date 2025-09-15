@@ -1,38 +1,34 @@
 <script lang="ts" setup>
-import type { ErpPurchaseOrderApi } from '#/api/erp/purchase/order';
+import type { ErpPurchaseReturnApi } from '#/api/erp/purchase/return';
 
 import { nextTick, onMounted, ref, watch } from 'vue';
 
 import { erpPriceMultiply } from '@vben/utils';
 
-import { Input, InputNumber, Select } from 'ant-design-vue';
+import { InputNumber, Select } from 'ant-design-vue';
 
-import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
+import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getProductSimpleList } from '#/api/erp/product/product';
-import { getStockCount } from '#/api/erp/stock/stock';
+import { getWarehouseStockCount } from '#/api/erp/stock/stock';
+import { getWarehouseSimpleList } from '#/api/erp/stock/warehouse';
 
 import { usePurchaseOrderItemTableColumns } from '../data';
 
 const props = withDefaults(defineProps<Props>(), {
   items: () => [],
   disabled: false,
-  discountPercent: 0,
 });
 
-const emit = defineEmits([
-  'update:items',
-  'update:discount-price',
-  'update:total-price',
-]);
+const emit = defineEmits(['update:items', 'update:totalPrice']);
 
 interface Props {
-  items?: ErpPurchaseOrderApi.PurchaseOrderItem[];
+  items?: ErpPurchaseReturnApi.PurchaseReturnItem[];
   disabled?: boolean;
-  discountPercent?: number;
 }
 
-const tableData = ref<ErpPurchaseOrderApi.PurchaseOrderItem[]>([]);
+const tableData = ref<ErpPurchaseReturnApi.PurchaseReturnItem[]>([]);
 const productOptions = ref<any[]>([]);
+const warehouseOptions = ref<any[]>([]);
 
 /** 表格配置 */
 const [Grid, gridApi] = useVbenVxeGrid({
@@ -46,7 +42,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     border: true,
     showOverflow: true,
     autoResize: true,
-    minHeight: 250,
+    minHeight: 150,
     keepSource: true,
     rowConfig: {
       keyField: 'id',
@@ -77,84 +73,11 @@ watch(
   },
 );
 
-/** 计算 discountPrice、totalPrice 价格 */
-watch(
-  () => [tableData.value, props.discountPercent],
-  () => {
-    if (!tableData.value || tableData.value.length === 0) {
-      return;
-    }
-    const totalPrice = tableData.value.reduce(
-      (prev, curr) => prev + (curr.totalPrice || 0),
-      0,
-    );
-    const discountPrice =
-      props.discountPercent === null
-        ? 0
-        : erpPriceMultiply(totalPrice, props.discountPercent / 100);
-    const finalTotalPrice = totalPrice - discountPrice;
-
-    // 发送计算结果给父组件
-    emit('update:discount-price', discountPrice);
-    emit('update:total-price', finalTotalPrice);
-  },
-  { deep: true },
-);
-
 /** 初始化 */
 onMounted(async () => {
   productOptions.value = await getProductSimpleList();
+  warehouseOptions.value = await getWarehouseSimpleList();
 });
-
-function handleAdd() {
-  const newRow = {
-    productId: null,
-    productName: '',
-    productUnitId: null,
-    productUnitName: '',
-    productBarCode: '',
-    count: 1,
-    productPrice: 0,
-    totalProductPrice: 0,
-    taxPercent: 0,
-    taxPrice: 0,
-    totalPrice: 0,
-    stockCount: 0,
-    remark: '',
-  };
-  tableData.value.push(newRow);
-  gridApi.grid.insertAt(newRow, -1);
-  emit('update:items', [...tableData.value]);
-}
-
-function handleDelete(row: ErpPurchaseOrderApi.PurchaseOrderItem) {
-  gridApi.grid.remove(row);
-  const index = tableData.value.findIndex((item) => item.id === row.id);
-  if (index !== -1) {
-    tableData.value.splice(index, 1);
-  }
-  emit('update:items', [...tableData.value]);
-}
-
-async function handleProductChange(productId: any, row: any) {
-  const product = productOptions.value.find((p) => p.id === productId);
-  if (!product) {
-    return;
-  }
-
-  const stockCount = await getStockCount(productId);
-
-  row.productId = productId;
-  row.productUnitId = product.unitId;
-  row.productBarCode = product.barCode;
-  row.productUnitName = product.unitName;
-  row.productName = product.name;
-  row.stockCount = stockCount || 0;
-  row.productPrice = product.purchasePrice;
-  row.count = row.count || 1;
-
-  handlePriceChange(row);
-}
 
 function handlePriceChange(row: any) {
   if (row.productPrice && row.count) {
@@ -165,6 +88,18 @@ function handlePriceChange(row: any) {
   }
   handleUpdateValue(row);
 }
+
+const handleWarehouseChange = async (
+  row: ErpPurchaseReturnApi.PurchaseReturnItem,
+) => {
+  const warehouseId = row.warehouseId;
+  const stockCount = await getWarehouseStockCount({
+    productId: row.productId!,
+    warehouseId: warehouseId!,
+  });
+  row.stockCount = stockCount || 0;
+  handleUpdateValue(row);
+};
 
 function handleUpdateValue(row: any) {
   const index = tableData.value.findIndex((item) => item.id === row.id);
@@ -183,21 +118,28 @@ const getSummaries = (): {
   totalPrice: number;
   totalProductPrice: number;
 } => {
+  const count = tableData.value.reduce(
+    (sum, item) => sum + (item.count || 0),
+    0,
+  );
+  const totalProductPrice = tableData.value.reduce(
+    (sum, item) => sum + (item.totalProductPrice || 0),
+    0,
+  );
+  const taxPrice = tableData.value.reduce(
+    (sum, item) => sum + (item.taxPrice || 0),
+    0,
+  );
+  const totalPrice = tableData.value.reduce(
+    (sum, item) => sum + (item.totalPrice || 0),
+    0,
+  );
   return {
     productName: '合计',
-    count: tableData.value.reduce((sum, item) => sum + (item.count || 0), 0),
-    totalProductPrice: tableData.value.reduce(
-      (sum, item) => sum + (item.totalProductPrice || 0),
-      0,
-    ),
-    taxPrice: tableData.value.reduce(
-      (sum, item) => sum + (item.taxPrice || 0),
-      0,
-    ),
-    totalPrice: tableData.value.reduce(
-      (sum, item) => sum + (item.totalPrice || 0),
-      0,
-    ),
+    count,
+    totalProductPrice,
+    taxPrice,
+    totalPrice,
   };
 };
 
@@ -206,14 +148,11 @@ const validate = async (): Promise<boolean> => {
     for (let i = 0; i < tableData.value.length; i++) {
       const item = tableData.value[i];
       if (item) {
-        if (!item.productId) {
-          throw new Error(`第 ${i + 1} 行：产品不能为空`);
+        if (!item.warehouseId) {
+          throw new Error(`第 ${i + 1} 行：仓库不能为空`);
         }
         if (!item.count || item.count <= 0) {
           throw new Error(`第 ${i + 1} 行：产品数量不能为空`);
-        }
-        if (!item.productPrice || item.productPrice <= 0) {
-          throw new Error(`第 ${i + 1} 行：产品单价不能为空`);
         }
       }
     }
@@ -224,9 +163,10 @@ const validate = async (): Promise<boolean> => {
   }
 };
 
-const getData = (): ErpPurchaseOrderApi.PurchaseOrderItem[] => tableData.value;
+const getData = (): ErpPurchaseReturnApi.PurchaseReturnItem[] =>
+  tableData.value;
 const init = (
-  items: ErpPurchaseOrderApi.PurchaseOrderItem[] | undefined,
+  items: ErpPurchaseReturnApi.PurchaseReturnItem[] | undefined,
 ): void => {
   tableData.value =
     items && items.length > 0
@@ -259,18 +199,28 @@ defineExpose({
 
 <template>
   <Grid class="w-full">
+    <template #warehouseId="{ row }">
+      <Select
+        v-model:value="row.warehouseId"
+        :options="warehouseOptions"
+        :field-names="{ label: 'name', value: 'id' }"
+        placeholder="请选择仓库"
+        :disabled="disabled"
+        show-search
+        class="w-full"
+        @change="handleWarehouseChange(row)"
+      />
+    </template>
     <template #productId="{ row }">
       <Select
-        v-if="!disabled"
+        disabled
         v-model:value="row.productId"
         :options="productOptions"
         :field-names="{ label: 'name', value: 'id' }"
         style="width: 100%"
         placeholder="请选择产品"
         show-search
-        @change="handleProductChange($event, row)"
       />
-      <span v-else>{{ row.productName || '-' }}</span>
     </template>
 
     <template #count="{ row }">
@@ -283,33 +233,14 @@ defineExpose({
       />
       <span v-else>{{ row.count || '-' }}</span>
     </template>
-
     <template #productPrice="{ row }">
       <InputNumber
-        v-if="!disabled"
+        disabled
         v-model:value="row.productPrice"
         :min="0"
         :precision="2"
         @change="handlePriceChange(row)"
       />
-      <span v-else>{{ row.productPrice || '-' }}</span>
-    </template>
-
-    <template #taxPercent="{ row }">
-      <InputNumber
-        v-if="!disabled"
-        v-model:value="row.taxPercent"
-        :min="0"
-        :max="100"
-        :precision="2"
-        @change="handlePriceChange(row)"
-      />
-      <span v-else>{{ row.taxPercent || '-' }}</span>
-    </template>
-
-    <template #remark="{ row }">
-      <Input v-if="!disabled" v-model:value="row.remark" class="w-full" />
-      <span v-else>{{ row.remark || '-' }}</span>
     </template>
 
     <template #bottom>
@@ -324,35 +255,6 @@ defineExpose({
           </div>
         </div>
       </div>
-
-      <TableAction
-        v-if="!disabled"
-        class="mt-4 flex justify-center"
-        :actions="[
-          {
-            label: '添加产品',
-            type: 'default',
-            onClick: handleAdd,
-          },
-        ]"
-      />
-    </template>
-
-    <template #actions="{ row }">
-      <TableAction
-        v-if="!disabled"
-        :actions="[
-          {
-            label: '删除',
-            type: 'link',
-            danger: true,
-            popConfirm: {
-              title: '确认删除该产品吗？',
-              confirm: handleDelete.bind(null, row),
-            },
-          },
-        ]"
-      />
     </template>
   </Grid>
 </template>
