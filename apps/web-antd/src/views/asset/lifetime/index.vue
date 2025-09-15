@@ -2,25 +2,29 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { LifeTimeApi } from '#/api/asset/lifetime';
 
+import { ref } from 'vue';
+
 import { Page, useVbenModal } from '@vben/common-ui';
-import { message,Tabs } from 'ant-design-vue';
-import Form from './modules/form.vue';
-
-
-import { ref, computed } from 'vue';
-import { $t } from '#/locales';
-import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getLifeTimePage, deleteLifeTime, deleteLifeTimeListByIds, exportLifeTime } from '#/api/asset/lifetime';
 import { downloadFileFromBlobPart, isEmpty } from '@vben/utils';
 
-import { useGridColumns, useGridFormSchema } from './data';
+import { message } from 'ant-design-vue';
 
+import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
+import {
+  deleteLifeTime,
+  deleteLifeTimeListByIds,
+  exportLifeTime,
+  getLifeTimePage,
+} from '#/api/asset/lifetime';
+import { $t } from '#/locales';
+
+import { useGridColumns, useGridFormSchema } from './data';
+import Form from './modules/form.vue';
 
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: Form,
   destroyOnClose: true,
 });
-
 
 /** 刷新表格 */
 function onRefresh() {
@@ -36,7 +40,6 @@ function handleCreate() {
 function handleEdit(row: LifeTimeApi.LifeTime) {
   formModalApi.setData(row).open();
 }
-
 
 /** 删除资产历史记录 */
 async function handleDelete(row: LifeTimeApi.LifeTime) {
@@ -74,7 +77,7 @@ async function handleDeleteBatch() {
   }
 }
 
-const checkedIds = ref<number[]>([])
+const checkedIds = ref<number[]>([]);
 function handleRowCheckboxChange({
   records,
 }: {
@@ -119,10 +122,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
       search: true,
     },
   } as VxeTableGridOptions<LifeTimeApi.LifeTime>,
-  gridEvents:{
-      checkboxAll: handleRowCheckboxChange,
-      checkboxChange: handleRowCheckboxChange,
-  }
+  gridEvents: {
+    checkboxAll: handleRowCheckboxChange,
+    checkboxChange: handleRowCheckboxChange,
+  },
 });
 </script>
 
@@ -185,6 +188,5 @@ const [Grid, gridApi] = useVbenVxeGrid({
         />
       </template>
     </Grid>
-
   </Page>
 </template>

@@ -288,10 +288,13 @@ defineExpose({
           <a-tab-pane key="1" :tab="$t('common.billInfo')">
             <div class="form-content flex flex-col bg-white">
               <div class="pb-6">
-                <!-- 如果有formSchema则渲染内置表单 -->
-                <component v-if="formApi" :is="FormComponent" ref="formRef" />
-                <!-- 否则使用插槽 -->
-                <slot v-else name="base-form"></slot>
+                <!-- 基本信息 -->
+                <CardContainer :title="$t('common.baseInfo')">
+                   <!-- 如果有formSchema则渲染内置表单 -->
+                  <component v-if="formApi" :is="FormComponent" ref="formRef" />
+                  <!-- 否则使用插槽 -->
+                  <slot v-else name="base-form"></slot>
+                </CardContainer>
               </div>
               <!-- 扩展插槽，用于明细表格等 -->
               <slot name="form-extension"></slot>

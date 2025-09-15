@@ -25,6 +25,7 @@
   "create": "新增",
   "detail": "详情",
   "billInfo": "单据信息",
+  "baseInfo": "基本信息",
   "approvalInfo": "审批信息",
   "processFlow": "流程图",
   "approvalProgress": "审批进度",
