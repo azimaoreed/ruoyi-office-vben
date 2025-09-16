@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { CarApplyBillApi } from '#/api/oa/car/carapply';
+import type { CarReturnBillApi } from '#/api/oa/car/carreturn';
 
 import { onActivated, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -13,11 +13,11 @@ import { message } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
-  deleteCarApplyBill,
-  deleteCarApplyBillListByIds,
-  exportCarApplyBill,
-  getCarApplyBillPage,
-} from '#/api/oa/car/carapply';
+  deleteCarReturnBill,
+  deleteCarReturnBillList,
+  exportCarReturnBill,
+  getCarReturnBillPage,
+} from '#/api/oa/car/carreturn';
 import { $t } from '#/locales';
 import { BpmProcessInstanceStatusEditValue } from '#/utils';
 
@@ -35,24 +35,24 @@ function onRefresh() {
   gridApi.query();
 }
 
-/** 新增用车申请单 */
+/** 新增还车申请单 */
 function handleCreate() {
   router.push({
-    path: '/oa/car/car-apply-info',
+    path: '/oa/car/car-return-info',
     query: {
       t: Date.now(), // 添加时间戳作为随机串
     },
   });
 }
 
-/** 删除用车申请单 */
-async function handleDelete(row: CarApplyBillApi.CarApplyBill) {
+/** 删除还车申请单 */
+async function handleDelete(row: CarReturnBillApi.CarReturnBill) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.id]),
     key: 'action_key_msg',
   });
   try {
-    await deleteCarApplyBill(row.id as number);
+    await deleteCarReturnBill(row.id as number);
     message.success({
       content: $t('ui.actionMessage.deleteSuccess', [row.id]),
       key: 'action_key_msg',
@@ -63,12 +63,12 @@ async function handleDelete(row: CarApplyBillApi.CarApplyBill) {
   }
 }
 
-/** 批量删除用车申请单 */
+/** 批量删除还车申请单 */
 async function handleDeleteBatch() {
   // 检查选中的记录是否都可以删除
   const checkedRecords = gridApi.grid.getCheckboxRecords();
   const notAllowedRecords = checkedRecords.filter(
-    (record: CarApplyBillApi.CarApplyBill) =>
+    (record: CarReturnBillApi.CarReturnBill) =>
       !BpmProcessInstanceStatusEditValue.includes(
         record.processStatus as number,
       ),
@@ -77,7 +77,7 @@ async function handleDeleteBatch() {
   if (notAllowedRecords.length > 0) {
     const billCodes = notAllowedRecords
       .map(
-        (record: CarApplyBillApi.CarApplyBill) => record.billCode || record.id,
+        (record: CarReturnBillApi.CarReturnBill) => record.billCode || record.id,
       )
       .join(', ');
     message.warning(`以下单据不允许删除：${billCodes}`);
@@ -89,7 +89,7 @@ async function handleDeleteBatch() {
     key: 'action_key_msg',
   });
   try {
-    await deleteCarApplyBillListByIds(checkedIds.value);
+    await deleteCarReturnBillList(checkedIds.value);
     message.success({
       content: $t('ui.actionMessage.deleteSuccess'),
       key: 'action_key_msg',
@@ -105,15 +105,15 @@ const checkedIds = ref<number[]>([]);
 function handleRowCheckboxChange({
   records,
 }: {
-  records: CarApplyBillApi.CarApplyBill[];
+  records: CarReturnBillApi.CarReturnBill[];
 }) {
   checkedIds.value = records.map((item) => item.id);
 }
 
 /** 导出表格 */
 async function handleExport() {
-  const data = await exportCarApplyBill(await gridApi.formApi.getValues());
-  downloadFileFromBlobPart({ fileName: '用车申请单.xls', source: data });
+  const data = await exportCarReturnBill(await gridApi.formApi.getValues());
+  downloadFileFromBlobPart({ fileName: '还车申请单.xls', source: data });
 }
 
 // 处理车辆选择
@@ -137,7 +137,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
-          return await getCarApplyBillPage({
+          return await getCarReturnBillPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
             ...formValues,
@@ -155,7 +155,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       refresh: { code: 'query' },
       search: true,
     },
-  } as VxeTableGridOptions<CarApplyBillApi.CarApplyBill>,
+  } as VxeTableGridOptions<CarReturnBillApi.CarReturnBill>,
   gridEvents: {
     checkboxAll: handleRowCheckboxChange,
     checkboxChange: handleRowCheckboxChange,
@@ -170,7 +170,7 @@ onActivated(() => {
 
 <template>
   <Page auto-content-height>
-    <Grid table-title="用车申请单列表">
+    <Grid table-title="还车申请单列表">
       <template #toolbar-tools>
         <TableAction
           :actions="[
@@ -178,14 +178,14 @@ onActivated(() => {
               label: $t('ui.actionTitle.create'),
               type: 'primary',
               icon: ACTION_ICON.ADD,
-              auth: ['oa:car-apply-bill:create'],
+              auth: ['oa:car-return-bill:create'],
               onClick: handleCreate,
             },
             {
               label: $t('ui.actionTitle.export'),
               type: 'primary',
               icon: ACTION_ICON.DOWNLOAD,
-              auth: ['oa:car-apply-bill:export'],
+              auth: ['oa:car-return-bill:export'],
               onClick: handleExport,
             },
             {
@@ -194,7 +194,7 @@ onActivated(() => {
               danger: true,
               icon: ACTION_ICON.DELETE,
               disabled: isEmpty(checkedIds),
-              auth: ['oa:car-apply-bill:delete'],
+              auth: ['oa:car-return-bill:delete'],
               onClick: handleDeleteBatch,
             },
           ]"
@@ -215,7 +215,7 @@ onActivated(() => {
             //   type: 'link',
             //   icon: ACTION_ICON.EDIT,
             //   ifShow: () => BpmProcessInstanceStatusEditValue.includes(row.processStatus as number),
-            //   auth: ['oa:car-apply-bill:update'],
+            //   auth: ['oa:car-return-bill:update'],
             //   onClick: handleView.bind(null, row),
             // },
             {
@@ -225,7 +225,7 @@ onActivated(() => {
                 BpmProcessInstanceStatusEditValue.includes(
                   row.processStatus as number,
                 ),
-              auth: ['oa:car-apply-bill:delete'],
+              auth: ['oa:car-return-bill:delete'],
               popConfirm: {
                 title: $t('ui.actionMessage.deleteConfirm', [row.id]),
                 confirm: handleDelete.bind(null, row),
@@ -239,7 +239,7 @@ onActivated(() => {
                   row.processStatus as number,
                 ),
               disabled: true,
-              auth: ['oa:car-apply-bill:delete'],
+              auth: ['oa:car-return-bill:delete'],
             },
           ]"
         />

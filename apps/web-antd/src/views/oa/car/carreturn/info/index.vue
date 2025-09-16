@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { VbenFormSchema } from '#/adapter/form';
-import type { CarApplyBillApi } from '#/api/oa/car/carapply';
+import type { CarReturnBillApi } from '#/api/oa/car/carreturn';
 
 import { nextTick, onMounted, ref, shallowRef } from 'vue';
 import { useRoute } from 'vue-router';
@@ -13,10 +13,10 @@ import { message } from 'ant-design-vue';
 
 import { cancelProcessInstanceByStartUser } from '#/api/bpm/processInstance';
 import {
-  getCarApplyBill,
-  saveCarApplyBill,
-  submitCarApplyBill,
-} from '#/api/oa/car/carapply';
+  getCarReturnBill,
+  saveCarReturnBill,
+  submitCarReturnBill,
+} from '#/api/oa/car/carreturn';
 import { BasicForm } from '#/components/basicForm';
 import { $t } from '#/locales';
 import {
@@ -39,7 +39,7 @@ const userStore = useUserStore();
 
 const { closeCurrentTab } = useTabs();
 
-const formData = ref<Partial<CarApplyBillApi.CarApplyBill>>({});
+const formData = ref<Partial<CarReturnBillApi.CarReturnBill>>({});
 
 const readonly = ref(false);
 const loading = ref(false);
@@ -90,14 +90,14 @@ async function handleSaveAndSubmit(isSubmit: boolean) {
   try {
     // 获取表单值
     const formValues =
-      (await basicFormRef.value.getFormValues()) as CarApplyBillApi.CarApplyBill;
+      (await basicFormRef.value.getFormValues()) as CarReturnBillApi.CarReturnBill;
     // 合并表单值和其他数据
     const data = {
       ...formData.value,
       ...formValues,
     };
 
-    id = await (isSubmit ? submitCarApplyBill(data) : saveCarApplyBill(data));
+    id = await (isSubmit ? submitCarReturnBill(data) : saveCarReturnBill(data));
 
     message.success({
       content: $t('ui.actionMessage.operationSuccess'),
@@ -112,7 +112,7 @@ async function handleSaveAndSubmit(isSubmit: boolean) {
       content: errorMessage,
       key: 'action_key_msg',
     });
-    console.error('保存用车申请单失败:', error);
+    console.error('保存还车申请单失败:', error);
   } finally {
     loading.value = false;
   }
@@ -155,7 +155,7 @@ async function loadData() {
   // 加载数据
   loading.value = true;
   try {
-    const data = await getCarApplyBill(id);
+    const data = await getCarReturnBill(id);
     // 扩展数据，添加显示需要的字段
     formData.value = {
       ...data,
@@ -176,9 +176,9 @@ async function loadData() {
     }
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : '获取用车申请单详情失败';
+      error instanceof Error ? error.message : '获取还车申请单详情失败';
     message.error(errorMessage);
-    console.error('获取用车申请单详情失败:', error);
+    console.error('获取还车申请单详情失败:', error);
   } finally {
     loading.value = false;
 
@@ -211,7 +211,7 @@ onMounted(() => {
       ref="basicFormRef"
       :header-data="{
         ...formData,
-        billName: '用车申请单',
+        billName: '还车申请单',
       }"
       :form-data="formData"
       :form-schema="formSchema"
