@@ -79,6 +79,16 @@ const withDefaultPlaceholder = <T extends Component>(
         props?.placeholder ||
         attrs?.placeholder ||
         $t(`ui.placeholder.${type}`);
+      // 默认为输入类组件关闭浏览器自动填充
+      const defaultInputAttrs =
+        type === 'input'
+          ? {
+              autocomplete: 'off',
+              autocapitalize: 'off',
+              autocorrect: 'off',
+              spellcheck: false,
+            }
+          : {};
       // 透传组件暴露的方法
       const innerRef = ref();
       expose(
@@ -93,7 +103,15 @@ const withDefaultPlaceholder = <T extends Component>(
       return () =>
         h(
           component,
-          { ...componentProps, placeholder, ...props, ...attrs, ref: innerRef },
+          {
+            // 默认属性最先合并，用户传入的 attrs/props 可以覆盖
+            ...defaultInputAttrs,
+            ...componentProps,
+            placeholder,
+            ...props,
+            ...attrs,
+            ref: innerRef,
+          },
           slots,
         );
     },
