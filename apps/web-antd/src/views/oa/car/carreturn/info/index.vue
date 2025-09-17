@@ -24,6 +24,7 @@ import {
   BpmProcessInstanceStatusEditValue,
 } from '#/utils';
 
+import CarApplySelectModal from '../../components/CarApplySelectModal.vue';
 import CarSelectModal from '../../components/CarSelectModal.vue';
 import { useFormSchema } from './data';
 
@@ -49,13 +50,15 @@ const basicFormRef = ref();
 
 // 车辆选择弹窗引用
 const modalRef = ref<InstanceType<typeof CarSelectModal>>();
+// 用车申请单选择弹窗引用
+const applyModalRef = ref<InstanceType<typeof CarApplySelectModal>>();
 
 // 表单schema - 使用shallowRef避免深度响应式
 const formSchema = shallowRef<VbenFormSchema[]>([]);
 
 // 初始化表单schema
 function initFormSchema() {
-  formSchema.value = useFormSchema(modalRef, readonly);
+  formSchema.value = useFormSchema(modalRef, readonly, applyModalRef);
 }
 
 // 优先使用 props 传递的 id，如果没有则使用路由参数
@@ -161,14 +164,12 @@ async function loadData() {
       ...data,
     };
     // 如果有 isApproval prop，则以 prop 为准；否则根据流程状态判断
-    if (props.isApproval) {
-      readonly.value = props.isApproval;
-    } else {
-      // 原有的流程状态判断逻辑
-      readonly.value = !BpmProcessInstanceStatusEditValue.includes(
-        formData.value.processStatus as number,
-      );
-    }
+    readonly.value =
+      props.isApproval === true
+        ? props.isApproval
+        : !BpmProcessInstanceStatusEditValue.includes(
+            formData.value.processStatus as number,
+          );
 
     // 设置表单值
     if (basicFormRef.value) {
@@ -196,6 +197,18 @@ function handleCarSelect(val: any) {
       carNo: val.carNo,
       carId: val.id,
     });
+  }
+}
+
+// 处理用车申请单选择
+function handleApplySelect(val: any) {
+  if (basicFormRef.value && val && val.billCode) {
+    const values: Record<string, any> = { applyBill: val.billCode };
+    if (val.carNo && val.carId) {
+      values.carNo = val.carNo;
+      values.carId = val.carId;
+    }
+    basicFormRef.value.setFormValues(values);
   }
 }
 
@@ -230,6 +243,8 @@ onMounted(() => {
 
     <!-- 车辆选择弹窗 -->
     <CarSelectModal ref="modalRef" @select="handleCarSelect" />
+    <!-- 用车申请单选择弹窗 -->
+    <CarApplySelectModal ref="applyModalRef" @select="handleApplySelect" />
   </Loading>
 </template>
 

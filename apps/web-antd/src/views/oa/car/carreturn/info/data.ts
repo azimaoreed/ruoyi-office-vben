@@ -8,6 +8,7 @@ import { message } from 'ant-design-vue';
 export function useFormSchema(
   modalRef?: any,
   readonly?: Ref<boolean>,
+  applyModalRef?: any,
 ): VbenFormSchema[] {
   return [
     {
@@ -31,9 +32,12 @@ export function useFormSchema(
       fieldName: 'applyBill',
       label: '用车申请单',
       rules: 'required',
-      component: 'Input',
+      component: 'HelpInput',
       componentProps: {
-        placeholder: '请输入用车申请单号',
+        placeholder: '请选择用车申请单',
+        onClick: () => {
+          applyModalRef?.value?.modalApi.open();
+        },
       },
     },
     {

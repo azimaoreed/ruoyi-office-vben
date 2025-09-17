@@ -161,14 +161,12 @@ async function loadData() {
       ...data,
     };
     // 如果有 isApproval prop，则以 prop 为准；否则根据流程状态判断
-    if (props.isApproval) {
-      readonly.value = props.isApproval;
-    } else {
-      // 原有的流程状态判断逻辑
-      readonly.value = !BpmProcessInstanceStatusEditValue.includes(
-        formData.value.processStatus as number,
-      );
-    }
+    readonly.value =
+      props.isApproval === true
+        ? props.isApproval
+        : !BpmProcessInstanceStatusEditValue.includes(
+            formData.value.processStatus as number,
+          );
 
     // 设置表单值
     if (basicFormRef.value) {
