@@ -28,6 +28,7 @@ export namespace CarApplyBillApi {
     companyId: number; // 公司ID
     companyName: string; // 公司名称
     createTime: Date | string; // 创建时间
+    isReturned?: boolean; // 是否还车
   }
 }
 

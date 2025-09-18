@@ -44,6 +44,8 @@ const [Grid, gridApi] = useVbenVxeGrid({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
             ...formValues,
+            // 仅查询未还车的用车申请单
+            isReturned: false,
           };
           return await getCarApplyBillPage(queryParams);
         },

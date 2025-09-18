@@ -94,6 +94,19 @@ export function useGridFormSchema(modalRef?: any): VbenFormSchema[] {
         allowClear: true,
       },
     },
+    {
+      fieldName: 'isReturned',
+      label: '是否还车',
+      component: 'Select',
+      componentProps: {
+        allowClear: true,
+        options: [
+          { label: '未还车', value: false },
+          { label: '已还车', value: true },
+        ],
+        placeholder: '请选择还车状态',
+      },
+    },
   ];
 }
 
@@ -203,6 +216,22 @@ export function useGridColumns(): VxeTableGridOptions<CarApplyBillApi.CarApplyBi
       formatter: 'formatDateTime',
       headerAlign: 'center',
       align: 'left',
+    },
+    {
+      field: 'isReturned',
+      title: '是否还车',
+      minWidth: 100,
+      headerAlign: 'center',
+      align: 'center',
+      cellRender: {
+        name: 'VbenCellTag',
+        props: ({ row }) => {
+          return {
+            color: row.isReturned ? 'success' : 'warning',
+            text: row.isReturned ? '已还车' : '未还车',
+          };
+        },
+      },
     },
     {
       title: '操作',
