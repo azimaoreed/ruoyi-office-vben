@@ -60,14 +60,14 @@ export function useFormSchema(
     },
     {
       fieldName: 'goTime',
-      label: '出车时间',
+      label: '实际出车时间',
       rules: 'required',
       component: 'DatePicker',
       componentProps: {
         showTime: true,
         format: 'YYYY-MM-DD HH:mm:ss',
         valueFormat: 'x',
-        placeholder: '请选择出车时间',
+        placeholder: '请选择实际出车时间',
       },
       dependencies: {
         triggerFields: ['returnTime'],
@@ -77,7 +77,7 @@ export function useFormSchema(
             values.goTime &&
             values.returnTime <= values.goTime
           ) {
-            message.error('出车时间不能晚于或等于回车时间');
+            message.error('实际出车时间不能晚于或等于实际回车时间');
             // 立即清空出车时间字段
             formApi?.setFieldValue('returnTime', undefined);
           }
@@ -86,14 +86,14 @@ export function useFormSchema(
     },
     {
       fieldName: 'returnTime',
-      label: '回车时间',
+      label: '实际回车时间',
       rules: 'required',
       component: 'DatePicker',
       componentProps: {
         showTime: true,
         format: 'YYYY-MM-DD HH:mm:ss',
         valueFormat: 'x',
-        placeholder: '请选择回车时间',
+        placeholder: '请选择实际回车时间',
       },
       dependencies: {
         triggerFields: ['goTime'],
@@ -103,7 +103,7 @@ export function useFormSchema(
             values.returnTime &&
             values.returnTime <= values.goTime
           ) {
-            message.error('回车时间必须大于出车时间');
+            message.error('实际回车时间必须大于实际出车时间');
             // 立即清空回车时间字段
             formApi?.setFieldValue('goTime', undefined);
           }

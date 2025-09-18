@@ -91,15 +91,12 @@ export function useGridFormSchema(modalRef?: any): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'isReturned',
-      label: '是否还车',
+      fieldName: 'returnStatus',
+      label: '还车状态',
       component: 'Select',
       componentProps: {
         allowClear: true,
-        options: [
-          { label: '未还车', value: false },
-          { label: '已还车', value: true },
-        ],
+        options: getDictOptions(DICT_TYPE.OA_CAR_RETURN_STATUS, 'number'),
         placeholder: '请选择还车状态',
       },
     },
@@ -214,19 +211,14 @@ export function useGridColumns(): VxeTableGridOptions<CarApplyBillApi.CarApplyBi
       align: 'left',
     },
     {
-      field: 'isReturned',
-      title: '是否还车',
+      field: 'returnStatus',
+      title: '还车状态',
       minWidth: 100,
       headerAlign: 'center',
       align: 'center',
       cellRender: {
-        name: 'VbenCellTag',
-        props: ({ row }) => {
-          return {
-            color: row.isReturned ? 'success' : 'warning',
-            text: row.isReturned ? '已还车' : '未还车',
-          };
-        },
+        name: 'CellDict',
+        props: { type: DICT_TYPE.OA_CAR_RETURN_STATUS },
       },
     },
     {

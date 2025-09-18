@@ -163,13 +163,6 @@ export function useGridColumns(): VxeTableGridOptions<CarReturnBillApi.CarReturn
       align: 'left',
     },
     {
-      field: 'applyer',
-      title: '申请人',
-      minWidth: 120,
-      headerAlign: 'center',
-      align: 'left',
-    },
-    {
       field: 'companyName',
       title: '公司名称',
       minWidth: 120,

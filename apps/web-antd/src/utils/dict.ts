@@ -303,6 +303,9 @@ enum DICT_TYPE {
   SYSTEM_SMS_SEND_STATUS = 'system_sms_send_status',
   SYSTEM_SMS_TEMPLATE_TYPE = 'system_sms_template_type',
   SYSTEM_DEPT_ORG_TYPE = 'system_dept_org_type', // 部门组织类型
+  
+  // ========== OA 模块 ==========
+  OA_CAR_RETURN_STATUS = 'oa_car_return_status', // 用车申请单还车状态
 
   SYSTEM_SOCIAL_TYPE = 'system_social_type',
   // ========== SYSTEM 模块 ==========

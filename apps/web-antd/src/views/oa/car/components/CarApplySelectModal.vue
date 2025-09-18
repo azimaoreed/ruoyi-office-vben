@@ -8,6 +8,8 @@ import { useVbenModal } from '@vben/common-ui';
 
 import { message } from 'ant-design-vue';
 
+import {  useUserStore } from '@vben/stores';
+
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getCarApplyBillPage } from '#/api/oa/car/carapply';
 
@@ -15,6 +17,7 @@ import {
   useCarApplySelectColumns,
   useCarApplySelectFormSchema,
 } from './car-apply-select-data';
+import { BpmProcessInstanceStatus } from '#/utils';
 
 /** 定义组件事件 */
 const emit = defineEmits<{
@@ -43,9 +46,11 @@ const [Grid, gridApi] = useVbenVxeGrid({
           const queryParams = {
             pageNo: page.currentPage,
             pageSize: page.pageSize,
+            processStatus: BpmProcessInstanceStatus.APPROVE,
+            creator: useUserStore().userInfo?.id,
             ...formValues,
             // 仅查询未还车的用车申请单
-            isReturned: false,
+            returnStatus: 0, // 0-未还车
           };
           return await getCarApplyBillPage(queryParams);
         },

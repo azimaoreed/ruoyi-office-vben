@@ -7,7 +7,7 @@ import { message, Card, Menu } from 'ant-design-vue';
 import Form from './modules/form.vue';
 
 
-import { ref, computed, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { $t } from '#/locales';
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getCarPage, deleteCar, deleteCarListByIds, exportCar } from '#/api/oa/car/carinfo';

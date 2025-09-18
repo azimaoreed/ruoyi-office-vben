@@ -2,8 +2,6 @@ import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { CarApplyBillApi } from '#/api/oa/car/carapply';
 
-import { DICT_TYPE, getDictOptions } from '#/utils';
-
 /** 用车申请单选择-搜索表单 */
 export function useCarApplySelectFormSchema(): VbenFormSchema[] {
   return [
@@ -14,19 +12,6 @@ export function useCarApplySelectFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入单据编号',
         allowClear: true,
-      },
-    },
-    {
-      fieldName: 'processStatus',
-      label: '单据状态',
-      component: 'Select',
-      componentProps: {
-        allowClear: true,
-        options: getDictOptions(
-          DICT_TYPE.BPM_PROCESS_INSTANCE_STATUS,
-          'number',
-        ),
-        placeholder: '请选择单据状态',
       },
     },
     {
