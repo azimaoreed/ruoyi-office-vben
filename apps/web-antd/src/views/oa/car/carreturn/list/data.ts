@@ -2,15 +2,11 @@ import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { CarReturnBillApi } from '#/api/oa/car';
 
-import { createRouterLinkColumn } from '#/adapter/vxe-table';
 import { handleTree } from '@vben/utils';
 
+import { createRouterLinkColumn } from '#/adapter/vxe-table';
 import { getCompanyList } from '#/api/system/dept';
-import {
-    DICT_TYPE,
-    getRangePickerDefaultProps,
-    getDictOptions,
-} from '#/utils';
+import { DICT_TYPE, getDictOptions, getRangePickerDefaultProps } from '#/utils';
 import { getCurrentUserCompanyDeptTree } from '#/utils/dept-tree';
 
 /** 列表的搜索表单 */
@@ -70,7 +66,7 @@ export function useGridFormSchema(modalRef?: any): VbenFormSchema[] {
       componentProps: {
         allowClear: true,
         api: async () => {
-          let data = await getCompanyList();
+          const data = await getCompanyList();
           return handleTree(data);
         },
         labelField: 'name',
@@ -109,7 +105,7 @@ export function useGridFormSchema(modalRef?: any): VbenFormSchema[] {
 /** 列表的字段 */
 export function useGridColumns(): VxeTableGridOptions<CarReturnBillApi.CarReturnBill>['columns'] {
   return [
-  { type: 'checkbox', width: 40 },
+    { type: 'checkbox', width: 40 },
     createRouterLinkColumn({
       field: 'billCode',
       title: '单据编号',

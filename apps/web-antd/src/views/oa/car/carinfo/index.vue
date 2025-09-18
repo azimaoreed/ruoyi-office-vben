@@ -2,21 +2,26 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { CarApi } from '#/api/oa/car/carinfo';
 
-import { Page, useVbenModal } from '@vben/common-ui';
-import { message, Card, Menu } from 'ant-design-vue';
-import Form from './modules/form.vue';
-
-
 import { ref, watch } from 'vue';
-import { $t } from '#/locales';
-import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getCarPage, deleteCar, deleteCarListByIds, exportCar } from '#/api/oa/car/carinfo';
+
+import { Page, useVbenModal } from '@vben/common-ui';
+import { useUserStore } from '@vben/stores';
 import { downloadFileFromBlobPart, isEmpty } from '@vben/utils';
+
+import { Card, Menu, message } from 'ant-design-vue';
+
+import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
+import {
+  deleteCar,
+  deleteCarListByIds,
+  exportCar,
+  getCarPage,
+} from '#/api/oa/car/carinfo';
+import { $t } from '#/locales';
 import { DICT_TYPE, getDictOptions } from '#/utils';
-import {  useUserStore } from '@vben/stores';
 
 import { useGridColumns, useGridFormSchema } from './data';
-
+import Form from './modules/form.vue';
 
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: Form,
@@ -25,7 +30,7 @@ const [FormModal, formModalApi] = useVbenModal({
 
 const userStore = useUserStore();
 // 分类选择相关状态
-const selectedCarCls = ref<number | null>(null);
+const selectedCarCls = ref<null | number>(null);
 const carClsOptions = getDictOptions(DICT_TYPE.OA_CAR_CLS, 'number');
 
 // 监听分类选择变化，触发表格查询
@@ -39,7 +44,7 @@ function onRefresh() {
 }
 
 /** 选择分类 */
-function handleSelectCarCls(carCls: number | null) {
+function handleSelectCarCls(carCls: null | number) {
   selectedCarCls.value = carCls;
 }
 
@@ -51,7 +56,7 @@ function handleCreate() {
     companyId: userStore.userInfo?.companyId || undefined,
     companyName: userStore.userInfo?.companyName || undefined,
     status: 0, //  空闲
-  }
+  };
   formModalApi.setData(car).open();
 }
 
@@ -59,7 +64,6 @@ function handleCreate() {
 function handleEdit(row: CarApi.Car) {
   formModalApi.setData(row).open();
 }
-
 
 /** 删除车辆信息 */
 async function handleDelete(row: CarApi.Car) {
@@ -97,12 +101,8 @@ async function handleDeleteBatch() {
   }
 }
 
-const deleteIds = ref<number[]>([]) // 待删除车辆信息 ID
-function setDeleteIds({
-  records,
-}: {
-  records: CarApi.Car[];
-}) {
+const deleteIds = ref<number[]>([]); // 待删除车辆信息 ID
+function setDeleteIds({ records }: { records: CarApi.Car[] }) {
   deleteIds.value = records.map((item) => item.id);
 }
 
@@ -112,7 +112,7 @@ async function handleExport() {
   // 合并分类筛选条件
   const exportParams = {
     ...formValues,
-    ...(selectedCarCls.value !== null ? { carCls: selectedCarCls.value } : {}),
+    ...(selectedCarCls.value === null ? {} : { carCls: selectedCarCls.value }),
   };
   const data = await exportCar(exportParams);
   downloadFileFromBlobPart({ fileName: '车辆信息.xls', source: data });
@@ -138,7 +138,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
             ...formValues,
-            ...(selectedCarCls.value !== null ? { carCls: selectedCarCls.value } : {}),
+            ...(selectedCarCls.value === null
+              ? {}
+              : { carCls: selectedCarCls.value }),
           };
           return await getCarPage(queryParams);
         },
@@ -153,10 +155,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
       search: true,
     },
   } as VxeTableGridOptions<CarApi.Car>,
-  gridEvents:{
-      checkboxAll: setDeleteIds,
-      checkboxChange: setDeleteIds,
-  }
+  gridEvents: {
+    checkboxAll: setDeleteIds,
+    checkboxChange: setDeleteIds,
+  },
 });
 </script>
 
@@ -164,20 +166,20 @@ const [Grid, gridApi] = useVbenVxeGrid({
   <Page auto-content-height>
     <FormModal @success="onRefresh" />
 
-    <div class="flex gap-4 h-full">
+    <div class="flex h-full gap-4">
       <!-- 左侧分类选择 -->
       <div class="w-64 flex-shrink-0">
         <Card title="车辆分类" size="small" class="h-full">
           <Menu
-            :selectedKeys="selectedCarCls === null ? ['all'] : [String(selectedCarCls)]"
+            :selected-keys="
+              selectedCarCls === null ? ['all'] : [String(selectedCarCls)]
+            "
             mode="inline"
             :inline-indent="16"
-            class="border-0 car-category-menu"
+            class="car-category-menu border-0"
           >
             <Menu.Item key="all" @click="handleSelectCarCls(null)">
-              <span >
-                全部
-              </span>
+              <span> 全部 </span>
             </Menu.Item>
             <Menu.Item
               v-for="option in carClsOptions"
@@ -193,7 +195,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       </div>
 
       <!-- 右侧表格 -->
-      <div class="flex-1 min-w-0">
+      <div class="min-w-0 flex-1">
         <Grid table-title="车辆信息列表">
           <template #toolbar-tools>
             <TableAction
@@ -251,15 +253,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
         </Grid>
       </div>
     </div>
-
   </Page>
 </template>
 
 <style scoped>
-
-
-
-
 /* 移除菜单整体的右边框 */
 :deep(.car-category-menu.ant-menu-inline) {
   border-right: none !important;

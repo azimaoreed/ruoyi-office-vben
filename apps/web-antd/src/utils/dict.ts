@@ -194,6 +194,8 @@ enum DICT_TYPE {
   AI_WRITE_LENGTH = 'ai_write_length', // AI 写作长度
   AI_WRITE_TONE = 'ai_write_tone', // AI 写作语气
   AI_WRITE_TYPE = 'ai_write_type', // AI 写作类型
+  // ============资产模块==========
+  ASSET_GOODS_UNIT = 'asset_goods_unit',
   BPM_MODEL_FORM_TYPE = 'bpm_model_form_type',
   // ========== BPM 模块 ==========
   BPM_MODEL_TYPE = 'bpm_model_type',
@@ -204,29 +206,31 @@ enum DICT_TYPE {
   BPM_TASK_CANDIDATE_STRATEGY = 'bpm_task_candidate_strategy',
   BPM_TASK_STATUS = 'bpm_task_status',
   BROKERAGE_BANK_NAME = 'brokerage_bank_name', // 佣金提现银行
-  BROKERAGE_BIND_MODE = 'brokerage_bind_mode', // 分销关系绑定模式
 
+  BROKERAGE_BIND_MODE = 'brokerage_bind_mode', // 分销关系绑定模式
   BROKERAGE_ENABLED_CONDITION = 'brokerage_enabled_condition', // 分佣模式
   BROKERAGE_RECORD_BIZ_TYPE = 'brokerage_record_biz_type', // 佣金业务类型
   BROKERAGE_RECORD_STATUS = 'brokerage_record_status', // 佣金状态
   BROKERAGE_WITHDRAW_STATUS = 'brokerage_withdraw_status', // 佣金提现状态
   BROKERAGE_WITHDRAW_TYPE = 'brokerage_withdraw_type', // 佣金提现类型
   COMMON_STATUS = 'common_status',
+  // 公共
+  COMMON_YES_NO = 'common_yes_no',
   // ========== CRM - 客户管理模块 ==========
   CRM_AUDIT_STATUS = 'crm_audit_status', // CRM 审批状态
   CRM_BIZ_TYPE = 'crm_biz_type', // CRM 业务类型
+
   CRM_BUSINESS_END_STATUS_TYPE = 'crm_business_end_status_type', // CRM 商机结束状态类型
   CRM_CUSTOMER_INDUSTRY = 'crm_customer_industry', // CRM 客户所属行业
-
   CRM_CUSTOMER_LEVEL = 'crm_customer_level', // CRM 客户级别
   CRM_CUSTOMER_SOURCE = 'crm_customer_source', // CRM 客户来源
   CRM_FOLLOW_UP_TYPE = 'crm_follow_up_type', // CRM 跟进方式
   CRM_PERMISSION_LEVEL = 'crm_permission_level', // CRM 数据权限的级别
   CRM_PRODUCT_STATUS = 'crm_product_status', // CRM 商品状态
   CRM_PRODUCT_UNIT = 'crm_product_unit', // CRM 产品单位
+
   CRM_RECEIVABLE_RETURN_TYPE = 'crm_receivable_return_type', // CRM 回款的还款方式
   DATE_INTERVAL = 'date_interval', // 数据间隔
-
   // ========== ERP - 企业资源计划模块  ==========
   ERP_AUDIT_STATUS = 'erp_audit_status', // ERP 审批状态
   ERP_STOCK_RECORD_BIZ_TYPE = 'erp_stock_record_biz_type', // 库存明细的业务类型
@@ -235,6 +239,7 @@ enum DICT_TYPE {
   INFRA_API_ERROR_LOG_PROCESS_STATUS = 'infra_api_error_log_process_status',
   // ========== INFRA 模块 ==========
   INFRA_BOOLEAN_STRING = 'infra_boolean_string',
+
   INFRA_CODEGEN_FRONT_TYPE = 'infra_codegen_front_type',
   INFRA_CODEGEN_SCENE = 'infra_codegen_scene',
 
@@ -242,10 +247,9 @@ enum DICT_TYPE {
   INFRA_CONFIG_TYPE = 'infra_config_type',
 
   INFRA_FILE_STORAGE = 'infra_file_storage',
+
   INFRA_JOB_LOG_STATUS = 'infra_job_log_status',
-
   INFRA_JOB_STATUS = 'infra_job_status',
-
   INFRA_OPERATE_TYPE = 'infra_operate_type',
   IOT_DATA_FORMAT = 'iot_data_format', // IOT 数据格式
   IOT_DATA_TYPE = 'iot_data_type', // IOT 数据类型
@@ -260,15 +264,22 @@ enum DICT_TYPE {
   IOT_UNIT_TYPE = 'iot_unit_type', // IOT 单位类型
   IOT_VALIDATE_TYPE = 'iot_validate_type', // IOT 数据校验级别
   MEMBER_EXPERIENCE_BIZ_TYPE = 'member_experience_biz_type', // 会员经验业务类型
+
   // ========== Member 会员模块 ==========
   MEMBER_POINT_BIZ_TYPE = 'member_point_biz_type', // 积分的业务类型
   // ========== MP 模块 ==========
   MP_AUTO_REPLY_REQUEST_MATCH = 'mp_auto_reply_request_match', // 自动回复请求匹配类型
-
   MP_MESSAGE_TYPE = 'mp_message_type', // 消息类型
+  // ========== OA 模块 ==========
+  OA_CAR_CLS = 'oa_car_cls', // 车辆分类
+  // ========== OA 模块 ==========
+  OA_CAR_RETURN_STATUS = 'oa_car_return_status', // 用车申请单还车状态
+  OA_CAR_TYPE = 'oa_car_type', // 车辆类型
+  OA_CAR_USE_STATUS = 'oa_car_use_status', // 车辆使用状态
   // ========== PAY 模块 ==========
   PAY_CHANNEL_CODE = 'pay_channel_code', // 支付渠道编码类型
   PAY_NOTIFY_STATUS = 'pay_notify_status', // 商户支付回调状态
+
   PAY_NOTIFY_TYPE = 'pay_notify_type', // 商户支付回调状态
   PAY_ORDER_STATUS = 'pay_order_status', // 商户支付订单状态
   PAY_REFUND_STATUS = 'pay_refund_status', // 退款订单状态
@@ -276,37 +287,34 @@ enum DICT_TYPE {
   PAY_TRANSFER_TYPE = 'pay_transfer_type', // 转账订单状态
   // ========== MALL - 商品模块 ==========
   PRODUCT_SPU_STATUS = 'product_spu_status', // 商品状态
-
   PROMOTION_BANNER_POSITION = 'promotion_banner_position', // banner 定位
   PROMOTION_BARGAIN_RECORD_STATUS = 'promotion_bargain_record_status', // 砍价记录的状态
   PROMOTION_COMBINATION_RECORD_STATUS = 'promotion_combination_record_status', // 拼团记录的状态
   PROMOTION_CONDITION_TYPE = 'promotion_condition_type', // 营销的条件类型枚举
   PROMOTION_COUPON_STATUS = 'promotion_coupon_status', // 优惠劵的状态
+
   PROMOTION_COUPON_TAKE_TYPE = 'promotion_coupon_take_type', // 优惠劵的领取方式
   PROMOTION_COUPON_TEMPLATE_VALIDITY_TYPE = 'promotion_coupon_template_validity_type', // 优惠劵模板的有限期类型
+
   // ========== MALL - 营销模块 ==========
   PROMOTION_DISCOUNT_TYPE = 'promotion_discount_type', // 优惠类型
   PROMOTION_PRODUCT_SCOPE = 'promotion_product_scope', // 营销的商品范围
   SYSTEM_DATA_SCOPE = 'system_data_scope',
+  SYSTEM_DEPT_ORG_TYPE = 'system_dept_org_type', // 部门组织类型
   SYSTEM_LOGIN_RESULT = 'system_login_result',
-
   SYSTEM_LOGIN_TYPE = 'system_login_type',
   SYSTEM_MAIL_SEND_STATUS = 'system_mail_send_status',
-
   SYSTEM_MENU_TYPE = 'system_menu_type',
   SYSTEM_NOTICE_TYPE = 'system_notice_type',
   SYSTEM_NOTIFY_TEMPLATE_TYPE = 'system_notify_template_type',
+
   SYSTEM_OAUTH2_GRANT_TYPE = 'system_oauth2_grant_type',
+
   SYSTEM_ROLE_TYPE = 'system_role_type',
   SYSTEM_SMS_CHANNEL_CODE = 'system_sms_channel_code',
   SYSTEM_SMS_RECEIVE_STATUS = 'system_sms_receive_status',
   SYSTEM_SMS_SEND_STATUS = 'system_sms_send_status',
   SYSTEM_SMS_TEMPLATE_TYPE = 'system_sms_template_type',
-  SYSTEM_DEPT_ORG_TYPE = 'system_dept_org_type', // 部门组织类型
-  
-  // ========== OA 模块 ==========
-  OA_CAR_RETURN_STATUS = 'oa_car_return_status', // 用车申请单还车状态
-
   SYSTEM_SOCIAL_TYPE = 'system_social_type',
   // ========== SYSTEM 模块 ==========
   SYSTEM_USER_SEX = 'system_user_sex',
@@ -314,29 +322,23 @@ enum DICT_TYPE {
   TRADE_AFTER_SALE_STATUS = 'trade_after_sale_status', // 售后 - 状态
   TRADE_AFTER_SALE_TYPE = 'trade_after_sale_type', // 售后 - 类型
   TRADE_AFTER_SALE_WAY = 'trade_after_sale_way', // 售后 - 方式
+
   TRADE_DELIVERY_TYPE = 'trade_delivery_type', // 配送方式
   TRADE_ORDER_ITEM_AFTER_SALE_STATUS = 'trade_order_item_after_sale_status', // 订单项 - 售后状态
   TRADE_ORDER_STATUS = 'trade_order_status', // 订单 - 状态
+
   TRADE_ORDER_TYPE = 'trade_order_type', // 订单 - 类型
+
   USER_TYPE = 'user_type',
-
-  // ========== OA 模块 ==========
-  OA_CAR_CLS = 'oa_car_cls', // 车辆分类
-  OA_CAR_TYPE = 'oa_car_type', // 车辆类型
-  OA_CAR_USE_STATUS = 'oa_car_use_status', // 车辆使用状态
-
-  // ============资产模块==========
-  ASSET_GOODS_UNIT = 'asset_goods_unit',
-
   // ============仓库管理=================
-  WMS_CATEGORY_CODE ='wms_category_code',
-  // 公共
-  COMMON_YES_NO ='common_yes_no',
+  WMS_CATEGORY_CODE = 'wms_category_code',
 }
 
 export {
-  DICT_TYPE, getDictLabel,
+  type ColorType,
+  DICT_TYPE,
+  type DictValueType,
+  getDictLabel,
   getDictObj,
-  getDictOptions, type ColorType, type DictValueType
+  getDictOptions,
 };
-

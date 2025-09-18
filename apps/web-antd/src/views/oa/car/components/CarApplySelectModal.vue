@@ -5,19 +5,18 @@ import type { CarApplyBillApi } from '#/api/oa/car/carapply';
 import { reactive } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
+import { useUserStore } from '@vben/stores';
 
 import { message } from 'ant-design-vue';
 
-import {  useUserStore } from '@vben/stores';
-
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getCarApplyBillPage } from '#/api/oa/car/carapply';
+import { BpmProcessInstanceStatus } from '#/utils';
 
 import {
   useCarApplySelectColumns,
   useCarApplySelectFormSchema,
 } from './car-apply-select-data';
-import { BpmProcessInstanceStatus } from '#/utils';
 
 /** 定义组件事件 */
 const emit = defineEmits<{

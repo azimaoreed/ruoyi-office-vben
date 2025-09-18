@@ -204,25 +204,25 @@ function handleCarSelect(val: any) {
 function handleApplySelect(val: any) {
   if (basicFormRef.value && val && val.billCode) {
     const values: Record<string, any> = { applyBill: val.billCode };
-    
+
     // 自动填充车辆信息
     values.carNo = val.carNo;
     values.carId = val.carId;
-    
+
     // 自动填充时间信息
     values.goTime = val.goTime;
     values.returnTime = val.returnTime;
-    
+
     // 自动填充地点信息
     values.goArea = val.goArea;
     values.returnArea = val.returnArea;
-    
+
     // 自动填充随行人信息
     values.passenger = val.passenger;
-    
+
     // 自动填充用车事由
     values.cause = val.cause;
-    
+
     basicFormRef.value.setFormValues(values);
   }
 }
