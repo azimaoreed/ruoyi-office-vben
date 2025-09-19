@@ -48,8 +48,8 @@ const [Grid, gridApi] = useVbenVxeGrid({
             processStatus: BpmProcessInstanceStatus.APPROVE,
             creator: useUserStore().userInfo?.id,
             ...formValues,
-            // 仅查询未还车的用车申请单
-            returnStatus: 0, // 0-未还车
+            // 仅查询待还车的用车申请单
+            returnStatus: 1, // 1-待还车
           };
           return await getCarApplyBillPage(queryParams);
         },
