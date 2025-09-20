@@ -57,27 +57,7 @@ export function useGridFormSchema(modalRef?: any): VbenFormSchema[] {
         placeholder: '请输入用车申请单',
       },
     },
-    {
-      fieldName: 'companyId',
-      label: '所属公司',
-      component: 'ApiTreeSelect',
-      dependencies: {
-        triggerFields: [''],
-        show: () => false,
-      },
-      componentProps: {
-        allowClear: true,
-        api: async () => {
-          const data = await getCompanyList();
-          return handleTree(data);
-        },
-        labelField: 'name',
-        valueField: 'id',
-        childrenField: 'children',
-        placeholder: '请选择公司',
-        treeDefaultExpandAll: true,
-      },
-    },
+
     {
       fieldName: 'deptId',
       label: '申请部门',

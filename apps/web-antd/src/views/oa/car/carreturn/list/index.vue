@@ -227,7 +227,7 @@ onActivated(() => {
                 ),
               auth: ['oa:car-return-bill:delete'],
               popConfirm: {
-                title: $t('ui.actionMessage.deleteConfirm', [row.id]),
+                title: $t('ui.actionMessage.deleteConfirm', [row.billCode]),
                 confirm: handleDelete.bind(null, row),
               },
             },

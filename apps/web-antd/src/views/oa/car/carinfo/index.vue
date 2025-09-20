@@ -104,7 +104,7 @@ async function handleDeleteBatch() {
 
 const deleteIds = ref<number[]>([]); // 待删除车辆信息 ID
 function setDeleteIds({ records }: { records: CarApi.Car[] }) {
-  deleteIds.value = records.map((item) => item.id);
+  deleteIds.value = records.map((item) => item.id).filter((id): id is number => id !== undefined);
 }
 
 /** 导出表格 */
@@ -184,8 +184,8 @@ const [Grid, gridApi] = useVbenVxeGrid({
             </Menu.Item>
             <Menu.Item
               v-for="option in carClsOptions"
-              :key="String(option.value)"
-              @click="handleSelectCarCls(option.value)"
+              :key="String(option.value)" 
+              @click="handleSelectCarCls(Number(option.value))"
             >
               <span>
                 {{ option.label }}
@@ -244,7 +244,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
                   icon: ACTION_ICON.DELETE,
                   auth: ['oa:car:delete'],
                   popConfirm: {
-                    title: $t('ui.actionMessage.deleteConfirm', [row.id]),
+                    title: $t('ui.actionMessage.deleteConfirm', [row.carNo]),
                     confirm: handleDelete.bind(null, row),
                   },
                 },
