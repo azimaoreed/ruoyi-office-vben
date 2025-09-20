@@ -21,7 +21,7 @@ import {
 } from '#/api/oa/car/carapply';
 import { $t } from '#/locales';
 
-import CarSelectModal from '../../components/CarSelectModal.vue';
+import { CarSelectModal } from '../../components';
 import { useGridColumns, useGridFormSchema } from './data';
 
 const userStore = useUserStore();

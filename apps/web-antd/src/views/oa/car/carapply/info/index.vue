@@ -6,6 +6,10 @@ import { nextTick, onMounted, ref, shallowRef } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { Loading } from '@vben/common-ui';
+import {
+  BpmProcessInstanceStatus,
+  BpmProcessInstanceStatusEditValue,
+} from '@vben/constants';
 import { useTabs } from '@vben/hooks';
 import { useUserStore } from '@vben/stores';
 
@@ -17,14 +21,10 @@ import {
   saveCarApplyBill,
   submitCarApplyBill,
 } from '#/api/oa/car/carapply';
-import { BasicForm } from '#/components/basicForm';
+import { BasicForm } from '#/components/basic-form';
 import { $t } from '#/locales';
-import {
-  BpmProcessInstanceStatus,
-  BpmProcessInstanceStatusEditValue,
-} from '@vben/constants';
 
-import CarSelectModal from '../../components/CarSelectModal.vue';
+import { CarSelectModal } from '../../components';
 import { useFormSchema } from './data';
 
 // 定义组件 props

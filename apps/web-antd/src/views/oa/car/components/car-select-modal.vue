@@ -11,10 +11,7 @@ import { message } from 'ant-design-vue';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getCarPage } from '#/api/oa/car/carinfo';
 
-import {
-  useCarSelectColumns,
-  useCarSelectFormSchema,
-} from './car-select-data';
+import { useCarSelectColumns, useCarSelectFormSchema } from './car-select-data';
 
 /** 定义组件事件 */
 const emit = defineEmits<{
@@ -26,7 +23,7 @@ const formData = reactive({
 });
 
 /** 表格实例 */
-const [Grid, gridApi] = useVbenVxeGrid({
+const [Grid] = useVbenVxeGrid({
   separator: false,
   formOptions: {
     schema: useCarSelectFormSchema(),

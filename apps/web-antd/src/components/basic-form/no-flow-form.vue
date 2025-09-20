@@ -13,7 +13,7 @@ import { onMounted } from 'vue';
 
 import { Page } from '@vben/common-ui';
 
-import footerForm from './footerForm.vue';
+import footerForm from './footer-form.vue';
 
 interface Props {
   headerTitle?: string;

@@ -9,7 +9,11 @@
 <script lang="ts" setup>
 import type { headerDataProps } from './typing';
 
-import { BILL_FLOW_STATUS, BpmProcessInstanceStatus, getStatusColor } from '@vben/constants';
+import {
+  BILL_FLOW_STATUS,
+  BpmProcessInstanceStatus,
+  getStatusColor,
+} from '@vben/constants';
 import { formatDate } from '@vben/utils';
 
 interface Props {
@@ -26,7 +30,6 @@ const props = withDefaults(defineProps<Props>(), {
     processStatus: BpmProcessInstanceStatus.NOT_START,
   }),
 });
-debugger
 // 获取审批状态名称
 const getStatusName = (val: any) => {
   const name: any = BILL_FLOW_STATUS.find((item: any) => item.value === val);

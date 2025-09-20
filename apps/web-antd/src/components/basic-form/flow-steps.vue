@@ -7,9 +7,9 @@
 -->
 
 <script lang="ts" setup>
-import { Steps, Tag } from 'ant-design-vue';
-
 import { getStatusColor } from '@vben/constants';
+
+import { Steps, Tag } from 'ant-design-vue';
 // 传入组件参数
 const props = defineProps({
   currentStep: {

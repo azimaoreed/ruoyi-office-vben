@@ -1,4 +1,3 @@
-
 /*
  * @Author: zhanghui
  * @Date: 2025-07-26 17:16:44
@@ -8,14 +7,9 @@
  */
 export type headerDataProps = {
   /**
-   * 申请人
+   * 申请单编号
    */
-  creatorName?: string;
-
-  /**
-   * 申请日期
-   */
-  createTime?: string | Date;
+  billCode?: string;
 
   /**
    * 标题
@@ -23,14 +17,19 @@ export type headerDataProps = {
   billName?: string;
 
   /**
-   * 申请单编号
-   */
-  billCode?: string;
-  /**
    * 所属单位
    */
   companyId?: number;
+
   companyName?: string;
+  /**
+   * 申请日期
+   */
+  createTime?: Date | string;
+  /**
+   * 申请人
+   */
+  creatorName?: string;
   /**
    * 所属部门
    */
@@ -38,9 +37,9 @@ export type headerDataProps = {
   deptName?: string;
 
   /**
-   * 审批状态
+   * 单据ID
    */
-  processStatus?: number;
+  id?: number;
 
   /**
    * 流程实例ID
@@ -48,7 +47,7 @@ export type headerDataProps = {
   processInstanceId?: string;
 
   /**
-   * 单据ID
+   * 审批状态
    */
-  id?: number;
+  processStatus?: number;
 };

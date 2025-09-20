@@ -18,7 +18,7 @@ defineProps<Props>();
       <span class="card-head-text">{{ title }}</span>
     </div>
     <div class="h-full">
-      <slot />
+      <slot></slot>
     </div>
   </div>
 </template>
@@ -44,4 +44,4 @@ defineProps<Props>();
     border-radius: 2px;
   }
 }
-</style> 
+</style>

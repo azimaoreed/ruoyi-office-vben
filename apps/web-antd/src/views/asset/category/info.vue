@@ -14,7 +14,7 @@ import {
   getCategory,
   updateCategory,
 } from '#/api/asset/category';
-import { NoFlowForm } from '#/components/basicForm';
+import { NoFlowForm } from '#/components/basic-form';
 import { $t } from '#/locales';
 
 import FormContent from './components/FormContent.vue';

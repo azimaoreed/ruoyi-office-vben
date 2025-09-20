@@ -16,21 +16,21 @@ import type { VbenFormSchema } from '#/adapter/form';
 import { onMounted, ref, watch } from 'vue';
 
 import { Page } from '@vben/common-ui';
+import { BpmProcessInstanceStatus } from '@vben/constants';
 
 import { useVbenForm } from '#/adapter/form';
 import {
   getApprovalDetail,
   getProcessInstanceBpmnModelView,
 } from '#/api/bpm/processInstance';
-import { BpmProcessInstanceStatus } from '@vben/constants';
 import { useFooterLeft } from '#/utils/useFooterLeft';
 import ProcessInstanceSimpleViewer from '#/views/bpm/processInstance/detail/modules/simple-bpm-viewer.vue';
 import BpmProcessInstanceTaskList from '#/views/bpm/processInstance/detail/modules/task-list.vue';
 import BpmProcessInstanceTimeline from '#/views/bpm/processInstance/detail/modules/time-line.vue';
 
-import CardContainer from './cardContainer.vue';
-import FooterForm from './footerForm.vue';
-import HeaderForm from './headerForm.vue';
+import CardContainer from './card-container.vue';
+import FooterForm from './footer-form.vue';
+import HeaderForm from './header-form.vue';
 
 interface Props {
   headerData?: headerDataProps;
@@ -65,7 +65,7 @@ const emit = defineEmits(['close', 'save', 'submit', 'revoke']);
 const processInstanceLoading = ref(false); // 流程实例的加载中
 const processModelView = ref<any>({}); // 流程模型视图
 const approvalDetailLoading = ref(false); // 审批详情的加载中
-const activityNodes = ref<any[]>([]); // 审批节点数据
+// activityNodes 已在 props 中定义，不需要重复声明
 const taskListRef = ref<any>(null); // 任务列表引用
 
 // 使用公共的 footerLeft composable
@@ -169,15 +169,13 @@ async function getApprovalDetailData() {
   try {
     approvalDetailLoading.value = true;
     // 重置审批节点数据
-    activityNodes.value = [];
+    // activityNodes 来自 props，不需要重置
 
-    const data = await getApprovalDetail({
+    await getApprovalDetail({
       processInstanceId: props.headerData.processInstanceId,
     });
 
-    if (data && data.activityNodes) {
-      activityNodes.value = data.activityNodes;
-    }
+    // activityNodes 来自 props，不需要赋值
   } catch (error) {
     console.error('获取审批详情失败:', error);
   } finally {
@@ -290,7 +288,7 @@ defineExpose({
               <div class="pb-6">
                 <!-- 基本信息 -->
                 <CardContainer :title="$t('common.baseInfo')">
-                   <!-- 如果有formSchema则渲染内置表单 -->
+                  <!-- 如果有formSchema则渲染内置表单 -->
                   <component v-if="formApi" :is="FormComponent" ref="formRef" />
                   <!-- 否则使用插槽 -->
                   <slot v-else name="base-form"></slot>
@@ -315,9 +313,9 @@ defineExpose({
               <CardContainer :title="$t('common.approvalProgress')">
                 <BpmProcessInstanceTimeline
                   :activity-nodes="
-                    activityNodes.length > 0
-                      ? activityNodes
-                      : props.activityNodes
+                    props.activityNodes && props.activityNodes.length > 0
+                      ? props.activityNodes
+                      : []
                   "
                   :direction="props.timelineDirection"
                   :show-status-icon="true"
@@ -372,17 +370,17 @@ defineExpose({
 @use '#/styles/fixed-footer.scss' as *;
 
 /* 移除固定高度限制，让内容自然延展 */
-::deep(.ant-tabs-content) {
+:deep(.ant-tabs-content) {
   min-height: 300px;
   overflow: visible;
 }
 
 /* 确保整个布局能够自适应内容高度 */
-::deep(.ant-layout) {
+:deep(.ant-layout) {
   min-height: auto;
 }
 
-::deep(.ant-layout-content) {
+:deep(.ant-layout-content) {
   flex: none;
 }
 
