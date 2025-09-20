@@ -18,7 +18,8 @@ import {
   getCarPage,
 } from '#/api/oa/car/carinfo';
 import { $t } from '#/locales';
-import { DICT_TYPE, getDictOptions } from '#/utils';
+import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 
 import { useGridColumns, useGridFormSchema } from './data';
 import Form from './modules/form.vue';

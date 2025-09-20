@@ -7,7 +7,8 @@ import { useRouter } from 'vue-router';
 import { IconifyIcon } from '@vben/icons';
 import { $te } from '@vben/locales';
 import {
-  AsyncComponents,
+  AsyncVxeColumn,
+  AsyncVxeTable,
   createRequiredValidation,
   setupVbenVxeTable,
   useVbenVxeGrid,
@@ -34,8 +35,6 @@ import { DictTag } from '#/components/dict-tag';
 import { $t } from '#/locales';
 
 import { useVbenForm } from './form';
-
-import '#/adapter/style.css';
 
 setupVbenVxeTable({
   configVxeTable: (vxeUI) => {
@@ -124,7 +123,7 @@ setupVbenVxeTable({
         const { props } = renderOpts;
         const { column, row } = params;
         const router = useRouter();
-        
+
         if (!props?.path) {
           console.warn('CellRouterLink: path 属性是必需的');
           return row[column.field];
@@ -152,7 +151,7 @@ setupVbenVxeTable({
             type: 'link',
             onClick: handleClick,
           },
-          { default: () => row[props.field || column.field] }
+          { default: () => row[props.field || column.field] },
         );
       },
     });
@@ -381,21 +380,20 @@ setupVbenVxeTable({
       },
     });
 
-
     // 金额格式化（不带元后缀，用于通用金额显示）
     vxeUI.formats.add('formatAmount', {
       tableCellFormatMethod({ cellValue }) {
         if (cellValue === null || cellValue === undefined || cellValue === '') {
           return '';
         }
-        const number = parseFloat(cellValue);
+        const number = Number.parseFloat(cellValue);
         if (isNaN(number)) {
           return cellValue;
         }
         // 保留两位小数并添加千分位分割
         return number.toLocaleString('zh-CN', {
           minimumFractionDigits: 2,
-          maximumFractionDigits: 2
+          maximumFractionDigits: 2,
         });
       },
     });
@@ -415,22 +413,20 @@ setupVbenVxeTable({
   useVbenForm,
 });
 
-export { createRequiredValidation, useVbenVxeGrid };
-
 /**
  * 创建路由链接列配置的辅助函数
  * @param config 列配置选项
  * @returns 完整的列配置对象
  */
 export function createRouterLinkColumn(config: {
+  align?: 'center' | 'left' | 'right';
   field: string;
-  title: string;
-  path: string;
+  headerAlign?: 'center' | 'left' | 'right';
   idField?: string;
-  queryParam?: string;
   minWidth?: number;
-  headerAlign?: 'left' | 'center' | 'right';
-  align?: 'left' | 'center' | 'right';
+  path: string;
+  queryParam?: string;
+  title: string;
 }) {
   return {
     field: config.field,
@@ -450,16 +446,10 @@ export function createRouterLinkColumn(config: {
   };
 }
 
-const [VxeTable, VxeColumn, VxeToolbar] = AsyncComponents;
-export { VxeColumn, VxeTable, VxeToolbar };
+export { createRequiredValidation, useVbenVxeGrid };
 
-// add by 芋艿：from https://github.com/vbenjs/vue-vben-admin/blob/main/playground/src/adapter/vxe-table.ts#L264-L270
-export type OnActionClickParams<T = Recordable<any>> = {
-  code: string;
-  row: T;
-};
-export type OnActionClickFn<T = Recordable<any>> = (
-  params: OnActionClickParams<T>,
-) => void;
+export const [VxeTable, VxeColumn] = [AsyncVxeTable, AsyncVxeColumn];
+
 export * from '#/components/table-action';
+
 export type * from '@vben/plugins/vxe-table';

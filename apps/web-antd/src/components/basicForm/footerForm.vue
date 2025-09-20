@@ -9,7 +9,7 @@
 <script lang="ts" setup>
 import { Button, Space } from 'ant-design-vue';
 
-import { BpmProcessInstanceStatus, BpmProcessInstanceStatusEditValue } from '#/utils';
+import { BpmProcessInstanceStatus, BpmProcessInstanceStatusEditValue } from '@vben/constants';
 
 // 传入组件参数
 const props = defineProps({

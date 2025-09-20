@@ -22,7 +22,7 @@ import { $t } from '#/locales';
 import {
   BpmProcessInstanceStatus,
   BpmProcessInstanceStatusEditValue,
-} from '#/utils';
+} from '@vben/constants';
 
 import CarSelectModal from '../../components/CarSelectModal.vue';
 import { useFormSchema } from './data';
@@ -107,11 +107,6 @@ async function handleSaveAndSubmit(isSubmit: boolean) {
     // 保存后重新加载数据
     await loadData();
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : '保存失败';
-    message.error({
-      content: errorMessage,
-      key: 'action_key_msg',
-    });
     console.error('保存用车申请单失败:', error);
   } finally {
     loading.value = false;

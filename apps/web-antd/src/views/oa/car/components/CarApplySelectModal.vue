@@ -11,7 +11,7 @@ import { message } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getCarApplyBillPage } from '#/api/oa/car/carapply';
-import { BpmProcessInstanceStatus } from '#/utils';
+import { BpmProcessInstanceStatus } from '@vben/constants';
 
 import {
   useCarApplySelectColumns,
@@ -49,7 +49,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
             creator: useUserStore().userInfo?.id,
             ...formValues,
             // 仅查询未还车的用车申请单
-            returnStatus: 0, // 0-未还车
+            returnStatus: 1, // 1-待还车
           };
           return await getCarApplyBillPage(queryParams);
         },

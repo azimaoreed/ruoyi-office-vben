@@ -2,7 +2,7 @@
 import type { CarApi } from '#/api/oa/car/carinfo';
 
 import { useVbenModal } from '@vben/common-ui';
-import { message, Tabs, Checkbox, Input, Textarea, Select,RadioGroup,CheckboxGroup, DatePicker } from 'ant-design-vue';
+import { message } from 'ant-design-vue';
 
 import { computed, ref } from 'vue';
 import { $t } from '#/locales';

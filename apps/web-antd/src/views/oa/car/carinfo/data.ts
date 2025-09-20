@@ -4,7 +4,8 @@ import type { CarApi } from '#/api/oa/car/carinfo';
 import { handleTree } from '@vben/utils';
 
 import { getCompanyList } from '#/api/system/dept';
-import { DICT_TYPE, getDictOptions } from '#/utils';
+import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {

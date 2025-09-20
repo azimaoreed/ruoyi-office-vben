@@ -22,7 +22,7 @@ import { $t } from '#/locales';
 import {
   BpmProcessInstanceStatus,
   BpmProcessInstanceStatusEditValue,
-} from '#/utils';
+} from '@vben/constants';
 
 import CarApplySelectModal from '../../components/CarApplySelectModal.vue';
 import CarSelectModal from '../../components/CarSelectModal.vue';

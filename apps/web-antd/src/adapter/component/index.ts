@@ -24,6 +24,9 @@ const AutoComplete = defineAsyncComponent(
   () => import('ant-design-vue/es/auto-complete'),
 );
 const Button = defineAsyncComponent(() => import('ant-design-vue/es/button'));
+const Cascader = defineAsyncComponent(
+  () => import('ant-design-vue/es/cascader'),
+);
 const Checkbox = defineAsyncComponent(
   () => import('ant-design-vue/es/checkbox'),
 );
@@ -60,6 +63,9 @@ const Textarea = defineAsyncComponent(() =>
 );
 const TimePicker = defineAsyncComponent(
   () => import('ant-design-vue/es/time-picker'),
+);
+const TimeRangePicker = defineAsyncComponent(() =>
+  import('ant-design-vue/es/time-picker').then((res) => res.TimeRangePicker),
 );
 const TreeSelect = defineAsyncComponent(
   () => import('ant-design-vue/es/tree-select'),
@@ -120,6 +126,7 @@ const withDefaultPlaceholder = <T extends Component>(
 
 // 这里需要自行根据业务组件库进行适配，需要用到的组件都需要在这里类型说明
 export type ComponentType =
+  | 'ApiCascader'
   | 'ApiSelect'
   | 'ApiTreeSelect'
   | 'AutoComplete'
@@ -148,6 +155,7 @@ export type ComponentType =
   | 'Switch'
   | 'Textarea'
   | 'TimePicker'
+  | 'TimeRangePicker'
   | 'TreeSelect'
   | 'Upload'
   | BaseFormComponentType;
@@ -158,6 +166,21 @@ async function initComponentAdapter() {
     // Button: () =>
     // import('xxx').then((res) => res.Button),
     InputAmount: withDefaultPlaceholder(InputAmount, 'input'),
+    ApiCascader: withDefaultPlaceholder(
+      {
+        ...ApiComponent,
+        name: 'ApiCascader',
+      },
+      'select',
+      {
+        component: Cascader,
+        fieldNames: { label: 'label', value: 'value', children: 'children' },
+        loadingSlot: 'suffixIcon',
+        modelPropName: 'value',
+        optionsPropName: 'treeData',
+        visibleEvent: 'onVisibleChange',
+      },
+    ),
     ApiSelect: withDefaultPlaceholder(
       {
         ...ApiComponent,
@@ -218,6 +241,7 @@ async function initComponentAdapter() {
     Textarea: withDefaultPlaceholder(Textarea, 'input'),
     RichTextarea,
     TimePicker,
+    TimeRangePicker,
     TreeSelect: withDefaultPlaceholder(TreeSelect, 'select'),
     Upload,
     FileUpload,

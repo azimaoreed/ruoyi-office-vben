@@ -6,7 +6,8 @@ import { h } from 'vue';
 
 import { Tag } from 'ant-design-vue';
 
-import { DICT_TYPE, getDictOptions } from '#/utils';
+import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 
 /** 车辆选择搜索表单配置 */
 export function useCarSelectFormSchema(): VbenFormSchema[] {

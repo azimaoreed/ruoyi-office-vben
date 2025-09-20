@@ -78,7 +78,7 @@ export const rejectTask = async (data: any) => {
 /** 根据流程实例 ID 查询任务列表 */
 export const getTaskListByProcessInstanceId = async (id: string) => {
   return await requestClient.get(
-    `/bpm/task/list-by-process-instance-id?processInstanceId=${id}`
+    `/bpm/task/list-by-process-instance-id?processInstanceId=${id}`,
   );
 };
 
@@ -133,5 +133,7 @@ export const getChildrenTaskList = async (id: string) => {
 
 // 撤回任务
 export const withdrawTask = async (taskId: string) => {
-  return await requestClient.put('/bpm/task/withdraw', null, { params: { taskId } });
+  return await requestClient.put('/bpm/task/withdraw', null, {
+    params: { taskId },
+  });
 };

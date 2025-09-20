@@ -46,6 +46,15 @@ export function useFormSchema(
       },
     },
     {
+      fieldName: 'carId',
+      label: '车辆id',
+      component: 'Input',
+      dependencies: {
+        triggerFields: [''],
+        show: () => false,
+      },
+    },
+    {
       fieldName: 'goTime',
       label: '出车时间',
       rules: 'required',

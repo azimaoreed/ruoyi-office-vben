@@ -10,7 +10,7 @@
  */
 // TODO @芋艿：后续这些 form-create 的优化；另外需要使用 form-create-helper 会好点
 import { isRef } from 'vue';
-import { BpmProcessInstanceStatus } from './constants';
+import { BpmProcessInstanceStatus } from '@vben/constants';
 
 import formCreate from '@form-create/ant-design-vue';
 // 编码表单 Conf
@@ -63,41 +63,5 @@ export const setConfAndFields2 = (
   detailPreview.rule = decodeFields(fields);
   if (value) {
     detailPreview.value = value;
-  }
-};
-
-// 获取审批状态颜色
-export const getStatusColor = (val: any) => {
-  switch (val) {
-    case BpmProcessInstanceStatus.RUNNING: {
-      return {
-        color: '#1677ff',
-        status: 'processing',
-      };
-    }
-    case BpmProcessInstanceStatus.APPROVE: {
-      return {
-        color: '#87d068',
-        status: 'success',
-      };
-    }
-    case BpmProcessInstanceStatus.REJECT: {
-      return {
-        color: '#ff4d4f',
-        status: 'error',
-      };
-    }
-    case BpmProcessInstanceStatus.CANCEL: {
-      return {
-        color: '#faad14',
-        status: 'orange',
-      };
-    }
-    default: {
-      return {
-        color: '#000005',
-        status: 'default',
-      };
-    }
   }
 };

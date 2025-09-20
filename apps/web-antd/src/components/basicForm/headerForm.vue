@@ -9,7 +9,7 @@
 <script lang="ts" setup>
 import type { headerDataProps } from './typing';
 
-import { BILL_FLOW_STATUS, BpmProcessInstanceStatus, getStatusColor } from '#/utils';
+import { BILL_FLOW_STATUS, BpmProcessInstanceStatus, getStatusColor } from '@vben/constants';
 import { formatDate } from '@vben/utils';
 
 interface Props {

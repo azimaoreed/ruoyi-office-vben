@@ -6,7 +6,9 @@ import { handleTree } from '@vben/utils';
 
 import { createRouterLinkColumn } from '#/adapter/vxe-table';
 import { getCompanyList } from '#/api/system/dept';
-import { DICT_TYPE, getDictOptions, getRangePickerDefaultProps } from '#/utils';
+import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
+import { getRangePickerDefaultProps } from '#/utils';
 import { getCurrentUserCompanyDeptTree } from '#/utils/dept-tree';
 
 /** 列表的搜索表单 */

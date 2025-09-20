@@ -22,7 +22,7 @@ import {
   getApprovalDetail,
   getProcessInstanceBpmnModelView,
 } from '#/api/bpm/processInstance';
-import { BpmProcessInstanceStatus } from '#/utils';
+import { BpmProcessInstanceStatus } from '@vben/constants';
 import { useFooterLeft } from '#/utils/useFooterLeft';
 import ProcessInstanceSimpleViewer from '#/views/bpm/processInstance/detail/modules/simple-bpm-viewer.vue';
 import BpmProcessInstanceTaskList from '#/views/bpm/processInstance/detail/modules/task-list.vue';

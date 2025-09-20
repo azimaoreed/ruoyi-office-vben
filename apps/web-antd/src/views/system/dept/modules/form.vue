@@ -10,7 +10,7 @@ import { message } from 'ant-design-vue';
 import { useVbenForm } from '#/adapter/form';
 import { createDept, getDept, updateDept } from '#/api/system/dept';
 import { $t } from '#/locales';
-import { OrgTypeEnum } from '#/utils/constants';
+import { OrgTypeEnum } from '@vben/constants';
 
 import { useFormSchema } from '../data';
 
@@ -76,21 +76,22 @@ const [Modal, modalApi] = useVbenModal({
       return;
     }
     // 加载数据
-    let data = modalApi.getData<SystemDeptApi.Dept>();
-    if (!data) {
+    const data = modalApi.getData<SystemDeptApi.Dept>();
+    if (!data || !data.id) {
+      // 设置上级
+      await formApi.setValues(data);
       return;
     }
-    if (data.id) {
-      modalApi.lock();
-      try {
-        data = await getDept(data.id);
-      } finally {
-        modalApi.unlock();
+    modalApi.lock();
+    try {
+      formData.value = await getDept(data.id);
+      // 设置到 values
+      if (formData.value) {
+        await formApi.setValues(formData.value);
       }
+    } finally {
+      modalApi.unlock();
     }
-    // 设置到 values
-    formData.value = data;
-    await formApi.setValues(formData.value);
   },
 });
 </script>

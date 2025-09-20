@@ -19,7 +19,7 @@ import {
   getCarApplyBillPage,
 } from '#/api/oa/car/carapply';
 import { $t } from '#/locales';
-import { BpmProcessInstanceStatusEditValue } from '#/utils';
+import { BpmProcessInstanceStatusEditValue } from '@vben/constants';
 
 import CarSelectModal from '../../components/CarSelectModal.vue';
 import { useGridColumns, useGridFormSchema } from './data';

@@ -5,9 +5,6 @@
  * @LastEditors: zhanghui
  * @Description:
  */
-export * from './constants';
-export * from './dict';
 export * from './formCreate';
-export * from './options';
 export * from './rangePickerProps';
 export * from './routerHelper';
