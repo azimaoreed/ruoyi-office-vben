@@ -145,13 +145,17 @@ setupVbenVxeTable({
         };
 
         return h(
-          Button,
+          'span',
           {
-            size: 'small',
-            type: 'link',
+            style: {
+              cursor: 'pointer',
+              userSelect: 'text',
+              color: '#1890ff',
+            },
             onClick: handleClick,
+            title: '点击查看详情',
           },
-          { default: () => row[props.field || column.field] },
+          row[props.field || column.field],
         );
       },
     });
@@ -387,7 +391,7 @@ setupVbenVxeTable({
           return '';
         }
         const number = Number.parseFloat(cellValue);
-        if (isNaN(number)) {
+        if (Number.isNaN(number)) {
           return cellValue;
         }
         // 保留两位小数并添加千分位分割
@@ -416,6 +420,14 @@ setupVbenVxeTable({
 /**
  * 创建路由链接列配置的辅助函数
  * @param config 列配置选项
+ * @param config.align 列对齐方式
+ * @param config.field 字段名
+ * @param config.headerAlign 表头对齐方式
+ * @param config.idField ID字段名
+ * @param config.minWidth 最小宽度
+ * @param config.path 路由路径
+ * @param config.queryParam 查询参数名
+ * @param config.title 列标题
  * @returns 完整的列配置对象
  */
 export function createRouterLinkColumn(config: {

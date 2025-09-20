@@ -14,7 +14,10 @@ import {
   BpmProcessInstanceStatus,
   getStatusColor,
 } from '@vben/constants';
+import { IconifyIcon } from '@vben/icons';
 import { formatDate } from '@vben/utils';
+
+import { message } from 'ant-design-vue';
 
 interface Props {
   headerData?: headerDataProps;
@@ -35,6 +38,43 @@ const getStatusName = (val: any) => {
   const name: any = BILL_FLOW_STATUS.find((item: any) => item.value === val);
   return name?.label || '未开始';
 };
+
+// 复制单据编号
+const handleCopyBillCode = () => {
+  const billCode = props.headerData.billCode;
+  if (!billCode) {
+    message.warning('单据编号为空');
+    return;
+  }
+
+  if (navigator.clipboard) {
+    navigator.clipboard
+      .writeText(billCode)
+      .then(() => {
+        message.success('已复制到剪贴板');
+      })
+      .catch(() => {
+        fallbackCopy(billCode);
+      });
+  } else {
+    fallbackCopy(billCode);
+  }
+};
+
+// 降级复制方案
+const fallbackCopy = (text: string) => {
+  const textArea = document.createElement('textarea');
+  textArea.value = text;
+  document.body.append(textArea);
+  textArea.select();
+  try {
+    document.execCommand('copy');
+    message.success('已复制到剪贴板');
+  } catch {
+    message.error('复制失败，请手动复制');
+  }
+  textArea.remove();
+};
 </script>
 <template>
   <div class="header-form">
@@ -44,6 +84,14 @@ const getStatusName = (val: any) => {
           <span class="title-name">{{ props.headerData.billName }}</span>
           <span class="document-num">
             单据编号: {{ props.headerData.billCode }}
+            <span
+              v-if="props.headerData.billCode"
+              @click="handleCopyBillCode"
+              title="复制单据编号"
+              class="copy-icon"
+            >
+              <IconifyIcon icon="mdi:content-copy" />
+            </span>
           </span>
         </div>
         <div>
@@ -78,9 +126,31 @@ const getStatusName = (val: any) => {
 }
 
 .document-num {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
   padding-left: 20px;
   font-size: 14px;
   line-height: 18px;
   color: #333;
+}
+
+.copy-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 4px;
+  font-size: 12px;
+  color: #999;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+}
+
+.copy-icon:hover {
+  color: #1890ff;
+  background: rgb(24 144 255 / 10%);
 }
 </style>
