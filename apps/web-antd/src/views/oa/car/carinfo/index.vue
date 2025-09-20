@@ -5,6 +5,8 @@ import type { CarApi } from '#/api/oa/car/carinfo';
 import { ref, watch } from 'vue';
 
 import { Page, useVbenModal } from '@vben/common-ui';
+import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 import { useUserStore } from '@vben/stores';
 import { downloadFileFromBlobPart, isEmpty } from '@vben/utils';
 
@@ -18,8 +20,6 @@ import {
   getCarPage,
 } from '#/api/oa/car/carinfo';
 import { $t } from '#/locales';
-import { DICT_TYPE } from '@vben/constants';
-import { getDictOptions } from '@vben/hooks';
 
 import { useGridColumns, useGridFormSchema } from './data';
 import Form from './modules/form.vue';
@@ -104,7 +104,9 @@ async function handleDeleteBatch() {
 
 const deleteIds = ref<number[]>([]); // 待删除车辆信息 ID
 function setDeleteIds({ records }: { records: CarApi.Car[] }) {
-  deleteIds.value = records.map((item) => item.id).filter((id): id is number => id !== undefined);
+  deleteIds.value = records
+    .map((item) => item.id)
+    .filter((id): id is number => id !== undefined);
 }
 
 /** 导出表格 */
@@ -184,7 +186,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
             </Menu.Item>
             <Menu.Item
               v-for="option in carClsOptions"
-              :key="String(option.value)" 
+              :key="String(option.value)"
               @click="handleSelectCarCls(Number(option.value))"
             >
               <span>

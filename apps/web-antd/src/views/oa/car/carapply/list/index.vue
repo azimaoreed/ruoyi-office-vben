@@ -6,6 +6,7 @@ import { onActivated, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { Page } from '@vben/common-ui';
+import { BpmProcessInstanceStatusEditValue } from '@vben/constants';
 import { useUserStore } from '@vben/stores';
 import { downloadFileFromBlobPart, isEmpty } from '@vben/utils';
 
@@ -19,7 +20,6 @@ import {
   getCarApplyBillPage,
 } from '#/api/oa/car/carapply';
 import { $t } from '#/locales';
-import { BpmProcessInstanceStatusEditValue } from '@vben/constants';
 
 import CarSelectModal from '../../components/CarSelectModal.vue';
 import { useGridColumns, useGridFormSchema } from './data';

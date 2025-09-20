@@ -6,6 +6,7 @@ import { onActivated, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { Page } from '@vben/common-ui';
+import { BpmProcessInstanceStatusEditValue } from '@vben/constants';
 import { useUserStore } from '@vben/stores';
 import { downloadFileFromBlobPart, isEmpty } from '@vben/utils';
 
@@ -19,7 +20,6 @@ import {
   getCarReturnBillPage,
 } from '#/api/oa/car/carreturn';
 import { $t } from '#/locales';
-import { BpmProcessInstanceStatusEditValue } from '@vben/constants';
 
 import CarSelectModal from '../../components/CarSelectModal.vue';
 import { useGridColumns, useGridFormSchema } from './data';
@@ -77,7 +77,8 @@ async function handleDeleteBatch() {
   if (notAllowedRecords.length > 0) {
     const billCodes = notAllowedRecords
       .map(
-        (record: CarReturnBillApi.CarReturnBill) => record.billCode || record.id,
+        (record: CarReturnBillApi.CarReturnBill) =>
+          record.billCode || record.id,
       )
       .join(', ');
     message.warning(`以下单据不允许删除：${billCodes}`);
