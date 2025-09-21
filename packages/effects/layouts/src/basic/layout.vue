@@ -192,7 +192,7 @@ watch(i18n.global.locale, refresh, { flush: 'post' });
 // 监听导航菜单图标显示设置变化
 watchEffect(() => {
   const showIcon = preferences.navigation.showIcon;
-  document.body.setAttribute('data-navigation-show-icon', String(showIcon));
+  document.body.dataset.navigationShowIcon = String(showIcon);
 });
 
 const slots: SetupContext['slots'] = useSlots();

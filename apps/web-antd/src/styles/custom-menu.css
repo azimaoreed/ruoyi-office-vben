@@ -1,23 +1,23 @@
 /* 菜单图标显示/隐藏控制样式 - 通过偏好设置控制 */
 
 /* 当偏好设置中关闭菜单图标时隐藏 */
-body[data-navigation-show-icon="false"] .vben-menu .vben-menu__icon,
-body[data-navigation-show-icon="false"] .vben-normal-menu__icon,
-body[data-navigation-show-icon="false"] .vben-mixed-menu .vben-menu__icon,
-body[data-navigation-show-icon="false"] .vben-sub-menu .vben-menu__icon {
+body[data-navigation-show-icon='false'] .vben-menu .vben-menu__icon,
+body[data-navigation-show-icon='false'] .vben-normal-menu__icon,
+body[data-navigation-show-icon='false'] .vben-mixed-menu .vben-menu__icon,
+body[data-navigation-show-icon='false'] .vben-sub-menu .vben-menu__icon {
   display: none !important;
 }
 
 /* 当图标隐藏时调整菜单项布局 */
-body[data-navigation-show-icon="false"] .vben-menu .vben-menu__item {
+body[data-navigation-show-icon='false'] .vben-menu .vben-menu__item {
   padding-left: 16px !important;
 }
 
 /* 默认显示图标 */
-body[data-navigation-show-icon="true"] .vben-menu .vben-menu__icon,
-body[data-navigation-show-icon="true"] .vben-normal-menu__icon,
-body[data-navigation-show-icon="true"] .vben-mixed-menu .vben-menu__icon,
-body[data-navigation-show-icon="true"] .vben-sub-menu .vben-menu__icon {
+body[data-navigation-show-icon='true'] .vben-menu .vben-menu__icon,
+body[data-navigation-show-icon='true'] .vben-normal-menu__icon,
+body[data-navigation-show-icon='true'] .vben-mixed-menu .vben-menu__icon,
+body[data-navigation-show-icon='true'] .vben-sub-menu .vben-menu__icon {
   display: inline-flex !important;
 }
 
