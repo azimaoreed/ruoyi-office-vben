@@ -34,4 +34,15 @@ export const overridesPreferences = defineOverridesPreferences({
     companyName: import.meta.env.VITE_APP_TITLE,
     companySiteLink: 'https://gitee.com/yudaocode/yudao-ui-admin-vben',
   },
+  // 标签页配置 - 隐藏图标
+  tabbar: {
+    showIcon: false,
+  },
+  // 面包屑配置 - 隐藏图标  
+  breadcrumb: {
+    showIcon: false,
+  },
+  navigation: {
+    showIcon: false,
+  },
 });

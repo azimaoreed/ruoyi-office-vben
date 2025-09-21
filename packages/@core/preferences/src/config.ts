@@ -67,6 +67,7 @@ const defaultPreferences: Preferences = {
   },
   navigation: {
     accordion: true,
+    showIcon: true,
     split: true,
     styleType: 'rounded',
   },

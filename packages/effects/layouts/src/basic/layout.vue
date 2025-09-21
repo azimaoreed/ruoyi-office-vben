@@ -4,7 +4,7 @@ import type { RouteLocationNormalizedLoaded } from 'vue-router';
 
 import type { MenuRecordRaw } from '@vben/types';
 
-import { computed, onMounted, useSlots, watch } from 'vue';
+import { computed, onMounted, useSlots, watch, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { useRefresh } from '@vben/hooks';
@@ -188,6 +188,12 @@ watch(
 // 语言更新后，刷新页面
 // i18n.global.locale会在preference.app.locale变更之后才会更新，因此watchpreference.app.locale是不合适的，刷新页面时可能语言配置尚未完全加载完成
 watch(i18n.global.locale, refresh, { flush: 'post' });
+
+// 监听导航菜单图标显示设置变化
+watchEffect(() => {
+  const showIcon = preferences.navigation.showIcon;
+  document.body.setAttribute('data-navigation-show-icon', String(showIcon));
+});
 
 const slots: SetupContext['slots'] = useSlots();
 const headerSlots = computed(() => {

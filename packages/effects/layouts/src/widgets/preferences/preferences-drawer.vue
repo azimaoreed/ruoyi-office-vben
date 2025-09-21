@@ -127,6 +127,7 @@ const navigationStyleType = defineModel<NavigationStyleType>(
 );
 const navigationSplit = defineModel<boolean>('navigationSplit');
 const navigationAccordion = defineModel<boolean>('navigationAccordion');
+const navigationShowIcon = defineModel<boolean>('navigationShowIcon');
 
 // const logoVisible = defineModel<boolean>('logoVisible');
 
@@ -339,6 +340,7 @@ async function handleReset() {
             <Block :title="$t('preferences.navigationMenu.title')">
               <Navigation
                 v-model:navigation-accordion="navigationAccordion"
+                v-model:navigation-show-icon="navigationShowIcon"
                 v-model:navigation-split="navigationSplit"
                 v-model:navigation-style-type="navigationStyleType"
                 :disabled="isFullContent"

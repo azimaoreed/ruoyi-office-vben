@@ -15,6 +15,7 @@ defineProps<{ disabled?: boolean; disabledNavigationSplit?: boolean }>();
 const navigationStyleType = defineModel<string>('navigationStyleType');
 const navigationSplit = defineModel<boolean>('navigationSplit');
 const navigationAccordion = defineModel<boolean>('navigationAccordion');
+const navigationShowIcon = defineModel<boolean>('navigationShowIcon');
 
 const stylesItems: SelectOption[] = [
   { label: $t('preferences.rounded'), value: 'rounded' },
@@ -41,5 +42,11 @@ const stylesItems: SelectOption[] = [
   </SwitchItem>
   <SwitchItem v-model="navigationAccordion" :disabled="disabled">
     {{ $t('preferences.navigationMenu.accordion') }}
+  </SwitchItem>
+  <SwitchItem v-model="navigationShowIcon" :disabled="disabled">
+    {{ $t('preferences.navigationMenu.showIcon') }}
+    <template #tip>
+      {{ $t('preferences.navigationMenu.showIconTip') }}
+    </template>
   </SwitchItem>
 </template>

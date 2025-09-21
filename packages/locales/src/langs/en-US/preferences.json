@@ -96,6 +96,8 @@
     "title": "Navigation Menu",
     "style": "Navigation Menu Style",
     "accordion": "Sidebar Accordion Menu",
+    "showIcon": "Show Menu Icons",
+    "showIconTip": "Control whether to show icons in navigation menu",
     "split": "Navigation Menu Separation",
     "splitTip": "When enabled, the sidebar displays the top bar's submenu"
   },

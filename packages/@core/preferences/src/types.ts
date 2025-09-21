@@ -143,6 +143,8 @@ interface LogoPreferences {
 interface NavigationPreferences {
   /** 导航菜单手风琴模式 */
   accordion: boolean;
+  /** 导航菜单是否显示图标 */
+  showIcon: boolean;
   /** 导航菜单是否切割，只在 layout=mixed-nav 生效 */
   split: boolean;
   /** 导航菜单风格 */
