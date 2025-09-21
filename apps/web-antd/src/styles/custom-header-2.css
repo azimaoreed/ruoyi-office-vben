@@ -1,0 +1,147 @@
+/* 美观的顶栏设计样式 */
+
+/* 主要顶栏样式 - 渐变背景 */
+.vben-layout-header,
+header,
+[class*='header'],
+.vben-admin-layout .vben-layout-header {
+  /* 现代渐变背景 - 从深蓝到浅蓝 */
+  background: linear-gradient(
+    135deg,
+    hsl(220 60% 35%) 0%,
+    hsl(210 55% 45%) 50%,
+    hsl(200 50% 55%) 100%
+  ) !important;
+
+  /* 添加微妙的阴影 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+
+  /* 边框效果 */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+
+  /* 背景毛玻璃效果（可选） */
+  backdrop-filter: blur(10px) !important;
+
+  /* 平滑过渡 */
+  transition: all 0.3s ease !important;
+}
+
+/* 悬停效果 */
+.vben-layout-header:hover,
+header:hover {
+  /* 悬停时稍微提亮 */
+  background: linear-gradient(
+    135deg,
+    hsl(220 65% 40%) 0%,
+    hsl(210 60% 50%) 50%,
+    hsl(200 55% 60%) 100%
+  ) !important;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* 顶栏文字样式优化 */
+.vben-layout-header,
+.vben-layout-header *,
+header,
+header * {
+  color: rgba(255, 255, 255, 0.95) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* 菜单项悬停效果 */
+.vben-layout-header .vben-menu-item:hover,
+.vben-layout-header [class*='menu-item']:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 6px !important;
+  transition: all 0.2s ease !important;
+}
+
+/* 激活状态的菜单项 */
+.vben-layout-header .vben-menu-item.is-active,
+.vben-layout-header [class*='menu-item'].is-active {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-radius: 6px !important;
+  color: #fff !important;
+}
+
+/* Logo区域优化 */
+.vben-layout-header .vben-logo {
+  filter: brightness(1.1) !important;
+}
+
+/* 按钮样式优化 */
+.vben-layout-header button,
+.vben-layout-header .vben-button {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 6px !important;
+  transition: all 0.2s ease !important;
+}
+
+.vben-layout-header button:hover,
+.vben-layout-header .vben-button:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 搜索框样式优化 */
+.vben-layout-header input[type='search'],
+.vben-layout-header .vben-input {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 20px !important;
+  color: white !important;
+}
+
+.vben-layout-header input[type='search']::placeholder {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* 用户头像区域 */
+.vben-layout-header .vben-avatar,
+.vben-layout-header [class*='avatar'] {
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  transition: all 0.2s ease !important;
+}
+
+.vben-layout-header .vben-avatar:hover {
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  transform: scale(1.05) !important;
+}
+
+/* 面包屑导航样式 */
+.vben-layout-header .vben-breadcrumb,
+.vben-layout-header [class*='breadcrumb'] {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.vben-layout-header .vben-breadcrumb a {
+  color: rgba(255, 255, 255, 0.8) !important;
+  transition: color 0.2s ease !important;
+}
+
+.vben-layout-header .vben-breadcrumb a:hover {
+  color: rgba(255, 255, 255, 1) !important;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .vben-layout-header {
+    background: linear-gradient(
+      135deg,
+      hsl(220 55% 40%) 0%,
+      hsl(210 50% 50%) 100%
+    ) !important;
+  }
+}
+
+/* 深色模式适配 */
+[data-theme='dark'] .vben-layout-header {
+  background: linear-gradient(
+    135deg,
+    hsl(220 40% 25%) 0%,
+    hsl(210 35% 30%) 50%,
+    hsl(200 30% 35%) 100%
+  ) !important;
+}
