@@ -25,6 +25,9 @@ export const overridesPreferences = defineOverridesPreferences({
     mode: 'light',
     semiDarkHeader: false,
   },
+  sidebar: {
+    autoActivateChild: true,
+  },
   footer: {
     /** 默认关闭 footer 页脚，因为有一定遮挡 */
     enable: false,

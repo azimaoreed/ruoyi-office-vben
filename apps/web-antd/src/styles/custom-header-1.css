@@ -3,10 +3,10 @@
 /* 强制设置顶栏为深蓝色 */
 .vben-layout-header,
 header,
-[class*="header"],
+[class*='header'],
 .vben-admin-layout .vben-layout-header {
-  background-color: hsl(220 50% 20%) !important;
-  background: hsl(220 50% 20%) !important;
+  background: hsl(220deg 50% 20%) !important;
+  background-color: hsl(220deg 50% 20%) !important;
 }
 
 /* 顶栏文字颜色调整为白色 */

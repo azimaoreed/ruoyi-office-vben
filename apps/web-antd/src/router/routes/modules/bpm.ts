@@ -4,18 +4,30 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/bpm',
     name: 'bpm',
+    redirect: '/bpm/start-process', // 重定向到发起流程页面
     meta: {
       title: '工作流',
       hideInMenu: true,
     },
     children: [
       {
+        path: 'start-process',
+        component: () => import('#/views/bpm/processInstance/create/index.vue'),
+        name: 'BpmProcessInstanceCreate',
+        meta: {
+          title: '发起流程',
+          icon: 'ant-design:plus-circle-outlined',
+          keepAlive: true,
+        },
+      },
+      {
         path: 'task',
         name: 'BpmTask',
         meta: {
-          title: '审批中心',
+          title: '任务管理',
           icon: 'ant-design:history-outlined',
         },
+        redirect: '/bpm/task/my',
         children: [
           {
             path: 'my',
