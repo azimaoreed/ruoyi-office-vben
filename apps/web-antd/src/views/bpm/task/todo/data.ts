@@ -1,8 +1,10 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
-import { DICT_TYPE } from '@vben/constants';
-import { getDictOptions } from '@vben/hooks';
+import { handleTree } from '@vben/utils';
+
+import { getCompanyList } from '#/api/system/dept';
+import { getCurrentUserCompanyDeptTree } from '#/utils/dept-tree';
 
 import { getCategorySimpleList } from '#/api/bpm/category';
 import { getRangePickerDefaultProps } from '#/utils';
@@ -11,29 +13,11 @@ import { getRangePickerDefaultProps } from '#/utils';
 export function useGridFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'name',
-      label: '任务名称',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入任务名称',
-        allowClear: true,
-      },
-    },
-    {
-      fieldName: 'processDefinitionId',
-      label: '所属流程',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入流程定义的编号',
-        allowClear: true,
-      },
-    },
-    {
       fieldName: 'category',
-      label: '流程分类',
+      label: '系统分类',
       component: 'ApiSelect',
       componentProps: {
-        placeholder: '请输入流程分类',
+        placeholder: '请输入系统分类',
         allowClear: true,
         api: getCategorySimpleList,
         labelField: 'name',
@@ -41,21 +25,26 @@ export function useGridFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'status',
-      label: '流程状态',
-      component: 'Select',
+      fieldName: 'name',
+      label: '单据类型',
+      component: 'Input',
       componentProps: {
-        options: getDictOptions(
-          DICT_TYPE.BPM_PROCESS_INSTANCE_STATUS,
-          'number',
-        ),
-        placeholder: '请选择流程状态',
+        placeholder: '请输入单据类型',
         allowClear: true,
       },
     },
     {
-      fieldName: 'createTime',
-      label: '发起时间',
+      fieldName: 'billCode',
+      label: '单据编号',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入单据编号',
+        allowClear: true,
+      },
+    },
+    {
+      fieldName: 'billCreateTime',
+      label: '单据日期',
       component: 'RangePicker',
       componentProps: {
         ...getRangePickerDefaultProps(),
@@ -63,21 +52,47 @@ export function useGridFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'deptName',
-      label: '申请部门',
-      component: 'Input',
+      fieldName: 'receiveTime',
+      label: '接收时间',
+      component: 'RangePicker',
       componentProps: {
-        placeholder: '请输入申请部门',
+        ...getRangePickerDefaultProps(),
         allowClear: true,
       },
     },
     {
-      fieldName: 'companyName',
-      label: '申请公司',
-      component: 'Input',
+      fieldName: 'companyId',
+      label: '所属公司',
+      component: 'ApiTreeSelect',
+      dependencies: {
+        triggerFields: [''],
+        show: () => false,
+      },
       componentProps: {
-        placeholder: '请输入申请公司',
         allowClear: true,
+        api: async () => {
+          const data = await getCompanyList();
+          return handleTree(data);
+        },
+        labelField: 'name',
+        valueField: 'id',
+        childrenField: 'children',
+        placeholder: '请选择公司',
+        treeDefaultExpandAll: true,
+      },
+    },
+    {
+      fieldName: 'deptId',
+      label: '申请部门',
+      component: 'ApiTreeSelect',
+      componentProps: {
+        allowClear: true,
+        api: () => getCurrentUserCompanyDeptTree(false), // false表示不包含公司本身
+        labelField: 'name',
+        valueField: 'id',
+        childrenField: 'children',
+        placeholder: '请选择申请部门',
+        treeDefaultExpandAll: true,
       },
     },
   ];
