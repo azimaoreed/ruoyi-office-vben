@@ -62,6 +62,24 @@ export function useGridFormSchema(): VbenFormSchema[] {
         allowClear: true,
       },
     },
+    {
+      fieldName: 'deptName',
+      label: '申请部门',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入申请部门',
+        allowClear: true,
+      },
+    },
+    {
+      fieldName: 'companyName',
+      label: '申请公司',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入申请公司',
+        allowClear: true,
+      },
+    },
   ];
 }
 
@@ -70,8 +88,8 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
   return [
     {
       field: 'processInstance.name',
-      title: '流程',
-      minWidth: 200,
+      title: '单据类型',
+      minWidth: 140,
       fixed: 'left',
     },
     {
@@ -113,28 +131,34 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'processInstance.startUser.nickname',
       title: '发起人',
-      minWidth: 120,
+      minWidth: 100,
+    },
+    {
+      field: 'processInstance.companyName',
+      title: '所属公司',
+      minWidth: 160,
+    },
+    {
+      field: 'processInstance.deptName',
+      title: '所属部门',
+      minWidth: 160,
+    },
+    {
+      field: 'processInstance.createTime',
+      title: '单据日期',
+      minWidth: 100,
+      formatter: 'formatDate',
     },
     {
       field: 'name',
-      title: '当前任务',
-      minWidth: 180,
+      title: '任务节点',
+      minWidth: 100,
     },
     {
       field: 'createTime',
-      title: '任务时间',
+      title: '接收时间',
       minWidth: 180,
       formatter: 'formatDateTime',
-    },
-    {
-      field: 'processInstanceId',
-      title: '流程编号',
-      minWidth: 280,
-    },
-    {
-      field: 'id',
-      title: '任务编号',
-      minWidth: 280,
     },
     {
       title: '操作',
