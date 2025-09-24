@@ -3,11 +3,10 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
 import { handleTree } from '@vben/utils';
 
-import { getCompanyList } from '#/api/system/dept';
-import { getCurrentUserCompanyDeptTree } from '#/utils/dept-tree';
-
 import { getCategorySimpleList } from '#/api/bpm/category';
+import { getCompanyList } from '#/api/system/dept';
 import { getRangePickerDefaultProps } from '#/utils';
+import { getCurrentUserCompanyDeptTree } from '#/utils/dept-tree';
 
 /** 列表的搜索表单 */
 export function useGridFormSchema(): VbenFormSchema[] {
