@@ -75,13 +75,37 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
       fixed: 'left',
     },
     {
+      // 单据编号点击打开办理，样式与用车申请一致
+      field: 'processInstance.billCode',
+      title: '单据编号',
+      minWidth: 160,
+      align: 'center',
+      cellRender: {
+        name: 'CellRouterLink',
+        props: {
+          name: 'BpmProcessInstanceDetail',
+          // 传参保持与办理按钮一致
+          queryFields: [
+            { key: 'id', field: 'processInstance.id' },
+            { key: 'taskId', field: 'id' },
+          ],
+        },
+      },
+    },
+    {
       field: 'processInstance.summary',
       title: '摘要',
       minWidth: 200,
       formatter: ({ cellValue }) => {
         return cellValue && cellValue.length > 0
           ? cellValue
-              .map((item: any) => `${item.key} : ${item.value}`)
+              .map((item: any) => {
+                const key = item?.key;
+                const value = item?.value ?? '';
+                return key && `${key}`.trim().length > 0
+                  ? `${key} : ${value}`
+                  : `${value}`;
+              })
               .join('\n')
           : '-';
       },

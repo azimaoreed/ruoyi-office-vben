@@ -124,25 +124,60 @@ setupVbenVxeTable({
         const { column, row } = params;
         const router = useRouter();
 
-        if (!props?.path) {
-          console.warn('CellRouterLink: path 属性是必需的');
+        const getValueByPath = (obj: any, path: string) => {
+          if (!path) return undefined;
+          const keys = path.split('.');
+          let current: any = obj;
+          for (const key of keys) {
+            if (current === null) return undefined;
+            current = current[key];
+          }
+          return current;
+        };
+
+        if (!props?.path && !props?.name) {
+          console.warn('CellRouterLink: 需要提供 path 或 name 属性');
           return row[column.field];
         }
 
         const handleClick = () => {
-          const routeConfig: any = {
-            path: props.path,
-          };
+          const routeConfig: any = {};
 
-          // 如果指定了 idField，则作为查询参数传递
-          if (props.idField && row[props.idField]) {
-            routeConfig.query = {
-              [props.queryParam || 'id']: row[props.idField],
-            };
+          if (props.name) {
+            routeConfig.name = props.name;
+          } else if (props.path) {
+            routeConfig.path = props.path;
+          }
+
+          // 基础单一 id 传参（向后兼容）
+          if (props.idField) {
+            const idVal =
+              getValueByPath(row, props.idField) ?? row[props.idField];
+            if (idVal !== undefined) {
+              routeConfig.query = {
+                ...routeConfig.query,
+                [props.queryParam || 'id']: idVal,
+              };
+            }
+          }
+
+          // 批量 query 参数：[{ key, field }]
+          if (Array.isArray(props.queryFields)) {
+            routeConfig.query = routeConfig.query || {};
+            props.queryFields.forEach((q: any) => {
+              const val = getValueByPath(row, q.field) ?? row[q.field];
+              if (val !== undefined) {
+                routeConfig.query[q.key] = val;
+              }
+            });
           }
 
           router.push(routeConfig);
         };
+
+        const displayField = props.field || column.field;
+        const displayText =
+          getValueByPath(row, displayField) ?? row[displayField];
 
         return h(
           'span',
@@ -155,7 +190,7 @@ setupVbenVxeTable({
             onClick: handleClick,
             title: '点击查看详情',
           },
-          row[props.field || column.field],
+          displayText,
         );
       },
     });
@@ -428,6 +463,8 @@ setupVbenVxeTable({
  * @param config.path 路由路径
  * @param config.queryParam 查询参数名
  * @param config.title 列标题
+ * @param config.name 路由名称（可选，优先于 path）
+ * @param config.queryFields 作为查询参数传递的键值来源映射 [{key, field}]
  * @returns 完整的列配置对象
  */
 export function createRouterLinkColumn(config: {
@@ -436,23 +473,27 @@ export function createRouterLinkColumn(config: {
   headerAlign?: 'center' | 'left' | 'right';
   idField?: string;
   minWidth?: number;
+  name?: string;
   path: string;
+  queryFields?: Array<{ field: string; key: string }>;
   queryParam?: string;
   title: string;
 }) {
   return {
     field: config.field,
     title: config.title,
-    minWidth: config.minWidth ?? 180, // 默认宽度180
+    minWidth: config.minWidth ?? 160, // 默认宽度160
     headerAlign: config.headerAlign ?? 'center',
-    align: config.align ?? 'left',
+    align: config.align ?? 'center',
     cellRender: {
       name: 'CellRouterLink',
       props: {
         path: config.path,
+        name: config.name,
         field: config.field,
         idField: config.idField,
         queryParam: config.queryParam,
+        queryFields: config.queryFields,
       },
     },
   };

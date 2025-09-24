@@ -65,6 +65,7 @@ export namespace BpmProcessInstanceApi {
     startUser?: User;
     status: number;
     tasks?: BpmProcessInstanceApi.Task[];
+    billCode?: string;
   }
 
   // 审批详情

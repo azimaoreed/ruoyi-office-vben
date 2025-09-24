@@ -7,6 +7,7 @@ import { requestClient } from '#/api/request';
 export namespace BpmTaskApi {
   /** BPM 流程监听器 */
   export interface Task {
+    processInstance: any;
     id: string; // 编号
     name: string; // 监听器名字
     type: string; // 监听器类型
