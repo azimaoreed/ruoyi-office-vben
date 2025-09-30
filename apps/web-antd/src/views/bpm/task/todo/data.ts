@@ -4,6 +4,7 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import { handleTree } from '@vben/utils';
 
 import { getCategorySimpleList } from '#/api/bpm/category';
+import { getSimpleProcessDefinitionList } from '#/api/bpm/definition';
 import { getCompanyList } from '#/api/system/dept';
 import { getRangePickerDefaultProps } from '#/utils';
 import { getCurrentUserCompanyDeptTree } from '#/utils/dept-tree';
@@ -24,13 +25,23 @@ export function useGridFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'name',
+      fieldName: 'billType',
       label: '单据类型',
-      component: 'Input',
-      componentProps: {
+      component: 'ApiSelect',
+      dependencies: {
+        triggerFields: ['category'],
+      },
+      componentProps: (values) => ({
         placeholder: '请输入单据类型',
         allowClear: true,
-      },
+        // 每次下拉展开都重新加载，并携带当前 category 作为查询参数
+        immediate: false,
+        alwaysLoad: true,
+        params: { category: values?.category },
+        api: (params: any) => getSimpleProcessDefinitionList(params?.category),
+        labelField: 'name',
+        valueField: 'key',
+      }),
     },
     {
       fieldName: 'billCode',
