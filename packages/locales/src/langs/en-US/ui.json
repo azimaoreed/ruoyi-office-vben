@@ -13,6 +13,8 @@
   "actionTitle": {
     "copy": "Copy {0}",
     "cancel": "Cancel {0}",
+    "revoke": "Revoke {0}",
+    "handle": "Handle {0}",
     "edit": "Modify {0}",
     "create": "Create {0}",
     "delete": "Delete {0}",

@@ -126,7 +126,7 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
       cellRender: {
         name: 'CellRouterLink',
         props: {
-          name: 'BpmProcessInstanceDetail',
+          name: 'BpmProcessInstanceTodoDetail',
           // 传参保持与办理按钮一致
           queryFields: [
             { key: 'id', field: 'processInstance.id' },

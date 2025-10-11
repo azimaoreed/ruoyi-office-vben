@@ -3,25 +3,23 @@ import type { BpmProcessInstanceApi } from '#/api/bpm/processInstance';
 import type { SystemUserApi } from '#/api/system/user';
 
 // TODO @jason：业务表单审批时，读取不到界面，参见 https://t.zsxq.com/eif2e
-import { nextTick, onMounted, ref, shallowRef, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, shallowRef, watch } from 'vue';
+import { useRoute } from 'vue-router';
 
 import { Page } from '@vben/common-ui';
 import {
   BpmModelFormType,
   BpmModelType,
   BpmTaskStatusEnum,
-  DICT_TYPE,
 } from '@vben/constants';
-import { formatDateTime } from '@vben/utils';
 
-import { Avatar, Card, Col, message, Row, TabPane, Tabs } from 'ant-design-vue';
+import { Card, Col, message, Row, TabPane, Tabs } from 'ant-design-vue';
 
 import {
   getApprovalDetail as getApprovalDetailApi,
   getProcessInstanceBpmnModelView,
 } from '#/api/bpm/processInstance';
 import { getSimpleUserList } from '#/api/system/user';
-import DictTag from '#/components/dict-tag/dict-tag.vue';
 import { registerComponent, setConfAndFields2 } from '#/utils';
 import {
   SvgBpmApproveIcon,
@@ -38,11 +36,29 @@ import ProcessInstanceTimeline from './modules/time-line.vue';
 
 defineOptions({ name: 'BpmProcessInstanceDetail' });
 
-const props = defineProps<{
-  activityId?: string; // 流程活动编号，用于抄送查看
-  id: string; // 流程实例的编号
-  taskId?: string; // 任务编号
-}>();
+const props = withDefaults(
+  defineProps<{
+    activityId?: string; // 流程活动编号，用于抄送查看
+    id: string; // 流程实例的编号
+    isTodo?: boolean; // 是否待办，用于判断是否显示底部操作按钮
+    taskId?: string; // 任务编号
+  }>(),
+  {
+    activityId: undefined,
+    isTodo: true,
+    taskId: undefined,
+  },
+);
+
+// 处理路由参数中的 isMy（可能是字符串）
+const route = useRoute();
+const isApproval = computed(() => {
+  const queryApproval = route.query.isTodo;
+  if (queryApproval === 'false') {
+    return false;
+  }
+  return props.isTodo;
+});
 
 enum FieldPermissionType {
   /**
@@ -242,8 +258,11 @@ onMounted(async () => {
 </script>
 
 <template>
-  <Page auto-content-height v-if="processDefinition?.formType === BpmModelFormType.NORMAL">
-    <Card 
+  <Page
+    auto-content-height
+    v-if="processDefinition?.formType === BpmModelFormType.NORMAL"
+  >
+    <Card
       :body-style="{
         overflowY: 'auto',
         padding: '0px',
@@ -273,10 +292,7 @@ onMounted(async () => {
                   class="h-full"
                 >
                   <!-- 流程表单 -->
-                  <div
-
-                    class="h-full"
-                  >
+                  <div class="h-full">
                     <form-create
                       v-model="detailForm.value"
                       v-model:api="fApi"
@@ -369,14 +385,17 @@ onMounted(async () => {
   </Page>
   <div v-else>
     <Card
-    :body-style="{
+      :body-style="{
         overflowY: 'auto',
         padding: '0px',
       }"
     >
-        <BusinessFormComponent :id="processInstance?.businessKey"  isApproval="true" />
-        <template #actions>
-        <div class="px-4">
+      <BusinessFormComponent
+        :id="processInstance?.businessKey"
+        :is-approval="isApproval"
+      />
+      <template #actions>
+        <div class="px-4" v-if="isApproval">
           <ProcessInstanceOperationButton
             ref="operationButtonRef"
             :process-instance="processInstance"
@@ -423,7 +442,4 @@ onMounted(async () => {
   padding-right: 12px;
   overflow: hidden auto;
 }
-
-
-
 </style>

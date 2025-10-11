@@ -3,9 +3,13 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
 import { DICT_TYPE } from '@vben/constants';
 import { getDictOptions } from '@vben/hooks';
+import { handleTree } from '@vben/utils';
 
 import { getCategorySimpleList } from '#/api/bpm/category';
+import { getSimpleProcessDefinitionList } from '#/api/bpm/definition';
+import { getCompanyList } from '#/api/system/dept';
 import { getRangePickerDefaultProps } from '#/utils';
+import { getCurrentUserCompanyDeptTree } from '#/utils/dept-tree';
 
 /** 列表的搜索表单 */
 export function useGridFormSchema(): VbenFormSchema[] {
@@ -22,35 +26,45 @@ export function useGridFormSchema(): VbenFormSchema[] {
     //     valueField: 'id',
     //   },
     // },
-    {
-      fieldName: 'name',
-      label: '流程名称',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入流程名称',
-        allowClear: true,
-      },
-    },
-    {
-      fieldName: 'processDefinitionId',
-      label: '所属流程',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入流程定义的编号',
-        allowClear: true,
-      },
-    },
     // 流程分类
     {
       fieldName: 'category',
-      label: '流程分类',
+      label: '系统分类',
       component: 'ApiSelect',
       componentProps: {
-        placeholder: '请输入流程分类',
+        placeholder: '请输入系统分类',
         allowClear: true,
         api: getCategorySimpleList,
         labelField: 'name',
         valueField: 'code',
+      },
+    },
+    {
+      fieldName: 'billType',
+      label: '单据类型',
+      component: 'ApiSelect',
+      dependencies: {
+        triggerFields: ['category'],
+      },
+      componentProps: (values) => ({
+        placeholder: '请输入单据类型',
+        allowClear: true,
+        // 每次下拉展开都重新加载，并携带当前 category 作为查询参数
+        immediate: false,
+        alwaysLoad: true,
+        params: { category: values?.category },
+        api: (params: any) => getSimpleProcessDefinitionList(params?.category),
+        labelField: 'name',
+        valueField: 'key',
+      }),
+    },
+    {
+      fieldName: 'billCode',
+      label: '单据编号',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入单据编号',
+        allowClear: true,
       },
     },
     // 流程状态
@@ -77,6 +91,41 @@ export function useGridFormSchema(): VbenFormSchema[] {
         allowClear: true,
       },
     },
+    {
+      fieldName: 'companyId',
+      label: '所属公司',
+      component: 'ApiTreeSelect',
+      dependencies: {
+        triggerFields: [''],
+        show: () => false,
+      },
+      componentProps: {
+        allowClear: true,
+        api: async () => {
+          const data = await getCompanyList();
+          return handleTree(data);
+        },
+        labelField: 'name',
+        valueField: 'id',
+        childrenField: 'children',
+        placeholder: '请选择公司',
+        treeDefaultExpandAll: true,
+      },
+    },
+    {
+      fieldName: 'deptId',
+      label: '申请部门',
+      component: 'ApiTreeSelect',
+      componentProps: {
+        allowClear: true,
+        api: () => getCurrentUserCompanyDeptTree(false), // false表示不包含公司本身
+        labelField: 'name',
+        valueField: 'id',
+        childrenField: 'children',
+        placeholder: '请选择申请部门',
+        treeDefaultExpandAll: true,
+      },
+    },
   ];
 }
 
@@ -85,24 +134,44 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
   return [
     {
       field: 'name',
-      title: '流程名称',
+      title: '单据类型',
       minWidth: 200,
+      fixed: 'left',
+    },
+    {
+      field: 'formVariables.billCode',
+      title: '单据编号',
+      minWidth: 160,
+      align: 'center',
+      cellRender: {
+        name: 'CellRouterLink',
+        props: {
+          name: 'BpmProcessInstanceDetail',
+          queryFields: [{ key: 'id', field: 'id' }],
+          query: {
+            isTodo: 'false',
+          },
+        },
+      },
       fixed: 'left',
     },
     {
       field: 'summary',
       title: '摘要',
       minWidth: 200,
-      slots: {
-        default: 'slot-summary',
+      formatter: ({ cellValue }) => {
+        return cellValue && cellValue.length > 0
+          ? cellValue
+              .map((item: any) => {
+                const key = item?.key;
+                const value = item?.value ?? '';
+                return key && `${key}`.trim().length > 0
+                  ? `${key} : ${value}`
+                  : `${value}`;
+              })
+              .join('\n')
+          : '-';
       },
-    },
-
-    {
-      field: 'categoryName',
-      title: '流程分类',
-      minWidth: 120,
-      fixed: 'left',
     },
 
     // 流程状态

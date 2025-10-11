@@ -59,6 +59,25 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
+        path: 'process-instance/todo-detail',
+        component: () => import('#/views/bpm/processInstance/detail/index.vue'),
+        name: 'BpmProcessInstanceTodoDetail',
+        meta: {
+          title: '待办详情',
+          activePath: '/bpm/task/todo',
+          icon: 'ant-design:history-outlined',
+          keepAlive: false,
+          hideInMenu: true,
+        },
+        props: (route) => {
+          return {
+            id: route.query.id,
+            taskId: route.query.taskId,
+            activityId: route.query.activityId,
+          };
+        },
+      },
+      {
         path: '/bpm/manager/form/edit',
         name: 'BpmFormEditor',
         component: () => import('#/views/bpm/form/designer/index.vue'),

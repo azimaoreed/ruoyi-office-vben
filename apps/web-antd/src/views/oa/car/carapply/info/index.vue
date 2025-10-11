@@ -200,6 +200,7 @@ onMounted(() => {
 
 <template>
   <Loading :spinning="loading">
+    {{ console.log(props.isApproval) }}
     <BasicForm
       ref="basicFormRef"
       :header-data="{

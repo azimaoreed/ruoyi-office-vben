@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { BpmTaskApi } from '#/api/bpm/task';
+import type { BpmProcessInstanceApi } from '#/api/bpm/processInstance';
 
 import { h } from 'vue';
 
-import { DocAlert, Page, prompt } from '@vben/common-ui';
+import { Page, prompt } from '@vben/common-ui';
 import { BpmProcessInstanceStatus, DICT_TYPE } from '@vben/constants';
 
 import { Button, message, Textarea } from 'ant-design-vue';
@@ -19,6 +19,18 @@ import { router } from '#/router';
 
 import { useGridColumns, useGridFormSchema } from './data';
 
+// 扩展 Task 接口以包含 assigneeUser 属性
+interface ExtendedTask extends BpmProcessInstanceApi.Task {
+  assigneeUser?: { nickname: string };
+}
+
+// 扩展 ProcessInstance 接口以包含 summary 属性
+interface ExtendedProcessInstance
+  extends BpmProcessInstanceApi.ProcessInstance {
+  summary?: Array<{ key: string; value: string }>;
+  tasks?: ExtendedTask[];
+}
+
 defineOptions({ name: 'BpmProcessInstanceMy' });
 
 /** 刷新表格 */
@@ -27,42 +39,45 @@ function onRefresh() {
 }
 
 /** 查看流程实例 */
-function handleDetail(row: BpmTaskApi.Task) {
+function handleDetail(row: ExtendedProcessInstance) {
   router.push({
     name: 'BpmProcessInstanceDetail',
-    query: { id: row.id },
+    query: { id: row.id.toString(), isTodo: 'false' },
   });
 }
 
 /** 取消流程实例 */
-function handleCancel(row: BpmTaskApi.Task) {
+function handleCancel(row: ExtendedProcessInstance) {
   prompt({
     async beforeClose(scope) {
       if (scope.isConfirm) {
         if (scope.value) {
           try {
-            await cancelProcessInstanceByStartUser(row.id, scope.value);
-            message.success('取消成功');
+            await cancelProcessInstanceByStartUser(
+              row.id.toString(),
+              scope.value,
+            );
+            message.success('撤回成功');
             onRefresh();
           } catch {
             return false;
           }
         } else {
-          message.error('请输入取消原因');
+          message.error('请输入撤回原因');
           return false;
         }
       }
     },
     component: () => {
       return h(Textarea, {
-        placeholder: '请输入取消原因',
+        placeholder: '请输入撤回原因',
         allowClear: true,
         rows: 2,
-        rules: [{ required: true, message: '请输入取消原因' }],
+        rules: [{ required: true, message: '请输入撤回原因' }],
       });
     },
-    content: '请输入取消原因',
-    title: '取消流程',
+    content: '请输入撤回原因',
+    title: '撤回流程',
     modelPropName: 'value',
   });
 }
@@ -70,6 +85,8 @@ function handleCancel(row: BpmTaskApi.Task) {
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
     schema: useGridFormSchema(),
+    wrapperClass: 'grid-cols-4',
+    collapsed: true,
   },
   gridOptions: {
     columns: useGridColumns(),
@@ -96,19 +113,12 @@ const [Grid, gridApi] = useVbenVxeGrid({
     cellConfig: {
       height: 64,
     },
-  } as VxeTableGridOptions<BpmTaskApi.Task>,
+  } as VxeTableGridOptions<ExtendedProcessInstance>,
 });
 </script>
 
 <template>
   <Page auto-content-height>
-    <template #doc>
-      <DocAlert
-        title="流程发起、取消、重新发起"
-        url="https://doc.iocoder.cn/bpm/process-instance"
-      />
-    </template>
-
     <Grid table-title="流程状态">
       <!-- 摘要 -->
       <template #slot-summary="{ row }">
@@ -130,25 +140,28 @@ const [Grid, gridApi] = useVbenVxeGrid({
         <template
           v-if="
             row.status === BpmProcessInstanceStatus.RUNNING &&
-            row.tasks?.length > 0
+            row.tasks &&
+            row.tasks.length > 0
           "
         >
           <!-- 单人审批 -->
           <template v-if="row.tasks.length === 1">
             <span>
               <Button type="link" @click="handleDetail(row)">
-                {{ row.tasks[0].assigneeUser?.nickname }}
+                {{ row.tasks[0]?.assigneeUser?.nickname || '未知用户' }}
               </Button>
-              ({{ row.tasks[0].name }}) 审批中
+              ({{ row.tasks[0]?.name || '未知任务' }}) 审批中
             </span>
           </template>
           <!-- 多人审批 -->
           <template v-else>
             <span>
               <Button type="link" @click="handleDetail(row)">
-                {{ row.tasks[0].assigneeUser?.nickname }}
+                {{ row.tasks[0]?.assigneeUser?.nickname || '未知用户' }}
               </Button>
-              等 {{ row.tasks.length }} 人 ({{ row.tasks[0].name }})审批中
+              等 {{ row.tasks.length }} 人 ({{
+                row.tasks[0]?.name || '未知任务'
+              }})审批中
             </span>
           </template>
         </template>
@@ -171,9 +184,8 @@ const [Grid, gridApi] = useVbenVxeGrid({
               onClick: handleDetail.bind(null, row),
             },
             {
-              label: $t('ui.actionTitle.cancel'),
+              label: $t('ui.actionTitle.revoke'),
               type: 'link',
-              danger: true,
               icon: ACTION_ICON.DELETE,
               ifShow: row.status === BpmProcessInstanceStatus.RUNNING,
               auth: ['bpm:process-instance:cancel'],

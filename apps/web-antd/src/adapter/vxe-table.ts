@@ -118,6 +118,99 @@ setupVbenVxeTable({
 
     // 表格配置项可以用 cellRender: { name: 'CellRouterLink', props: { path: '/path', field: 'fieldName', idField: 'id' } },
     // 推荐使用 createRouterLinkColumn() 辅助函数，自动设置默认宽度为180
+    //
+    // 支持的 props 属性：
+    // - path/name: 路由路径或名称
+    // - field: 显示字段
+    // - idField: 单一ID字段（向后兼容）
+    // - queryFields: 批量字段映射 [{ key, field }]
+    // - fixedQuery: 固定查询参数对象
+    // - variableQuery: 变量查询参数，支持函数动态计算
+    // - query: 直接查询参数对象
+
+    /**
+     * CellRouterLink 使用示例：
+     *
+     * // 1. 基础用法（从行字段取值）
+     * cellRender: {
+     *   name: 'CellRouterLink',
+     *   props: {
+     *     name: 'BpmProcessInstanceDetail',
+     *     queryFields: [
+     *       { key: 'id', field: 'id' },
+     *     ],
+     *   },
+     * },
+     *
+     * // 2. 添加固定参数
+     * cellRender: {
+     *   name: 'CellRouterLink',
+     *   props: {
+     *     name: 'BpmProcessInstanceDetail',
+     *     queryFields: [
+     *       { key: 'id', field: 'id' },
+     *     ],
+     *     fixedQuery: {
+     *       tab: 'detail',
+     *       source: 'list',
+     *     },
+     *   },
+     * },
+     *
+     * // 3. 使用变量参数（函数动态计算）
+     * cellRender: {
+     *   name: 'CellRouterLink',
+     *   props: {
+     *     name: 'BpmProcessInstanceDetail',
+     *     queryFields: [
+     *       { key: 'id', field: 'id' },
+     *     ],
+     *     variableQuery: (row, column, params) => {
+     *       return {
+     *         timestamp: Date.now(),
+     *         userId: getCurrentUserId(),
+     *         tenantId: row.tenantId || 'default',
+     *       };
+     *     },
+     *   },
+     * },
+     *
+     * // 4. 直接传递查询参数对象（优先级最高）
+     * cellRender: {
+     *   name: 'CellRouterLink',
+     *   props: {
+     *     name: 'BpmProcessInstanceDetail',
+     *     query: {
+     *       id: 'fixed-id',
+     *       mode: 'view',
+     *       readonly: true,
+     *     },
+     *   },
+     * },
+     *
+     * // 5. 混合使用（参数合并优先级：query > variableQuery > fixedQuery > queryFields > idField）
+     * cellRender: {
+     *   name: 'CellRouterLink',
+     *   props: {
+     *     name: 'BpmProcessInstanceDetail',
+     *     queryFields: [
+     *       { key: 'id', field: 'id' },
+     *       { key: 'type', field: 'processDefinitionKey' },
+     *     ],
+     *     fixedQuery: {
+     *       tab: 'detail',
+     *       source: 'list',
+     *     },
+     *     variableQuery: (row, column, params) => {
+     *       return {
+     *         timestamp: Date.now(),
+     *         status: row.status === 'active' ? 'running' : 'completed',
+     *       };
+     *     },
+     *   },
+     * },
+     */
+
     vxeUI.renderer.add('CellRouterLink', {
       renderTableDefault(renderOpts, params) {
         const { props } = renderOpts;
@@ -149,27 +242,48 @@ setupVbenVxeTable({
             routeConfig.path = props.path;
           }
 
-          // 基础单一 id 传参（向后兼容）
+          // 初始化 query 对象
+          routeConfig.query = {};
+
+          // 1. 基础单一 id 传参（向后兼容）
           if (props.idField) {
             const idVal =
               getValueByPath(row, props.idField) ?? row[props.idField];
             if (idVal !== undefined) {
-              routeConfig.query = {
-                ...routeConfig.query,
-                [props.queryParam || 'id']: idVal,
-              };
+              routeConfig.query[props.queryParam || 'id'] = idVal;
             }
           }
 
-          // 批量 query 参数：[{ key, field }]
+          // 2. 批量 query 参数：[{ key, field }]
           if (Array.isArray(props.queryFields)) {
-            routeConfig.query = routeConfig.query || {};
             props.queryFields.forEach((q: any) => {
               const val = getValueByPath(row, q.field) ?? row[q.field];
               if (val !== undefined) {
                 routeConfig.query[q.key] = val;
               }
             });
+          }
+
+          // 3. 固定查询参数（优先级：中等）
+          if (props.fixedQuery && typeof props.fixedQuery === 'object') {
+            Object.assign(routeConfig.query, props.fixedQuery);
+          }
+
+          // 4. 变量查询参数，支持函数动态计算（优先级：高）
+          if (props.variableQuery) {
+            if (typeof props.variableQuery === 'function') {
+              const variableParams = props.variableQuery(row, column, params);
+              if (variableParams && typeof variableParams === 'object') {
+                Object.assign(routeConfig.query, variableParams);
+              }
+            } else if (typeof props.variableQuery === 'object') {
+              Object.assign(routeConfig.query, props.variableQuery);
+            }
+          }
+
+          // 5. 直接查询参数对象（优先级：最高）
+          if (props.query && typeof props.query === 'object') {
+            Object.assign(routeConfig.query, props.query);
           }
 
           router.push(routeConfig);
