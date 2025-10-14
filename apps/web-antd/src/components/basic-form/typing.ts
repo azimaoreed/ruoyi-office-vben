@@ -34,6 +34,9 @@ export type headerDataProps = {
    * 所属部门
    */
   deptId?: number;
+  /**
+   * 所属部门名称
+   */
   deptName?: string;
 
   /**
