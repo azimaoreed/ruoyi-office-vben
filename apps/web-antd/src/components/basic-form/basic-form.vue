@@ -60,6 +60,7 @@ const props = withDefaults(defineProps<Props>(), {
   disabled: false,
 });
 
+
 const emit = defineEmits(['close', 'save', 'submit', 'revoke']);
 
 const processInstanceLoading = ref(false); // 流程实例的加载中
@@ -67,6 +68,7 @@ const processModelView = ref<any>({}); // 流程模型视图
 const approvalDetailLoading = ref(false); // 审批详情的加载中
 // activityNodes 已在 props 中定义，不需要重复声明
 const taskListRef = ref<any>(null); // 任务列表引用
+const activityNodes = ref<any[]>(props.activityNodes || []);
 
 // 使用公共的 footerLeft composable
 const { footerLeft } = useFooterLeft();
@@ -162,7 +164,7 @@ async function getProcessModelView() {
 /** 获取审批详情 */
 async function getApprovalDetailData() {
   // 如果没有流程实例ID，则不获取审批详情
-  if (!props.headerData.processInstanceId) {
+  if (!props.headerData.processInstanceId || activityNodes.value.length > 0) {
     return;
   }
 
@@ -171,11 +173,10 @@ async function getApprovalDetailData() {
     // 重置审批节点数据
     // activityNodes 来自 props，不需要重置
 
-    await getApprovalDetail({
+    const data = await getApprovalDetail({
       processInstanceId: props.headerData.processInstanceId,
     });
-
-    // activityNodes 来自 props，不需要赋值
+    activityNodes.value = data.activityNodes;
   } catch (error) {
     console.error('获取审批详情失败:', error);
   } finally {
@@ -313,8 +314,8 @@ defineExpose({
               <CardContainer :title="$t('common.approvalProgress')">
                 <BpmProcessInstanceTimeline
                   :activity-nodes="
-                    props.activityNodes && props.activityNodes.length > 0
-                      ? props.activityNodes
+                    activityNodes && activityNodes.length > 0
+                      ? activityNodes
                       : []
                   "
                   :direction="props.timelineDirection"
