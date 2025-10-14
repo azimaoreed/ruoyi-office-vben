@@ -29,9 +29,9 @@ import { useFormSchema } from './data';
 
 // 定义组件 props
 const props = defineProps<{
+  activityNodes?: any[];
   id?: number | string; // 从 BusinessFormComponent 传递的 id
   isApproval?: boolean; // 是否审批态
-  activityNodes?: any[];
   processDefinition?: any; // 流程定义信息
   processInstance?: any; // 流程实例信息
 }>();
