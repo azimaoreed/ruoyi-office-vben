@@ -17,7 +17,6 @@ import {
   BpmTaskStatusEnum,
   OPERATION_BUTTON_NAME,
 } from '@vben/constants';
-import { IconifyIcon } from '@vben/icons';
 import { useUserStore } from '@vben/stores';
 import { isEmpty } from '@vben/utils';
 

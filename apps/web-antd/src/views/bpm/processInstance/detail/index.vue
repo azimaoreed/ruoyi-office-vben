@@ -393,6 +393,7 @@ onMounted(async () => {
       <BusinessFormComponent
         :id="processInstance?.businessKey"
         :is-approval="isApproval"
+        :activity-nodes="activityNodes"
       />
       <template #actions>
         <div class="px-4" v-if="isApproval">

@@ -16,7 +16,7 @@ import type { VbenFormSchema } from '#/adapter/form';
 import { onMounted, ref, watch } from 'vue';
 
 import { Page } from '@vben/common-ui';
-import { BpmProcessInstanceStatus } from '@vben/constants';
+import { BpmProcessInstanceStatus, BpmProcessInstanceStatusNoViewTabValue } from '@vben/constants';
 
 import { useVbenForm } from '#/adapter/form';
 import {
@@ -67,6 +67,7 @@ const processModelView = ref<any>({}); // 流程模型视图
 const approvalDetailLoading = ref(false); // 审批详情的加载中
 // activityNodes 已在 props 中定义，不需要重复声明
 const taskListRef = ref<any>(null); // 任务列表引用
+const activityNodes = ref<any[]>(props.activityNodes || []);
 
 // 使用公共的 footerLeft composable
 const { footerLeft } = useFooterLeft();
@@ -171,11 +172,10 @@ async function getApprovalDetailData() {
     // 重置审批节点数据
     // activityNodes 来自 props，不需要重置
 
-    await getApprovalDetail({
+    const data = await getApprovalDetail({
       processInstanceId: props.headerData.processInstanceId,
     });
-
-    // activityNodes 来自 props，不需要赋值
+    activityNodes.value = data.activityNodes;
   } catch (error) {
     console.error('获取审批详情失败:', error);
   } finally {
@@ -301,7 +301,7 @@ defineExpose({
           <a-tab-pane
             key="2"
             :tab="$t('common.approvalInfo')"
-            v-if="props.headerData.processInstanceId"
+            v-if="props.headerData.processInstanceId && props.headerData.processStatus && !BpmProcessInstanceStatusNoViewTabValue.includes(props.headerData.processStatus)"
           >
             <div
               v-if="approvalDetailLoading"
@@ -314,8 +314,8 @@ defineExpose({
                 {{ console.log("props.activityNodes:", props.activityNodes) }}
                 <BpmProcessInstanceTimeline
                   :activity-nodes="
-                    props.activityNodes && props.activityNodes.length > 0
-                      ? props.activityNodes
+                    activityNodes && activityNodes.length > 0
+                      ? activityNodes
                       : []
                   "
                   :direction="props.timelineDirection"
@@ -338,7 +338,7 @@ defineExpose({
             key="3"
             :tab="$t('common.processFlow')"
             :force-render="true"
-            v-if="props.headerData.processInstanceId"
+            v-if="props.headerData.processInstanceId && props.headerData.processStatus && !BpmProcessInstanceStatusNoViewTabValue.includes(props.headerData.processStatus)"
           >
             <div class="h-full">
               <ProcessInstanceSimpleViewer

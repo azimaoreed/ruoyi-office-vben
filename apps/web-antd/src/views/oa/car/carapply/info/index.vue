@@ -29,6 +29,7 @@ import { useFormSchema } from './data';
 
 // 定义组件 props
 const props = defineProps<{
+  activityNodes?: any[];
   id?: number | string; // 从 BusinessFormComponent 传递的 id
   isApproval?: boolean; // 是否审批态
   processDefinition?: any; // 流程定义信息
@@ -200,7 +201,6 @@ onMounted(() => {
 
 <template>
   <Loading :spinning="loading">
-    {{ console.log(props.isApproval) }}
     <BasicForm
       ref="basicFormRef"
       :header-data="{
@@ -215,6 +215,7 @@ onMounted(() => {
       @submit="handleSaveAndSubmit(true)"
       @revoke="handleRevoke"
       :hide-footer="props.isApproval"
+      :activity-nodes="props.activityNodes"
     >
       <!-- 扩展插槽，用于明细表格等 -->
       <template #form-extension>
