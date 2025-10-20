@@ -13,7 +13,7 @@ import {
   AntdProfileOutlined,
   BookOpenText,
   CircleHelp,
-  MdiGithub,
+  SvgGithubIcon,
 } from '@vben/icons';
 import {
   BasicLayout,
@@ -78,7 +78,7 @@ const menus = computed(() => [
         target: '_blank',
       });
     },
-    icon: MdiGithub,
+    icon: SvgGithubIcon,
     text: 'GitHub',
   },
   {
@@ -132,7 +132,7 @@ async function handleNotificationMakeAll() {
 
 /** 清空通知 */
 async function handleNotificationClear() {
-  handleNotificationMakeAll();
+  await handleNotificationMakeAll();
 }
 
 /** 标记单个已读 */
@@ -182,6 +182,7 @@ async function handleTenantChange(tenant: SystemTenantApi.Tenant) {
   // 提示切换成功
   message.success(`切换当前租户为: ${tenant.name}`);
 }
+
 // ========== 初始化 ==========
 onMounted(() => {
   // 首次加载未读数量
@@ -200,11 +201,16 @@ onMounted(() => {
 });
 
 watch(
-  () => preferences.app.watermark,
-  async (enable) => {
+  () => ({
+    enable: preferences.app.watermark,
+    content: preferences.app.watermarkContent,
+  }),
+  async ({ enable, content }) => {
     if (enable) {
       await updateWatermark({
-        content: `${userStore.userInfo?.id} - ${userStore.userInfo?.nickname}`,
+        content:
+          content ||
+          `${userStore.userInfo?.id} - ${userStore.userInfo?.nickname}`,
       });
     } else {
       destroyWatermark();

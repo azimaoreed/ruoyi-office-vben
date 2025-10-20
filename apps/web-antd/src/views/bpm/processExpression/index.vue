@@ -22,7 +22,7 @@ const [FormModal, formModalApi] = useVbenModal({
 });
 
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
@@ -40,15 +40,14 @@ function handleEdit(row: BpmProcessExpressionApi.ProcessExpression) {
 async function handleDelete(row: BpmProcessExpressionApi.ProcessExpression) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.name]),
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
     await deleteProcessExpression(row.id as number);
     message.success({
       content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_key_msg',
     });
-    onRefresh();
+    handleRefresh();
   } finally {
     hideLoading();
   }
@@ -93,7 +92,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       />
     </template>
 
-    <FormModal @success="onRefresh" />
+    <FormModal @success="handleRefresh" />
     <Grid table-title="流程表达式">
       <template #toolbar-tools>
         <TableAction

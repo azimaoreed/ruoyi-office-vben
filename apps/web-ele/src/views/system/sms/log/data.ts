@@ -30,7 +30,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '短信渠道',
       component: 'ApiSelect',
       componentProps: {
-        api: async () => await getSimpleSmsChannelList(),
+        api: () => getSimpleSmsChannelList(),
         labelField: 'signature',
         valueField: 'id',
         clearable: true,
@@ -96,12 +96,6 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
     },
     {
-      field: 'createTime',
-      title: '创建时间',
-      minWidth: 180,
-      formatter: 'formatDateTime',
-    },
-    {
       field: 'mobile',
       title: '手机号',
       minWidth: 120,
@@ -163,6 +157,12 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
         name: 'CellDict',
         props: { type: DICT_TYPE.SYSTEM_SMS_TEMPLATE_TYPE },
       },
+    },
+    {
+      field: 'createTime',
+      title: '创建时间',
+      minWidth: 180,
+      formatter: 'formatDateTime',
     },
     {
       title: '操作',

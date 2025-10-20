@@ -74,8 +74,6 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'RadioGroup',
       componentProps: {
         options: getDictOptions(DICT_TYPE.COMMON_STATUS, 'number'),
-        buttonStyle: 'solid',
-        optionType: 'button',
       },
       rules: z.number().default(CommonStatusEnum.ENABLE),
     },
@@ -195,7 +193,7 @@ export function useSendNotifyFormSchema(): VbenFormSchema[] {
       label: '接收人',
       component: 'ApiSelect',
       componentProps: {
-        api: getSimpleUserList,
+        api: () => getSimpleUserList(),
         labelField: 'nickname',
         valueField: 'id',
         placeholder: '请选择接收人',

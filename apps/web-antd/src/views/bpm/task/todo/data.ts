@@ -19,7 +19,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入系统分类',
         allowClear: true,
-        api: getCategorySimpleList,
+        api: () => getCategorySimpleList(),
         labelField: 'name',
         valueField: 'code',
       },

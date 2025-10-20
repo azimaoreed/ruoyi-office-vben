@@ -5,6 +5,8 @@ import type { MallCouponApi } from '#/api/mall/promotion/coupon/coupon';
 import { ref } from 'vue';
 
 import { DocAlert, Page } from '@vben/common-ui';
+import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 import { $t } from '@vben/locales';
 
 import { message, TabPane, Tabs } from 'ant-design-vue';
@@ -15,43 +17,54 @@ import {
   getCouponPage,
 } from '#/api/mall/promotion/coupon/coupon';
 
-import { getStatusTabs, useGridColumns, useGridFormSchema } from './data';
+import { useGridColumns, useGridFormSchema } from './data';
 
 defineOptions({ name: 'PromotionCoupon' });
 
 const activeTab = ref('all');
 const statusTabs = ref(getStatusTabs());
 
+/** 刷新表格 */
+function handleRefresh() {
+  gridApi.query();
+}
+
 /** 删除优惠券 */
 async function handleDelete(row: MallCouponApi.Coupon) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.name]),
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
-    await deleteCoupon(row.id as number);
-    message.success({
-      content: '回收成功',
-      key: 'action_key_msg',
-    });
-    onRefresh();
+    await deleteCoupon(row.id!);
+    message.success('回收成功');
+    handleRefresh();
   } finally {
     hideLoading();
   }
 }
 
-/** 刷新表格 */
-function onRefresh() {
-  gridApi.query();
+/** 获取状态选项卡配置 */
+function getStatusTabs() {
+  const tabs = [
+    {
+      label: '全部',
+      value: 'all',
+    },
+  ];
+  const statusOptions = getDictOptions(DICT_TYPE.PROMOTION_COUPON_STATUS);
+  for (const option of statusOptions) {
+    tabs.push({
+      label: option.label,
+      value: String(option.value),
+    });
+  }
+  return tabs;
 }
 
-/** Tab切换 */
-function onTabChange(tabName: string) {
+/** Tab 切换 */
+function handleTabChange(tabName: any) {
   activeTab.value = tabName;
-  // 设置状态查询参数
-  const formValues = gridApi.formApi.getValues();
-  const status = tabName === 'all' ? undefined : Number(tabName);
-  gridApi.formApi.setValues({ ...formValues, status });
   gridApi.query();
 }
 
@@ -99,9 +112,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
       />
     </template>
 
-    <Grid table-title="优惠券列表">
+    <Grid>
       <template #top>
-        <Tabs v-model:active-key="activeTab" type="card" @change="onTabChange">
+        <Tabs class="-mt-11" @change="handleTabChange">
           <TabPane
             v-for="tab in statusTabs"
             :key="tab.value"
@@ -130,3 +143,8 @@ const [Grid, gridApi] = useVbenVxeGrid({
     </Grid>
   </Page>
 </template>
+<style scoped>
+:deep(.vxe-toolbar div) {
+  z-index: 1;
+}
+</style>

@@ -187,7 +187,7 @@ export function useDataFormSchema(): VbenFormSchema[] {
       component: 'ApiSelect',
       componentProps: (values) => {
         return {
-          api: getSimpleDictTypeList,
+          api: () => getSimpleDictTypeList(),
           placeholder: '请输入字典类型',
           labelField: 'name',
           valueField: 'type',
@@ -292,9 +292,7 @@ export function useDataGridFormSchema(): VbenFormSchema[] {
   ];
 }
 
-/**
- * 字典数据表格列
- */
+/** 字典数据表格列 */
 export function useDataGridColumns(): VxeTableGridOptions['columns'] {
   return [
     { type: 'checkbox', width: 40 },

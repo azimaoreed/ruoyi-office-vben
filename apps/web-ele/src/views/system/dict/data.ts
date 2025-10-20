@@ -50,8 +50,6 @@ export function useTypeFormSchema(): VbenFormSchema[] {
       component: 'RadioGroup',
       componentProps: {
         options: getDictOptions(DICT_TYPE.COMMON_STATUS, 'number'),
-        buttonStyle: 'solid',
-        optionType: 'button',
       },
       rules: z.number().default(CommonStatusEnum.ENABLE),
     },
@@ -151,9 +149,7 @@ export function useTypeGridColumns(): VxeTableGridOptions['columns'] {
 // ============================== 字典数据 ==============================
 
 // TODO @芋艿：后续针对 antd，增加
-/**
- * 颜色选项
- */
+/** 颜色选项 */
 const colorOptions = [
   { value: '', label: '无' },
   { value: 'processing', label: '主要' },
@@ -187,7 +183,7 @@ export function useDataFormSchema(): VbenFormSchema[] {
       component: 'ApiSelect',
       componentProps: (values) => {
         return {
-          api: getSimpleDictTypeList,
+          api: () => getSimpleDictTypeList(),
           placeholder: '请输入字典类型',
           labelField: 'name',
           valueField: 'type',
@@ -233,8 +229,6 @@ export function useDataFormSchema(): VbenFormSchema[] {
       componentProps: {
         options: getDictOptions(DICT_TYPE.COMMON_STATUS, 'number'),
         placeholder: '请选择状态',
-        buttonStyle: 'solid',
-        optionType: 'button',
       },
       rules: z.number().default(CommonStatusEnum.ENABLE),
     },

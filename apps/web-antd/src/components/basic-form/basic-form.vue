@@ -311,6 +311,7 @@ defineExpose({
             </div>
             <div v-else>
               <CardContainer :title="$t('common.approvalProgress')">
+                {{ console.log("props.activityNodes:", props.activityNodes) }}
                 <BpmProcessInstanceTimeline
                   :activity-nodes="
                     props.activityNodes && props.activityNodes.length > 0

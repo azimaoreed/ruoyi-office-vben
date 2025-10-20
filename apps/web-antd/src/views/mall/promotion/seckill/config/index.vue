@@ -23,7 +23,7 @@ const [FormModal, formModalApi] = useVbenModal({
 });
 
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
@@ -41,15 +41,14 @@ function handleEdit(row: MallSeckillConfigApi.SeckillConfig) {
 async function handleDelete(row: MallSeckillConfigApi.SeckillConfig) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.name]),
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
     await deleteSeckillConfig(row.id as number);
     message.success({
       content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_key_msg',
     });
-    onRefresh();
+    handleRefresh();
   } finally {
     hideLoading();
   }
@@ -115,7 +114,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 <template>
   <Page auto-content-height>
-    <FormModal @success="onRefresh" />
+    <FormModal @success="handleRefresh" />
     <Grid table-title="秒杀时段列表">
       <template #toolbar-tools>
         <TableAction

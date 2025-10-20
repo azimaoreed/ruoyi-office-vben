@@ -3,6 +3,7 @@ import type { VbenFormSchema } from '@vben/common-ui';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
 import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 import { handleTree } from '@vben/utils';
 
 import { LimitConfType } from '#/api/crm/customer/limitConfig';
@@ -21,19 +22,25 @@ export function useFormSchema(confType: LimitConfType): VbenFormSchema[] {
       },
     },
     {
+      fieldName: 'type',
+      component: 'Input',
+      dependencies: {
+        triggerFields: [''],
+        show: () => false,
+      },
+    },
+    {
       fieldName: 'userIds',
       label: '规则适用人群',
       component: 'ApiSelect',
       componentProps: {
-        api: getSimpleUserList,
-        fieldNames: {
-          label: 'nickname',
-          value: 'id',
-        },
-        mode: 'tags',
+        api: () => getSimpleUserList(),
+        labelField: 'nickname',
+        valueField: 'id',
+        mode: 'multiple',
         allowClear: true,
+        placeholder: '请选择规则适用人群',
       },
-      rules: 'required',
     },
     {
       fieldName: 'deptIds',
@@ -49,7 +56,6 @@ export function useFormSchema(confType: LimitConfType): VbenFormSchema[] {
         placeholder: '请选择规则适用部门',
         treeDefaultExpandAll: true,
       },
-      rules: 'required',
     },
     {
       fieldName: 'maxCount',
@@ -58,21 +64,29 @@ export function useFormSchema(confType: LimitConfType): VbenFormSchema[] {
           ? '拥有客户数上限'
           : '锁定客户数上限',
       component: 'InputNumber',
+      componentProps: {
+        placeholder: `请输入${
+          LimitConfType.CUSTOMER_QUANTITY_LIMIT === confType
+            ? '拥有客户数上限'
+            : '锁定客户数上限'
+        }`,
+      },
+      rules: 'required',
     },
     {
       fieldName: 'dealCountEnabled',
       label: '成交客户是否占用拥有客户数',
       component: 'RadioGroup',
       componentProps: {
-        options: [
-          { label: '是', value: true },
-          { label: '否', value: false },
-        ],
+        options: getDictOptions(DICT_TYPE.INFRA_BOOLEAN_STRING, 'boolean'),
+        buttonStyle: 'solid',
+        optionType: 'button',
       },
       dependencies: {
         triggerFields: [''],
         show: () => confType === LimitConfType.CUSTOMER_QUANTITY_LIMIT,
       },
+      defaultValue: false,
     },
   ];
 }

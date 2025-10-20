@@ -103,7 +103,7 @@ export function useFormSchema(): VbenFormSchema[] {
         placeholder: '请选择菜单图标',
         prefix: 'carbon',
       },
-      //rules: 'required',
+      // rules: 'required',
       dependencies: {
         triggerFields: ['type'],
         show: (values) => {
@@ -202,7 +202,6 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'InputNumber',
       componentProps: {
         min: 0,
-        controlsPosition: 'right',
         placeholder: '请输入显示顺序',
       },
       rules: 'required',

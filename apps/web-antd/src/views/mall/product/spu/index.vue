@@ -66,7 +66,7 @@ const tabsData = ref([
 ]);
 
 /** 刷新表格 */
-async function onRefresh() {
+async function handleRefresh() {
   await gridApi.query();
   await getTabCount();
 }
@@ -102,15 +102,14 @@ function handleEdit(row: MallSpuApi.Spu) {
 async function handleDelete(row: MallSpuApi.Spu) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.name]),
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
     await deleteSpu(row.id as number);
     message.success({
       content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_key_msg',
     });
-    onRefresh();
+    handleRefresh();
   } finally {
     hideLoading();
   }
@@ -127,7 +126,7 @@ async function handleStatus02Change(row: MallSpuApi.Spu, newStatus: number) {
     .then(async () => {
       await updateStatus({ id: row.id as number, status: newStatus });
       message.success(`${text}成功`);
-      await onRefresh();
+      await handleRefresh();
     })
     .catch(() => {
       message.error(`${text}失败`);

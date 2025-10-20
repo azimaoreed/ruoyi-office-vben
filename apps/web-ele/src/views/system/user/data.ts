@@ -70,10 +70,10 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '岗位',
       component: 'ApiSelect',
       componentProps: {
-        api: getSimplePostList,
+        api: () => getSimplePostList(),
         labelField: 'name',
         valueField: 'id',
-        mode: 'multiple',
+        multiple: true,
         placeholder: '请选择岗位',
       },
     },
@@ -82,11 +82,17 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '邮箱',
       component: 'Input',
       rules: z.string().email('邮箱格式不正确').or(z.literal('')).optional(),
+      componentProps: {
+        placeholder: '请输入邮箱',
+      },
     },
     {
       fieldName: 'mobile',
       label: '手机号码',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入手机号码',
+      },
     },
     {
       fieldName: 'sex',
@@ -94,8 +100,6 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'RadioGroup',
       componentProps: {
         options: getDictOptions(DICT_TYPE.SYSTEM_USER_SEX, 'number'),
-        buttonStyle: 'solid',
-        optionType: 'button',
       },
       rules: z.number().default(1),
     },
@@ -105,8 +109,6 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'RadioGroup',
       componentProps: {
         options: getDictOptions(DICT_TYPE.COMMON_STATUS, 'number'),
-        buttonStyle: 'solid',
-        optionType: 'button',
       },
       rules: z.number().default(CommonStatusEnum.ENABLE),
     },
@@ -210,10 +212,10 @@ export function useAssignRoleFormSchema(): VbenFormSchema[] {
       label: '角色',
       component: 'ApiSelect',
       componentProps: {
-        api: getSimpleRoleList,
+        api: () => getSimpleRoleList(),
         labelField: 'name',
         valueField: 'id',
-        mode: 'multiple',
+        multiple: true,
         placeholder: '请选择角色',
       },
     },
@@ -278,10 +280,10 @@ export function useGridFormSchema(): VbenFormSchema[] {
 }
 
 /** 列表的字段 */
-export function useGridColumns<T = SystemUserApi.User>(
+export function useGridColumns(
   onStatusChange?: (
     newStatus: number,
-    row: T,
+    row: SystemUserApi.User,
   ) => PromiseLike<boolean | undefined>,
 ): VxeTableGridOptions['columns'] {
   return [

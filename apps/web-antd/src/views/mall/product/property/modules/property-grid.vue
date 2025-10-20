@@ -1,8 +1,5 @@
 <script lang="ts" setup>
-import type {
-  VxeGridListeners,
-  VxeTableGridOptions,
-} from '#/adapter/vxe-table';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { MallPropertyApi } from '#/api/mall/product/property';
 
 import { useVbenModal } from '@vben/common-ui';
@@ -24,7 +21,7 @@ const [PropertyFormModal, propertyFormModalApi] = useVbenModal({
 });
 
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
@@ -34,7 +31,7 @@ function handleCreate() {
 }
 
 /** 编辑属性 */
-function handleEdit(row: any) {
+function handleEdit(row: MallPropertyApi.Property) {
   propertyFormModalApi.setData(row).open();
 }
 
@@ -42,26 +39,16 @@ function handleEdit(row: any) {
 async function handleDelete(row: MallPropertyApi.Property) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.name]),
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
-    await deleteProperty(row.id as number);
-    message.success({
-      content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_key_msg',
-    });
-    onRefresh();
+    await deleteProperty(row.id!);
+    message.success($t('ui.actionMessage.deleteSuccess', [row.name]));
+    handleRefresh();
   } finally {
     hideLoading();
   }
 }
-
-/** 表格事件 */
-const gridEvents: VxeGridListeners<MallPropertyApi.Property> = {
-  cellClick: ({ row }) => {
-    emit('select', row.id);
-  },
-};
 
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
@@ -85,20 +72,24 @@ const [Grid, gridApi] = useVbenVxeGrid({
     rowConfig: {
       keyField: 'id',
       isCurrent: true,
+      isHover: true,
     },
     toolbarConfig: {
       refresh: true,
       search: true,
     },
   } as VxeTableGridOptions<MallPropertyApi.Property>,
-  gridEvents,
+  gridEvents: {
+    cellClick: ({ row }: { row: MallPropertyApi.Property }) => {
+      emit('select', row.id);
+    },
+  },
 });
 </script>
 
 <template>
   <div class="h-full">
-    <PropertyFormModal @success="onRefresh" />
-
+    <PropertyFormModal @success="handleRefresh" />
     <Grid table-title="属性列表">
       <template #toolbar-tools>
         <TableAction

@@ -22,13 +22,13 @@ const [FormModal, formModalApi] = useVbenModal({
 });
 
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
 /** 创建分类 */
 function handleCreate() {
-  formModalApi.setData({}).open();
+  formModalApi.setData(null).open();
 }
 
 /** 添加下级分类 */
@@ -41,28 +41,16 @@ function handleEdit(row: MallCategoryApi.Category) {
   formModalApi.setData(row).open();
 }
 
-/** 查看商品操作 */
-const router = useRouter(); // 路由
-function handleViewSpu(id: number) {
-  router.push({
-    name: 'ProductSpu',
-    query: { categoryId: id },
-  });
-}
-
 /** 删除分类 */
 async function handleDelete(row: MallCategoryApi.Category) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.name]),
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
-    await deleteCategory(row.id as number);
-    message.success({
-      content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_key_msg',
-    });
-    onRefresh();
+    await deleteCategory(row.id!);
+    message.success($t('ui.actionMessage.deleteSuccess', [row.name]));
+    handleRefresh();
   } finally {
     hideLoading();
   }
@@ -70,9 +58,18 @@ async function handleDelete(row: MallCategoryApi.Category) {
 
 /** 切换树形展开/收缩状态 */
 const isExpanded = ref(false);
-function toggleExpand() {
+function handleExpand() {
   isExpanded.value = !isExpanded.value;
   gridApi.grid.setAllTreeExpand(isExpanded.value);
+}
+
+/** 查看商品操作 */
+const router = useRouter(); // 路由
+function handleViewSpu(id: number) {
+  router.push({
+    path: '/mall/product/spu',
+    query: { categoryId: id },
+  });
 }
 
 const [Grid, gridApi] = useVbenVxeGrid({
@@ -95,9 +92,11 @@ const [Grid, gridApi] = useVbenVxeGrid({
     },
     rowConfig: {
       keyField: 'id',
+      isHover: true,
     },
     toolbarConfig: {
       refresh: true,
+      search: true,
     },
     treeConfig: {
       parentField: 'parentId',
@@ -118,8 +117,8 @@ const [Grid, gridApi] = useVbenVxeGrid({
       />
     </template>
 
-    <FormModal @success="onRefresh" />
-    <Grid>
+    <FormModal @success="handleRefresh" />
+    <Grid table-title="商品分类列表">
       <template #toolbar-tools>
         <TableAction
           :actions="[
@@ -133,15 +132,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
             {
               label: isExpanded ? '收缩' : '展开',
               type: 'primary',
-              onClick: toggleExpand,
+              onClick: handleExpand,
             },
           ]"
         />
-      </template>
-      <template #name="{ row }">
-        <div class="flex w-full items-center gap-1">
-          <span class="flex-auto">{{ row.name }}</span>
-        </div>
       </template>
       <template #actions="{ row }">
         <TableAction

@@ -31,7 +31,7 @@ const [FormModal, formModalApi] = useVbenModal({
 });
 
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
@@ -49,15 +49,14 @@ function handleEdit(row: AiKnowledgeKnowledgeApi.Knowledge) {
 async function handleDelete(row: AiKnowledgeKnowledgeApi.Knowledge) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.id]),
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
     await deleteKnowledgeSegment(row.id as number);
     message.success({
       content: $t('ui.actionMessage.deleteSuccess', [row.id]),
-      key: 'action_key_msg',
     });
-    onRefresh();
+    handleRefresh();
   } finally {
     hideLoading();
   }
@@ -119,7 +118,7 @@ onMounted(() => {
 
 <template>
   <Page auto-content-height>
-    <FormModal @success="onRefresh" />
+    <FormModal @success="handleRefresh" />
     <Grid table-title="分段列表">
       <template #toolbar-tools>
         <TableAction

@@ -21,7 +21,7 @@ import { useGridColumnsMessage, useGridFormSchemaMessage } from '../data';
 
 const userList = ref<SystemUserApi.User[]>([]); // 用户列表
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
@@ -29,15 +29,14 @@ function onRefresh() {
 async function handleDelete(row: AiChatConversationApi.ChatConversation) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.id]),
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
     await deleteChatMessageByAdmin(row.id as number);
     message.success({
       content: $t('ui.actionMessage.deleteSuccess', [row.id]),
-      key: 'action_key_msg',
     });
-    onRefresh();
+    handleRefresh();
   } finally {
     hideLoading();
   }

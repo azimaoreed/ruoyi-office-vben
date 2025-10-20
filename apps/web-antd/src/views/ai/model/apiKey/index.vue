@@ -19,7 +19,7 @@ const [FormModal, formModalApi] = useVbenModal({
 });
 
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
@@ -37,15 +37,14 @@ function handleEdit(row: AiModelApiKeyApi.ApiKey) {
 async function handleDelete(row: AiModelApiKeyApi.ApiKey) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.name]),
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
     await deleteApiKey(row.id as number);
     message.success({
       content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_key_msg',
     });
-    onRefresh();
+    handleRefresh();
   } finally {
     hideLoading();
   }
@@ -86,7 +85,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <template #doc>
       <DocAlert title="AI 手册" url="https://doc.iocoder.cn/ai/build/" />
     </template>
-    <FormModal @success="onRefresh" />
+    <FormModal @success="handleRefresh" />
     <Grid table-title="API  密钥列表">
       <template #toolbar-tools>
         <TableAction

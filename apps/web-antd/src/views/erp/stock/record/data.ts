@@ -6,6 +6,7 @@ import { getDictOptions } from '@vben/hooks';
 
 import { getProductSimpleList } from '#/api/erp/product/product';
 import { getWarehouseSimpleList } from '#/api/erp/stock/warehouse';
+import { getRangePickerDefaultProps } from '#/utils';
 
 /** 搜索表单 */
 export function useGridFormSchema(): VbenFormSchema[] {
@@ -18,10 +19,9 @@ export function useGridFormSchema(): VbenFormSchema[] {
         placeholder: '请选择产品',
         allowClear: true,
         showSearch: true,
-        api: getProductSimpleList,
+        api: () => getProductSimpleList(),
         labelField: 'name',
         valueField: 'id',
-        filterOption: false,
       },
     },
     {
@@ -32,10 +32,9 @@ export function useGridFormSchema(): VbenFormSchema[] {
         placeholder: '请选择仓库',
         allowClear: true,
         showSearch: true,
-        api: getWarehouseSimpleList,
+        api: () => getWarehouseSimpleList(),
         labelField: 'name',
         valueField: 'id',
-        filterOption: false,
       },
     },
     {
@@ -62,10 +61,8 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '创建时间',
       component: 'RangePicker',
       componentProps: {
-        placeholder: ['开始日期', '结束日期'],
-        showTime: true,
-        format: 'YYYY-MM-DD HH:mm:ss',
-        valueFormat: 'YYYY-MM-DD HH:mm:ss',
+        ...getRangePickerDefaultProps(),
+        allowClear: true,
       },
     },
   ];
@@ -113,31 +110,19 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
       field: 'createTime',
       title: '出入库日期',
       width: 180,
-      cellRender: {
-        name: 'CellDateTime',
-      },
+      formatter: 'formatDateTime',
     },
     {
       field: 'count',
       title: '出入库数量',
       width: 120,
-      cellRender: {
-        name: 'CellAmount',
-        props: {
-          digits: 2,
-        },
-      },
+      formatter: 'formatAmount3',
     },
     {
       field: 'totalCount',
       title: '库存量',
       width: 100,
-      cellRender: {
-        name: 'CellAmount',
-        props: {
-          digits: 2,
-        },
-      },
+      formatter: 'formatAmount3',
     },
     {
       field: 'creatorName',

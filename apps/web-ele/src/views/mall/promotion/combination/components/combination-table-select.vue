@@ -3,8 +3,10 @@ import type { MallCombinationActivityApi } from '#/api/mall/promotion/combinatio
 
 import { onMounted, ref } from 'vue';
 
+import { ContentWrap } from '@vben/common-ui';
 import { DICT_TYPE } from '@vben/constants';
 import { getDictOptions } from '@vben/hooks';
+import { IconifyIcon } from '@vben/icons';
 import {
   dateFormatter,
   fenToYuan,
@@ -280,11 +282,11 @@ onMounted(async () => {
         </el-form-item>
         <el-form-item>
           <el-button @click="handleQuery">
-            <Icon class="mr-5px" icon="ep:search" />
+            <IconifyIcon class="mr-5px" icon="ep:search" />
             搜索
           </el-button>
           <el-button @click="resetQuery">
-            <Icon class="mr-5px" icon="ep:refresh" />
+            <IconifyIcon class="mr-5px" icon="ep:refresh" />
             重置
           </el-button>
         </el-form-item>

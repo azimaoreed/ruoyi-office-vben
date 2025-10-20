@@ -43,7 +43,7 @@ const [Modal, modalApi] = useVbenModal({
     }
     // 提交表单
     const data = (await formApi.getValues()) as SystemDeptApi.Dept;
-    debugger
+    debugger;
     // 当前节点为部门，校验上级组织类型与当前组织类型的合理性
     if (data.orgType === OrgTypeEnum.COMPANY && data.parentId) {
       try {
@@ -58,7 +58,7 @@ const [Modal, modalApi] = useVbenModal({
         return;
       }
     }
-    
+
     modalApi.lock();
     try {
       await (formData.value?.id ? updateDept(data) : createDept(data));
@@ -86,9 +86,7 @@ const [Modal, modalApi] = useVbenModal({
     try {
       formData.value = await getDept(data.id);
       // 设置到 values
-      if (formData.value) {
-        await formApi.setValues(formData.value);
-      }
+      await formApi.setValues(formData.value);
     } finally {
       modalApi.unlock();
     }

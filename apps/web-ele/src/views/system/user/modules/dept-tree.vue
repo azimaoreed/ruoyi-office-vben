@@ -27,13 +27,13 @@ function handleSearch(value: string) {
     : deptList.value;
   deptTree.value = handleTree(filteredList);
   // 展开所有节点
-  expandedKeys.value = deptTree.value.map((node) => node.id as number);
+  expandedKeys.value = deptTree.value.map((node) => node.id!);
 }
 
 /** 选中部门 */
-const handleSelect = (data: any) => {
+function handleSelect(data: any) {
   emit('select', data);
-};
+}
 
 /** 初始化 */
 onMounted(async () => {

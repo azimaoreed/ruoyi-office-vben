@@ -30,7 +30,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '短信渠道',
       component: 'ApiSelect',
       componentProps: {
-        api: async () => await getSimpleSmsChannelList(),
+        api: () => getSimpleSmsChannelList(),
         labelField: 'signature',
         valueField: 'id',
         allowClear: true,
@@ -94,12 +94,6 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
       field: 'id',
       title: '编号',
       minWidth: 100,
-    },
-    {
-      field: 'createTime',
-      title: '创建时间',
-      minWidth: 180,
-      formatter: 'formatDateTime',
     },
     {
       field: 'mobile',

@@ -78,7 +78,7 @@ const rules: Record<string, Rule[]> = {
           callback();
           return;
         }
-        if (!/^[a-z_][\-\w.$]*$/i.test(value)) {
+        if (!/^[a-z_][-\w.$]*$/i.test(value)) {
           callback(
             new Error(
               '只能包含字母、数字、下划线、连字符和点号，且必须以字母或下划线开头',
@@ -314,12 +314,10 @@ defineExpose({ validate });
       </Form.Item>
       <Form.Item label="流程类型" name="type" class="mb-5">
         <Radio.Group v-model:value="modelData.type">
-          <!-- TODO BPMN 流程类型需要整合，暂时禁用 -->
           <Radio
             v-for="dict in getDictOptions(DICT_TYPE.BPM_MODEL_TYPE, 'number')"
-            :key="dict.value"
+            :key="dict.value as number"
             :value="dict.value"
-            :disabled="dict.value === 10"
           >
             {{ dict.label }}
           </Radio>
@@ -462,7 +460,6 @@ defineExpose({ validate });
       class="w-3/5"
       v-model:value="selectedUsers"
       :multiple="true"
-      title="选择用户"
       @confirm="handleUserSelectConfirm"
       @closed="handleUserSelectClosed"
       @cancel="handleUserSelectCancel"
@@ -470,7 +467,6 @@ defineExpose({ validate });
     <!-- 部门选择对话框 -->
     <DeptSelectModalComp
       class="w-3/5"
-      title="发起人部门选择"
       :check-strictly="true"
       @confirm="handleDeptSelectConfirm"
     />

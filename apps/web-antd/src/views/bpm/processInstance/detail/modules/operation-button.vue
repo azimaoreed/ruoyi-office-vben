@@ -45,7 +45,7 @@ import {
 } from '#/api/bpm/processInstance';
 import * as TaskApi from '#/api/bpm/task';
 import * as UserApi from '#/api/system/user';
-import { setConfAndFields2 } from '#/utils';
+import { setConfAndFields2 } from '#/components/form-create';
 
 import Signature from './signature.vue';
 import ProcessInstanceTimeline from './time-line.vue';
@@ -1182,9 +1182,7 @@ defineExpose({ loadTodoTask });
         trigger="click"
         v-if="runningTask?.children.length > 0"
       >
-        <Button @click="openPopover('deleteSign')">
-          减签
-        </Button>
+        <Button @click="openPopover('deleteSign')"> 减签 </Button>
         <template #content>
           <div class="flex flex-1 flex-col px-5 pt-5" v-loading="formLoading">
             <Form
@@ -1323,9 +1321,7 @@ defineExpose({ loadTodoTask });
           !isEndProcessStatus(processInstance?.status)
         "
       >
-        <Button @click="openPopover('cancel')">
-          取消
-        </Button>
+        <Button @click="openPopover('cancel')"> 取消 </Button>
         <template #content>
           <div
             class="flex w-96 flex-1 flex-col px-5 pt-5"

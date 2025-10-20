@@ -3,12 +3,7 @@ import type { Ref } from 'vue';
 
 import { computed, nextTick, onMounted, ref, toRaw, watch } from 'vue';
 
-import {
-  CheckCircleFilled,
-  ExclamationCircleFilled,
-  IconifyIcon,
-  QuestionCircleFilled,
-} from '@vben/icons';
+import { IconifyIcon } from '@vben/icons';
 
 import { Button, DatePicker, Input, Modal, Tooltip } from 'ant-design-vue';
 
@@ -240,7 +235,12 @@ watch(
           循环
         </Button>
       </Button.Group>
-      <CheckCircleFilled v-if="valid" style=" margin-left: 8px;color: green" />
+      <IconifyIcon
+        icon="ant-design:check-circle-filled"
+        v-if="valid"
+        style="margin-left: 8px; color: green"
+      />
+      <CheckCircleFilled v-if="valid" style="margin-left: 8px; color: green" />
     </div>
     <div style="display: flex; align-items: center; margin-top: 10px">
       <span>条件：</span>
@@ -254,11 +254,15 @@ watch(
       >
         <template #suffix>
           <Tooltip v-if="!valid" title="格式错误" placement="top">
-            <ExclamationCircleFilled style="color: orange" />
+            <IconifyIcon
+              icon="ant-design:exclamation-circle-filled"
+              class="text-orange-400"
+            />
           </Tooltip>
           <Tooltip :title="helpText" placement="top">
-            <QuestionCircleFilled
-              style="color: #409eff; cursor: pointer"
+            <IconifyIcon
+              icon="ant-design:question-circle-filled"
+              class="cursor-pointer text-[#409eff]"
               @click="showHelp = true"
             />
           </Tooltip>
@@ -351,7 +355,3 @@ watch(
     </Modal>
   </div>
 </template>
-
-<style scoped>
-/* 相关样式 */
-</style>

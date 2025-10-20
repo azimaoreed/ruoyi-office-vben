@@ -59,7 +59,6 @@ export function useFormSchema(): VbenFormSchema[] {
         },
         showSearch: true,
         treeDefaultExpandedKeys: [0],
-        allowClear: true,
       },
       rules: 'selectRequired',
       renderComponentContent() {
@@ -91,8 +90,6 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'RadioGroup',
       componentProps: {
         options: getDictOptions(DICT_TYPE.SYSTEM_MENU_TYPE, 'number'),
-        buttonStyle: 'solid',
-        optionType: 'button',
       },
       rules: z.number().default(SystemMenuTypeEnum.DIR),
     },
@@ -168,7 +165,6 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'AutoComplete',
       componentProps: {
         clearable: true,
-        allowClear: true,
         filterOption(input: string, option: { value: string }) {
           return option.value.toLowerCase().includes(input.toLowerCase());
         },
@@ -204,8 +200,9 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'InputNumber',
       componentProps: {
         min: 0,
-        controlsPosition: 'right',
         placeholder: '请输入显示顺序',
+        controlsPosition: 'right',
+        class: '!w-full',
       },
       rules: 'required',
     },
@@ -215,8 +212,6 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'RadioGroup',
       componentProps: {
         options: getDictOptions(DICT_TYPE.COMMON_STATUS, 'number'),
-        buttonStyle: 'solid',
-        optionType: 'button',
       },
       rules: z.number().default(CommonStatusEnum.ENABLE),
     },
@@ -229,8 +224,6 @@ export function useFormSchema(): VbenFormSchema[] {
           { label: '总是', value: true },
           { label: '不是', value: false },
         ],
-        buttonStyle: 'solid',
-        optionType: 'button',
       },
       rules: 'required',
       defaultValue: true,
@@ -251,8 +244,6 @@ export function useFormSchema(): VbenFormSchema[] {
           { label: '缓存', value: true },
           { label: '不缓存', value: false },
         ],
-        buttonStyle: 'solid',
-        optionType: 'button',
       },
       rules: 'required',
       defaultValue: true,

@@ -34,7 +34,7 @@ interface ExtendedProcessInstance
 defineOptions({ name: 'BpmProcessInstanceMy' });
 
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
@@ -58,7 +58,7 @@ function handleCancel(row: ExtendedProcessInstance) {
               scope.value,
             );
             message.success('撤回成功');
-            onRefresh();
+            handleRefresh();
           } catch {
             return false;
           }

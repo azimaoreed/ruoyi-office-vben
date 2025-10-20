@@ -24,7 +24,7 @@ const [FormModal, formModalApi] = useVbenModal({
 });
 
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
@@ -42,15 +42,14 @@ function handleEdit(row: AiKnowledgeKnowledgeApi.Knowledge) {
 async function handleDelete(row: AiKnowledgeKnowledgeApi.Knowledge) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.name]),
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
     await deleteKnowledge(row.id as number);
     message.success({
       content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_key_msg',
     });
-    onRefresh();
+    handleRefresh();
   } finally {
     hideLoading();
   }
@@ -107,7 +106,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <template #doc>
       <DocAlert title="AI 手册" url="https://doc.iocoder.cn/ai/build/" />
     </template>
-    <FormModal @success="onRefresh" />
+    <FormModal @success="handleRefresh" />
     <Grid table-title="AI 知识库列表">
       <template #toolbar-tools>
         <TableAction

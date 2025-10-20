@@ -20,7 +20,8 @@ import {
   getProcessInstanceBpmnModelView,
 } from '#/api/bpm/processInstance';
 import { getSimpleUserList } from '#/api/system/user';
-import { registerComponent, setConfAndFields2 } from '#/utils';
+import { setConfAndFields2 } from '#/components/form-create';
+import { registerComponent } from '#/utils';
 import {
   SvgBpmApproveIcon,
   SvgBpmCancelIcon,
@@ -172,7 +173,6 @@ async function getApprovalDetail() {
       });
     } else {
       // 注意：data.processDefinition.formCustomViewPath 是组件的全路径，例如说：/crm/contract/detail/index.vue
-
       BusinessFormComponent.value = registerComponent(
         data?.processDefinition?.formCustomViewPath || '',
       );

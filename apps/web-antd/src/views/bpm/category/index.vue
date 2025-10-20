@@ -19,7 +19,7 @@ const [FormModal, formModalApi] = useVbenModal({
 });
 
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
@@ -37,15 +37,14 @@ function handleEdit(row: BpmCategoryApi.Category) {
 async function handleDelete(row: BpmCategoryApi.Category) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.code]),
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
     await deleteCategory(row.id as number);
     message.success({
       content: $t('ui.actionMessage.deleteSuccess', [row.code]),
-      key: 'action_key_msg',
     });
-    onRefresh();
+    handleRefresh();
   } catch {
     hideLoading();
   }
@@ -87,7 +86,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       <DocAlert title="工作流手册" url="https://doc.iocoder.cn/bpm/" />
     </template>
 
-    <FormModal @success="onRefresh" />
+    <FormModal @success="handleRefresh" />
     <Grid table-title="流程分类">
       <template #toolbar-tools>
         <TableAction

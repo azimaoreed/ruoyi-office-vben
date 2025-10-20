@@ -34,8 +34,6 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'RadioGroup',
       componentProps: {
         options: getDictOptions(DICT_TYPE.SYSTEM_USER_SEX, 'number'),
-        buttonStyle: 'solid',
-        optionType: 'button',
       },
     },
     {
@@ -144,7 +142,7 @@ export function useGridColumns(): VxeTableGridOptions<Demo01ContactApi.Demo01Con
     },
     {
       title: '操作',
-      width: 200,
+      width: 160,
       fixed: 'right',
       slots: { default: 'actions' },
     },

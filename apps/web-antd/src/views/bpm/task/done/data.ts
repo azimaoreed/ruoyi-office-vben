@@ -35,21 +35,18 @@ export function useGridFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入流程分类',
         allowClear: true,
-        api: getCategorySimpleList,
+        api: () => getCategorySimpleList(),
         labelField: 'name',
         valueField: 'code',
       },
     },
     {
       fieldName: 'status',
-      label: '流程状态',
+      label: '审批状态',
       component: 'Select',
       componentProps: {
-        options: getDictOptions(
-          DICT_TYPE.BPM_PROCESS_INSTANCE_STATUS,
-          'number',
-        ),
-        placeholder: '请选择流程状态',
+        options: getDictOptions(DICT_TYPE.BPM_TASK_STATUS, 'number'),
+        placeholder: '请选择审批状态',
         allowClear: true,
       },
     },

@@ -3,10 +3,8 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { MpTagApi } from '#/api/mp/tag';
 
 import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
 
 import { Page, useVbenModal } from '@vben/common-ui';
-import { useTabs } from '@vben/hooks';
 
 import { message } from 'ant-design-vue';
 
@@ -17,9 +15,6 @@ import { $t } from '#/locales';
 
 import { useGridColumns } from './data';
 import Form from './modules/form.vue';
-
-const { push } = useRouter(); // 路由
-const tabs = useTabs();
 
 const accountId = ref(-1);
 const accountOptions = ref<{ label: string; value: number }[]>([]);
@@ -37,31 +32,31 @@ async function getAccountList() {
       label: item.name,
       value: item.id,
     }));
-    gridApi.setState({
-      formOptions: {
-        schema: [
-          {
-            fieldName: 'accountId',
-            label: '公众号',
-            component: 'Select',
-            componentProps: {
-              options: accountOptions,
-            },
-          },
-        ],
-      },
-    });
     gridApi.formApi.setValues({
       accountId: accountId.value,
     });
   } else {
     message.error('未配置公众号，请在【公众号管理 -> 账号管理】菜单，进行配置');
-    await push({ name: 'MpAccount' });
-    tabs.closeCurrentTab();
+    // await push({ name: 'MpAccount' });
+    // tabs.closeCurrentTab();
   }
+  gridApi.setState({
+    formOptions: {
+      schema: [
+        {
+          fieldName: 'accountId',
+          label: '公众号',
+          component: 'Select',
+          componentProps: {
+            options: accountOptions.value || [],
+          },
+        },
+      ],
+    },
+  });
 }
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
@@ -79,15 +74,14 @@ function handleEdit(row: MpTagApi.Tag) {
 async function handleDelete(row: MpTagApi.Tag) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.name]),
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
     await deleteTag(row.id as number);
     message.success({
       content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_key_msg',
     });
-    onRefresh();
+    handleRefresh();
   } finally {
     hideLoading();
   }
@@ -96,15 +90,14 @@ async function handleDelete(row: MpTagApi.Tag) {
 async function handleSync() {
   const hideLoading = message.loading({
     content: '是否确认同步标签？',
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
     await syncTag(accountId.value);
     message.success({
       content: '同步标签成功',
-      key: 'action_key_msg',
     });
-    onRefresh();
+    handleRefresh();
   } finally {
     hideLoading();
   }
@@ -147,13 +140,13 @@ onMounted(async () => {
 
 <template>
   <Page auto-content-height>
-    <FormModal @success="onRefresh" />
-    <Grid table-title="公众号账号列表">
+    <FormModal @success="handleRefresh" />
+    <Grid table-title="公众号标签列表">
       <template #toolbar-tools>
         <TableAction
           :actions="[
             {
-              label: $t('ui.actionTitle.create', ['公众号账号']),
+              label: $t('ui.actionTitle.create', ['公众号标签']),
               type: 'primary',
               icon: ACTION_ICON.ADD,
               auth: ['mp:tag:create'],

@@ -28,7 +28,7 @@ const { hasAccessByCodes } = useAccess();
 const route = useRoute(); // 路由
 const router = useRouter(); // 路由
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
@@ -52,15 +52,14 @@ function handleEdit(id: number) {
 async function handleDelete(row: AiKnowledgeDocumentApi.KnowledgeDocument) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.name]),
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
     await deleteKnowledgeDocument(row.id as number);
     message.success({
       content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_key_msg',
     });
-    onRefresh();
+    handleRefresh();
   } finally {
     hideLoading();
   }
@@ -84,7 +83,7 @@ const handleStatusChange = async (
         id: row.id,
         status: row.status,
       });
-      onRefresh();
+      handleRefresh();
     });
   } catch {
     row.status =

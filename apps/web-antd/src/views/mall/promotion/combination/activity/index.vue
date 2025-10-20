@@ -25,7 +25,7 @@ const [FormModal, formModalApi] = useVbenModal({
 });
 
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
@@ -53,15 +53,14 @@ async function handleClose(
 
   const hideLoading = message.loading({
     content: '关闭中...',
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
     await closeCombinationActivity(row.id as number);
     message.success({
       content: '关闭成功',
-      key: 'action_key_msg',
     });
-    onRefresh();
+    handleRefresh();
   } finally {
     hideLoading();
   }
@@ -73,15 +72,14 @@ async function handleDelete(
 ) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.name]),
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
     await deleteCombinationActivity(row.id as number);
     message.success({
       content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_key_msg',
     });
-    onRefresh();
+    handleRefresh();
   } finally {
     hideLoading();
   }
@@ -127,7 +125,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       />
     </template>
 
-    <FormModal @success="onRefresh" />
+    <FormModal @success="handleRefresh" />
 
     <Grid table-title="拼团活动列表">
       <template #toolbar-tools>
