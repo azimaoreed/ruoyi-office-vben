@@ -15,7 +15,6 @@ import { useUserStore } from '@vben/stores';
 
 import { message } from 'ant-design-vue';
 
-import { cancelProcessInstanceByStartUser } from '#/api/bpm/processInstance';
 import {
   getCarApplyBill,
   saveCarApplyBill,
@@ -26,6 +25,7 @@ import { $t } from '#/locales';
 
 import { CarSelectModal } from '../../components';
 import { useFormSchema } from './data';
+import { withdrawProcessToStart } from '#/api/bpm/task';
 
 // 定义组件 props
 const props = defineProps<{
@@ -108,7 +108,7 @@ async function handleSaveAndSubmit(isSubmit: boolean) {
     // 保存后重新加载数据
     await loadData();
   } catch (error) {
-    console.error('保存用车申请单失败:', error);
+    console.error('保存失败:', error);
   } finally {
     loading.value = false;
   }
@@ -121,12 +121,17 @@ async function handleRevoke() {
     formData.value.processInstanceId !== null
   ) {
     loading.value = true;
-    await cancelProcessInstanceByStartUser(
-      formData.value.processInstanceId,
-      '撤回',
-    );
-    message.success('撤回成功');
-    await loadData();
+    try {
+    await withdrawProcessToStart(
+        { processInstanceId: formData.value.processInstanceId, reason: '撤回' }
+      );
+      message.success('撤回成功');
+      await loadData();
+    } catch (error) {
+      console.error('撤回失败:', error);
+    } finally {
+      loading.value = false;
+    }
   }
 }
 

@@ -1118,10 +1118,6 @@ export const BILL_FLOW_STATUS = [
  */
 export const BpmProcessInstanceStatusEditValue = [BpmProcessInstanceStatus.NOT_START, BpmProcessInstanceStatus.REJECT, BpmProcessInstanceStatus.CANCEL];
 
-/**
- * 不展示流程页签的流程实例状态
- */
-export const BpmProcessInstanceStatusNoViewTabValue = [BpmProcessInstanceStatus.NOT_START, BpmProcessInstanceStatus.CANCEL];
 
 // 获取审批状态颜色
 export const getStatusColor = (val: any) => {

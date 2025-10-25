@@ -16,7 +16,7 @@ import type { VbenFormSchema } from '#/adapter/form';
 import { onMounted, ref, watch } from 'vue';
 
 import { Page } from '@vben/common-ui';
-import { BpmProcessInstanceStatus, BpmProcessInstanceStatusNoViewTabValue } from '@vben/constants';
+import { BpmProcessInstanceStatus } from '@vben/constants';
 
 import { useVbenForm } from '#/adapter/form';
 import {
@@ -301,7 +301,7 @@ defineExpose({
           <a-tab-pane
             key="2"
             :tab="$t('common.approvalInfo')"
-            v-if="props.headerData.processInstanceId && props.headerData.processStatus && !BpmProcessInstanceStatusNoViewTabValue.includes(props.headerData.processStatus)"
+            v-if="props.headerData.processInstanceId && props.headerData.processStatus"
           >
             <div
               v-if="approvalDetailLoading"
@@ -338,7 +338,7 @@ defineExpose({
             key="3"
             :tab="$t('common.processFlow')"
             :force-render="true"
-            v-if="props.headerData.processInstanceId && props.headerData.processStatus && !BpmProcessInstanceStatusNoViewTabValue.includes(props.headerData.processStatus)"
+            v-if="props.headerData.processInstanceId && props.headerData.processStatus"
           >
             <div class="h-full">
               <ProcessInstanceSimpleViewer

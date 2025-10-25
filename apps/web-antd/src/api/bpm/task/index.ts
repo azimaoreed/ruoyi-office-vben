@@ -138,3 +138,8 @@ export const withdrawTask = async (taskId: string) => {
     params: { taskId },
   });
 };
+
+// 撤回流程到开始节点
+export const withdrawProcessToStart = async (data: any) => {
+  return await requestClient.put('/bpm/task/withdraw-to-start', data);
+};
