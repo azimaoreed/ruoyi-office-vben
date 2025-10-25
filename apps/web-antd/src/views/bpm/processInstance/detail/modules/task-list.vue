@@ -86,7 +86,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     keepSource: true,
     showFooter: true,
     border: true,
-    height: 'auto',
+
     proxyConfig: {
       ajax: {
         query: async () => {
