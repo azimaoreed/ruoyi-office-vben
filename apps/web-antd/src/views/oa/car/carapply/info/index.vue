@@ -115,15 +115,15 @@ async function handleSaveAndSubmit(isSubmit: boolean) {
 }
 
 // 撤回
-async function handleRevoke() {
+async function handleRevoke(reason: string) {
   if (
     formData.value.processInstanceId !== undefined &&
     formData.value.processInstanceId !== null
   ) {
     loading.value = true;
     try {
-    await withdrawProcessToStart(
-        { processInstanceId: formData.value.processInstanceId, reason: '撤回' }
+      await withdrawProcessToStart(
+        { processInstanceId: formData.value.processInstanceId, reason: reason || '制单人撤回' }
       );
       message.success('撤回成功');
       await loadData();

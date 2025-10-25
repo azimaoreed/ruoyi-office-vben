@@ -12,7 +12,9 @@ import {
   BpmProcessInstanceStatusEditValue,
 } from '@vben/constants';
 
-import { Button, Space } from 'ant-design-vue';
+import { Button, Space, Popover, Form, FormItem, Textarea } from 'ant-design-vue';
+import { ref, reactive, computed } from 'vue';
+import type { FormInstance } from 'ant-design-vue';
 
 // 传入组件参数
 const props = defineProps({
@@ -31,6 +33,19 @@ const props = defineProps({
 });
 const emit = defineEmits(['close', 'save', 'submit', 'revoke']);
 console.warn(props);
+
+// 撤回弹窗相关
+const revokePopoverVisible = ref(false);
+const revokeFormRef = ref<FormInstance>();
+const revokeReasonForm = reactive({
+  reason: '',
+});
+const revokeReasonRule: any = computed(() => {
+  return {
+    reason: [{ required: true, message: '请输入撤回原因', trigger: 'blur' }],
+  };
+});
+
 // 关闭
 const closeForm = () => {
   emit('close');
@@ -43,21 +58,85 @@ const saveForm = () => {
 const submitForm = () => {
   emit('submit');
 };
-// 撤回
-const revokeForm = () => {
-  emit('revoke');
+
+// 打开撤回弹窗
+const openRevokePopover = () => {
+  revokePopoverVisible.value = true;
+};
+
+// 关闭撤回弹窗
+const closeRevokePopover = () => {
+  revokePopoverVisible.value = false;
+  if (revokeFormRef.value) {
+    revokeFormRef.value.resetFields();
+  }
+};
+
+// 确认撤回
+const confirmRevoke = async () => {
+  if (!revokeFormRef.value) return;
+  
+  try {
+    await revokeFormRef.value.validate();
+    emit('revoke', revokeReasonForm.reason);
+    closeRevokePopover();
+  } catch (error) {
+    console.error('撤回表单验证失败:', error);
+  }
 };
 </script>
 <template>
   <Space>
     <Button @click="closeForm">{{ $t('common.close') }}</Button>
-    <Button
-      type="primary"
-      @click="revokeForm"
+    
+    <!-- 【撤回】按钮 -->
+    <Popover
+      v-model:open="revokePopoverVisible"
+      placement="top"
+      :overlay-style="{ minWidth: '400px' }"
+      trigger="click"
       v-if="processStatus === BpmProcessInstanceStatus.RUNNING"
     >
-      {{ $t('common.revoke') }}
-    </Button>
+      <Button type="primary" @click="openRevokePopover">
+        {{ $t('common.revoke') }}
+      </Button>
+      <template #content>
+        <!-- 撤回表单 -->
+        <div class="flex flex-1 flex-col px-5 pt-5">
+          <Form
+            layout="vertical"
+            class="mb-auto"
+            ref="revokeFormRef"
+            :model="revokeReasonForm"
+            :rules="revokeReasonRule"
+            label-width="100px"
+          >
+            <FormItem label="撤回原因" name="reason">
+              <Textarea
+                v-model:value="revokeReasonForm.reason"
+                placeholder="请输入撤回原因"
+                :rows="4"
+              />
+            </FormItem>
+            <FormItem>
+              <Button
+                type="primary"
+                @click="confirmRevoke"
+              >
+                确认撤回
+              </Button>
+              <Button
+                class="ml-2"
+                @click="closeRevokePopover"
+              >
+                取消
+              </Button>
+            </FormItem>
+          </Form>
+        </div>
+      </template>
+    </Popover>
+    
     <Button
       @click="saveForm"
       v-if="

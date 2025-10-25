@@ -195,8 +195,8 @@ const submitForm = () => {
   emit('submit');
 };
 // 撤回
-const revokeForm = () => {
-  emit('revoke');
+const revokeForm = (reason?: string) => {
+  emit('revoke', reason);
 };
 
 /** 手动刷新所有数据 */
