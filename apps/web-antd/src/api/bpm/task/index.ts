@@ -14,6 +14,7 @@ export namespace BpmTaskApi {
     status: number; // 监听器状态
     event: string; // 监听事件
     valueType: string; // 监听器值类型
+    taskDefinitionKey: string; // 任务定义key
   }
 
   // 流程任务

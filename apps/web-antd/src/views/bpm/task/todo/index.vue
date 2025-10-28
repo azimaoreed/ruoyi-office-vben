@@ -19,6 +19,8 @@ function handleAudit(row: BpmTaskApi.Task) {
     query: {
       id: row.processInstance.id,
       taskId: row.id,
+      isTodo: 'true',
+      nodeKey: row.taskDefinitionKey,
     },
   });
 }

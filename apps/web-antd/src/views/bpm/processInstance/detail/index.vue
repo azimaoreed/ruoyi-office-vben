@@ -5,11 +5,13 @@ import type { SystemUserApi } from '#/api/system/user';
 // TODO @jason：业务表单审批时，读取不到界面，参见 https://t.zsxq.com/eif2e
 import { computed, nextTick, onMounted, ref, shallowRef, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import { useUserStore } from '@vben/stores';
 
 import { Page } from '@vben/common-ui';
 import {
   BpmModelFormType,
   BpmModelType,
+  BpmNodeIdEnum,
   BpmTaskStatusEnum,
 } from '@vben/constants';
 
@@ -43,21 +45,47 @@ const props = withDefaults(
     id: string; // 流程实例的编号
     isTodo?: boolean; // 是否待办，用于判断是否显示底部操作按钮
     taskId?: string; // 任务编号
+    nodeKey?: string; // 任务节点key
   }>(),
   {
     activityId: undefined,
     isTodo: true,
     taskId: undefined,
+    nodeKey: undefined,
   },
 );
 
 // 处理路由参数中的 isMy（可能是字符串）
 const route = useRoute();
+const userStore = useUserStore();
+
 const isApproval = computed(() => {
   const queryApproval = route.query.isTodo;
+  // 情况1：明确指定为false
   if (queryApproval === 'false') {
     return false;
   }
+
+  // 情况2：queryApproval为'true'且当前任务状态为-1未开始且当前登录人等于制单人
+  if (queryApproval === 'true') {
+    // 获取流程发起人信息
+    const startUser = processInstance.value?.startUser;
+    // 获取当前登录用户ID
+    const currentUserId = userStore.userInfo?.id;
+
+    // 检查是否满足返回false的条件：
+    // 1. 当前任务状态为-1（未开始）
+    // 2. 当前登录人等于制单人
+    if (
+      route.query.nodeKey === BpmNodeIdEnum.START_USER_NODE_ID &&
+      startUser?.id &&
+      currentUserId &&
+      String(startUser.id) === String(currentUserId)
+    ) {
+      return false;
+    }
+  }
+
   return props.isTodo;
 });
 

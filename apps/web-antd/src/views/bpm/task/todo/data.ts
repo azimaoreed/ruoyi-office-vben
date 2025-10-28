@@ -131,7 +131,11 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
           queryFields: [
             { key: 'id', field: 'processInstance.id' },
             { key: 'taskId', field: 'id' },
+            { key: 'nodeKey', field: 'taskDefinitionKey' },
           ],
+          query: {
+            isTodo: 'true',
+          },
         },
       },
     },
