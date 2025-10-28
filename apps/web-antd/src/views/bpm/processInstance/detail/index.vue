@@ -5,7 +5,6 @@ import type { SystemUserApi } from '#/api/system/user';
 // TODO @jason：业务表单审批时，读取不到界面，参见 https://t.zsxq.com/eif2e
 import { computed, nextTick, onMounted, ref, shallowRef, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { useUserStore } from '@vben/stores';
 
 import { Page } from '@vben/common-ui';
 import {
@@ -14,6 +13,7 @@ import {
   BpmNodeIdEnum,
   BpmTaskStatusEnum,
 } from '@vben/constants';
+import { useUserStore } from '@vben/stores';
 
 import { Card, Col, message, Row, TabPane, Tabs } from 'ant-design-vue';
 
@@ -44,8 +44,8 @@ const props = withDefaults(
     activityId?: string; // 流程活动编号，用于抄送查看
     id: string; // 流程实例的编号
     isTodo?: boolean; // 是否待办，用于判断是否显示底部操作按钮
-    taskId?: string; // 任务编号
     nodeKey?: string; // 任务节点key
+    taskId?: string; // 任务编号
   }>(),
   {
     activityId: undefined,
