@@ -66,6 +66,9 @@ export namespace BpmProcessInstanceApi {
     status: number;
     tasks?: BpmProcessInstanceApi.Task[];
     billCode?: string;
+    companyName?: string;
+    deptName?: string;
+    summary?: Array<{ key: string; value: string }>;
   }
 
   // 审批详情
