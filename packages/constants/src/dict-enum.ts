@@ -172,6 +172,17 @@ const IOT_DICT = {
   IOT_VALIDATE_TYPE: 'iot_validate_type', // IOT 数据校验级别
 } as const;
 
+/** ========== OA - 办公模块 ========== */
+const OA_DICT = {
+  OA_CAR_CLS: 'oa_car_cls', // 车辆分类
+  OA_CAR_RETURN_STATUS: 'oa_car_return_status', // 用车申请单还车状态
+  OA_CAR_TYPE: 'oa_car_type', // 车辆类型
+  OA_CAR_USE_STATUS: 'oa_car_use_status', // 用车申请单用车状态
+  OA_SEAL_CLS: 'oa_seal_cls', // 印章分类
+  OA_SEAL_STATUS: 'oa_seal_status', // 印章状态
+  OA_SEAL_TYPE: 'oa_seal_type', // 印章类型
+} as const;
+
 /** 字典类型枚举 - 统一导出 */
 const DICT_TYPE = {
   ...AI_DICT,
@@ -186,6 +197,7 @@ const DICT_TYPE = {
   ...MALL_DICT,
   ...SYSTEM_DICT,
   ...COMMON_DICT,
+  ...OA_DICT,
 } as const;
 
 export { DICT_TYPE };
