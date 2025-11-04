@@ -178,9 +178,13 @@ const OA_DICT = {
   OA_CAR_RETURN_STATUS: 'oa_car_return_status', // 用车申请单还车状态
   OA_CAR_TYPE: 'oa_car_type', // 车辆类型
   OA_CAR_USE_STATUS: 'oa_car_use_status', // 用车申请单用车状态
+  OA_IS_URGENT: 'oa_is_urgent', // 是否紧急
   OA_SEAL_CLS: 'oa_seal_cls', // 印章分类
   OA_SEAL_STATUS: 'oa_seal_status', // 印章状态
   OA_SEAL_TYPE: 'oa_seal_type', // 印章类型
+  OA_SEAL_USE_MODE: 'oa_seal_use_mode', // 用印方式
+  OA_SEAL_USE_STATUS: 'oa_seal_use_status', // 用印状态
+  OA_SEAL_USE_TYPE: 'oa_seal_use_type', // 用印类型
 } as const;
 
 /** 字典类型枚举 - 统一导出 */
