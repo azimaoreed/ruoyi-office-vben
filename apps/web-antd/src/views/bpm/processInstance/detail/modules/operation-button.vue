@@ -17,10 +17,9 @@ import {
   BpmTaskStatusEnum,
   OPERATION_BUTTON_NAME,
 } from '@vben/constants';
+import { useTabs } from '@vben/hooks';
 import { useUserStore } from '@vben/stores';
 import { isEmpty } from '@vben/utils';
-
-import { useFooterLeft } from '#/utils/useFooterLeft';
 
 import FormCreate from '@form-create/ant-design-vue';
 import {
@@ -45,6 +44,7 @@ import {
 import * as TaskApi from '#/api/bpm/task';
 import * as UserApi from '#/api/system/user';
 import { setConfAndFields2 } from '#/components/form-create';
+import { useFooterLeft } from '#/utils/useFooterLeft';
 
 import Signature from './signature.vue';
 import ProcessInstanceTimeline from './time-line.vue';
@@ -76,6 +76,7 @@ function openSignatureModal() {
 const router = useRouter(); // 路由
 const userStore = useUserStore();
 const userId = userStore.userInfo?.id;
+const { closeCurrentTab } = useTabs(); // 关闭当前标签页
 const { footerLeft } = useFooterLeft(); // 获取侧边栏宽度
 const formLoading = ref(false); // 表单加载中
 const popOverVisible: any = ref({
@@ -405,8 +406,8 @@ async function handleAudit(pass: boolean, formRef: FormInstance | undefined) {
     }
     // 重置表单
     formRef.resetFields();
-    // 加载最新数据
-    reload();
+    // 操作成功后自动关闭当前页面
+    await closeCurrentTab();
   } finally {
     formLoading.value = false;
   }
@@ -429,6 +430,8 @@ async function handleCopy() {
     copyFormRef.value.resetFields();
     popOverVisible.value.copy = false;
     message.success('操作成功');
+    // 操作成功后自动关闭当前页面
+    await closeCurrentTab();
   } finally {
     formLoading.value = false;
   }
@@ -451,8 +454,8 @@ async function handleTransfer() {
     transferFormRef.value.resetFields();
     popOverVisible.value.transfer = false;
     message.success('操作成功');
-    // 2. 加载最新数据
-    reload();
+    // 操作成功后自动关闭当前页面
+    await closeCurrentTab();
   } finally {
     formLoading.value = false;
   }
@@ -476,8 +479,8 @@ async function handleDelegate() {
     popOverVisible.value.delegate = false;
     delegateFormRef.value.resetFields();
     message.success('操作成功');
-    // 2. 加载最新数据
-    reload();
+    // 操作成功后自动关闭当前页面
+    await closeCurrentTab();
   } finally {
     formLoading.value = false;
   }
@@ -501,8 +504,8 @@ async function handlerAddSign(type: string) {
     message.success('操作成功');
     addSignFormRef.value.resetFields();
     popOverVisible.value.addSign = false;
-    // 2 加载最新数据
-    reload();
+    // 操作成功后自动关闭当前页面
+    await closeCurrentTab();
   } finally {
     formLoading.value = false;
   }
@@ -526,8 +529,8 @@ async function handleReturn() {
     popOverVisible.value.return = false;
     returnFormRef.value.resetFields();
     message.success('操作成功');
-    // 2 重新加载数据
-    reload();
+    // 操作成功后自动关闭当前页面
+    await closeCurrentTab();
   } finally {
     formLoading.value = false;
   }
@@ -548,8 +551,8 @@ async function handleCancel() {
     popOverVisible.value.return = false;
     message.success('操作成功');
     cancelFormRef.value.resetFields();
-    // 2 重新加载数据
-    reload();
+    // 操作成功后自动关闭当前页面
+    await closeCurrentTab();
   } finally {
     formLoading.value = false;
   }
@@ -587,8 +590,9 @@ async function handlerDeleteSign() {
     message.success('减签成功');
     deleteSignFormRef.value.resetFields();
     popOverVisible.value.deleteSign = false;
-    // 2 加载最新数据
     reload();
+    // 操作成功后自动关闭当前页面
+    await closeCurrentTab();
   } finally {
     formLoading.value = false;
   }
@@ -707,7 +711,7 @@ function handlePopoverVisible(visible: boolean) {
 defineExpose({ loadTodoTask });
 </script>
 <template>
-  <div class="operation-button-container" :style="{ left: footerLeft + 'px' }">
+  <div class="operation-button-container" :style="{ left: `${footerLeft}px` }">
     <!-- <div>是否处理中 {{ !!isHandleTaskStatus() }}</div> -->
 
     <!-- 【通过】按钮 -->
@@ -818,17 +822,86 @@ defineExpose({ loadTodoTask });
         </template>
       </Popover>
 
-      <!-- 【拒绝】按钮 -->
+      <!-- 【退回】按钮 - 改为拒绝样式 -->
       <Popover
-        v-model:open="popOverVisible.reject"
+        v-model:open="popOverVisible.return"
         placement="top"
-        :overlay-style="{ minWidth: '400px' }"
+        :overlay-style="{ width: '400px' }"
         trigger="click"
         v-if="
           runningTask &&
           isHandleTaskStatus() &&
           isShowButton(BpmTaskOperationButtonTypeEnum.REJECT)
         "
+      >
+        <Button danger type="primary" @click="openPopover('return')">
+          {{ getButtonDisplayName(BpmTaskOperationButtonTypeEnum.REJECT) }}
+        </Button>
+        <template #content>
+          <div class="flex flex-1 flex-col px-5 pt-5" v-loading="formLoading">
+            <Form
+              layout="vertical"
+              class="mb-auto"
+              ref="returnFormRef"
+              :model="returnForm"
+              :rules="returnFormRule"
+              label-width="100px"
+            >
+              <FormItem label="退回节点" name="targetTaskDefinitionKey">
+                <Select
+                  v-model:value="returnForm.targetTaskDefinitionKey"
+                  :allow-clear="true"
+                  style="width: 100%"
+                >
+                  <SelectOption
+                    v-for="item in returnList"
+                    :key="item.taskDefinitionKey"
+                    :label="item.name"
+                    :value="item.taskDefinitionKey"
+                  >
+                    {{ item.name }}
+                  </SelectOption>
+                </Select>
+              </FormItem>
+              <FormItem label="退回理由" name="returnReason">
+                <Textarea
+                  v-model:value="returnForm.returnReason"
+                  allow-clear
+                  placeholder="请输入退回理由"
+                  :rows="3"
+                />
+              </FormItem>
+              <FormItem>
+                <Space>
+                  <Button
+                    :disabled="formLoading"
+                    danger
+                    type="primary"
+                    @click="handleReturn()"
+                  >
+                    {{
+                      getButtonDisplayName(
+                        BpmTaskOperationButtonTypeEnum.REJECT,
+                      )
+                    }}
+                  </Button>
+                  <Button @click="closePopover('return', returnFormRef)">
+                    取消
+                  </Button>
+                </Space>
+              </FormItem>
+            </Form>
+          </div>
+        </template>
+      </Popover>
+
+      <!-- 【拒绝】按钮 - 已隐藏 -->
+      <Popover
+        v-model:open="popOverVisible.reject"
+        placement="top"
+        :overlay-style="{ minWidth: '400px' }"
+        trigger="click"
+        v-if="false"
       >
         <Button danger type="primary" @click="openPopover('reject')">
           {{ getButtonDisplayName(BpmTaskOperationButtonTypeEnum.REJECT) }}
@@ -1237,78 +1310,6 @@ defineExpose({ loadTodoTask });
         </template>
       </Popover>
 
-      <!-- 【退回】按钮 -->
-      <Popover
-        v-model:open="popOverVisible.return"
-        placement="top"
-        :overlay-style="{ width: '400px' }"
-        trigger="click"
-        v-if="
-          runningTask &&
-          isHandleTaskStatus() &&
-          isShowButton(BpmTaskOperationButtonTypeEnum.RETURN)
-        "
-      >
-        <Button @click="openPopover('return')">
-          {{ getButtonDisplayName(BpmTaskOperationButtonTypeEnum.RETURN) }}
-        </Button>
-        <template #content>
-          <div class="flex flex-1 flex-col px-5 pt-5" v-loading="formLoading">
-            <Form
-              layout="vertical"
-              class="mb-auto"
-              ref="returnFormRef"
-              :model="returnForm"
-              :rules="returnFormRule"
-              label-width="100px"
-            >
-              <FormItem label="退回节点" name="targetTaskDefinitionKey">
-                <Select
-                  v-model:value="returnForm.targetTaskDefinitionKey"
-                  :allow-clear="true"
-                  style="width: 100%"
-                >
-                  <SelectOption
-                    v-for="item in returnList"
-                    :key="item.taskDefinitionKey"
-                    :label="item.name"
-                    :value="item.taskDefinitionKey"
-                  >
-                    {{ item.name }}
-                  </SelectOption>
-                </Select>
-              </FormItem>
-              <FormItem label="退回理由" name="returnReason">
-                <Textarea
-                  v-model:value="returnForm.returnReason"
-                  allow-clear
-                  placeholder="请输入退回理由"
-                  :rows="3"
-                />
-              </FormItem>
-              <FormItem>
-                <Space>
-                  <Button
-                    :disabled="formLoading"
-                    type="primary"
-                    @click="handleReturn()"
-                  >
-                    {{
-                      getButtonDisplayName(
-                        BpmTaskOperationButtonTypeEnum.RETURN,
-                      )
-                    }}
-                  </Button>
-                  <Button @click="closePopover('return', returnFormRef)">
-                    取消
-                  </Button>
-                </Space>
-              </FormItem>
-            </Form>
-          </div>
-        </template>
-      </Popover>
-
       <!--【取消】按钮 这个对应发起人的取消, 只有发起人可以取消 -->
       <Popover
         v-model:open="popOverVisible.cancel"
@@ -1379,6 +1380,9 @@ defineExpose({ loadTodoTask });
       >
         再次提交
       </Button>
+
+      <!-- 【关闭】按钮 -->
+      <Button @click="closeCurrentTab()"> 关闭 </Button>
     </Space>
   </div>
 

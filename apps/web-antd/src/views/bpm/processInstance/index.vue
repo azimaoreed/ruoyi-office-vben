@@ -10,10 +10,8 @@ import { BpmProcessInstanceStatus, DICT_TYPE } from '@vben/constants';
 import { Button, message, Textarea } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import {
-  cancelProcessInstanceByStartUser,
-  getProcessInstanceMyPage,
-} from '#/api/bpm/processInstance';
+import { getProcessInstanceMyPage } from '#/api/bpm/processInstance';
+import { withdrawProcessToStart } from '#/api/bpm/task';
 import { DictTag } from '#/components/dict-tag';
 import { router } from '#/router';
 
@@ -46,17 +44,17 @@ function handleDetail(row: ExtendedProcessInstance) {
   });
 }
 
-/** 取消流程实例 */
+/** 撤回流程实例 */
 function handleCancel(row: ExtendedProcessInstance) {
   prompt({
     async beforeClose(scope) {
       if (scope.isConfirm) {
         if (scope.value) {
           try {
-            await cancelProcessInstanceByStartUser(
-              row.id.toString(),
-              scope.value,
-            );
+            await withdrawProcessToStart({
+              processInstanceId: row.id.toString(),
+              reason: scope.value,
+            });
             message.success('撤回成功');
             handleRefresh();
           } catch {
