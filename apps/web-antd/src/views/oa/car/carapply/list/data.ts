@@ -2,12 +2,12 @@ import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { CarApplyBillApi } from '#/api/oa/car/carapply';
 
+import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 import { handleTree } from '@vben/utils';
 
 import { createRouterLinkColumn } from '#/adapter/vxe-table';
 import { getCompanyList } from '#/api/system/dept';
-import { DICT_TYPE } from '@vben/constants';
-import { getDictOptions } from '@vben/hooks';
 import { getRangePickerDefaultProps } from '#/utils';
 import { getCurrentUserCompanyDeptTree } from '#/utils/dept-tree';
 
@@ -117,13 +117,6 @@ export function useGridColumns(): VxeTableGridOptions<CarApplyBillApi.CarApplyBi
       queryParam: 'id',
     }),
     {
-      field: 'processInstanceId',
-      title: '流程实例编号',
-      minWidth: 120,
-      headerAlign: 'center',
-      align: 'left',
-    },
-    {
       field: 'processStatus',
       title: '单据状态',
       minWidth: 120,
@@ -149,7 +142,7 @@ export function useGridColumns(): VxeTableGridOptions<CarApplyBillApi.CarApplyBi
     {
       field: 'goTime',
       title: '出车时间',
-      minWidth: 120,
+      minWidth: 140,
       formatter: 'formatDateTime',
       headerAlign: 'center',
       align: 'left',
@@ -157,7 +150,7 @@ export function useGridColumns(): VxeTableGridOptions<CarApplyBillApi.CarApplyBi
     {
       field: 'returnTime',
       title: '回车时间',
-      minWidth: 120,
+      minWidth: 140,
       formatter: 'formatDateTime',
       headerAlign: 'center',
       align: 'left',
@@ -184,8 +177,19 @@ export function useGridColumns(): VxeTableGridOptions<CarApplyBillApi.CarApplyBi
       align: 'left',
     },
     {
-      field: 'companyName',
-      title: '公司名称',
+      field: 'returnStatus',
+      title: '还车状态',
+      minWidth: 100,
+      headerAlign: 'center',
+      align: 'center',
+      cellRender: {
+        name: 'CellDict',
+        props: { type: DICT_TYPE.OA_CAR_RETURN_STATUS },
+      },
+    },
+    {
+      field: 'creatorName',
+      title: '创建者姓名',
       minWidth: 120,
       headerAlign: 'center',
       align: 'left',
@@ -198,8 +202,8 @@ export function useGridColumns(): VxeTableGridOptions<CarApplyBillApi.CarApplyBi
       align: 'left',
     },
     {
-      field: 'creatorName',
-      title: '创建者姓名',
+      field: 'companyName',
+      title: '公司名称',
       minWidth: 120,
       headerAlign: 'center',
       align: 'left',
@@ -207,22 +211,12 @@ export function useGridColumns(): VxeTableGridOptions<CarApplyBillApi.CarApplyBi
     {
       field: 'createTime',
       title: '创建时间',
-      minWidth: 120,
+      minWidth: 140,
       formatter: 'formatDateTime',
       headerAlign: 'center',
       align: 'left',
     },
-    {
-      field: 'returnStatus',
-      title: '还车状态',
-      minWidth: 100,
-      headerAlign: 'center',
-      align: 'center',
-      cellRender: {
-        name: 'CellDict',
-        props: { type: DICT_TYPE.OA_CAR_RETURN_STATUS },
-      },
-    },
+
     {
       title: '操作',
       width: 100,

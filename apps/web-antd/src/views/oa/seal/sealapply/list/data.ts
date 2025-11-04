@@ -2,12 +2,12 @@ import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { SealApplyBillApi } from '#/api/oa/seal/sealapply';
 
+import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 import { handleTree } from '@vben/utils';
 
 import { createRouterLinkColumn } from '#/adapter/vxe-table';
 import { getCompanyList } from '#/api/system/dept';
-import { DICT_TYPE } from '@vben/constants';
-import { getDictOptions } from '@vben/hooks';
 import { getRangePickerDefaultProps } from '#/utils';
 import { getCurrentUserCompanyDeptTree } from '#/utils/dept-tree';
 
@@ -199,13 +199,13 @@ export function useGridColumns(): VxeTableGridOptions<SealApplyBillApi.SealApply
     {
       field: 'expectedUseTime',
       title: '预计用章时间',
-      minWidth: 160,
+      minWidth: 140,
       formatter: 'formatDateTime',
     },
     {
       field: 'expectedReturnTime',
       title: '预计归还时间',
-      minWidth: 160,
+      minWidth: 140,
       formatter: 'formatDateTime',
     },
     {
@@ -227,6 +227,11 @@ export function useGridColumns(): VxeTableGridOptions<SealApplyBillApi.SealApply
       },
     },
     {
+      field: 'creatorName',
+      title: '申请人',
+      minWidth: 100,
+    },
+    {
       field: 'deptName',
       title: '申请部门',
       minWidth: 120,
@@ -239,12 +244,12 @@ export function useGridColumns(): VxeTableGridOptions<SealApplyBillApi.SealApply
     {
       field: 'createTime',
       title: '创建时间',
-      minWidth: 160,
+      minWidth: 140,
       formatter: 'formatDateTime',
     },
     {
       title: '操作',
-      width: 200,
+      width: 100,
       fixed: 'right',
       slots: { default: 'actions' },
     },

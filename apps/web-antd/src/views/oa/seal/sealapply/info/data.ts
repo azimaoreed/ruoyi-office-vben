@@ -2,10 +2,10 @@ import type { Ref } from 'vue';
 
 import type { VbenFormSchema } from '#/adapter/form';
 
-import { message } from 'ant-design-vue';
-
 import { DICT_TYPE } from '@vben/constants';
 import { getDictOptions } from '@vben/hooks';
+
+import { message } from 'ant-design-vue';
 
 /** 新增/修改的表单 */
 export function useFormSchema(
@@ -31,7 +31,7 @@ export function useFormSchema(
       },
     },
     {
-      fieldName: 'sealNo',
+      fieldName: 'sealName',
       label: '印章',
       rules: 'required',
       component: 'HelpInput',
@@ -58,8 +58,8 @@ export function useFormSchema(
       },
     },
     {
-      fieldName: 'sealName',
-      label: '印章名称',
+      fieldName: 'sealNo',
+      label: '印章编号',
       component: 'Input',
       dependencies: {
         triggerFields: [''],

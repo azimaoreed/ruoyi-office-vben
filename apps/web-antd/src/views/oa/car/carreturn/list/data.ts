@@ -126,7 +126,7 @@ export function useGridColumns(): VxeTableGridOptions<CarReturnBillApi.CarReturn
     {
       field: 'returnTime',
       title: '回车时间',
-      minWidth: 120,
+      minWidth: 140,
       formatter: 'formatDateTime',
       headerAlign: 'center',
       align: 'left',
@@ -139,8 +139,8 @@ export function useGridColumns(): VxeTableGridOptions<CarReturnBillApi.CarReturn
       align: 'left',
     },
     {
-      field: 'companyName',
-      title: '公司名称',
+      field: 'creatorName',
+      title: '创建者姓名',
       minWidth: 120,
       headerAlign: 'center',
       align: 'left',
@@ -153,8 +153,8 @@ export function useGridColumns(): VxeTableGridOptions<CarReturnBillApi.CarReturn
       align: 'left',
     },
     {
-      field: 'creatorName',
-      title: '创建者姓名',
+      field: 'companyName',
+      title: '公司名称',
       minWidth: 120,
       headerAlign: 'center',
       align: 'left',
@@ -162,7 +162,7 @@ export function useGridColumns(): VxeTableGridOptions<CarReturnBillApi.CarReturn
     {
       field: 'createTime',
       title: '创建时间',
-      minWidth: 120,
+      minWidth: 140,
       formatter: 'formatDateTime',
       headerAlign: 'center',
       align: 'left',

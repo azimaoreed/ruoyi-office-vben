@@ -31,6 +31,8 @@ export namespace SealApplyBillApi {
     actualReturnTime?: Date;
     useStatus?: number;
     isUrgent?: number;
+    creator?: number;
+    creatorName?: string;
     companyId: number;
     companyName: string;
     deptId: number;
@@ -60,7 +62,9 @@ export namespace SealApplyBillApi {
 }
 
 /** 查询用印申请单列表 */
-export function getSealApplyBillPage(params: SealApplyBillApi.SealApplyBillPageReqVO) {
+export function getSealApplyBillPage(
+  params: SealApplyBillApi.SealApplyBillPageReqVO,
+) {
   return requestClient.get<PageResult<SealApplyBillApi.SealApplyBill>>(
     '/oa/seal-apply-bill/page',
     { params },
@@ -69,7 +73,9 @@ export function getSealApplyBillPage(params: SealApplyBillApi.SealApplyBillPageR
 
 /** 查询用印申请单详情 */
 export function getSealApplyBill(id: number) {
-  return requestClient.get<SealApplyBillApi.SealApplyBill>(`/oa/seal-apply-bill/get?id=${id}`);
+  return requestClient.get<SealApplyBillApi.SealApplyBill>(
+    `/oa/seal-apply-bill/get?id=${id}`,
+  );
 }
 
 /** 新增用印申请单 */
@@ -99,7 +105,9 @@ export function deleteSealApplyBill(id: number) {
 
 /** 批量删除用印申请单 */
 export function deleteSealApplyBillList(ids: number[]) {
-  return requestClient.delete(`/oa/seal-apply-bill/delete-list?ids=${ids.join(',')}`);
+  return requestClient.delete(
+    `/oa/seal-apply-bill/delete-list?ids=${ids.join(',')}`,
+  );
 }
 
 /** 导出用印申请单 */

@@ -15,6 +15,7 @@ import { useUserStore } from '@vben/stores';
 
 import { message } from 'ant-design-vue';
 
+import { withdrawProcessToStart } from '#/api/bpm/task';
 import {
   getSealApplyBill,
   saveSealApplyBill,
@@ -25,7 +26,8 @@ import { $t } from '#/locales';
 
 import { SealSelectModal } from '../../components';
 import { useFormSchema } from './data';
-import { withdrawProcessToStart } from '#/api/bpm/task';
+
+defineOptions({ name: 'OaSealApplyBillInfo' });
 
 // 定义组件 props
 const props = defineProps<{
@@ -35,8 +37,6 @@ const props = defineProps<{
   processDefinition?: any; // 流程定义信息
   processInstance?: any; // 流程实例信息
 }>();
-
-defineOptions({ name: 'OaSealApplyBillInfo' });
 
 const route = useRoute();
 const userStore = useUserStore();
@@ -81,7 +81,7 @@ async function handleSaveAndSubmit(isSubmit: boolean) {
 
   if (!basicFormRef.value) return;
 
-  // 提交前校验
+  // 提交前校验 - 只有提交时才进行校验，保存时不校验
   if (isSubmit) {
     const { valid } = await basicFormRef.value.validateForm();
     // 如果校验不通过，则不允许提交
@@ -92,9 +92,13 @@ async function handleSaveAndSubmit(isSubmit: boolean) {
   }
 
   try {
-    // 获取表单值
-    const formValues =
-      (await basicFormRef.value.getFormValues()) as SealApplyBillApi.SealApplyBill;
+    // 获取表单值 - 保存时不进行校验
+    const formValues = isSubmit
+      ? ((await basicFormRef.value.getFormValues()) as SealApplyBillApi.SealApplyBill)
+      : ((await basicFormRef.value.getFormValues(
+          false,
+        )) as SealApplyBillApi.SealApplyBill);
+
     // 合并表单值和其他数据
     const data = {
       ...formData.value,
@@ -125,9 +129,10 @@ async function handleRevoke(reason: string) {
   ) {
     loading.value = true;
     try {
-      await withdrawProcessToStart(
-        { processInstanceId: formData.value.processInstanceId, reason: reason || '制单人撤回' }
-      );
+      await withdrawProcessToStart({
+        processInstanceId: formData.value.processInstanceId,
+        reason: reason || '制单人撤回',
+      });
       message.success('撤回成功');
       await loadData();
     } catch (error) {
@@ -144,6 +149,8 @@ async function loadData() {
   if (id === undefined || id === null) {
     // 新建时设置默认值
     formData.value = {
+      creator: userStore.userInfo?.id,
+      creatorName: userStore.userInfo?.nickname,
       companyId: userStore.userInfo?.companyId || 0,
       companyName: userStore.userInfo?.companyName || '',
       deptId: userStore.userInfo?.deptId || 0,
@@ -158,7 +165,7 @@ async function loadData() {
       usePurpose: '',
       useType: 1,
       billCode: '',
-    } as any;
+    };
     return;
   }
 
@@ -199,8 +206,8 @@ async function loadData() {
 
 // 处理印章选择
 function handleSealSelect(val: any) {
-  if (basicFormRef.value && val && val.sealNo && val.id) {
-    basicFormRef.value.setFormValues({
+  if (basicFormRef.value && val) {
+    const sealData = {
       sealId: val.id,
       sealNo: val.sealNo,
       sealName: val.sealName,
@@ -209,7 +216,11 @@ function handleSealSelect(val: any) {
       keeperName: val.keeperName,
       keeperDeptId: val.keeperDeptId,
       keeperDeptName: val.keeperDeptName,
-    });
+    };
+    basicFormRef.value.setFormValues(sealData);
+
+    // 同时更新formData
+    Object.assign(formData.value, sealData);
   }
 }
 
