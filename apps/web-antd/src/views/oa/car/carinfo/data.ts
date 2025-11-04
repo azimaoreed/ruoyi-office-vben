@@ -1,11 +1,12 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { CarApi } from '#/api/oa/car/carinfo';
+
+import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 import { handleTree } from '@vben/utils';
 
 import { getCompanyList } from '#/api/system/dept';
-import { DICT_TYPE } from '@vben/constants';
-import { getDictOptions } from '@vben/hooks';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -25,7 +26,7 @@ export function useFormSchema(): VbenFormSchema[] {
       componentProps: (values, formApi) => ({
         allowClear: true,
         api: async () => {
-          let data = await getCompanyList();
+          const data = await getCompanyList();
           return handleTree(data);
         },
         labelField: 'name',
@@ -34,8 +35,6 @@ export function useFormSchema(): VbenFormSchema[] {
         placeholder: '请选择公司',
         treeDefaultExpandAll: true,
         onChange: (value: any, option: any) => {
-          console.log('值变化了:', value, option);
-          debugger
           if (value && option) {
             // 选择了公司，设置公司名称
             formApi.setFieldValue('companyName', option[0]);
@@ -43,7 +42,7 @@ export function useFormSchema(): VbenFormSchema[] {
             // 清空选择，清空公司名称
             formApi.setFieldValue('companyName', '');
           }
-        }
+        },
       }),
       rules: 'selectRequired',
     },
@@ -188,20 +187,19 @@ export function useGridFormSchema(): VbenFormSchema[] {
   return [
     {
       fieldName: 'companyId',
-      label: '公司ID',
-      component: 'Input',
+      label: '所属公司',
+      component: 'ApiTreeSelect',
       componentProps: {
         allowClear: true,
-        placeholder: '请输入公司ID',
-      },
-    },
-    {
-      fieldName: 'companyName',
-      label: '公司名称',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入公司名称',
+        api: async () => {
+          const data = await getCompanyList();
+          return handleTree(data);
+        },
+        labelField: 'name',
+        valueField: 'id',
+        childrenField: 'children',
+        placeholder: '请选择公司',
+        treeDefaultExpandAll: true,
       },
     },
     {

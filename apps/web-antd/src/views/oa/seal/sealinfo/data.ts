@@ -1,12 +1,13 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { SealApi } from '#/api/oa/seal/sealinfo';
-import { handleTree } from '@vben/utils';
 
-import { getCompanyList } from '#/api/system/dept';
 // import { getUserList } from '#/api/system/user';
 import { DICT_TYPE } from '@vben/constants';
 import { getDictOptions } from '@vben/hooks';
+import { handleTree } from '@vben/utils';
+
+import { getCompanyList } from '#/api/system/dept';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -26,7 +27,7 @@ export function useFormSchema(): VbenFormSchema[] {
       componentProps: (values, formApi) => ({
         allowClear: true,
         api: async () => {
-          let data = await getCompanyList();
+          const data = await getCompanyList();
           return handleTree(data);
         },
         labelField: 'name',
@@ -42,7 +43,7 @@ export function useFormSchema(): VbenFormSchema[] {
             // 清空选择，清空公司名称
             formApi.setFieldValue('companyName', '');
           }
-        }
+        },
       }),
       rules: 'selectRequired',
     },
@@ -131,7 +132,7 @@ export function useFormSchema(): VbenFormSchema[] {
             formApi.setFieldValue('keeperDeptId', '');
             formApi.setFieldValue('keeperDeptName', '');
           }
-        }
+        },
       }),
     },
     {
@@ -219,20 +220,19 @@ export function useGridFormSchema(): VbenFormSchema[] {
   return [
     {
       fieldName: 'companyId',
-      label: '公司ID',
-      component: 'Input',
+      label: '所属公司',
+      component: 'ApiTreeSelect',
       componentProps: {
         allowClear: true,
-        placeholder: '请输入公司ID',
-      },
-    },
-    {
-      fieldName: 'companyName',
-      label: '公司名称',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入公司名称',
+        api: async () => {
+          const data = await getCompanyList();
+          return handleTree(data);
+        },
+        labelField: 'name',
+        valueField: 'id',
+        childrenField: 'children',
+        placeholder: '请选择公司',
+        treeDefaultExpandAll: true,
       },
     },
     {
@@ -426,4 +426,3 @@ export function useGridColumns(): VxeTableGridOptions<SealApi.Seal>['columns'] {
     },
   ];
 }
-
