@@ -2,7 +2,7 @@ import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { SealApi } from '#/api/oa/seal/sealinfo';
 
-// import { getUserList } from '#/api/system/user';
+import { getSimpleUserList } from '#/api/system/user';
 import { DICT_TYPE } from '@vben/constants';
 import { getDictOptions } from '@vben/hooks';
 import { handleTree } from '@vben/utils';
@@ -109,9 +109,8 @@ export function useFormSchema(): VbenFormSchema[] {
       componentProps: (values, formApi) => ({
         allowClear: true,
         api: async () => {
-          // let data = await getUserList({ pageSize: 999 });
-          // return data.list;
-          return [];
+          const data = await getSimpleUserList();
+          return data;
         },
         labelField: 'nickname',
         valueField: 'id',
@@ -123,7 +122,7 @@ export function useFormSchema(): VbenFormSchema[] {
         onChange: (value: any, option: any) => {
           if (value && option) {
             // 选择了保管人，设置保管人名称和部门信息
-            formApi.setFieldValue('keeperName', option.nickname);
+            formApi.setFieldValue('keeperName', option.label);
             formApi.setFieldValue('keeperDeptId', option.deptId);
             formApi.setFieldValue('keeperDeptName', option.deptName);
           } else {
