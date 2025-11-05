@@ -162,7 +162,7 @@ async function loadData() {
       useMode: 1, // 默认现场用章
       sealId: 0,
       sealNo: '',
-      usePurpose: '',
+      cause: '',
       useType: 1,
       billCode: '',
     };

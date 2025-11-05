@@ -192,7 +192,7 @@ export function useGridColumns(): VxeTableGridOptions<SealApplyBillApi.SealApply
       },
     },
     {
-      field: 'usePurpose',
+      field: 'cause',
       title: '用章事由',
       minWidth: 200,
     },

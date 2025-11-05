@@ -237,7 +237,7 @@ export function useFormSchema(
       },
     },
     {
-      fieldName: 'usePurpose',
+      fieldName: 'cause',
       label: '用章事由',
       rules: 'required',
       component: 'Textarea',

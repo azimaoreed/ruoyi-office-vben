@@ -17,7 +17,7 @@ export namespace SealApplyBillApi {
     keeperName?: string;
     keeperDeptId?: number;
     keeperDeptName?: string;
-    usePurpose: string;
+    cause: string;
     useType: number;
     useMode: number;
     documentTitle?: string;
