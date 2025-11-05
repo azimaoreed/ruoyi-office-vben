@@ -77,7 +77,7 @@ const isApproval = computed(() => {
     // 1. 当前任务状态为-1（未开始）
     // 2. 当前登录人等于制单人
     if (
-      route.query.nodeKey === BpmNodeIdEnum.START_USER_NODE_ID &&
+      nodeKey.value === BpmNodeIdEnum.START_USER_NODE_ID &&
       startUser?.id &&
       currentUserId &&
       String(startUser.id) === String(currentUserId)
@@ -110,6 +110,9 @@ enum FieldPermissionType {
 const processInstanceLoading = ref(false); // 流程实例的加载中
 const processInstance = ref<BpmProcessInstanceApi.ProcessInstance>(); // 流程实例
 const processDefinition = ref<any>({}); // 流程定义
+// 使用 props 中的 nodeKey 或者从 route.query 获取
+const nodeKey = computed(() => props.nodeKey || (route.query.nodeKey as string)); // 节点key
+const nodeKeyName = ref<string>(); // 节点名称
 const processModelView = ref<any>({}); // 流程模型视图
 const operationButtonRef = ref(); // 操作按钮组件 ref
 const auditIconsMap: {
@@ -140,6 +143,7 @@ const writableFields: Array<string> = []; // 表单可以编辑的字段
 
 /** 加载流程实例 */
 const BusinessFormComponent = shallowRef<any>(null); // 异步组件
+const businessFormRef = ref(); // 业务表单组件引用
 
 /** 获取详情 */
 async function getDetail() {
@@ -169,7 +173,8 @@ async function getApprovalDetail() {
     }
 
     processInstance.value = data.processInstance;
-    processDefinition.value = data.processDefinition;
+    processDefinition.value = data.processDefinition;   
+    nodeKeyName.value = data.todoTask?.name;
 
     // 设置表单信息
     if (processDefinition.value.formType === BpmModelFormType.NORMAL) {
@@ -258,6 +263,25 @@ function setFieldPermission(field: string, permission: string) {
 //   // 重新获取详情
 //   getDetail();
 // };
+
+/**
+ * 审批前的业务表单处理
+ * 在审批通过前调用业务表单的预处理方法
+ */
+async function handleBeforeApproval(): Promise<boolean> {
+  try {
+    // 如果是业务表单且有预处理方法，则调用
+    if (businessFormRef.value && typeof businessFormRef.value.beforeApproval === 'function') {
+      const result = await businessFormRef.value.beforeApproval();
+      return result !== false; // 如果返回false则阻止审批
+    }
+    return true; // 默认允许审批
+  } catch (error) {
+    console.error('业务表单预处理失败:', error);
+    message.error('业务表单处理失败，请检查后重试');
+    return false;
+  }
+}
 
 /** 当前的Tab */
 const activeTab = ref('form');
@@ -419,9 +443,14 @@ onMounted(async () => {
       }"
     >
       <BusinessFormComponent
+        ref="businessFormRef"
         :id="processInstance?.businessKey"
         :is-approval="isApproval"
         :activity-nodes="activityNodes"
+        :process-instance="processInstance"
+        :process-definition="processDefinition"
+        :node-key="nodeKey"
+        :node-key-name="nodeKeyName"
       />
       <template #actions>
         <div class="px-4" v-if="isApproval">
@@ -433,6 +462,7 @@ onMounted(async () => {
             :normal-form="detailForm"
             :normal-form-api="fApi"
             :writable-fields="writableFields"
+            :before-approval="handleBeforeApproval"
             @success="getDetail"
           />
         </div>

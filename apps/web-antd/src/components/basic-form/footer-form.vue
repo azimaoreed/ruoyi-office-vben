@@ -87,8 +87,27 @@ const confirmRevoke = async () => {
 </script>
 <template>
   <Space>
-    <Button @click="closeForm">{{ $t('common.close') }}</Button>
-    
+    <!-- 【提交】按钮 -->
+    <Button
+      type="primary"
+      @click="submitForm"
+      v-if="
+        processStatus &&
+        BpmProcessInstanceStatusEditValue.includes(processStatus)
+      "
+    >
+      {{ $t('common.submit') }}
+    </Button>
+    <!-- 【保存】按钮 -->
+    <Button
+      @click="saveForm"
+      v-if="
+        processStatus &&
+        BpmProcessInstanceStatusEditValue.includes(processStatus)
+      "
+    >
+      {{ $t('common.save') }}
+    </Button>
     <!-- 【撤回】按钮 -->
     <Popover
       v-model:open="revokePopoverVisible"
@@ -136,26 +155,8 @@ const confirmRevoke = async () => {
         </div>
       </template>
     </Popover>
-    
-    <Button
-      @click="saveForm"
-      v-if="
-        processStatus &&
-        BpmProcessInstanceStatusEditValue.includes(processStatus)
-      "
-    >
-      {{ $t('common.save') }}
-    </Button>
-    <Button
-      type="primary"
-      @click="submitForm"
-      v-if="
-        processStatus &&
-        BpmProcessInstanceStatusEditValue.includes(processStatus)
-      "
-    >
-      {{ $t('common.submit') }}
-    </Button>
+    <!-- 【关闭】按钮 -->
+    <Button @click="closeForm">{{ $t('common.close') }}</Button>
   </Space>
 </template>
 <style scoped></style>

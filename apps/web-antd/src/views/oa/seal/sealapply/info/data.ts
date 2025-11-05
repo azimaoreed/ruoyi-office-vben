@@ -11,6 +11,8 @@ import { message } from 'ant-design-vue';
 export function useFormSchema(
   modalRef?: any,
   readonly?: Ref<boolean>,
+  nodeKeyName?: Ref<string>,
+  canReturnEdit?: Ref<boolean>, // Added canReturnEdit parameter
 ): VbenFormSchema[] {
   return [
     {
@@ -226,6 +228,26 @@ export function useFormSchema(
       },
       // 注意：这里的条件验证通过dependencies的show来控制显示，如果显示则必填
       rules: 'required',
+    },
+    {
+      fieldName: 'actualReturnTime',
+      label: '实际归还时间',
+      component: 'DatePicker',
+      componentProps: {
+        showTime: true,
+        format: 'YYYY-MM-DD HH:mm:ss',
+        valueFormat: 'x',
+        placeholder: '请选择实际归还时间',
+        // 当canReturnEdit为true时，即使在只读模式下也可以编辑
+        disabled: () => {
+          if (canReturnEdit?.value) {
+            return false; // canReturnEdit为true时，不禁用
+          }
+          return readonly?.value; // 否则跟随readonly状态
+        },
+      },
+      // 当节点名称为"申请人归还印章"时设置为必填
+      rules: nodeKeyName?.value === '申请人归还印章' ? 'required' : undefined,
     },
     {
       fieldName: 'isUrgent',

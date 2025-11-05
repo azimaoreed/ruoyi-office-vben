@@ -60,6 +60,7 @@ const props = defineProps<{
   processInstance: any; // 流程实例信息
   userOptions: UserApi.SystemUserApi.User[];
   writableFields: string[]; // 流程表单可以编辑的字段
+  beforeApproval?: () => Promise<boolean>; // 审批前的业务表单处理函数
 }>(); // 当前登录的编号
 const emit = defineEmits(['success']);
 
@@ -365,6 +366,13 @@ async function handleAudit(pass: boolean, formRef: FormInstance | undefined) {
     }
 
     if (pass) {
+      // 审批通过前，先调用业务表单的预处理方法
+      if (props.beforeApproval) {
+        const canApprove = await props.beforeApproval();
+        if (!canApprove) {
+          return; // 如果业务表单处理失败，则不继续审批
+        }
+      }
       const nextAssigneesValid = validateNextAssignees();
       if (!nextAssigneesValid) return;
       const variables = getUpdatedProcessInstanceVariables();

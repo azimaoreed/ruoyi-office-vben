@@ -36,10 +36,13 @@ const props = defineProps<{
   isApproval?: boolean; // 是否审批态
   processDefinition?: any; // 流程定义信息
   processInstance?: any; // 流程实例信息
+  nodeKey?: string; // 节点key
+  nodeKeyName?: string; // 节点名称
 }>();
 
 const route = useRoute();
 const userStore = useUserStore();
+const canReturnEdit = ref(false);
 
 const { closeCurrentTab } = useTabs();
 
@@ -59,7 +62,8 @@ const formSchema = shallowRef<VbenFormSchema[]>([]);
 
 // 初始化表单schema
 function initFormSchema() {
-  formSchema.value = useFormSchema(modalRef, readonly);
+  const nodeKeyName = ref(props.nodeKeyName || '');
+  formSchema.value = useFormSchema(modalRef, readonly, nodeKeyName, canReturnEdit);
 }
 
 // 优先使用 props 传递的 id，如果没有则使用路由参数
@@ -177,7 +181,9 @@ async function loadData() {
     formData.value = {
       ...data,
     };
-    // 如果有 isApproval prop，则以 prop 为准；否则根据流程状态判断
+    if (route.query.isTodo === 'true' && props.nodeKeyName === '申请人归还印章') {
+      canReturnEdit.value = true
+    }
     readonly.value =
       props.isApproval === true
         ? props.isApproval
@@ -223,6 +229,42 @@ function handleSealSelect(val: any) {
     Object.assign(formData.value, sealData);
   }
 }
+
+// 审批前的业务表单处理方法
+async function beforeApproval(): Promise<boolean> {
+  try {
+    
+    // 只有在审批状态且流程节点为"申请人归还印章"时才执行保存
+    if (props.isApproval && props.nodeKeyName === '申请人归还印章' && basicFormRef.value) {
+      // 校验表单
+      const { valid } = await basicFormRef.value.validateForm();
+      if (!valid) {
+        message.error('表单校验不通过，请先完善表单信息');
+        return false;
+      }
+
+      // 获取表单值并保存
+      const formValues = await basicFormRef.value.getFormValues();
+      const data = {
+        ...formData.value,
+        ...formValues,
+      };
+      // 保存表单数据
+      await saveSealApplyBill(data);
+    }
+    return true;
+  } catch (error) {
+    message.error($t('ui.actionMessage.operationFailed'));
+    return false;
+  }
+}
+
+// 暴露方法给父组件调用
+defineExpose({
+  beforeApproval,
+  loadData,
+  handleSaveAndSubmit,
+});
 
 onMounted(() => {
   initFormSchema();
