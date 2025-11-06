@@ -2,6 +2,8 @@ import type { PageParam, PageResult } from '@vben/request';
 
 import { requestClient } from '#/api/request';
 
+import type { AttachmentApi } from '../../attachment';
+
 export namespace SealApplyBillApi {
   /** 用印申请单信息 */
   export interface SealApplyBill {
@@ -39,6 +41,7 @@ export namespace SealApplyBillApi {
     deptName: string;
     remark?: string;
     createTime?: Date;
+    attachments?: AttachmentApi.AttachmentSaveReq[];
   }
 
   /** 用印申请单分页请求 */

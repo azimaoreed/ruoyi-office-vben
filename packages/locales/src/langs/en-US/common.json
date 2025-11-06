@@ -26,6 +26,7 @@
   "detail": "Detail",
   "billInfo": "Bill Info",
   "baseInfo": "Base Info",
+  "attachmentInfo": "Attachment Info",
   "approvalInfo": "Approval Info",
   "processFlow": "Process Flow",
   "approvalProgress": "Approval Progress",

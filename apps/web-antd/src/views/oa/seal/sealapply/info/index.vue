@@ -21,10 +21,12 @@ import {
   saveSealApplyBill,
   submitSealApplyBill,
 } from '#/api/oa/seal/sealapply';
-import { BasicForm } from '#/components/basic-form';
+import { BasicForm, CardContainer } from '#/components/basic-form';
+import { AttachmentList } from '#/components/attachment-list';
 import { $t } from '#/locales';
 
 import { SealSelectModal } from '../../components';
+
 import { useFormSchema } from './data';
 
 defineOptions({ name: 'OaSealApplyBillInfo' });
@@ -169,6 +171,7 @@ async function loadData() {
       cause: '',
       useType: 1,
       billCode: '',
+      attachments: [],
     };
     return;
   }
@@ -292,7 +295,15 @@ onMounted(() => {
     >
       <!-- 扩展插槽，用于明细表格等 -->
       <template #form-extension>
-        <!-- 这里可以添加明细表格或其他扩展内容 -->
+        <!-- 附件列表 -->
+        <CardContainer :title="$t('common.attachmentInfo')">
+          <AttachmentList
+            v-model="formData.attachments"
+            :readonly="readonly"
+            :max-count="10"
+            :max-size="20"
+          />
+        </CardContainer>
       </template>
     </BasicForm>
 
