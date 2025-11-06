@@ -23,6 +23,8 @@ import { getProcessDefinitionList } from '#/api/bpm/definition';
 import { getProcessInstance } from '#/api/bpm/processInstance';
 
 import ProcessDefinitionDetail from './modules/form.vue';
+import { BpmModelFormType } from '@vben/constants';
+import { router } from '#/router';
 
 defineOptions({ name: 'BpmProcessInstanceCreate' });
 
@@ -198,11 +200,22 @@ async function handleSelect(
   row: BpmProcessDefinitionApi.ProcessDefinition,
   formVariables?: any,
 ) {
-  // 设置选择的流程
-  selectProcessDefinition.value = row;
-  // 初始化流程定义详情
-  await nextTick();
-  processDefinitionDetailRef.value?.initProcessInfo(row, formVariables);
+  if (row.formType === BpmModelFormType.CUSTOM) {
+    if (!row.formCustomCreatePath) {
+      message.error('流程定义中未配置业务表单路径');
+      return;
+    } else{
+      await router.push({
+        path: row.formCustomCreatePath,
+      });
+    }
+  } else {
+    // 设置选择的流程
+    selectProcessDefinition.value = row;
+    // 初始化流程定义详情
+    await nextTick();
+    processDefinitionDetailRef.value?.initProcessInfo(row, formVariables);
+  }
 }
 
 /** 过滤出有流程的分类列表。目的：只展示有流程的分类 */
