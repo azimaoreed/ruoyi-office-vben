@@ -34,6 +34,7 @@ export namespace AttachmentApi {
     uploadTime?: Date;
     sortOrder?: number;
     remark?: string;
+    rowKey?: string; // 用于标识行唯一性
   }
 }
 

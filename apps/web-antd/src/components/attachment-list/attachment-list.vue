@@ -1,9 +1,18 @@
 <script lang="ts" setup>
-import { computed, ref, watch } from 'vue';
-import { Upload, Button, Table, Space, Popconfirm, message } from 'ant-design-vue';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
+import type { AttachmentApi } from '#/api/oa/attachment';
+
+import { computed, nextTick, ref, watch } from 'vue';
+import { Upload, Button, message } from 'ant-design-vue';
 import { IconifyIcon } from '@vben/icons';
 import type { UploadProps } from 'ant-design-vue';
-import type { AttachmentApi } from '#/api/oa/attachment';
+import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
+
+import { 
+  createAttachment, 
+  useAttachmentActions, 
+  useAttachmentColumns 
+} from './data';
 
 interface Props {
   /** 附件列表 */
@@ -30,65 +39,56 @@ const emit = defineEmits<{
   'update:modelValue': [value: AttachmentApi.AttachmentSaveReq[]];
 }>();
 
-// 内部附件列表
-const attachmentList = ref<AttachmentApi.AttachmentSaveReq[]>([]);
+/** 表格内部数据 */
+const tableData = ref<AttachmentApi.AttachmentSaveReq[]>([]);
 
-// 监听外部传入的值变化
-watch(
-  () => props.modelValue,
-  (newValue) => {
-    attachmentList.value = [...(newValue || [])];
-  },
-  { immediate: true, deep: true }
-);
+/** 添加附件 */
+function handleAdd(file: File) {
+  const attachment = createAttachment(file, tableData.value.length + 1);
+  tableData.value.push(attachment);
+  handleUpdateValue();
+  message.success('文件上传成功');
+}
 
-// 监听内部值变化，同步到外部
-watch(
-  attachmentList,
-  (newValue) => {
-    emit('update:modelValue', [...newValue]);
-  },
-  { deep: true }
-);
+/** 删除附件 */
+function handleDelete(row: AttachmentApi.AttachmentSaveReq) {
+  const index = tableData.value.findIndex(
+    (item) => (item.id && item.id === row.id) || 
+              (item.fileName === row.fileName && item.uploadTime === row.uploadTime)
+  );
+  if (index > -1) {
+    tableData.value.splice(index, 1);
+    // 重新排序
+    tableData.value.forEach((item, idx) => {
+      item.sortOrder = idx + 1;
+    });
+    handleUpdateValue();
+    message.success('删除成功');
+  }
+}
 
-// 表格列定义
-const columns = [
-  {
-    title: '文件名',
-    dataIndex: 'fileName',
-    key: 'fileName',
-    ellipsis: true,
-  },
-  {
-    title: '文件大小',
-    dataIndex: 'fileSize',
-    key: 'fileSize',
-    width: 100,
-    customRender: ({ text }: { text: number }) => {
-      if (text < 1024) return `${text}B`;
-      if (text < 1024 * 1024) return `${(text / 1024).toFixed(1)}KB`;
-      return `${(text / (1024 * 1024)).toFixed(1)}MB`;
-    },
-  },
-  {
-    title: '文件类型',
-    dataIndex: 'fileExtension',
-    key: 'fileExtension',
-    width: 80,
-  },
-  {
-    title: '备注',
-    dataIndex: 'remark',
-    key: 'remark',
-    ellipsis: true,
-  },
-  {
-    title: '操作',
-    key: 'action',
-    width: 150,
-    fixed: 'right' as const,
-  },
-];
+/** 预览附件 */
+function handlePreview(row: AttachmentApi.AttachmentSaveReq) {
+  window.open(row.fileUrl, '_blank');
+}
+
+/** 下载附件 */
+function handleDownload(row: AttachmentApi.AttachmentSaveReq) {
+  const link = document.createElement('a');
+  link.href = row.fileUrl;
+  link.download = row.fileName;
+  link.click();
+}
+
+/** 将最新数据写回并通知父组件 */
+function handleUpdateValue() {
+  emit('update:modelValue', [...tableData.value]);
+}
+
+/** 备注编辑完成后更新数据 */
+function handleRemarkEdit() {
+  handleUpdateValue();
+}
 
 // 上传配置
 const uploadProps: UploadProps = {
@@ -104,59 +104,68 @@ const uploadProps: UploadProps = {
     }
 
     // 检查文件数量
-    if (attachmentList.value.length >= props.maxCount) {
+    if (tableData.value.length >= props.maxCount) {
       message.error(`最多只能上传 ${props.maxCount} 个文件`);
       return false;
     }
 
-    // 模拟上传成功，实际项目中需要调用上传接口
-    const attachment: AttachmentApi.AttachmentSaveReq = {
-      businessType: '',
-      businessId: 0,
-      fileName: file.name,
-      filePath: `/uploads/${file.name}`, // 实际应该是上传后返回的路径
-      fileUrl: URL.createObjectURL(file), // 实际应该是上传后返回的URL
-      fileSize: file.size,
-      fileType: file.type,
-      fileExtension: file.name.split('.').pop() || '',
-      uploadTime: new Date(),
-      sortOrder: attachmentList.value.length + 1,
-    };
-
-    attachmentList.value.push(attachment);
-    message.success('文件上传成功');
+    // 添加文件到列表
+    handleAdd(file);
     
     return false; // 阻止默认上传行为
   },
 };
 
-// 删除附件
-const handleDelete = (index: number) => {
-  attachmentList.value.splice(index, 1);
-  // 重新排序
-  attachmentList.value.forEach((item, idx) => {
-    item.sortOrder = idx + 1;
-  });
-  message.success('删除成功');
-};
-
-// 下载附件
-const handleDownload = (attachment: AttachmentApi.AttachmentSaveReq) => {
-  const link = document.createElement('a');
-  link.href = attachment.fileUrl;
-  link.download = attachment.fileName;
-  link.click();
-};
-
-// 预览附件
-const handlePreview = (attachment: AttachmentApi.AttachmentSaveReq) => {
-  window.open(attachment.fileUrl, '_blank');
-};
-
 // 计算是否可以上传
 const canUpload = computed(() => {
-  return !props.readonly && attachmentList.value.length < props.maxCount;
+  return !props.readonly && tableData.value.length < props.maxCount;
 });
+
+const [Grid, gridApi] = useVbenVxeGrid({
+  gridOptions: {
+    editConfig: {
+      trigger: 'click',
+      mode: 'cell',
+    },
+    columns: useAttachmentColumns(),
+    data: tableData.value,
+    height: 'auto',
+    border: true,
+    showOverflow: true,
+    autoResize: true,
+    keepSource: true,
+    rowConfig: {
+      keyField: 'rowKey',
+      isHover: true,
+    },
+    pagerConfig: {
+      enabled: false,
+    },
+    toolbarConfig: {
+      enabled: false,
+    },
+  } as VxeTableGridOptions<AttachmentApi.AttachmentSaveReq>,
+  gridEvents: {
+    editClosed: handleRemarkEdit,
+  },
+});
+
+/** 监听外部传入的数据变化 */
+watch(
+  () => props.modelValue,
+  async (attachments) => {
+    if (!attachments) {
+      return;
+      }
+      await nextTick();
+      tableData.value = [...attachments];
+      await gridApi.grid.reloadData(tableData.value);
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
 </script>
 
 <template>
@@ -175,55 +184,19 @@ const canUpload = computed(() => {
     </div>
 
     <!-- 附件列表 -->
-    <Table
-      :columns="columns"
-      :data-source="attachmentList"
-      :pagination="false"
-      size="small"
-      :scroll="{ x: 600 }"
-      row-key="fileName"
-    >
-      <template #bodyCell="{ column, record, index }">
-        <template v-if="column.key === 'action'">
-          <Space>
-            <Button
-              type="link"
-              size="small"
-              @click="handlePreview(record as AttachmentApi.AttachmentSaveReq)"
-              title="预览"
-            >
-              <IconifyIcon icon="lucide:eye" />
-            </Button>
-            <Button
-              type="link"
-              size="small"
-              @click="handleDownload(record as AttachmentApi.AttachmentSaveReq)"
-              title="下载"
-            >
-              <IconifyIcon icon="lucide:download" />
-            </Button>
-            <Popconfirm
-              v-if="!readonly"
-              title="确定要删除这个附件吗？"
-              @confirm="handleDelete(index)"
-            >
-              <Button
-                type="link"
-                size="small"
-                danger
-                title="删除"
-              >
-                <IconifyIcon icon="lucide:trash-2" />
-              </Button>
-            </Popconfirm>
-          </Space>
+    <div>
+      <Grid class="w-full">
+        <template #actions="{ row }">
+          <TableAction
+            :actions="useAttachmentActions(
+              props.readonly,
+              () => handlePreview(row),
+              () => handleDownload(row),
+              () => handleDelete(row),
+            )"
+          />
         </template>
-      </template>
-    </Table>
-
-    <!-- 空状态 -->
-    <div v-if="attachmentList.length === 0" class="text-center py-8 text-gray-500">
-      暂无附件
+      </Grid>
     </div>
   </div>
 </template>
