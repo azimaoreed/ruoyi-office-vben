@@ -30,7 +30,6 @@ defineProps<Props>();
   align-items: center;
   justify-content: flex-start;
   width: 100%;
-  margin-bottom: 20px;
   font-weight: 700;
   color: hsl(var(--primary));
 

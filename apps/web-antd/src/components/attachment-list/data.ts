@@ -51,7 +51,22 @@ export function useAttachmentColumns(readonly: boolean = false): VxeTableGridOpt
       field: 'uploadTime',
       title: '上传时间',
       width: 160,
-      formatter: 'formatDateTime',
+      formatter: ({ row }) => {
+        // 如果 uploadTime 为 0 或空，则使用 createTime
+        const time = row.uploadTime && row.uploadTime !== 0 ? row.uploadTime : row.createTime;
+        if (!time) return '';
+        
+        // 格式化时间显示
+        const date = new Date(time);
+        return date.toLocaleString('zh-CN', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        });
+      },
     },
     {
       field: 'remark',
