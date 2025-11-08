@@ -126,9 +126,9 @@ const headerStyle: CSSProperties = {
 
 const contentStyle: CSSProperties = {
   textAlign: 'center',
-  minHeight: 'calc(100vh - 180px)',
+  minHeight: 'auto', // 改为自动高度，不限制最小高度
   padding: '0px 20px 80px', // 预留底部空间，避免被固定按钮遮挡
-  overflow: 'auto',
+  overflow: 'visible', // 改为可见，让内容自然溢出到页面滚动
 };
 
 // 当前tab标签
@@ -283,8 +283,8 @@ defineExpose({
 });
 </script>
 <template>
-  <Page class="h-screen bg-gray-50">
-    <a-layout class="h-full bg-white">
+  <Page class="min-h-screen bg-gray-50">
+    <a-layout class="min-h-full bg-white">
       <a-layout-header :style="headerStyle">
         <!-- 表头部分 -->
         <HeaderForm :header-data="props.headerData" />
@@ -403,10 +403,10 @@ defineExpose({
 
 /* 全局样式封装 - 业务页面不需要再定义这些样式 */
 
-/* 确保页面内容能够自适应高度，不出现不必要的滚动条 */
+/* 确保页面内容能够自适应高度，允许页面滚动 */
 :deep(.ant-spin-nested-loading) {
   height: auto;
-  min-height: 100vh;
+  min-height: auto; /* 改为自动，不强制最小高度 */
 }
 
 :deep(.ant-spin-container) {

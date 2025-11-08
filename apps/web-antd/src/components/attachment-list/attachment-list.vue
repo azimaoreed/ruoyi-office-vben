@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { AttachmentApi } from '#/api/oa/attachment';
+import type { AttachmentApi } from '#/api/common/attachment';
 
 import { computed, nextTick, ref, watch } from 'vue';
 import { Upload, Button, message } from 'ant-design-vue';
@@ -127,13 +127,25 @@ const [Grid, gridApi] = useVbenVxeGrid({
       trigger: 'click',
       mode: 'cell',
     },
-    columns: useAttachmentColumns(),
+    columns: useAttachmentColumns(props.readonly),
     data: tableData.value,
-    height: 'auto',
+    // 完全移除高度限制，让表格完全自适应
+    height: undefined,
+    maxHeight: undefined,
     border: true,
     showOverflow: true,
     autoResize: true,
     keepSource: true,
+    // 禁用所有滚动相关配置
+    scrollY: {
+      enabled: false,
+    },
+    scrollX: {
+      enabled: false,
+    },
+    // 禁用虚拟滚动
+    virtualScrollY: false,
+    virtualScrollX: false,
     rowConfig: {
       keyField: 'rowKey',
       isHover: true,
@@ -149,6 +161,19 @@ const [Grid, gridApi] = useVbenVxeGrid({
     editClosed: handleRemarkEdit,
   },
 });
+
+/** 监听 readonly 变化，动态更新列配置 */
+watch(
+  () => props.readonly,
+  async (readonly) => {
+    await nextTick();
+    // 重新设置列配置
+    const columns = useAttachmentColumns(readonly);
+    if (columns) {
+      gridApi.grid.reloadColumn(columns);
+    }
+  },
+);
 
 /** 监听外部传入的数据变化 */
 watch(
@@ -204,5 +229,27 @@ watch(
 <style scoped>
 .attachment-list {
   width: 100%;
+}
+
+/* 确保表格容器不产生滚动条 */
+.attachment-list :deep(.vxe-table) {
+  height: auto !important;
+  max-height: none !important;
+}
+
+.attachment-list :deep(.vxe-table--body-wrapper) {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.attachment-list :deep(.vxe-table--body) {
+  height: auto !important;
+  max-height: none !important;
+}
+
+.attachment-list :deep(.vxe-grid) {
+  height: auto !important;
+  max-height: none !important;
 }
 </style>

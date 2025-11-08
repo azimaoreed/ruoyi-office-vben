@@ -1,5 +1,5 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { AttachmentApi } from '#/api/oa/attachment';
+import type { AttachmentApi } from '#/api/common/attachment';
 
 import { ACTION_ICON } from '#/adapter/vxe-table';
 
@@ -16,8 +16,9 @@ export function formatFileSize(size: number): string {
 
 /**
  * 附件列表表格列配置
+ * @param readonly 是否只读模式
  */
-export function useAttachmentColumns(): VxeTableGridOptions['columns'] {
+export function useAttachmentColumns(readonly: boolean = false): VxeTableGridOptions['columns'] {
   return [
     {
       type: 'seq',
@@ -57,7 +58,8 @@ export function useAttachmentColumns(): VxeTableGridOptions['columns'] {
       title: '备注',
       minWidth: 150,
       showOverflow: 'tooltip',
-      editRender: {
+      // 只在非只读模式下启用编辑功能
+      editRender: readonly ? undefined : {
         name: 'input',
         placeholder: '请输入备注',
       },

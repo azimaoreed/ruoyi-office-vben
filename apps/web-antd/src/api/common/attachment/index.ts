@@ -1,5 +1,3 @@
-import type { PageParam, PageResult } from '@vben/request';
-
 import { requestClient } from '#/api/request';
 
 export namespace AttachmentApi {
