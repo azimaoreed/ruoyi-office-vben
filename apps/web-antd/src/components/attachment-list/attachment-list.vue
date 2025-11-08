@@ -3,10 +3,8 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { AttachmentApi } from '#/api/common/attachment';
 
 import { computed, nextTick, ref, watch } from 'vue';
-import { Upload, Button, message } from 'ant-design-vue';
-import { IconifyIcon } from '@vben/icons';
-import type { UploadProps } from 'ant-design-vue';
-import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
+import { message } from 'ant-design-vue';
+import { TableAction, useVbenVxeGrid, ACTION_ICON } from '#/adapter/vxe-table';
 
 import { 
   createAttachment, 
@@ -90,36 +88,56 @@ function handleRemarkEdit() {
   handleUpdateValue();
 }
 
-// 上传配置
-const uploadProps: UploadProps = {
-  name: 'file',
-  multiple: true,
-  showUploadList: false,
-  beforeUpload: (file) => {
-    // 检查文件大小
-    const isLtMaxSize = file.size / 1024 / 1024 < props.maxSize;
-    if (!isLtMaxSize) {
-      message.error(`文件大小不能超过 ${props.maxSize}MB`);
-      return false;
-    }
+// 文件验证和处理函数
+function handleFileUpload(file: File) {
+  // 检查文件大小
+  const isLtMaxSize = file.size / 1024 / 1024 < props.maxSize;
+  if (!isLtMaxSize) {
+    message.error(`文件大小不能超过 ${props.maxSize}MB`);
+    return false;
+  }
 
-    // 检查文件数量
-    if (tableData.value.length >= props.maxCount) {
-      message.error(`最多只能上传 ${props.maxCount} 个文件`);
-      return false;
-    }
+  // 检查文件数量
+  if (tableData.value.length >= props.maxCount) {
+    message.error(`最多只能上传 ${props.maxCount} 个文件`);
+    return false;
+  }
 
-    // 添加文件到列表
-    handleAdd(file);
-    
-    return false; // 阻止默认上传行为
-  },
-};
+  // 添加文件到列表
+  handleAdd(file);
+  return true;
+}
 
-// 计算是否可以上传
-const canUpload = computed(() => {
-  return !props.readonly && tableData.value.length < props.maxCount;
+// 上传按钮配置
+const uploadActions = computed(() => {
+  if (props.readonly || tableData.value.length >= props.maxCount) {
+    return [];
+  }
+  
+  return [
+    {
+      label: '上传附件',
+      type: 'primary' as const,
+      onClick: () => {
+        // 触发文件选择
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.multiple = true;
+        input.accept = props.accept === '*' ? '' : props.accept;
+        input.onchange = (e) => {
+          const files = (e.target as HTMLInputElement).files;
+          if (files) {
+            Array.from(files).forEach(file => {
+              handleFileUpload(file);
+            });
+          }
+        };
+        input.click();
+      },
+    },
+  ];
 });
+
 
 const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
@@ -196,16 +214,8 @@ watch(
 <template>
   <div class="attachment-list">
     <!-- 上传区域 -->
-    <div v-if="canUpload" class="mb-4">
-      <Upload v-bind="uploadProps">
-        <Button type="dashed" block>
-          <IconifyIcon icon="lucide:upload" class="mr-2" />
-          点击上传附件
-          <span class="text-gray-500 ml-2">
-            (最多{{ maxCount }}个文件，单个文件不超过{{ maxSize }}MB)
-          </span>
-        </Button>
-      </Upload>
+    <div v-if="uploadActions.length > 0" class="mb-2 flex justify-end">
+      <TableAction :actions="uploadActions" />
     </div>
 
     <!-- 附件列表 -->
@@ -231,25 +241,16 @@ watch(
   width: 100%;
 }
 
-/* 确保表格容器不产生滚动条 */
-.attachment-list :deep(.vxe-table) {
-  height: auto !important;
-  max-height: none !important;
-}
-
-.attachment-list :deep(.vxe-table--body-wrapper) {
-  height: auto !important;
-  max-height: none !important;
-  overflow: visible !important;
-}
-
-.attachment-list :deep(.vxe-table--body) {
-  height: auto !important;
-  max-height: none !important;
-}
-
 .attachment-list :deep(.vxe-grid) {
+  padding-left: 0 !important;
+  padding-right: 0 !important;  
   height: auto !important;
   max-height: none !important;
+}
+
+/* 确保按钮容器与表格对齐 */
+.attachment-list > div {
+  padding: 0;
+  margin: 0;
 }
 </style>
