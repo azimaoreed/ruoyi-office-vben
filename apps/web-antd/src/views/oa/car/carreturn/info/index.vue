@@ -21,7 +21,8 @@ import {
   saveCarReturnBill,
   submitCarReturnBill,
 } from '#/api/oa/car/carreturn';
-import { BasicForm } from '#/components/basic-form';
+import { BasicForm, CardContainer } from '#/components/basic-form';
+import { AttachmentList } from '#/components/attachment-list';
 import { $t } from '#/locales';
 
 import { CarApplySelectModal, CarSelectModal } from '../../components';
@@ -150,6 +151,7 @@ async function loadData() {
       deptName: userStore.userInfo?.deptName,
       processStatus: BpmProcessInstanceStatus.NOT_START, // 草稿状态
       createTime: new Date(),
+      attachments: [],
     };
     return;
   }
@@ -251,7 +253,15 @@ onMounted(() => {
     >
       <!-- 扩展插槽，用于明细表格等 -->
       <template #form-extension>
-        <!-- 这里可以添加明细表格或其他扩展内容 -->
+        <!-- 附件列表 -->
+        <CardContainer :title="$t('common.attachmentInfo')">
+          <AttachmentList
+            v-model="formData.attachments"
+            :readonly="readonly"
+            :max-count="10"
+            :max-size="20"
+          />
+        </CardContainer>
       </template>
     </BasicForm>
 

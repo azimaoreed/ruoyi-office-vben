@@ -2,6 +2,7 @@ import type { PageParam, PageResult } from '@vben/request';
 import type { Dayjs } from 'dayjs';
 
 import { requestClient } from '#/api/request';
+import type { AttachmentApi } from '#/api/common/attachment';
 
 export namespace CarReturnBillApi {
   /** 还车申请单信息 */
@@ -29,6 +30,7 @@ export namespace CarReturnBillApi {
     companyId: number; // 公司ID
     companyName: string; // 公司名称
     createTime: Date | string; // 创建时间
+    attachments?: AttachmentApi.AttachmentSaveReq[];
   }
 }
 
