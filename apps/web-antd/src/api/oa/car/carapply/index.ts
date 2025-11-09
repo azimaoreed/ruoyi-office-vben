@@ -3,6 +3,7 @@ import type { Dayjs } from 'dayjs';
 import type { PageParam, PageResult } from '@vben/request';
 
 import { requestClient } from '#/api/request';
+import type { AttachmentApi } from '#/api/common/attachment';
 
 export namespace CarApplyBillApi {
   /** 用车申请单信息 */
@@ -29,6 +30,7 @@ export namespace CarApplyBillApi {
     companyName: string; // 公司名称
     createTime: Date | string; // 创建时间
     returnStatus?: number; // 还车状态
+    attachments?: AttachmentApi.AttachmentSaveReq[];
   }
 }
 
