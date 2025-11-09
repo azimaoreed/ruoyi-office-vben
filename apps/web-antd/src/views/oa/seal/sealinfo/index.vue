@@ -115,7 +115,9 @@ async function handleExport() {
   // 合并分类筛选条件
   const exportParams = {
     ...formValues,
-    ...(selectedSealCls.value === null ? {} : { sealCls: selectedSealCls.value }),
+    ...(selectedSealCls.value === null
+      ? {}
+      : { sealCls: selectedSealCls.value }),
   };
   const data = await exportSeal(exportParams);
   downloadFileFromBlobPart({ fileName: '印章信息.xls', source: data });
@@ -264,5 +266,47 @@ const [Grid, gridApi] = useVbenVxeGrid({
 :deep(.seal-category-menu.ant-menu-inline) {
   border-right: none !important;
 }
-</style>
 
+/* 统一激活状态样式 - 使用CSS变量支持主题切换 */
+:deep(.seal-category-menu .ant-menu-item-selected) {
+  font-weight: 500 !important;
+  color: hsl(var(--primary)) !important; /* 使用主题色 */
+  background-color: hsl(var(--primary) / 10%) !important; /* 使用主题色 */
+  border-radius: 0 !important; /* 去掉圆角 */
+}
+
+/* 去掉右侧蓝线 */
+:deep(.seal-category-menu .ant-menu-item-selected::after) {
+  display: none !important;
+}
+
+:deep(.seal-category-menu .ant-menu-item:hover) {
+  color: hsl(var(--primary)) !important; /* 使用主题色 */
+  background-color: hsl(var(--accent)) !important; /* 使用accent色 */
+  border-radius: 0 !important; /* 去掉圆角 */
+  transform: translateX(2px); /* 添加悬停效果 */
+}
+
+:deep(.seal-category-menu .ant-menu-item) {
+  height: auto !important; /* 自动高度 */
+  padding: 8px !important; /* 与企业云盘 p-2 保持一致 (8px) */
+  margin: 8px 0 !important; /* 与企业云盘 space-y-2 保持一致 (8px) */
+  line-height: 1.5 !important; /* 行高 */
+  border-radius: 0 !important; /* 去掉圆角 */
+  transition: all 0.2s ease !important;
+}
+
+/* 菜单容器样式 - 与企业云盘保持一致 */
+:deep(.seal-category-menu) {
+  padding: 0 !important; /* 移除容器内边距，让菜单项贴边 */
+}
+
+/* 菜单项间距调整 */
+:deep(.seal-category-menu .ant-menu-item:first-child) {
+  margin-top: 0 !important; /* 第一个菜单项顶部无边距 */
+}
+
+:deep(.seal-category-menu .ant-menu-item:last-child) {
+  margin-bottom: 0 !important; /* 最后一个菜单项底部无边距 */
+}
+</style>

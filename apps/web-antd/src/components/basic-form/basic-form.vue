@@ -231,11 +231,12 @@ watch(
       const updatedSchema = props.formSchema.map((schema) => {
         // 如果字段有自定义的disabled函数，则优先使用
         const componentProps = schema.componentProps;
-        const hasCustomDisabled = componentProps && 
-          typeof componentProps === 'object' && 
-          'disabled' in componentProps && 
+        const hasCustomDisabled =
+          componentProps &&
+          typeof componentProps === 'object' &&
+          'disabled' in componentProps &&
           typeof componentProps.disabled === 'function';
-        
+
         return {
           ...schema,
           componentProps: {
@@ -310,7 +311,10 @@ defineExpose({
           <a-tab-pane
             key="2"
             :tab="$t('common.approvalInfo')"
-            v-if="props.headerData.processInstanceId && props.headerData.processStatus"
+            v-if="
+              props.headerData.processInstanceId &&
+              props.headerData.processStatus
+            "
           >
             <div
               v-if="approvalDetailLoading"
@@ -320,7 +324,7 @@ defineExpose({
             </div>
             <div v-else>
               <CardContainer :title="$t('common.approvalProgress')">
-                {{ console.log("props.activityNodes:", props.activityNodes) }}
+                {{ console.log('props.activityNodes:', props.activityNodes) }}
                 <BpmProcessInstanceTimeline
                   :activity-nodes="
                     activityNodes && activityNodes.length > 0
@@ -347,7 +351,10 @@ defineExpose({
             key="3"
             :tab="$t('common.processFlow')"
             :force-render="true"
-            v-if="props.headerData.processInstanceId && props.headerData.processStatus"
+            v-if="
+              props.headerData.processInstanceId &&
+              props.headerData.processStatus
+            "
           >
             <div class="h-full">
               <ProcessInstanceSimpleViewer
@@ -394,10 +401,33 @@ defineExpose({
   flex: none;
 }
 
-/* 自定义 tabs 样式 - 只修改页签下线条颜色 */
+/* 自定义 tabs 样式 - 使用CSS变量支持主题切换 */
 :deep(.custom-tabs) {
+  /* 导航栏底部边框 - 使用边框色 */
   .ant-tabs-nav::before {
-    border-bottom: 1px solid var(--ant-primary-color, #1890ff) !important;
+    border-bottom: 1px solid hsl(var(--primary) / 65%) !important;
+  }
+
+  /* Tabs 激活指示线（蓝色横线）- 使用主题色，确保优先级最高 */
+  .ant-tabs-ink-bar {
+    height: 2px !important;
+    background: hsl(var(--primary)) !important;
+  }
+
+  /* Tabs 激活状态文字 - 使用主题色 */
+  .ant-tabs-tab-active .ant-tabs-tab-btn {
+    font-weight: 500 !important;
+    color: hsl(var(--primary)) !important;
+  }
+
+  /* Tabs 悬停状态 */
+  .ant-tabs-tab:hover .ant-tabs-tab-btn {
+    color: hsl(var(--primary)) !important;
+  }
+
+  /* Tabs 默认文字颜色 */
+  .ant-tabs-tab .ant-tabs-tab-btn {
+    color: hsl(var(--foreground) / 65%) !important;
   }
 }
 
