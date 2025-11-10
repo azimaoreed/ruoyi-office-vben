@@ -117,6 +117,110 @@ export function uploadFile(
   });
 }
 
+// ==================== 文件分享相关接口 ====================
+
+export interface FileShareTarget {
+  shareType: number; // 0人员 1组织
+  targetId: number;
+  targetName: string;
+  permission: number; // 0仅查看 1可管理
+}
+
+export interface FileShareReq {
+  fileId: number;
+  shareTargets: FileShareTarget[];
+  inheritPermission?: boolean;
+  remark?: string;
+}
+
+export interface FileShareInfo {
+  id: number;
+  shareType: number;
+  shareTypeName: string;
+  targetId: number;
+  targetName: string;
+  permission: number;
+  permissionName: string;
+  inheritPermission: boolean;
+  accessCount: number;
+  createTime: string;
+}
+
+export interface FileShareResp {
+  fileId: number;
+  fileName: string;
+  fileType: number;
+  fileSize: number;
+  ownerName: string;
+  isShared: boolean;
+  shareTargets: FileShareInfo[];
+  createTime: string;
+}
+
+export interface SharedFileInfo {
+  fileId: number;
+  fileName: string;
+  fileType: number;
+  fileSize: number;
+  fileExtension: string;
+  fileSuffix: string;
+  ownerId: number;
+  ownerName: string;
+  deptName: string;
+  userPermission: number;
+  permissionName: string;
+  sharePath: string;
+  rootShareId: number;
+  isRootShare: boolean;
+  canEdit: boolean;
+  canDelete: boolean;
+  canShare: boolean;
+  createTime: string;
+  updateTime: string;
+}
+
+/** 分享文件 */
+export function shareFile(data: FileShareReq) {
+  return requestClient.post<number>('/oa/file/share', data);
+}
+
+/** 取消分享 */
+export function unshareFile(
+  fileId: number,
+  shareType: number,
+  targetId: number,
+) {
+  return requestClient.delete('/oa/file/unshare', {
+    params: { fileId, shareType, targetId },
+  });
+}
+
+/** 获取文件分享信息 */
+export function getFileShareInfo(fileId: number) {
+  return requestClient.get<FileShareResp>('/oa/file/share-info', {
+    params: { fileId },
+  });
+}
+
+/** 获取共享文件列表(根级别) */
+export function getSharedFileList() {
+  return requestClient.get<SharedFileInfo[]>('/oa/file/shared-list');
+}
+
+/** 获取共享文件夹下的子文件列表 */
+export function getSharedSubFiles(rootShareId: number, parentId: number) {
+  return requestClient.get<SharedFileInfo[]>('/oa/file/shared-sub-files', {
+    params: { rootShareId, parentId },
+  });
+}
+
+/** 检查文件权限 */
+export function checkFilePermission(fileId: number) {
+  return requestClient.get<number>('/oa/file/check-permission', {
+    params: { fileId },
+  });
+}
+
 /** 导出文件信息 */
 export function exportFileInfo(params: any) {
   return requestClient.download('/oa/file/export-excel', params);

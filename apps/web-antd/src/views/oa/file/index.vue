@@ -3,6 +3,7 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { FileApi } from '#/api/oa/file';
 
 import { h, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 import { IconifyIcon } from '@vben/icons';
@@ -19,6 +20,8 @@ import {
   favoriteFile,
   getFavoriteFileList,
   getFileInfoPage,
+  getSharedFileList,
+  getSharedSubFiles,
   renameFileInfo,
   unfavoriteFile,
   uploadFile,
@@ -26,6 +29,7 @@ import {
 import { $t } from '#/locales';
 
 import { getFileIcon, useGridColumns, useGridFormSchema } from './data';
+import FileShareModal from './modules/FileShareModal.vue';
 import FolderForm from './modules/folder-form.vue';
 
 const [FolderFormModal, folderFormModalApi] = useVbenModal({
@@ -33,7 +37,12 @@ const [FolderFormModal, folderFormModalApi] = useVbenModal({
   destroyOnClose: true,
 });
 
+// 分享弹窗相关
+const shareModalVisible = ref(false);
+const currentShareFile = ref<FileApi.FileInfo | null>(null);
+
 const userStore = useUserStore();
+const route = useRoute();
 
 // 当前路径和面包屑
 const currentParentId = ref<number>(0);
@@ -113,10 +122,10 @@ async function handleRename(row: FileApi.FileInfo) {
       const input = document.querySelector('#rename-input') as HTMLInputElement;
       const newName = input?.value?.trim();
 
-        if (!newName) {
-          message.error('文件名不能为空');
-          throw new Error('文件名不能为空');
-        }
+      if (!newName) {
+        message.error('文件名不能为空');
+        throw new Error('文件名不能为空');
+      }
 
       if (newName === row.fileName) {
         return;
@@ -134,10 +143,10 @@ async function handleRename(row: FileApi.FileInfo) {
           key: 'action_key_msg',
         });
         onRefresh();
-        } catch (error) {
-          hideLoading();
-          throw error;
-        }
+      } catch (error) {
+        hideLoading();
+        throw error;
+      }
     },
   });
 }
@@ -214,14 +223,45 @@ async function handleToggleFavorite(row: FileApi.FileInfo) {
   }
 }
 
+/** 分享文件 */
+function handleShare(row: FileApi.FileInfo) {
+  currentShareFile.value = row;
+  shareModalVisible.value = true;
+}
+
+/** 分享成功回调 */
+function handleShareSuccess() {
+  onRefresh();
+}
+
 /** 打开文件夹 */
 function handleOpenFolder(row: FileApi.FileInfo) {
   if (row.fileType === 0) {
-    currentParentId.value = row.id as number;
-    pathStack.value.push({
-      id: row.id as number,
-      name: row.fileName as string,
-    });
+    if (viewMode.value === 'shared') {
+      // 共享文件夹导航
+      const rootShareId = (row as any).rootShareId || row.id;
+      const parentId = row.id;
+
+      // 更新路由参数
+      window.history.replaceState(
+        null,
+        '',
+        `${window.location.pathname}?viewMode=shared&rootShareId=${rootShareId}&parentId=${parentId}`,
+      );
+
+      // 更新面包屑
+      pathStack.value.push({
+        id: row.id as number,
+        name: row.fileName as string,
+      });
+    } else {
+      // 普通文件夹导航
+      currentParentId.value = row.id as number;
+      pathStack.value.push({
+        id: row.id as number,
+        name: row.fileName as string,
+      });
+    }
     // 不更新 tableTitle，保持为左侧菜单的标题
     onRefresh();
   }
@@ -430,13 +470,26 @@ const [Grid, gridApi] = useVbenVxeGrid({
                 total: data.length,
               },
             };
+          } else if (viewMode.value === 'shared') {
+            // 共享文件视图
+            const rootShareId = route.query.rootShareId as string;
+            const parentId = route.query.parentId as string;
+
+            const data = rootShareId && parentId && rootShareId !== parentId
+              ? await getSharedSubFiles(Number(rootShareId), Number(parentId)) // 获取共享文件夹下的子文件
+              : await getSharedFileList(); // 获取根级别共享文件
+
+            return {
+              result: data,
+              page: {
+                total: data.length,
+              },
+            };
           } else {
             const queryParams = {
               pageNo: page.currentPage,
               pageSize: page.pageSize,
-              parentId:
-                viewMode.value === 'shared' ? undefined : currentParentId.value,
-              isShared: viewMode.value === 'shared' ? true : undefined,
+              parentId: currentParentId.value,
               fileTypeFilter:
                 fileTypeFilter.value === 'all'
                   ? undefined
@@ -750,6 +803,12 @@ onMounted(() => {
                   onClick: handleToggleFavorite.bind(null, row),
                 },
                 {
+                  label: '分享',
+                  type: 'link',
+                  icon: 'ant-design:share-alt-outlined',
+                  onClick: handleShare.bind(null, row),
+                },
+                {
                   label: $t('common.delete'),
                   type: 'link',
                   danger: true,
@@ -765,6 +824,13 @@ onMounted(() => {
         </Grid>
       </div>
     </div>
+
+    <!-- 分享弹窗 -->
+    <FileShareModal
+      v-model:visible="shareModalVisible"
+      :file-info="currentShareFile"
+      @success="handleShareSuccess"
+    />
   </Page>
 </template>
 
