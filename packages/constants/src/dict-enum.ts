@@ -185,6 +185,9 @@ const OA_DICT = {
   OA_SEAL_USE_MODE: 'oa_seal_use_mode', // 用印方式
   OA_SEAL_USE_STATUS: 'oa_seal_use_status', // 用印状态
   OA_SEAL_USE_TYPE: 'oa_seal_use_type', // 用印类型
+  OA_MEETING_ROOM_TYPE: 'oa_meeting_room_type', // 会议室类型
+  OA_MEETING_ROOM_STATUS: 'oa_meeting_room_status', // 会议室状态
+  OA_MEETING_ROOM_EQUIPMENT: 'oa_meeting_room_equipment', // 会议室设备
 } as const;
 
 /** 字典类型枚举 - 统一导出 */
