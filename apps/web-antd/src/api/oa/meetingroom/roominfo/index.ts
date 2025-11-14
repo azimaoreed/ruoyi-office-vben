@@ -13,6 +13,8 @@ export namespace MeetingRoomApi {
     managerName?: string; // 负责人姓名
     managerPhone?: string; // 负责人联系方式
     availableStatus?: number; // 可用状态（0正常 1维修中 2不可用）
+    picUrl?: string; // 会议室图片URL
+    seatCount?: number; // 坐席数
     equipment?: string[]; // 会议室设备（数组）
     attachmentUrl?: string; // 附件URL
     remark?: string; // 备注
@@ -65,4 +67,11 @@ export function deleteMeetingRoomListByIds(ids: number[]) {
 /** 导出会议室信息 */
 export function exportMeetingRoom(params: any) {
   return requestClient.download('/oa/meeting-room/export-excel', params);
+}
+
+/** 获取会议室下拉列表（用于选择器） */
+export function getMeetingRoomSelectList() {
+  return requestClient.get<MeetingRoomApi.MeetingRoom[]>(
+    '/oa/meeting-room/simple-list',
+  );
 }

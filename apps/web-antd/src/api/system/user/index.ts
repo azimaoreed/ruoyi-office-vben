@@ -86,3 +86,8 @@ export function updateUserStatus(id: number, status: number) {
 export function getSimpleUserList() {
   return requestClient.get<SystemUserApi.User[]>('/system/user/simple-list');
 }
+
+/** 获取用户下拉列表（别名，用于选择器） */
+export function getUserSelectList() {
+  return getSimpleUserList();
+}

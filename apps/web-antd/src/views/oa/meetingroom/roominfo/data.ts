@@ -109,6 +109,25 @@ export function useFormSchema(): VbenFormSchema[] {
       defaultValue: 0,
     },
     {
+      fieldName: 'picUrl',
+      label: '会议室图片',
+      component: 'ImageUpload',
+      componentProps: {
+        maxCount: 1,
+        listType: 'picture-card',
+      },
+    },
+    {
+      fieldName: 'seatCount',
+      label: '坐席数',
+      component: 'InputNumber',
+      componentProps: {
+        placeholder: '请输入坐席数',
+        min: 1,
+        precision: 0,
+      },
+    },
+    {
       fieldName: 'equipment',
       label: '会议室设备',
       component: 'Select',
@@ -281,9 +300,21 @@ export function useGridColumns(): VxeTableGridOptions<MeetingRoomApi.MeetingRoom
   return [
     { type: 'checkbox', width: 40 },
     {
+      field: 'picUrl',
+      title: '会议室图片',
+      width: 120,
+      slots: { default: 'picUrl' },
+    },
+    {
       field: 'roomName',
       title: '会议室名称',
       minWidth: 150,
+    },
+    {
+      field: 'seatCount',
+      title: '坐席数',
+      minWidth: 100,
+      align: 'center',
     },
     {
       field: 'roomType',

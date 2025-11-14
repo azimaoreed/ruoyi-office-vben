@@ -9,7 +9,7 @@ import { DICT_TYPE } from '@vben/constants';
 import { getDictLabel } from '@vben/hooks';
 import { downloadFileFromBlobPart, isEmpty } from '@vben/utils';
 
-import { message, Tag } from 'ant-design-vue';
+import { Image, message, Tag } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
@@ -100,6 +100,13 @@ async function handleExport() {
   downloadFileFromBlobPart({ fileName: '会议室信息.xls', source: data });
 }
 
+/** 预览图片 */
+function handlePreviewImage(url: string) {
+  Image.preview({
+    src: url,
+  });
+}
+
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
     schema: useGridFormSchema(),
@@ -173,6 +180,19 @@ const [Grid, gridApi] = useVbenVxeGrid({
             },
           ]"
         />
+      </template>
+
+      <!-- 会议室图片插槽 -->
+      <template #picUrl="{ row }">
+        <div v-if="row.picUrl" class="flex items-center justify-center">
+          <img
+            :src="row.picUrl"
+            alt="会议室图片"
+            class="h-16 w-24 cursor-pointer rounded object-cover"
+            @click="handlePreviewImage(row.picUrl)"
+          />
+        </div>
+        <span v-else class="text-gray-400">-</span>
       </template>
 
       <!-- 设备列表插槽 -->
