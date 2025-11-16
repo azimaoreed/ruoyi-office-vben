@@ -14,6 +14,7 @@ export namespace FileApi {
     fileName?: string; // 文件名称
     fileExtension?: string; // 文件扩展名
     fileSuffix?: string; // 文件后缀名（不含点号）
+    fileCategory?: string; // 文件分类（all全部 image图片 document文档 video视频 audio音频 archive压缩包 other其他）
     fileSize?: number; // 文件大小(字节)
     filePath?: string; // 文件存储路径
     fileUrl?: string; // 文件访问URL
@@ -165,6 +166,7 @@ export interface SharedFileInfo {
   fileSize: number;
   fileExtension: string;
   fileSuffix: string;
+  fileCategory?: string; // 文件分类（all全部 image图片 document文档 video视频 audio音频 archive压缩包 other其他）
   ownerId: number;
   ownerName: string;
   deptName: string;
@@ -176,6 +178,7 @@ export interface SharedFileInfo {
   canEdit: boolean;
   canDelete: boolean;
   canShare: boolean;
+  isFavorite?: boolean; // 是否收藏
   createTime: string;
   updateTime: string;
 }

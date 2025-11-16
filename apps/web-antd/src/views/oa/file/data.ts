@@ -211,6 +211,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'Input',
       componentProps: {
         placeholder: '请输入文件名称',
+        allowClear: true,
       },
     },
     {
@@ -219,6 +220,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'Select',
       componentProps: {
         placeholder: '请选择文件类型',
+        allowClear: true,
         options: [
           { label: '文件夹', value: 0 },
           { label: '文件', value: 1 },
@@ -231,6 +233,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'Input',
       componentProps: {
         placeholder: '请输入所有者',
+        allowClear: true,
       },
     },
     {
@@ -239,6 +242,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'RangePicker',
       componentProps: {
         placeholder: ['开始日期', '结束日期'],
+        allowClear: true,
       },
     },
     {
@@ -247,6 +251,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'Select',
       componentProps: {
         placeholder: '请选择是否共享',
+        allowClear: true,
         options: [
           { label: '是', value: true },
           { label: '否', value: false },

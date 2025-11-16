@@ -251,7 +251,10 @@ function handleOpenFolder(row: FileApi.FileInfo) {
       sharedFileState.value.parentId = Number(parentId);
 
       // 初始化或更新面包屑
-      if (pathStack.value.length === 0 || pathStack.value[0]?.name !== '共享文件') {
+      if (
+        pathStack.value.length === 0 ||
+        pathStack.value[0]?.name !== '共享文件'
+      ) {
         pathStack.value = [{ id: 0, name: '共享文件' }];
       }
       pathStack.value.push({
@@ -261,9 +264,12 @@ function handleOpenFolder(row: FileApi.FileInfo) {
     } else if (viewMode.value === 'favorite') {
       // 收藏文件夹导航
       currentParentId.value = row.id as number;
-      
+
       // 初始化或更新面包屑
-      if (pathStack.value.length === 0 || pathStack.value[0]?.name !== '我的收藏') {
+      if (
+        pathStack.value.length === 0 ||
+        pathStack.value[0]?.name !== '我的收藏'
+      ) {
         pathStack.value = [{ id: 0, name: '我的收藏' }];
       }
       pathStack.value.push({
@@ -288,14 +294,20 @@ function getCurrentPathStack() {
   switch (viewMode.value) {
     case 'favorite': {
       // 如果 pathStack 为空或第一个不是"我的收藏"，则初始化
-      if (pathStack.value.length === 0 || pathStack.value[0]?.name !== '我的收藏') {
+      if (
+        pathStack.value.length === 0 ||
+        pathStack.value[0]?.name !== '我的收藏'
+      ) {
         return [{ id: 0, name: '我的收藏' }];
       }
       return pathStack.value;
     }
     case 'shared': {
       // 如果 pathStack 为空或第一个不是"共享文件"，则初始化
-      if (pathStack.value.length === 0 || pathStack.value[0]?.name !== '共享文件') {
+      if (
+        pathStack.value.length === 0 ||
+        pathStack.value[0]?.name !== '共享文件'
+      ) {
         return [{ id: 0, name: '共享文件' }];
       }
       return pathStack.value;
@@ -401,6 +413,137 @@ function handleFilterByType(
 ) {
   fileTypeFilter.value = type;
   onRefresh();
+}
+
+/** 根据视图模式和权限获取操作按钮 */
+function getActionsByViewMode(row: FileApi.FileInfo) {
+  const baseActions = [
+    {
+      label: '打开',
+      type: 'link' as const,
+      icon: ACTION_ICON.VIEW,
+      onClick: handleOpenFolder.bind(null, row),
+      ifShow: row.fileType === 0,
+    },
+    {
+      label: '下载',
+      type: 'link' as const,
+      icon: ACTION_ICON.DOWNLOAD,
+      onClick: handleDownload.bind(null, row),
+      ifShow: row.fileType === 1,
+    },
+  ];
+
+  if (viewMode.value === 'favorite') {
+    // 我的收藏：只能打开、下载、取消收藏
+    return [
+      ...baseActions,
+      {
+        label: '取消收藏',
+        type: 'link' as const,
+        icon: 'ant-design:star-filled',
+        onClick: handleToggleFavorite.bind(null, row),
+        ifShow: true,
+      },
+    ];
+  } else if (viewMode.value === 'shared') {
+    // 共享文件：根据权限控制操作
+    const sharedRow = row as any;
+    const userPermission = sharedRow.userPermission ?? 0; // 0=仅查看，1=可管理
+    const canManage = userPermission === 1;
+
+    return canManage
+      ? // 管理权限：所有操作都可用
+        [
+          ...baseActions,
+          {
+            label: '重命名',
+            type: 'link' as const,
+            icon: ACTION_ICON.EDIT,
+            onClick: handleRename.bind(null, row),
+            ifShow: true,
+          },
+          {
+            label: row.isFavorite ? '取消收藏' : '收藏',
+            type: 'link' as const,
+            icon: row.isFavorite
+              ? 'ant-design:star-filled'
+              : 'ant-design:star-outlined',
+            onClick: handleToggleFavorite.bind(null, row),
+            ifShow: true,
+          },
+          {
+            label: '分享',
+            type: 'link' as const,
+            icon: 'ant-design:share-alt-outlined',
+            onClick: handleShare.bind(null, row),
+            ifShow: true,
+          },
+          {
+            label: $t('common.delete'),
+            type: 'link' as const,
+            icon: ACTION_ICON.DELETE,
+            danger: true,
+            ifShow: true,
+            popConfirm: {
+              title: $t('ui.actionMessage.deleteConfirm', [row.fileName]),
+              confirm: handleDelete.bind(null, row),
+            },
+          } as any,
+        ]
+      : // 查看权限：只能打开、下载、收藏
+        [
+          ...baseActions,
+          {
+            label: row.isFavorite ? '取消收藏' : '收藏',
+            type: 'link' as const,
+            icon: row.isFavorite
+              ? 'ant-design:star-filled'
+              : 'ant-design:star-outlined',
+            onClick: handleToggleFavorite.bind(null, row),
+            ifShow: true,
+          },
+        ];
+  } else {
+    // 我的文件：所有操作都可用
+    return [
+      ...baseActions,
+      {
+        label: '重命名',
+        type: 'link' as const,
+        icon: ACTION_ICON.EDIT,
+        onClick: handleRename.bind(null, row),
+        ifShow: true,
+      },
+      {
+        label: row.isFavorite ? '取消收藏' : '收藏',
+        type: 'link' as const,
+        icon: row.isFavorite
+          ? 'ant-design:star-filled'
+          : 'ant-design:star-outlined',
+        onClick: handleToggleFavorite.bind(null, row),
+        ifShow: true,
+      },
+      {
+        label: '分享',
+        type: 'link' as const,
+        icon: 'ant-design:share-alt-outlined',
+        onClick: handleShare.bind(null, row),
+        ifShow: true,
+      },
+      {
+        label: $t('common.delete'),
+        type: 'link' as const,
+        icon: ACTION_ICON.DELETE,
+        danger: true,
+        ifShow: true,
+        popConfirm: {
+          title: $t('ui.actionMessage.deleteConfirm', [row.fileName]),
+          confirm: handleDelete.bind(null, row),
+        },
+      } as any,
+    ];
+  }
 }
 
 /** 文件上传处理 */
@@ -527,36 +670,101 @@ const [Grid, gridApi] = useVbenVxeGrid({
       ajax: {
         query: async ({ page }, formValues) => {
           if (viewMode.value === 'favorite') {
-            if (currentParentId.value !== 0) {
-                const queryParams = {
+            if (currentParentId.value === 0) {
+              let data = await getFavoriteFileList();
+              // 前端过滤：文件分类、文件名称、文件类型、所有者
+              data = data.filter((item: FileApi.FileInfo) => {
+                // 文件分类过滤
+                if (
+                  fileTypeFilter.value !== 'all' &&
+                  item.fileCategory !== fileTypeFilter.value
+                ) {
+                  return false;
+                }
+                // 文件名称过滤
+                if (
+                  formValues.fileName &&
+                  !item.fileName?.includes(formValues.fileName)
+                ) {
+                  return false;
+                }
+                // 文件类型过滤
+                if (
+                  formValues.fileType !== undefined &&
+                  item.fileType !== formValues.fileType
+                ) {
+                  return false;
+                }
+                // 所有者过滤
+                if (
+                  formValues.ownerName &&
+                  !item.ownerName?.includes(formValues.ownerName)
+                ) {
+                  return false;
+                }
+                return true;
+              });
+              return {
+                list: data,
+                total: data.length,
+              };
+            } else {
+              const queryParams = {
                 pageNo: page.currentPage,
                 pageSize: page.pageSize,
                 parentId: currentParentId.value,
-                fileTypeFilter:
+                fileCategoryFilter:
                   fileTypeFilter.value === 'all'
                     ? undefined
                     : fileTypeFilter.value,
                 ...formValues,
               };
               return await getFileInfoPage(queryParams);
-            }else {
-              const data = await getFavoriteFileList();
-              return {
-                list: data,
-                total: data.length,
-              };
             }
-
           } else if (viewMode.value === 'shared') {
             // 共享文件视图
             const { rootShareId, parentId } = sharedFileState.value;
 
-            const data = rootShareId !==0
-              ? await getSharedSubFiles(rootShareId, parentId) // 获取共享文件夹下的子文件
-              : await getSharedFileList(); // 获取根级别共享文件
+            let data =
+              rootShareId === 0
+                ? await getSharedFileList() // 获取共享文件夹下的子文件
+                : await getSharedSubFiles(rootShareId, parentId); // 获取根级别共享文件
+
+            // 前端过滤：文件分类、文件名称、文件类型、所有者
+            data = data.filter((item: any) => {
+              // 文件分类过滤
+              if (
+                fileTypeFilter.value !== 'all' &&
+                item.fileCategory !== fileTypeFilter.value
+              ) {
+                return false;
+              }
+              // 文件名称过滤
+              if (
+                formValues.fileName &&
+                !item.fileName?.includes(formValues.fileName)
+              ) {
+                return false;
+              }
+              // 文件类型过滤
+              if (
+                formValues.fileType !== undefined &&
+                item.fileType !== formValues.fileType
+              ) {
+                return false;
+              }
+              // 所有者过滤
+              if (
+                formValues.ownerName &&
+                !item.ownerName?.includes(formValues.ownerName)
+              ) {
+                return false;
+              }
+              return true;
+            });
 
             return {
-              list: data.map(item => ({ ...item, id: item.fileId })),
+              list: data.map((item) => ({ ...item, id: item.fileId })),
               total: data.length,
             };
           } else {
@@ -564,7 +772,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
               pageNo: page.currentPage,
               pageSize: page.pageSize,
               parentId: currentParentId.value,
-              fileTypeFilter:
+              fileCategoryFilter:
                 fileTypeFilter.value === 'all'
                   ? undefined
                   : fileTypeFilter.value,
@@ -705,7 +913,7 @@ onMounted(() => {
             <div class="my-3 border-t border-gray-200"></div>
 
             <!-- 文件类型筛选 -->
-            <div class="text-muted-foreground mb-2 text-xs">按类型筛选</div>
+            <div class="text-muted-foreground mb-2 text-xs">按分类筛选</div>
             <div
               class="menu-item flex cursor-pointer items-center gap-2 p-2 transition-colors"
               :class="[fileTypeFilter === 'all' ? 'menu-item-active' : '']"
@@ -846,54 +1054,7 @@ onMounted(() => {
             </div>
           </template>
           <template #actions="{ row }">
-            <TableAction
-              :actions="[
-                {
-                  label: '打开',
-                  type: 'link',
-                  icon: ACTION_ICON.VIEW,
-                  onClick: handleOpenFolder.bind(null, row),
-                  ifShow: row.fileType === 0,
-                },
-                {
-                  label: '下载',
-                  type: 'link',
-                  icon: ACTION_ICON.DOWNLOAD,
-                  onClick: handleDownload.bind(null, row),
-                  ifShow: row.fileType === 1,
-                },
-                {
-                  label: '重命名',
-                  type: 'link',
-                  icon: ACTION_ICON.EDIT,
-                  onClick: handleRename.bind(null, row),
-                },
-                {
-                  label: row.isFavorite ? '取消收藏' : '收藏',
-                  type: 'link',
-                  icon: row.isFavorite
-                    ? 'ant-design:star-filled'
-                    : 'ant-design:star-outlined',
-                  onClick: handleToggleFavorite.bind(null, row),
-                },
-                {
-                  label: '分享',
-                  type: 'link',
-                  icon: 'ant-design:share-alt-outlined',
-                  onClick: handleShare.bind(null, row),
-                },
-                {
-                  label: $t('common.delete'),
-                  type: 'link',
-                  danger: true,
-                  icon: ACTION_ICON.DELETE,
-                  popConfirm: {
-                    title: $t('ui.actionMessage.deleteConfirm', [row.fileName]),
-                    confirm: handleDelete.bind(null, row),
-                  },
-                },
-              ]"
-            />
+            <TableAction :actions="getActionsByViewMode(row)" />
           </template>
         </Grid>
       </div>
