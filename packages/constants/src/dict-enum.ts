@@ -189,6 +189,7 @@ const OA_DICT = {
   OA_MEETING_ROOM_STATUS: 'oa_meeting_room_status', // 会议室状态
   OA_MEETING_ROOM_EQUIPMENT: 'oa_meeting_room_equipment', // 会议室设备
   OA_MEETING_REMINDER_TYPE: 'oa_meeting_reminder_type', // 会议提醒类型
+  OA_MEETING_BOOKING_USE_STATUS: 'oa_meeting_booking_use_status', // 会议室使用状态
 } as const;
 
 /** 字典类型枚举 - 统一导出 */

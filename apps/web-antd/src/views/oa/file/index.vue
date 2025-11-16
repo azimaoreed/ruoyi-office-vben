@@ -145,22 +145,22 @@ async function handleRename(row: FileApi.FileInfo) {
         return;
       }
 
-      const hideLoading = message.loading({
-        content: '重命名中...',
+    const hideLoading = message.loading({
+      content: '重命名中...',
+      key: 'action_key_msg',
+    });
+
+    try {
+      await renameFileInfo(row.id as number, newName);
+      message.success({
+        content: '重命名成功',
         key: 'action_key_msg',
       });
-
-      try {
-        await renameFileInfo(row.id as number, newName);
-        message.success({
-          content: '重命名成功',
-          key: 'action_key_msg',
-        });
-        onRefresh();
-      } catch (error) {
-        hideLoading();
+      onRefresh();
+    } catch (error) {
+      hideLoading();
         throw error;
-      }
+    }
     },
   });
 }
@@ -276,7 +276,7 @@ function handleOpenFolder(row: FileApi.FileInfo) {
       });
     } else if (viewMode.value === 'favorite') {
       // 收藏文件夹导航
-      currentParentId.value = row.id as number;
+    currentParentId.value = row.id as number;
 
       // 初始化或更新面包屑
       if (
@@ -338,11 +338,11 @@ function handleBreadcrumbClick(index: number) {
     // 点击当前层级，不需要操作
     return;
   }
-
+  
   // 跳转到指定层级
   const target = currentStack[index];
   if (!target) return;
-
+  
   if (viewMode.value === 'shared') {
     // 共享文件视图的面包屑导航
     if (index === 0) {
@@ -374,8 +374,8 @@ function handleBreadcrumbClick(index: number) {
     }
   } else {
     // 我的文件视图的面包屑导航
-    currentParentId.value = target.id;
-    pathStack.value = pathStack.value.slice(0, index + 1);
+  currentParentId.value = target.id;
+  pathStack.value = pathStack.value.slice(0, index + 1);
   }
   // 不更新 tableTitle，保持为左侧菜单的标题
   onRefresh();
@@ -718,14 +718,14 @@ const [Grid, gridApi] = useVbenVxeGrid({
                 }
                 return true;
               });
-              return {
+            return {
                 list: data,
                 total: data.length,
-              };
-            } else {
-              const queryParams = {
-                pageNo: page.currentPage,
-                pageSize: page.pageSize,
+            };
+          } else {
+            const queryParams = {
+              pageNo: page.currentPage,
+              pageSize: page.pageSize,
                 parentId: currentParentId.value,
                 fileCategoryFilter:
                   fileTypeFilter.value === 'all'
@@ -893,7 +893,7 @@ onMounted(() => {
                 <span>总计: {{ formatFileSize(storageStats.totalSize) }}</span>
               </div>
             </div>
-
+            
             <!-- 统计信息 -->
             <div class="grid grid-cols-2 gap-2 text-xs">
               <div class="stat-card rounded bg-gray-50 p-2">
@@ -935,10 +935,10 @@ onMounted(() => {
               <IconifyIcon icon="lucide:star" class="size-4" />
               <span>我的收藏</span>
             </div>
-
+            
             <!-- 分隔线 -->
             <div class="my-3 border-t border-gray-200"></div>
-
+            
             <!-- 文件类型筛选 -->
             <div class="text-muted-foreground mb-2 text-xs">按分类筛选</div>
             <div
@@ -1009,7 +1009,7 @@ onMounted(() => {
               <!-- 面包屑导航 -->
               <div class="breadcrumb-section">
                 <Breadcrumb>
-                  <Breadcrumb.Item
+                  <Breadcrumb.Item 
                     v-for="(path, index) in getCurrentPathStack()"
                     :key="path.id"
                   >
@@ -1027,40 +1027,40 @@ onMounted(() => {
                   </Breadcrumb.Item>
                 </Breadcrumb>
               </div>
-
+              
               <!-- 操作按钮 -->
               <div class="actions-section">
                 <TableAction
-                  :actions="[
-                    {
-                      label: '新建文件夹',
-                      type: 'primary',
-                      icon: 'ant-design:folder-add-outlined',
-                      onClick: handleCreateFolder,
-                      ifShow: viewMode === 'list',
-                    },
-                    {
-                      label: '上传文件',
-                      type: 'primary',
-                      icon: ACTION_ICON.UPLOAD,
+              :actions="[
+                {
+                  label: '新建文件夹',
+                  type: 'primary',
+                  icon: 'ant-design:folder-add-outlined',
+                  onClick: handleCreateFolder,
+                  ifShow: viewMode === 'list',
+                },
+                {
+                  label: '上传文件',
+                  type: 'primary',
+                  icon: ACTION_ICON.UPLOAD,
                       onClick: handleUploadFile,
-                      ifShow: viewMode === 'list' || viewMode === 'shared',
-                    },
-                    {
-                      label: $t('ui.actionTitle.deleteBatch'),
-                      type: 'primary',
-                      danger: true,
-                      icon: ACTION_ICON.DELETE,
-                      disabled: isEmpty(deleteIds),
-                      onClick: handleDeleteBatch,
-                    },
-                    {
-                      label: $t('ui.actionTitle.export'),
-                      type: 'primary',
-                      icon: ACTION_ICON.DOWNLOAD,
-                      onClick: handleExport,
-                    },
-                  ]"
+                  ifShow: viewMode === 'list' || viewMode === 'shared',
+                },
+                {
+                  label: $t('ui.actionTitle.deleteBatch'),
+                  type: 'primary',
+                  danger: true,
+                  icon: ACTION_ICON.DELETE,
+                  disabled: isEmpty(deleteIds),
+                  onClick: handleDeleteBatch,
+                },
+                {
+                  label: $t('ui.actionTitle.export'),
+                  type: 'primary',
+                  icon: ACTION_ICON.DOWNLOAD,
+                  onClick: handleExport,
+                },
+              ]"
                 />
               </div>
             </div>

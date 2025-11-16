@@ -9,7 +9,7 @@ import { useVbenModal } from '@vben/common-ui';
 import { message } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getMeetingRoomPage } from '#/api/oa/meetingroom/roominfo';
+import { getBookableMeetingRoomPage } from '#/api/oa/meetingroom/roominfo';
 
 import {
   useMeetingRoomSelectColumns,
@@ -40,14 +40,13 @@ const [Grid] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
-          // 只查询允许预定的会议室
+          // 使用可预定会议室接口，该接口会自动过滤：可用状态为正常、允许预定、可用范围包含当前用户
           const queryParams = {
             pageNo: page.currentPage,
             pageSize: page.pageSize,
-            allowBooking: true,
             ...formValues,
           };
-          return await getMeetingRoomPage(queryParams);
+          return await getBookableMeetingRoomPage(queryParams);
         },
       },
     },

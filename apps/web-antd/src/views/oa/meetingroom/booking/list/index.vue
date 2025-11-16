@@ -6,7 +6,10 @@ import { onActivated, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { Page } from '@vben/common-ui';
-import { BpmProcessInstanceStatusEditValue } from '@vben/constants';
+import {
+  BpmProcessInstanceStatus,
+  BpmProcessInstanceStatusEditValue,
+} from '@vben/constants';
 import { useUserStore } from '@vben/stores';
 import { downloadFileFromBlobPart, isEmpty } from '@vben/utils';
 
@@ -18,6 +21,7 @@ import {
   deleteMeetingRoomBookingList,
   exportMeetingRoomBookingExcel,
   getMeetingRoomBookingPage,
+  updateMeetingRoomBookingUseStatus,
 } from '#/api/oa/meetingroom/booking';
 import { $t } from '#/locales';
 
@@ -121,6 +125,36 @@ async function handleExport() {
   });
 }
 
+/** 处理单元格编辑完成事件 */
+async function handleEditClosed({
+  row,
+  column,
+}: {
+  row: MeetingRoomBookingApi.MeetingRoomBooking;
+  column: any;
+}) {
+  // 只处理使用状态字段的编辑
+  if (column.field === 'useStatus') {
+    // beforeEditMethod已经检查了权限，这里直接保存
+    const hideLoading = message.loading('正在保存...', 0);
+    try {
+      await updateMeetingRoomBookingUseStatus(
+        row.id as number,
+        row.useStatus as number,
+      );
+      message.success('使用状态更新成功');
+      // 刷新表格数据
+      onRefresh();
+    } catch (error) {
+      message.error('使用状态更新失败');
+      // 恢复原值
+      onRefresh();
+    } finally {
+      hideLoading();
+    }
+  }
+}
+
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
     schema: useGridFormSchema(),
@@ -132,6 +166,22 @@ const [Grid, gridApi] = useVbenVxeGrid({
     height: 'auto',
     pagerConfig: {
       enabled: true,
+    },
+    editConfig: {
+      trigger: 'click',
+      mode: 'cell',
+      enabled: true,
+      showStatus: true,
+      beforeEditMethod: ({ row, column }: any) => {
+        // 只有审批完成的单据（processStatus = 2）才能编辑使用状态
+        if (column.field === 'useStatus') {
+          if (row.processStatus !== BpmProcessInstanceStatus.APPROVE) {
+            message.warning('只有审批完成的单据才能更新使用状态');
+            return false;
+          }
+        }
+        return true;
+      },
     },
     proxyConfig: {
       ajax: {
@@ -158,6 +208,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
   gridEvents: {
     checkboxAll: handleRowCheckboxChange,
     checkboxChange: handleRowCheckboxChange,
+    editClosed: handleEditClosed,
   },
 });
 

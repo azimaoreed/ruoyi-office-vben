@@ -100,3 +100,13 @@ export function exportMeetingRoomBookingExcel(params: any) {
     params,
   });
 }
+
+/** 更新会议室预定申请单的使用状态 */
+export function updateMeetingRoomBookingUseStatus(
+  id: number,
+  useStatus: number,
+) {
+  return requestClient.put<boolean>(
+    `/oa/meeting-room-booking/update-use-status?id=${id}&useStatus=${useStatus}`,
+  );
+}

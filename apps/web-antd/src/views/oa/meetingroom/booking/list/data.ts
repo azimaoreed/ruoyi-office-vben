@@ -110,6 +110,12 @@ export function useGridFormSchema(): VbenFormSchema[] {
 
 /** 列表的字段 */
 export function useGridColumns(): VxeTableGridOptions<MeetingRoomBookingApi.MeetingRoomBooking>['columns'] {
+  // 获取使用状态字典选项
+  const useStatusOptions = getDictOptions(
+    DICT_TYPE.OA_MEETING_BOOKING_USE_STATUS,
+    'number',
+  );
+
   return [
     { type: 'checkbox', width: 40 },
     createRouterLinkColumn({
@@ -132,6 +138,13 @@ export function useGridColumns(): VxeTableGridOptions<MeetingRoomBookingApi.Meet
       field: 'useStatus',
       title: '使用状态',
       minWidth: 120,
+      editRender: {
+        name: 'VxeSelect',
+        options: useStatusOptions,
+        props: {
+          placeholder: '请选择使用状态',
+        },
+      },
       cellRender: {
         name: 'CellDict',
         props: { type: DICT_TYPE.OA_MEETING_BOOKING_USE_STATUS },

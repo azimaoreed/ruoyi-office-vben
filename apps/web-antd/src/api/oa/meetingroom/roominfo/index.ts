@@ -75,3 +75,11 @@ export function getMeetingRoomSelectList() {
     '/oa/meeting-room/simple-list',
   );
 }
+
+/** 查询可预定的会议室信息分页（用于会议预定单选择会议室） */
+export function getBookableMeetingRoomPage(params: PageParam) {
+  return requestClient.get<PageResult<MeetingRoomApi.MeetingRoom>>(
+    '/oa/meeting-room/bookable-page',
+    { params },
+  );
+}
