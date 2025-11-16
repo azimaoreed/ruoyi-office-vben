@@ -229,3 +229,18 @@ export function checkFilePermission(fileId: number) {
 export function exportFileInfo(params: any) {
   return requestClient.download('/oa/file/export-excel', params);
 }
+
+// ==================== 文件存储统计相关接口 ====================
+
+/** 文件存储统计信息 */
+export interface FileStorageStats {
+  usedSize: number; // 已用空间（字节）
+  totalSize: number; // 总空间限制（字节）
+  fileCount: number; // 文件数量（仅文件，不包括文件夹）
+  sharedFileCount: number; // 共享文件数量
+}
+
+/** 获取用户文件存储统计信息 */
+export function getFileStorageStats() {
+  return requestClient.get<FileStorageStats>('/oa/file/storage-stats');
+}

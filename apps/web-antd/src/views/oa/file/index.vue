@@ -19,15 +19,17 @@ import {
   favoriteFile,
   getFavoriteFileList,
   getFileInfoPage,
+  getFileStorageStats,
   getSharedFileList,
   getSharedSubFiles,
   renameFileInfo,
   unfavoriteFile,
   uploadFile,
+  type FileStorageStats,
 } from '#/api/oa/file';
 import { $t } from '#/locales';
 
-import { getFileIcon, useGridColumns, useGridFormSchema } from './data';
+import { formatFileSize, getFileIcon, useGridColumns, useGridFormSchema } from './data';
 import FileShareModal from './modules/FileShareModal.vue';
 import FolderForm from './modules/folder-form.vue';
 
@@ -71,6 +73,14 @@ const uploadProgress = ref({
   currentFileName: '',
   percent: 0,
   currentFilePercent: 0, // 当前文件的上传进度
+});
+
+// 存储统计信息
+const storageStats = ref<FileStorageStats>({
+  usedSize: 0,
+  totalSize: 5 * 1024 * 1024 * 1024, // 5GB
+  fileCount: 0,
+  sharedFileCount: 0,
 });
 
 /** 刷新表格 */
@@ -168,6 +178,7 @@ async function handleDelete(row: FileApi.FileInfo) {
       key: 'action_key_msg',
     });
     onRefresh();
+    loadStorageStats(); // 刷新统计数据
   } finally {
     hideLoading();
   }
@@ -186,6 +197,7 @@ async function handleDeleteBatch() {
       key: 'action_key_msg',
     });
     onRefresh();
+    loadStorageStats(); // 刷新统计数据
   } finally {
     hideLoading();
   }
@@ -236,6 +248,7 @@ function handleShare(row: FileApi.FileInfo) {
 /** 分享成功回调 */
 function handleShareSuccess() {
   onRefresh();
+  loadStorageStats(); // 刷新统计数据
 }
 
 /** 打开文件夹 */
@@ -618,8 +631,9 @@ async function handleUploadFile() {
       uploadProgress.value.visible = false;
       message.success(`成功上传 ${files.length} 个文件`);
 
-      // 刷新表格
+      // 刷新表格和统计数据
       onRefresh();
+      loadStorageStats();
     } catch (error: any) {
       // 上传失败
       uploadProgress.value.visible = false;
@@ -802,8 +816,19 @@ const [Grid, gridApi] = useVbenVxeGrid({
 });
 
 // 组件挂载时加载数据
+// 加载存储统计信息
+async function loadStorageStats() {
+  try {
+    const stats = await getFileStorageStats();
+    storageStats.value = stats;
+  } catch (error) {
+    console.error('加载存储统计信息失败:', error);
+  }
+}
+
 onMounted(() => {
   onRefresh();
+  loadStorageStats();
 });
 </script>
 
@@ -858,24 +883,26 @@ onMounted(() => {
               <div class="mb-1 h-2 rounded-full bg-gray-100">
                 <div
                   class="storage-progress h-2 rounded-full"
-                  style="width: 25%"
+                  :style="{
+                    width: `${Math.min((storageStats.usedSize / storageStats.totalSize) * 100, 100)}%`,
+                  }"
                 ></div>
               </div>
               <div class="flex justify-between text-xs text-gray-500">
-                <span>已用: 375M</span>
-                <span>总计: 1.5G</span>
+                <span>已用: {{ formatFileSize(storageStats.usedSize) }}</span>
+                <span>总计: {{ formatFileSize(storageStats.totalSize) }}</span>
               </div>
             </div>
 
             <!-- 统计信息 -->
             <div class="grid grid-cols-2 gap-2 text-xs">
               <div class="stat-card rounded bg-gray-50 p-2">
-                <div class="text-gray-500">网盘总数</div>
-                <div class="font-medium text-blue-600">56</div>
+                <div class="text-gray-500">文件数量</div>
+                <div class="font-medium text-blue-600">{{ storageStats.fileCount }}</div>
               </div>
               <div class="stat-card rounded bg-gray-50 p-2">
-                <div class="text-gray-500">系统空间</div>
-                <div class="font-medium text-green-600">4.62G</div>
+                <div class="text-gray-500">共享文件</div>
+                <div class="font-medium text-green-600">{{ storageStats.sharedFileCount }}</div>
               </div>
             </div>
           </div>
