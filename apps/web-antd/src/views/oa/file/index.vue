@@ -3,7 +3,6 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { FileApi } from '#/api/oa/file';
 
 import { h, onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 import { IconifyIcon } from '@vben/icons';
@@ -42,7 +41,6 @@ const shareModalVisible = ref(false);
 const currentShareFile = ref<FileApi.FileInfo | null>(null);
 
 const userStore = useUserStore();
-const route = useRoute();
 
 // 当前路径和面包屑
 const currentParentId = ref<number>(0);
@@ -58,6 +56,12 @@ const fileTypeFilter = ref<
 >('all');
 // 当前表格标题
 const tableTitle = ref('我的文件');
+
+// 共享文件相关状态
+const sharedFileState = ref({
+  rootShareId: 0, // 根分享文件夹ID
+  parentId: 0, // 当前父文件夹ID
+});
 
 // 文件上传进度相关
 const uploadProgress = ref({
@@ -240,16 +244,28 @@ function handleOpenFolder(row: FileApi.FileInfo) {
     if (viewMode.value === 'shared') {
       // 共享文件夹导航
       const rootShareId = (row as any).rootShareId || row.id;
-      const parentId = row.id;
+      const parentId = row.fileId;
 
-      // 更新路由参数
-      window.history.replaceState(
-        null,
-        '',
-        `${window.location.pathname}?viewMode=shared&rootShareId=${rootShareId}&parentId=${parentId}`,
-      );
+      // 更新共享文件状态
+      sharedFileState.value.rootShareId = Number(rootShareId);
+      sharedFileState.value.parentId = Number(parentId);
 
-      // 更新面包屑
+      // 初始化或更新面包屑
+      if (pathStack.value.length === 0 || pathStack.value[0]?.name !== '共享文件') {
+        pathStack.value = [{ id: 0, name: '共享文件' }];
+      }
+      pathStack.value.push({
+        id: row.id as number,
+        name: row.fileName as string,
+      });
+    } else if (viewMode.value === 'favorite') {
+      // 收藏文件夹导航
+      currentParentId.value = row.id as number;
+      
+      // 初始化或更新面包屑
+      if (pathStack.value.length === 0 || pathStack.value[0]?.name !== '我的收藏') {
+        pathStack.value = [{ id: 0, name: '我的收藏' }];
+      }
       pathStack.value.push({
         id: row.id as number,
         name: row.fileName as string,
@@ -271,10 +287,18 @@ function handleOpenFolder(row: FileApi.FileInfo) {
 function getCurrentPathStack() {
   switch (viewMode.value) {
     case 'favorite': {
-      return [{ id: 0, name: '我的收藏' }];
+      // 如果 pathStack 为空或第一个不是"我的收藏"，则初始化
+      if (pathStack.value.length === 0 || pathStack.value[0]?.name !== '我的收藏') {
+        return [{ id: 0, name: '我的收藏' }];
+      }
+      return pathStack.value;
     }
     case 'shared': {
-      return [{ id: 0, name: '共享文件' }];
+      // 如果 pathStack 为空或第一个不是"共享文件"，则初始化
+      if (pathStack.value.length === 0 || pathStack.value[0]?.name !== '共享文件') {
+        return [{ id: 0, name: '共享文件' }];
+      }
+      return pathStack.value;
     }
     default: {
       return pathStack.value;
@@ -284,11 +308,6 @@ function getCurrentPathStack() {
 
 /** 面包屑导航点击 */
 function handleBreadcrumbClick(index: number) {
-  // 对于共享文件和收藏视图，点击面包屑不做任何操作
-  if (viewMode.value === 'shared' || viewMode.value === 'favorite') {
-    return;
-  }
-
   const currentStack = getCurrentPathStack();
   if (index === currentStack.length - 1) {
     // 点击当前层级，不需要操作
@@ -299,8 +318,40 @@ function handleBreadcrumbClick(index: number) {
   const target = currentStack[index];
   if (!target) return;
 
-  currentParentId.value = target.id;
-  pathStack.value = pathStack.value.slice(0, index + 1);
+  if (viewMode.value === 'shared') {
+    // 共享文件视图的面包屑导航
+    if (index === 0) {
+      // 点击根级别，回到共享文件列表
+      sharedFileState.value.rootShareId = 0;
+      sharedFileState.value.parentId = 0;
+      pathStack.value = [{ id: 0, name: '共享文件' }];
+    } else {
+      // 点击子文件夹，需要找到对应的文件夹ID
+      const targetFolder = currentStack[index];
+      if (targetFolder) {
+        sharedFileState.value.parentId = targetFolder.id;
+        pathStack.value = pathStack.value.slice(0, index + 1);
+      }
+    }
+  } else if (viewMode.value === 'favorite') {
+    // 收藏视图的面包屑导航
+    if (index === 0) {
+      // 点击根级别，回到收藏列表
+      currentParentId.value = 0;
+      pathStack.value = [{ id: 0, name: '我的收藏' }];
+    } else {
+      // 点击子文件夹
+      const targetFolder = currentStack[index];
+      if (targetFolder) {
+        currentParentId.value = targetFolder.id;
+        pathStack.value = pathStack.value.slice(0, index + 1);
+      }
+    }
+  } else {
+    // 我的文件视图的面包屑导航
+    currentParentId.value = target.id;
+    pathStack.value = pathStack.value.slice(0, index + 1);
+  }
   // 不更新 tableTitle，保持为左侧菜单的标题
   onRefresh();
 }
@@ -312,22 +363,35 @@ function handleShowMyFiles() {
   pathStack.value = [{ id: 0, name: '我的文件' }];
   tableTitle.value = '我的文件';
   fileTypeFilter.value = 'all';
+  // 重置共享文件状态
+  sharedFileState.value.rootShareId = 0;
+  sharedFileState.value.parentId = 0;
   onRefresh();
 }
 
 /** 切换到共享文件视图 */
 function handleShowSharedFiles() {
   viewMode.value = 'shared';
+  currentParentId.value = 0;
+  pathStack.value = [{ id: 0, name: '共享文件' }];
   tableTitle.value = '共享文件';
   fileTypeFilter.value = 'all';
+  // 重置共享文件状态（回到根级别）
+  sharedFileState.value.rootShareId = 0;
+  sharedFileState.value.parentId = 0;
   onRefresh();
 }
 
 /** 切换到收藏视图 */
 function handleShowFavorites() {
   viewMode.value = 'favorite';
+  currentParentId.value = 0;
+  pathStack.value = [{ id: 0, name: '我的收藏' }];
   tableTitle.value = '我的收藏';
   fileTypeFilter.value = 'all';
+  // 重置共享文件状态
+  sharedFileState.value.rootShareId = 0;
+  sharedFileState.value.parentId = 0;
   onRefresh();
 }
 
@@ -463,27 +527,37 @@ const [Grid, gridApi] = useVbenVxeGrid({
       ajax: {
         query: async ({ page }, formValues) => {
           if (viewMode.value === 'favorite') {
-            const data = await getFavoriteFileList();
-            return {
-              result: data,
-              page: {
+            if (currentParentId.value !== 0) {
+                const queryParams = {
+                pageNo: page.currentPage,
+                pageSize: page.pageSize,
+                parentId: currentParentId.value,
+                fileTypeFilter:
+                  fileTypeFilter.value === 'all'
+                    ? undefined
+                    : fileTypeFilter.value,
+                ...formValues,
+              };
+              return await getFileInfoPage(queryParams);
+            }else {
+              const data = await getFavoriteFileList();
+              return {
+                list: data,
                 total: data.length,
-              },
-            };
+              };
+            }
+
           } else if (viewMode.value === 'shared') {
             // 共享文件视图
-            const rootShareId = route.query.rootShareId as string;
-            const parentId = route.query.parentId as string;
+            const { rootShareId, parentId } = sharedFileState.value;
 
-            const data = rootShareId && parentId && rootShareId !== parentId
-              ? await getSharedSubFiles(Number(rootShareId), Number(parentId)) // 获取共享文件夹下的子文件
+            const data = rootShareId !==0
+              ? await getSharedSubFiles(rootShareId, parentId) // 获取共享文件夹下的子文件
               : await getSharedFileList(); // 获取根级别共享文件
 
             return {
-              result: data,
-              page: {
-                total: data.length,
-              },
+              list: data.map(item => ({ ...item, id: item.fileId })),
+              total: data.length,
             };
           } else {
             const queryParams = {

@@ -10,6 +10,7 @@ export namespace FileApi {
     id?: number; // 文件ID
     parentId?: number; // 父文件夹ID
     fileType?: number; // 文件类型(0文件 1文件夹)
+    fileId?: number; // 文件ID
     fileName?: string; // 文件名称
     fileExtension?: string; // 文件扩展名
     fileSuffix?: string; // 文件后缀名（不含点号）

@@ -162,6 +162,12 @@ export function useGridColumns(): VxeTableGridOptions<FileApi.FileInfo>['columns
   return [
     { type: 'checkbox', width: 40 },
     {
+      field: 'fileId',
+      title: '文件ID',
+      minWidth: 120,
+      visible: false,
+    },
+    {
       field: 'fileName',
       title: '名称',
       minWidth: 300,
