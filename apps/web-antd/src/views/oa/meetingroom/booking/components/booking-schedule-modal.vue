@@ -518,11 +518,11 @@ defineExpose({
   position: relative;
   flex: 0 0 calc(100% / 24);
   min-width: 0;
+  min-width: 12px;
   height: 36px;
   cursor: pointer;
   border-radius: 4px;
   transition: all 0.2s;
-  min-width: 12px;
 }
 
 /* 可预约状态 */
@@ -577,7 +577,6 @@ defineExpose({
   border: 1px solid #9ca3af;
   opacity: 0.6;
 }
-
 
 /* 优化时间块的视觉效果 */
 .time-slot:hover {

@@ -6,7 +6,6 @@ import { DICT_TYPE } from '@vben/constants';
 import { getDictOptions } from '@vben/hooks';
 
 import { message } from 'ant-design-vue';
-import dayjs from 'dayjs';
 
 import { getUserSelectList } from '#/api/system/user';
 
@@ -94,11 +93,10 @@ export function useFormSchema(
       label: '会议开始时间',
       rules: 'required',
       component: 'DatePicker',
-      componentProps: (_values, _formApi) => ({
+      componentProps: {
         showTime: {
           format: 'HH:mm',
           minuteStep: 30, // 限制只能选择整点或半点
-          defaultValue: dayjs('00:00', 'HH:mm'), // 默认时间为整点
         },
         format: 'YYYY-MM-DD HH:mm',
         valueFormat: 'x', // 使用时间戳格式
@@ -107,7 +105,7 @@ export function useFormSchema(
           // 禁用过去的日期
           return current && current < new Date(new Date().setHours(0, 0, 0, 0));
         },
-      }),
+      },
       dependencies: {
         triggerFields: ['meetingEndTime'],
         trigger: (values, formApi) => {
@@ -127,11 +125,10 @@ export function useFormSchema(
       label: '会议结束时间',
       rules: 'required',
       component: 'DatePicker',
-      componentProps: (_values, _formApi) => ({
+      componentProps: {
         showTime: {
           format: 'HH:mm',
           minuteStep: 30, // 限制只能选择整点或半点
-          defaultValue: dayjs('00:00', 'HH:mm'), // 默认时间为整点
         },
         format: 'YYYY-MM-DD HH:mm',
         valueFormat: 'x', // 使用时间戳格式
@@ -140,7 +137,7 @@ export function useFormSchema(
           // 禁用过去的日期
           return current && current < new Date(new Date().setHours(0, 0, 0, 0));
         },
-      }),
+      },
       dependencies: {
         triggerFields: ['meetingStartTime'],
         trigger: (values, formApi) => {
