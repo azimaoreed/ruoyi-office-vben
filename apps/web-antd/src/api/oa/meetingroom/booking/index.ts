@@ -110,3 +110,38 @@ export function updateMeetingRoomBookingUseStatus(
     `/oa/meeting-room-booking/update-use-status?id=${id}&useStatus=${useStatus}`,
   );
 }
+
+/** 查询会议室预约信息（用于展示预约时间网格） */
+export namespace MeetingRoomBookingScheduleApi {
+  export interface BookingItem {
+    id?: number;
+    billCode?: string;
+    meetingTitle?: string;
+    meetingStartTime?: Date;
+    meetingEndTime?: Date;
+    moderatorName?: string;
+    creatorName?: string;
+    processStatus?: number;
+    useStatus?: number;
+  }
+
+  export interface ScheduleResp {
+    bookings?: BookingItem[];
+    todayApprovedBookings?: BookingItem[];
+  }
+
+  export interface ScheduleReq {
+    roomId: number;
+    startDate: string; // YYYY-MM-DD
+    endDate: string; // YYYY-MM-DD
+  }
+}
+
+export function getMeetingRoomBookingSchedule(
+  params: MeetingRoomBookingScheduleApi.ScheduleReq,
+) {
+  return requestClient.get<MeetingRoomBookingScheduleApi.ScheduleResp>(
+    '/oa/meeting-room-booking/schedule',
+    { params },
+  );
+}

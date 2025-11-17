@@ -101,5 +101,14 @@ export function useMeetingRoomSelectColumns(): VxeTableGridOptions<MeetingRoomAp
       title: '负责人',
       width: 120,
     },
+    {
+      field: 'actions',
+      title: '操作',
+      width: 120,
+      fixed: 'right',
+      slots: {
+        default: 'actions',
+      },
+    },
   ];
 }

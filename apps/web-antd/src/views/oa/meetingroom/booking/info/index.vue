@@ -187,6 +187,9 @@ async function loadData() {
             formData.value.processStatus as number,
           );
 
+    // 重新初始化表单schema（因为readonly状态可能变化）
+    initFormSchema();
+
     // 设置表单值
     if (basicFormRef.value) {
       await basicFormRef.value.setFormValues(data);

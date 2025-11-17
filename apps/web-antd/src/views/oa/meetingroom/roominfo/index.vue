@@ -2,7 +2,7 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { MeetingRoomApi } from '#/api/oa/meetingroom/roominfo';
 
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 import { DICT_TYPE } from '@vben/constants';
@@ -20,6 +20,7 @@ import {
 } from '#/api/oa/meetingroom/roominfo';
 import { $t } from '#/locales';
 
+import { BookingScheduleModal } from '../booking/components';
 import { useGridColumns, useGridFormSchema } from './data';
 import Form from './modules/form.vue';
 
@@ -27,6 +28,28 @@ const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: Form,
   destroyOnClose: true,
 });
+
+/** 预约信息查看弹窗 */
+const bookingScheduleModalRef =
+  ref<InstanceType<typeof BookingScheduleModal>>();
+/** 当前选中的会议室信息 */
+const currentSelectedRoom = ref<MeetingRoomApi.MeetingRoom>({
+  id: 0,
+  roomName: '',
+} as MeetingRoomApi.MeetingRoom);
+
+/** 查看预定信息 */
+function handleViewBooking(row: MeetingRoomApi.MeetingRoom) {
+  if (!row.id) {
+    return;
+  }
+  // 更新当前选中的会议室信息
+  currentSelectedRoom.value = { ...row };
+  // 使用 nextTick 确保组件已更新
+  nextTick(() => {
+    bookingScheduleModalRef.value?.modalApi.open();
+  });
+}
 
 /** 刷新表格 */
 function onRefresh() {
@@ -150,6 +173,12 @@ const [Grid, gridApi] = useVbenVxeGrid({
 <template>
   <Page auto-content-height>
     <FormModal @success="onRefresh" />
+    <BookingScheduleModal
+      ref="bookingScheduleModalRef"
+      :room-id="(currentSelectedRoom.id as number) || 0"
+      :room-name="currentSelectedRoom.roomName || ''"
+      :show-today-approved="true"
+    />
 
     <Grid table-title="会议室信息列表">
       <template #toolbar-tools>
@@ -226,6 +255,13 @@ const [Grid, gridApi] = useVbenVxeGrid({
       <template #actions="{ row }">
         <TableAction
           :actions="[
+            {
+              label: '查看预定信息',
+              type: 'link',
+              icon: ACTION_ICON.VIEW,
+              auth: ['oa:meeting-room-booking:query'],
+              onClick: handleViewBooking.bind(null, row),
+            },
             {
               label: $t('common.edit'),
               type: 'link',

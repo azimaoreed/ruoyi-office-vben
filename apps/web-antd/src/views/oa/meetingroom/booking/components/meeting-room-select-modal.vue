@@ -2,15 +2,16 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { MeetingRoomApi } from '#/api/oa/meetingroom/roominfo';
 
-import { reactive } from 'vue';
+import { nextTick, reactive, ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
 import { message } from 'ant-design-vue';
 
-import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getBookableMeetingRoomPage } from '#/api/oa/meetingroom/roominfo';
 
+import BookingScheduleModal from './booking-schedule-modal.vue';
 import {
   useMeetingRoomSelectColumns,
   useMeetingRoomSelectFormSchema,
@@ -24,6 +25,28 @@ const emit = defineEmits<{
 const formData = reactive({
   selectedRoom: null as MeetingRoomApi.MeetingRoom | null,
 });
+
+/** 预约信息查看弹窗 */
+const bookingScheduleModalRef =
+  ref<InstanceType<typeof BookingScheduleModal>>();
+/** 当前选中的会议室信息（用于查看预约信息） */
+const currentViewRoom = ref<MeetingRoomApi.MeetingRoom>({
+  id: 0,
+  roomName: '',
+} as MeetingRoomApi.MeetingRoom);
+
+/** 查看预定信息 */
+function handleViewBooking(row: MeetingRoomApi.MeetingRoom) {
+  if (!row.id) {
+    return;
+  }
+  // 更新当前选中的会议室信息
+  currentViewRoom.value = { ...row };
+  // 使用 nextTick 确保组件已更新
+  nextTick(() => {
+    bookingScheduleModalRef.value?.modalApi.open();
+  });
+}
 
 /** 表格实例 */
 const [Grid] = useVbenVxeGrid({
@@ -105,6 +128,26 @@ defineExpose({
 
 <template>
   <Modal>
-    <Grid />
+    <Grid>
+      <!-- 操作列插槽 -->
+      <template #actions="{ row }">
+        <TableAction
+          :actions="[
+            {
+              label: '查看预定信息',
+              type: 'link',
+              icon: ACTION_ICON.VIEW,
+              onClick: handleViewBooking.bind(null, row),
+            },
+          ]"
+        />
+      </template>
+    </Grid>
   </Modal>
+  <BookingScheduleModal
+    ref="bookingScheduleModalRef"
+    :room-id="(currentViewRoom.id as number) || 0"
+    :room-name="currentViewRoom.roomName || ''"
+    :show-today-approved="false"
+  />
 </template>
