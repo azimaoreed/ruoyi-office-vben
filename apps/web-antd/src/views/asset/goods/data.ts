@@ -2,16 +2,13 @@ import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { GoodsApi } from '#/api/asset/goods';
 
+import { CommonStatusEnum, DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 import { handleTree } from '@vben/utils';
 
 import { z } from '#/adapter/form';
 import { getCategoryList } from '#/api/asset/category';
-import {
-  CommonStatusEnum,
-  DICT_TYPE,
-  getDictOptions,
-  getRangePickerDefaultProps,
-} from '#/utils';
+import { getRangePickerDefaultProps } from '#/utils';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -42,7 +39,7 @@ export function useFormSchema(): VbenFormSchema[] {
         placeholder: '请输入物品名称',
       },
     },
-   
+
     {
       fieldName: 'assetCategoryCode',
       label: '资产类别',
@@ -56,10 +53,9 @@ export function useFormSchema(): VbenFormSchema[] {
             categoryName: '资产类别',
             level: 0,
             sort: 0,
-            remark: ''
+            remark: '',
           });
           return handleTree(data);
-          
         },
         labelField: 'categoryName',
         valueField: 'id',
@@ -72,11 +68,11 @@ export function useFormSchema(): VbenFormSchema[] {
           } else {
             formApi.setFieldValue('assetCategoryName', '');
           }
-        }
+        },
       }),
       rules: 'selectRequired',
     },
-   
+
     {
       fieldName: 'assetModel',
       label: '规格型号',
@@ -94,7 +90,7 @@ export function useFormSchema(): VbenFormSchema[] {
         placeholder: '请输入计量单位',
       },
     },
-   
+
     {
       fieldName: 'manufacturer',
       label: '厂商',
@@ -143,9 +139,9 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'InputNumber',
       componentProps: {
         placeholder: '请输入显示顺序',
-        min: 1,              // 最小值为1
-        precision: 0,        // 不允许小数
-        style: { width: '100%' }
+        min: 1, // 最小值为1
+        precision: 0, // 不允许小数
+        style: { width: '100%' },
       },
     },
     {
@@ -158,19 +154,18 @@ export function useFormSchema(): VbenFormSchema[] {
         placeholder: '请选择是否在资产列表显示',
       },
     },
-   
+
     {
       fieldName: 'assetIcon',
       label: '物品图片',
       component: 'ImageUpload',
-      
     },
     {
       fieldName: 'assetFile',
       label: '附件',
       component: 'FileUpload',
     },
-    
+
     {
       fieldName: 'status',
       label: '状态',
@@ -231,7 +226,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
         placeholder: '请输入资产类型编码',
       },
     },
-    
+
     {
       fieldName: 'createTime',
       label: '创建时间',
@@ -249,9 +244,10 @@ export function useGridColumns<T = GoodsApi.Goods>(
   onStatusChange?: (
     newStatus: number,
     row: T,
-  ) => PromiseLike<boolean | undefined>,): VxeTableGridOptions<GoodsApi.Goods>['columns'] {
+  ) => PromiseLike<boolean | undefined>,
+): VxeTableGridOptions<GoodsApi.Goods>['columns'] {
   return [
-  { type: 'checkbox', width: 40 },
+    { type: 'checkbox', width: 40 },
     // {
     //   field: 'id',
     //   title: '主键',
@@ -267,7 +263,7 @@ export function useGridColumns<T = GoodsApi.Goods>(
       title: '物品名称',
       minWidth: 120,
     },
-   
+
     {
       field: 'assetCategoryName',
       title: '资产类型名称',
@@ -318,7 +314,7 @@ export function useGridColumns<T = GoodsApi.Goods>(
       title: '资产图片',
       minWidth: 120,
     },
-    
+
     {
       field: 'sort',
       title: '显示顺序',
@@ -338,7 +334,7 @@ export function useGridColumns<T = GoodsApi.Goods>(
         },
       },
     },
-  
+
     {
       field: 'createTime',
       title: '创建时间',
@@ -353,4 +349,3 @@ export function useGridColumns<T = GoodsApi.Goods>(
     },
   ];
 }
-

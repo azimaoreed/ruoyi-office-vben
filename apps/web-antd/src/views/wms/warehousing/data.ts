@@ -2,16 +2,14 @@ import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { WarehousingApi } from '#/api/wms/warehousing';
 
+import { CommonStatusEnum, DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
+import { handleTree } from '@vben/utils';
+
 import { z } from '#/adapter/form';
 import { getCompanyList } from '#/api/system/dept';
 import { getWarehousingList } from '#/api/wms/warehousing';
-import {
-  CommonStatusEnum,
-  DICT_TYPE,
-  getDictOptions,
-  getRangePickerDefaultProps,
-} from '#/utils';
-import { handleTree } from '@vben/utils';
+import { getRangePickerDefaultProps } from '#/utils';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -42,7 +40,7 @@ export function useFormSchema(): VbenFormSchema[] {
             companyId: '',
             companyName: '',
             sort: 0,
-            remark: ''
+            remark: '',
           });
           return handleTree(data);
         },
@@ -72,7 +70,7 @@ export function useFormSchema(): VbenFormSchema[] {
         placeholder: '请输入仓库名称',
       },
     },
-    
+
     {
       fieldName: 'warehousingCategoryCode',
       label: '仓库类型',
@@ -82,17 +80,15 @@ export function useFormSchema(): VbenFormSchema[] {
         options: getDictOptions(DICT_TYPE.WMS_CATEGORY_CODE, 'string'),
         placeholder: '请选择仓库类型',
         onChange: (value: any, option: any) => {
-        
           if (value && option) {
             formApi.setFieldValue('warehousingCategoryName', option.label);
           } else {
             formApi.setFieldValue('warehousingCategoryName', '');
           }
-        }
+        },
       }),
-      
     },
-  
+
     {
       fieldName: 'warehousingAddress',
       label: '仓库地址',
@@ -108,7 +104,7 @@ export function useFormSchema(): VbenFormSchema[] {
       componentProps: (_values, formApi) => ({
         allowClear: true,
         api: async () => {
-          let data = await getCompanyList();
+          const data = await getCompanyList();
           return handleTree(data);
         },
         labelField: 'name',
@@ -124,7 +120,7 @@ export function useFormSchema(): VbenFormSchema[] {
             // 清空选择，清空公司名称
             formApi.setFieldValue('companyName', '');
           }
-        }
+        },
       }),
       rules: 'selectRequired',
     },
@@ -135,9 +131,9 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'InputNumber',
       componentProps: {
         placeholder: '请输入显示顺序',
-        min: 1,              // 最小值为1
-        precision: 0,        // 不允许小数
-        style: { width: '100%' }
+        min: 1, // 最小值为1
+        precision: 0, // 不允许小数
+        style: { width: '100%' },
       },
     },
     {
@@ -147,9 +143,9 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'InputNumber',
       componentProps: {
         placeholder: '请输入显示顺序',
-        min: 1,              // 最小值为1
-        precision: 0,        // 不允许小数
-        style: { width: '100%' }
+        min: 1, // 最小值为1
+        precision: 0, // 不允许小数
+        style: { width: '100%' },
       },
     },
     {
@@ -195,7 +191,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
         placeholder: '请输入仓库名称',
       },
     },
-   
+
     {
       fieldName: 'warehousingCategoryCode',
       label: '仓库类型',
@@ -206,15 +202,15 @@ export function useGridFormSchema(): VbenFormSchema[] {
         placeholder: '请选择仓库类型',
       },
     },
-   
+
     {
       fieldName: 'companyId',
       label: '所属公司',
       component: 'ApiTreeSelect',
-      componentProps:{
+      componentProps: {
         allowClear: true,
         api: async () => {
-          let data = await getCompanyList();
+          const data = await getCompanyList();
           return handleTree(data);
         },
         labelField: 'name',
@@ -234,7 +230,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
         placeholder: '请选择仓库类型',
       },
     },
-    
+
     {
       fieldName: 'createTime',
       label: '创建时间',
@@ -252,10 +248,9 @@ export function useGridColumns<T = WarehousingApi.Warehousing>(
   onStatusChange?: (
     newStatus: number,
     row: T,
-  ) => PromiseLike<boolean | undefined>,): VxeTableGridOptions<WarehousingApi.Warehousing>['columns'] {
+  ) => PromiseLike<boolean | undefined>,
+): VxeTableGridOptions<WarehousingApi.Warehousing>['columns'] {
   return [
-  
-
     {
       field: 'warehousingName',
       title: '仓库名称',
@@ -320,4 +315,3 @@ export function useGridColumns<T = WarehousingApi.Warehousing>(
     },
   ];
 }
-

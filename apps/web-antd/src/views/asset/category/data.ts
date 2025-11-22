@@ -2,16 +2,13 @@ import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { CategoryApi } from '#/api/asset/category';
 
+import { CommonStatusEnum, DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 import { handleTree } from '@vben/utils';
 
 import { z } from '#/adapter/form';
 import { getCategoryList } from '#/api/asset/category';
-import {
-  CommonStatusEnum,
-  DICT_TYPE,
-  getDictOptions,
-  getRangePickerDefaultProps,
-} from '#/utils';
+import { getRangePickerDefaultProps } from '#/utils';
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
   return [
@@ -36,7 +33,7 @@ export function useFormSchema(): VbenFormSchema[] {
             categoryName: '顶级资产类别',
             level: 0,
             sort: 0,
-            remark: ''
+            remark: '',
           });
           return handleTree(data);
         },
@@ -72,9 +69,9 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'InputNumber',
       componentProps: {
         placeholder: '请输入显示顺序',
-        min: 1,              // 最小值为1
-        precision: 0,        // 不允许小数
-        style: { width: '100%' }
+        min: 1, // 最小值为1
+        precision: 0, // 不允许小数
+        style: { width: '100%' },
       },
     },
     {
@@ -84,9 +81,9 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'InputNumber',
       componentProps: {
         placeholder: '请输入显示顺序',
-        min: 1,              // 最小值为1
-        precision: 0,        // 不允许小数
-        style: { width: '100%' }
+        min: 1, // 最小值为1
+        precision: 0, // 不允许小数
+        style: { width: '100%' },
       },
     },
     {

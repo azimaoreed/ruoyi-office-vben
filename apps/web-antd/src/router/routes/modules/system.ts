@@ -11,6 +11,16 @@ const routes: RouteRecordRaw[] = [
       hideInMenu: true,
     },
   },
+  {
+    path: '/system/dept/org-chart',
+    component: () => import('#/views/system/dept/org-chart.vue'),
+    name: 'SystemDeptOrgChart',
+    meta: {
+      title: '组织架构图',
+      icon: 'ant-design:apartment-outlined',
+      hideInMenu: true,
+    },
+  },
 ];
 
 export default routes;

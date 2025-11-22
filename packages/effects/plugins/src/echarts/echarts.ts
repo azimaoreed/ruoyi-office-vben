@@ -4,6 +4,7 @@ import type {
   GaugeSeriesOption,
   LineSeriesOption,
   MapSeriesOption,
+  TreeSeriesOption,
 } from 'echarts/charts';
 import type {
   DatasetComponentOption,
@@ -23,6 +24,7 @@ import {
   MapChart,
   PieChart,
   RadarChart,
+  TreeChart,
 } from 'echarts/charts';
 import {
   // 数据集组件
@@ -52,6 +54,7 @@ export type ECOption = ComposeOption<
   | MapSeriesOption
   | TitleComponentOption
   | TooltipComponentOption
+  | TreeSeriesOption
   | VisualMapComponentOption
 >;
 
@@ -67,6 +70,7 @@ echarts.use([
   BarChart,
   LineChart,
   GaugeChart,
+  TreeChart,
   LabelLayout,
   UniversalTransition,
   CanvasRenderer,
