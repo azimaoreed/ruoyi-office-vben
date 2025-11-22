@@ -7,7 +7,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { Page } from '@vben/common-ui';
 import { useTabs } from '@vben/hooks';
 
-import { Button, Card, Divider, message, Space, Table } from 'ant-design-vue';
+import { Button, message, Space, Table } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import { useVbenForm } from '#/adapter/form';
@@ -16,8 +16,9 @@ import {
   getEmployeeArchive,
   updateEmployeeArchive,
 } from '#/api/hrm/employee';
+import { CardContainer } from '#/components/basic-form';
 
-import { useFormSchema } from './data';
+import { useAvatarFormSchema, useBasicFormSchema, useWorkFormSchema } from './data';
 
 defineOptions({ name: 'HrmEmployeeArchiveInfo' });
 
@@ -38,26 +39,111 @@ const familyList = ref<EmployeeArchiveApi.EmployeeFamily[]>([]);
 
 // 工作经历表格列定义
 const workExperienceColumns = [
-  { title: '开始时间', dataIndex: 'startTime', width: 150 },
-  { title: '截止时间', dataIndex: 'endTime', width: 150 },
-  { title: '职务', dataIndex: 'jobPosition', width: 150 },
-  { title: '单位名称', dataIndex: 'companyName' },
+  { 
+    title: '开始时间', 
+    dataIndex: 'startTime', 
+    width: 150,
+    customRender: ({ text, index }: any) => {
+      if (readonly.value) return text;
+      return {
+        children: [
+          {
+            is: 'input',
+            props: {
+              type: 'date',
+              value: text,
+              class: 'w-full rounded border border-gray-300 px-2 py-1',
+              onInput: (e: any) => {
+                if (workExperienceList.value[index]) {
+                  workExperienceList.value[index].startTime = e.target.value;
+                }
+              },
+            },
+          },
+        ],
+      };
+    },
+  },
+  { 
+    title: '截止时间', 
+    dataIndex: 'endTime', 
+    width: 150,
+    customRender: ({ text, index }: any) => {
+      if (readonly.value) return text;
+      return {
+        children: [
+          {
+            is: 'input',
+            props: {
+              type: 'date',
+              value: text,
+              class: 'w-full rounded border border-gray-300 px-2 py-1',
+              onInput: (e: any) => {
+                if (workExperienceList.value[index]) {
+                  workExperienceList.value[index].endTime = e.target.value;
+                }
+              },
+            },
+          },
+        ],
+      };
+    },
+  },
+  { 
+    title: '职务', 
+    dataIndex: 'jobPosition', 
+    width: 150,
+    customRender: ({ text, index }: any) => {
+      if (readonly.value) return text;
+      return {
+        children: [
+          {
+            is: 'input',
+            props: {
+              value: text,
+              placeholder: '请输入职务',
+              class: 'w-full rounded border border-gray-300 px-2 py-1',
+              onInput: (e: any) => {
+                if (workExperienceList.value[index]) {
+                  workExperienceList.value[index].jobPosition = e.target.value;
+                }
+              },
+            },
+          },
+        ],
+      };
+    },
+  },
+  { 
+    title: '单位名称', 
+    dataIndex: 'companyName',
+    customRender: ({ text, index }: any) => {
+      if (readonly.value) return text;
+      return {
+        children: [
+          {
+            is: 'input',
+            props: {
+              value: text,
+              placeholder: '请输入单位名称',
+              class: 'w-full rounded border border-gray-300 px-2 py-1',
+              onInput: (e: any) => {
+                if (workExperienceList.value[index]) {
+                  workExperienceList.value[index].companyName = e.target.value;
+                }
+              },
+            },
+          },
+        ],
+      };
+    },
+  },
   {
     title: '操作',
     key: 'action',
-    width: 150,
+    width: 100,
     customRender: ({ index }: any) => ({
       children: [
-        {
-          is: Button,
-          props: {
-            type: 'link',
-            size: 'small',
-            disabled: readonly.value,
-            onClick: () => handleEditWorkExperience(index),
-          },
-          children: '编辑',
-        },
         {
           is: Button,
           props: {
@@ -76,26 +162,111 @@ const workExperienceColumns = [
 
 // 教育经历表格列定义
 const educationColumns = [
-  { title: '开始时间', dataIndex: 'startTime', width: 150 },
-  { title: '截止时间', dataIndex: 'endTime', width: 150 },
-  { title: '专业', dataIndex: 'major', width: 150 },
-  { title: '学校名称', dataIndex: 'schoolName' },
+  { 
+    title: '开始时间', 
+    dataIndex: 'startTime', 
+    width: 150,
+    customRender: ({ text, index }: any) => {
+      if (readonly.value) return text;
+      return {
+        children: [
+          {
+            is: 'input',
+            props: {
+              type: 'date',
+              value: text,
+              class: 'w-full rounded border border-gray-300 px-2 py-1',
+              onInput: (e: any) => {
+                if (educationList.value[index]) {
+                  educationList.value[index].startTime = e.target.value;
+                }
+              },
+            },
+          },
+        ],
+      };
+    },
+  },
+  { 
+    title: '截止时间', 
+    dataIndex: 'endTime', 
+    width: 150,
+    customRender: ({ text, index }: any) => {
+      if (readonly.value) return text;
+      return {
+        children: [
+          {
+            is: 'input',
+            props: {
+              type: 'date',
+              value: text,
+              class: 'w-full rounded border border-gray-300 px-2 py-1',
+              onInput: (e: any) => {
+                if (educationList.value[index]) {
+                  educationList.value[index].endTime = e.target.value;
+                }
+              },
+            },
+          },
+        ],
+      };
+    },
+  },
+  { 
+    title: '专业', 
+    dataIndex: 'major', 
+    width: 150,
+    customRender: ({ text, index }: any) => {
+      if (readonly.value) return text;
+      return {
+        children: [
+          {
+            is: 'input',
+            props: {
+              value: text,
+              placeholder: '请输入专业',
+              class: 'w-full rounded border border-gray-300 px-2 py-1',
+              onInput: (e: any) => {
+                if (educationList.value[index]) {
+                  educationList.value[index].major = e.target.value;
+                }
+              },
+            },
+          },
+        ],
+      };
+    },
+  },
+  { 
+    title: '学校名称', 
+    dataIndex: 'schoolName',
+    customRender: ({ text, index }: any) => {
+      if (readonly.value) return text;
+      return {
+        children: [
+          {
+            is: 'input',
+            props: {
+              value: text,
+              placeholder: '请输入学校名称',
+              class: 'w-full rounded border border-gray-300 px-2 py-1',
+              onInput: (e: any) => {
+                if (educationList.value[index]) {
+                  educationList.value[index].schoolName = e.target.value;
+                }
+              },
+            },
+          },
+        ],
+      };
+    },
+  },
   {
     title: '操作',
     key: 'action',
-    width: 150,
+    width: 100,
     customRender: ({ index }: any) => ({
       children: [
-        {
-          is: Button,
-          props: {
-            type: 'link',
-            size: 'small',
-            disabled: readonly.value,
-            onClick: () => handleEditEducation(index),
-          },
-          children: '编辑',
-        },
         {
           is: Button,
           props: {
@@ -114,26 +285,111 @@ const educationColumns = [
 
 // 家属信息表格列定义
 const familyColumns = [
-  { title: '姓名', dataIndex: 'name', width: 150 },
-  { title: '关系', dataIndex: 'relationship', width: 150 },
-  { title: '联系电话', dataIndex: 'mobile', width: 150 },
-  { title: '工作单位', dataIndex: 'workUnit' },
+  { 
+    title: '姓名', 
+    dataIndex: 'name', 
+    width: 150,
+    customRender: ({ text, index }: any) => {
+      if (readonly.value) return text;
+      return {
+        children: [
+          {
+            is: 'input',
+            props: {
+              value: text,
+              placeholder: '请输入姓名',
+              class: 'w-full rounded border border-gray-300 px-2 py-1',
+              onInput: (e: any) => {
+                if (familyList.value[index]) {
+                  familyList.value[index].name = e.target.value;
+                }
+              },
+            },
+          },
+        ],
+      };
+    },
+  },
+  { 
+    title: '关系', 
+    dataIndex: 'relationship', 
+    width: 150,
+    customRender: ({ text, index }: any) => {
+      if (readonly.value) return text;
+      return {
+        children: [
+          {
+            is: 'input',
+            props: {
+              value: text,
+              placeholder: '请输入关系',
+              class: 'w-full rounded border border-gray-300 px-2 py-1',
+              onInput: (e: any) => {
+                if (familyList.value[index]) {
+                  familyList.value[index].relationship = e.target.value;
+                }
+              },
+            },
+          },
+        ],
+      };
+    },
+  },
+  { 
+    title: '联系电话', 
+    dataIndex: 'mobile', 
+    width: 150,
+    customRender: ({ text, index }: any) => {
+      if (readonly.value) return text;
+      return {
+        children: [
+          {
+            is: 'input',
+            props: {
+              value: text,
+              placeholder: '请输入联系电话',
+              class: 'w-full rounded border border-gray-300 px-2 py-1',
+              onInput: (e: any) => {
+                if (familyList.value[index]) {
+                  familyList.value[index].mobile = e.target.value;
+                }
+              },
+            },
+          },
+        ],
+      };
+    },
+  },
+  { 
+    title: '工作单位', 
+    dataIndex: 'workUnit',
+    customRender: ({ text, index }: any) => {
+      if (readonly.value) return text;
+      return {
+        children: [
+          {
+            is: 'input',
+            props: {
+              value: text,
+              placeholder: '请输入工作单位',
+              class: 'w-full rounded border border-gray-300 px-2 py-1',
+              onInput: (e: any) => {
+                if (familyList.value[index]) {
+                  familyList.value[index].workUnit = e.target.value;
+                }
+              },
+            },
+          },
+        ],
+      };
+    },
+  },
   {
     title: '操作',
     key: 'action',
-    width: 150,
+    width: 100,
     customRender: ({ index }: any) => ({
       children: [
-        {
-          is: Button,
-          props: {
-            type: 'link',
-            size: 'small',
-            disabled: readonly.value,
-            onClick: () => handleEditFamily(index),
-          },
-          children: '编辑',
-        },
         {
           is: Button,
           props: {
@@ -150,8 +406,8 @@ const familyColumns = [
   },
 ];
 
-// 初始化表单
-const [Form, formApi] = useVbenForm({
+// 初始化基本信息表单
+const [BasicForm, basicFormApi] = useVbenForm({
   commonConfig: {
     componentProps: {
       class: 'w-full',
@@ -159,9 +415,37 @@ const [Form, formApi] = useVbenForm({
     formItemClass: 'col-span-1',
     labelWidth: 120,
   },
-  wrapperClass: 'grid grid-cols-2 gap-4 p-4',
+  wrapperClass: 'grid grid-cols-2 gap-4',
   layout: 'horizontal',
-  schema: useFormSchema(),
+  schema: useBasicFormSchema(),
+  showDefaultActions: false,
+});
+
+// 初始化照片表单
+const [AvatarForm, avatarFormApi] = useVbenForm({
+  commonConfig: {
+    componentProps: {
+      class: 'w-full',
+    },
+    labelWidth: 80,
+  },
+  layout: 'vertical',
+  schema: useAvatarFormSchema(),
+  showDefaultActions: false,
+});
+
+// 初始化工作信息表单
+const [WorkForm, workFormApi] = useVbenForm({
+  commonConfig: {
+    componentProps: {
+      class: 'w-full',
+    },
+    formItemClass: 'col-span-1',
+    labelWidth: 120,
+  },
+  wrapperClass: 'grid grid-cols-2 gap-4',
+  layout: 'horizontal',
+  schema: useWorkFormSchema(),
   showDefaultActions: false,
 });
 
@@ -183,7 +467,11 @@ async function loadData() {
   try {
     const data = await getEmployeeArchive(Number(id));
     formData.value = data;
-    await formApi.setValues(data);
+    
+    // 设置表单数据
+    await basicFormApi.setValues(data);
+    await avatarFormApi.setValues(data);
+    await workFormApi.setValues(data);
 
     // 加载工作经历
     if (data.workExperienceList) {
@@ -221,14 +509,28 @@ async function loadData() {
 
 /** 保存 */
 async function handleSave() {
-  const { valid } = await formApi.validate();
-  if (!valid) {
+  // 验证所有表单
+  const basicValid = await basicFormApi.validate();
+  const avatarValid = await avatarFormApi.validate();
+  const workValid = await workFormApi.validate();
+  
+  if (!basicValid.valid || !avatarValid.valid || !workValid.valid) {
     return;
   }
 
   loading.value = true;
   try {
-    const values = (await formApi.getValues()) as EmployeeArchiveApi.EmployeeArchive;
+    // 合并所有表单数据
+    const basicValues = await basicFormApi.getValues();
+    const avatarValues = await avatarFormApi.getValues();
+    const workValues = await workFormApi.getValues();
+    
+    const values = {
+      ...basicValues,
+      ...avatarValues,
+      ...workValues,
+    } as EmployeeArchiveApi.EmployeeArchive;
+    
     values.workExperienceList = workExperienceList.value.map((item) => ({
       ...item,
       startTime: item.startTime
@@ -283,11 +585,6 @@ function handleAddWorkExperience() {
   });
 }
 
-function handleEditWorkExperience(_index: number) {
-  // 这里可以实现编辑弹窗，暂时只打印
-  message.info('编辑功能待实现');
-}
-
 function handleDeleteWorkExperience(index: number) {
   workExperienceList.value.splice(index, 1);
 }
@@ -300,10 +597,6 @@ function handleAddEducation() {
     major: '',
     schoolName: '',
   });
-}
-
-function handleEditEducation(_index: number) {
-  message.info('编辑功能待实现');
 }
 
 function handleDeleteEducation(index: number) {
@@ -320,10 +613,6 @@ function handleAddFamily() {
   });
 }
 
-function handleEditFamily(_index: number) {
-  message.info('编辑功能待实现');
-}
-
 function handleDeleteFamily(index: number) {
   familyList.value.splice(index, 1);
 }
@@ -334,7 +623,9 @@ onMounted(async () => {
 
   // 如果设置了 readonly，禁用表单
   if (readonly.value) {
-    formApi.setFieldValue('disabled', true);
+    basicFormApi.setFieldValue('disabled', true);
+    avatarFormApi.setFieldValue('disabled', true);
+    workFormApi.setFieldValue('disabled', true);
   }
 
   // 加载数据
@@ -343,11 +634,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <Page
-    :description="`员工编号: ${formData.employeeNo || '-'}`"
-    :loading="loading"
-    :title="pageTitle"
-  >
+  <Page :loading="loading" :title="pageTitle">
     <template #extra>
       <Space>
         <Button @click="handleClose">关闭</Button>
@@ -355,54 +642,82 @@ onMounted(async () => {
       </Space>
     </template>
 
-    <Card class="mb-4" title="基本信息">
-      <Form />
-    </Card>
+    <!-- 基本信息 -->
+    <div class="mb-4 rounded-lg bg-white p-4 shadow-sm">
+      <CardContainer title="基本信息">
+        <div class="flex gap-6">
+          <!-- 左侧表单区域 -->
+          <div class="flex-1">
+            <BasicForm />
+          </div>
+          <!-- 右侧照片区域 -->
+          <div class="w-[280px]">
+            <AvatarForm />
+          </div>
+        </div>
+      </CardContainer>
+    </div>
 
-    <Card class="mb-4" title="工作经历">
-      <div class="mb-2">
-        <Button v-if="!readonly" type="primary" @click="handleAddWorkExperience">
-          新增工作经历
-        </Button>
-      </div>
-      <Table
-        :columns="workExperienceColumns"
-        :data-source="workExperienceList"
-        :pagination="false"
-        row-key="id"
-        size="small"
-      />
-    </Card>
+    <!-- 工作信息 -->
+    <div class="mb-4 rounded-lg bg-white p-4 shadow-sm">
+      <CardContainer title="工作信息">
+        <WorkForm />
+      </CardContainer>
+    </div>
 
-    <Card class="mb-4" title="教育经历">
-      <div class="mb-2">
-        <Button v-if="!readonly" type="primary" @click="handleAddEducation">
-          新增教育经历
-        </Button>
-      </div>
-      <Table
-        :columns="educationColumns"
-        :data-source="educationList"
-        :pagination="false"
-        row-key="id"
-        size="small"
-      />
-    </Card>
+    <!-- 工作经历 -->
+    <div class="mb-4 rounded-lg bg-white p-4 shadow-sm">
+      <CardContainer title="工作经历">
+        <template #extra>
+          <Button v-if="!readonly" type="primary"  @click="handleAddWorkExperience">
+            {{ $t('common.add') }}
+          </Button>
+        </template>
+        <Table
+          :columns="workExperienceColumns"
+          :data-source="workExperienceList"
+          :pagination="false"
+          row-key="id"
+          size="small"
+        />
+      </CardContainer>
+    </div>
 
-    <Card class="mb-4" title="家属信息">
-      <div class="mb-2">
-        <Button v-if="!readonly" type="primary" @click="handleAddFamily">
-          新增家属信息
-        </Button>
-      </div>
-      <Table
-        :columns="familyColumns"
-        :data-source="familyList"
-        :pagination="false"
-        row-key="id"
-        size="small"
-      />
-    </Card>
+    <!-- 教育经历 -->
+    <div class="mb-4 rounded-lg bg-white p-4 shadow-sm">
+      <CardContainer title="教育经历">
+        <template #extra>
+          <Button v-if="!readonly" type="primary"  @click="handleAddEducation">
+            {{ $t('common.add') }}
+          </Button>
+        </template>
+        <Table
+          :columns="educationColumns"
+          :data-source="educationList"
+          :pagination="false"
+          row-key="id"
+          size="small"
+        />
+      </CardContainer>
+    </div>
+
+    <!-- 家属信息 -->
+    <div class="mb-4 rounded-lg bg-white p-4 shadow-sm">
+      <CardContainer title="家属信息">
+        <template #extra>
+          <Button v-if="!readonly" type="primary" @click="handleAddFamily">
+            {{ $t('common.add') }}
+          </Button>
+        </template>
+        <Table
+          :columns="familyColumns"
+          :data-source="familyList"
+          :pagination="false"
+          row-key="id"
+          size="small"
+        />
+      </CardContainer>
+    </div>
   </Page>
 </template>
 

@@ -6,18 +6,18 @@ import { getDictOptions } from '@vben/hooks';
 import { getSimpleDeptList } from '#/api/system/dept';
 
 /**
- * 表单配置
+ * 基本信息表单配置
  */
-export function useFormSchema(): VbenFormSchema[] {
+export function useBasicFormSchema(): VbenFormSchema[] {
   return [
-    // ============ 基本信息 ============
     {
-      fieldName: 'basicInfo',
-      label: '基本信息',
-      component: 'Divider',
+      fieldName: 'name',
+      label: '姓名',
+      component: 'Input',
       componentProps: {
-        orientation: 'left',
+        placeholder: '请输入姓名',
       },
+      rules: 'required',
     },
     {
       fieldName: 'employeeNo',
@@ -25,15 +25,6 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'Input',
       componentProps: {
         placeholder: '请输入员工编号',
-      },
-      rules: 'required',
-    },
-    {
-      fieldName: 'name',
-      label: '姓名',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入姓名',
       },
       rules: 'required',
     },
@@ -138,19 +129,17 @@ export function useFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'householdAddress',
       label: '户籍所在地',
-      component: 'Textarea',
+      component: 'Input',
       componentProps: {
         placeholder: '请输入户籍所在地',
-        rows: 2,
       },
     },
     {
       fieldName: 'currentAddress',
       label: '现居住地址',
-      component: 'Textarea',
+      component: 'Input',
       componentProps: {
         placeholder: '请输入现居住地址',
-        rows: 2,
       },
     },
     {
@@ -169,26 +158,27 @@ export function useFormSchema(): VbenFormSchema[] {
         placeholder: '请输入联系电话',
       },
     },
+  ];
+}
+
+/**
+ * 照片表单配置
+ */
+export function useAvatarFormSchema(): VbenFormSchema[] {
+  return [
     {
       fieldName: 'avatar',
-      label: '照片',
-      component: 'Upload',
-      componentProps: {
-        accept: 'image/*',
-        maxCount: 1,
-        listType: 'picture-card',
-      },
+      label: '上传照片',
+      component: 'ImageUpload',
     },
+  ];
+}
 
-    // ============ 工资信息 ============
-    {
-      fieldName: 'salaryInfo',
-      label: '工资信息',
-      component: 'Divider',
-      componentProps: {
-        orientation: 'left',
-      },
-    },
+/**
+ * 工作信息表单配置
+ */
+export function useWorkFormSchema(): VbenFormSchema[] {
+  return [
     {
       fieldName: 'bankName',
       label: '工资开户行',
@@ -203,16 +193,6 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'Input',
       componentProps: {
         placeholder: '请输入工资卡账户',
-      },
-    },
-
-    // ============ 职务信息 ============
-    {
-      fieldName: 'jobInfo',
-      label: '职务信息',
-      component: 'Divider',
-      componentProps: {
-        orientation: 'left',
       },
     },
     {
@@ -277,10 +257,9 @@ export function useFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'remark',
       label: '备注',
-      component: 'Textarea',
+      component: 'Input',
       componentProps: {
         placeholder: '请输入备注',
-        rows: 3,
       },
     },
   ];

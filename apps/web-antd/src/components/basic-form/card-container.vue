@@ -16,6 +16,9 @@ defineProps<Props>();
   <div>
     <div class="card-head">
       <span class="card-head-text">{{ title }}</span>
+      <div class="card-head-extra">
+        <slot name="extra"></slot>
+      </div>
     </div>
     <div class="h-full">
       <slot></slot>
@@ -25,11 +28,12 @@ defineProps<Props>();
 
 <style lang="scss" scoped>
 .card-head {
-  display: inline-flex;
+  display: flex;
   flex: 1;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   width: 100%;
+  margin-bottom: 12px;
   font-weight: 700;
   color: hsl(var(--primary));
 
@@ -41,6 +45,11 @@ defineProps<Props>();
     content: ' ';
     background: hsl(var(--primary));
     border-radius: 2px;
+  }
+
+  .card-head-extra {
+    display: flex;
+    align-items: center;
   }
 }
 </style>
