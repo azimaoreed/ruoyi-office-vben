@@ -1,0 +1,288 @@
+import type { VbenFormSchema } from '@vben/common-ui';
+
+import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
+
+import { getSimpleDeptList } from '#/api/system/dept';
+
+/**
+ * 表单配置
+ */
+export function useFormSchema(): VbenFormSchema[] {
+  return [
+    // ============ 基本信息 ============
+    {
+      fieldName: 'basicInfo',
+      label: '基本信息',
+      component: 'Divider',
+      componentProps: {
+        orientation: 'left',
+      },
+    },
+    {
+      fieldName: 'employeeNo',
+      label: '员工编号',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入员工编号',
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'name',
+      label: '姓名',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入姓名',
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'sex',
+      label: '性别',
+      component: 'RadioGroup',
+      componentProps: {
+        options: getDictOptions(DICT_TYPE.SYSTEM_USER_SEX),
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'birthday',
+      label: '出生日期',
+      component: 'DatePicker',
+      componentProps: {
+        placeholder: '请选择出生日期',
+        format: 'YYYY-MM-DD',
+        valueFormat: 'YYYY-MM-DD HH:mm:ss',
+      },
+    },
+    {
+      fieldName: 'bloodType',
+      label: '血型',
+      component: 'RadioGroup',
+      componentProps: {
+        options: getDictOptions(DICT_TYPE.HRM_BLOOD_TYPE),
+      },
+    },
+    {
+      fieldName: 'education',
+      label: '文化程度',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入文化程度',
+      },
+    },
+    {
+      fieldName: 'nation',
+      label: '民族',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入民族',
+      },
+    },
+    {
+      fieldName: 'jobTitle',
+      label: '职称',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入职称',
+      },
+    },
+    {
+      fieldName: 'nativePlace',
+      label: '籍贯',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入籍贯',
+      },
+    },
+    {
+      fieldName: 'height',
+      label: '身高(cm)',
+      component: 'InputNumber',
+      componentProps: {
+        placeholder: '请输入身高',
+        min: 0,
+        max: 300,
+        precision: 2,
+      },
+    },
+    {
+      fieldName: 'weight',
+      label: '体重(kg)',
+      component: 'InputNumber',
+      componentProps: {
+        placeholder: '请输入体重',
+        min: 0,
+        max: 500,
+        precision: 2,
+      },
+    },
+    {
+      fieldName: 'idCard',
+      label: '身份证号码',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入身份证号码',
+      },
+    },
+    {
+      fieldName: 'mobile',
+      label: '手机号',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入手机号',
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'householdAddress',
+      label: '户籍所在地',
+      component: 'Textarea',
+      componentProps: {
+        placeholder: '请输入户籍所在地',
+        rows: 2,
+      },
+    },
+    {
+      fieldName: 'currentAddress',
+      label: '现居住地址',
+      component: 'Textarea',
+      componentProps: {
+        placeholder: '请输入现居住地址',
+        rows: 2,
+      },
+    },
+    {
+      fieldName: 'emergencyContact',
+      label: '紧急联系人',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入紧急联系人',
+      },
+    },
+    {
+      fieldName: 'emergencyPhone',
+      label: '联系电话',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入联系电话',
+      },
+    },
+    {
+      fieldName: 'avatar',
+      label: '照片',
+      component: 'Upload',
+      componentProps: {
+        accept: 'image/*',
+        maxCount: 1,
+        listType: 'picture-card',
+      },
+    },
+
+    // ============ 工资信息 ============
+    {
+      fieldName: 'salaryInfo',
+      label: '工资信息',
+      component: 'Divider',
+      componentProps: {
+        orientation: 'left',
+      },
+    },
+    {
+      fieldName: 'bankName',
+      label: '工资开户行',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入工资开户行',
+      },
+    },
+    {
+      fieldName: 'bankAccount',
+      label: '工资卡账户',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入工资卡账户',
+      },
+    },
+
+    // ============ 职务信息 ============
+    {
+      fieldName: 'jobInfo',
+      label: '职务信息',
+      component: 'Divider',
+      componentProps: {
+        orientation: 'left',
+      },
+    },
+    {
+      fieldName: 'jobPosition',
+      label: '职务',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入职务',
+      },
+    },
+    {
+      fieldName: 'employeeStatus',
+      label: '人员状态',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请选择人员状态',
+        options: getDictOptions(DICT_TYPE.HRM_EMPLOYEE_STATUS),
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'deptId',
+      label: '所属部门',
+      component: 'ApiTreeSelect',
+      componentProps: {
+        api: getSimpleDeptList,
+        placeholder: '请选择所属部门',
+        fieldNames: {
+          label: 'name',
+          value: 'id',
+        },
+      },
+    },
+    {
+      fieldName: 'companyName',
+      label: '所属单位',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入所属单位',
+      },
+    },
+    {
+      fieldName: 'entryDate',
+      label: '入职日期',
+      component: 'DatePicker',
+      componentProps: {
+        placeholder: '请选择入职日期',
+        format: 'YYYY-MM-DD',
+        valueFormat: 'YYYY-MM-DD HH:mm:ss',
+      },
+    },
+    {
+      fieldName: 'formalDate',
+      label: '转正日期',
+      component: 'DatePicker',
+      componentProps: {
+        placeholder: '请选择转正日期',
+        format: 'YYYY-MM-DD',
+        valueFormat: 'YYYY-MM-DD HH:mm:ss',
+      },
+    },
+    {
+      fieldName: 'remark',
+      label: '备注',
+      component: 'Textarea',
+      componentProps: {
+        placeholder: '请输入备注',
+        rows: 3,
+      },
+    },
+  ];
+}
+

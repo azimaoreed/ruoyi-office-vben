@@ -49,7 +49,7 @@ async function loadData() {
     } else {
       message.warning('暂无组织架构数据');
     }
-  } catch (error) {
+  } catch {
     message.error('加载组织架构数据失败');
   } finally {
     loading.value = false;
@@ -259,8 +259,7 @@ async function renderChart(data: any) {
     };
 
     await renderEcharts(option);
-  } catch (error) {
-
+  } catch {
     message.error('渲染图表失败，请刷新重试');
   }
 }

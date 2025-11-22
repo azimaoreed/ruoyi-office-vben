@@ -192,6 +192,12 @@ const OA_DICT = {
   OA_MEETING_BOOKING_USE_STATUS: 'oa_meeting_booking_use_status', // 会议室使用状态
 } as const;
 
+/** ========== HRM - 人力资源模块 ========== */
+const HRM_DICT = {
+  HRM_BLOOD_TYPE: 'hrm_blood_type', // 血型
+  HRM_EMPLOYEE_STATUS: 'hrm_employee_status', // 人员状态
+} as const;
+
 /** 字典类型枚举 - 统一导出 */
 const DICT_TYPE = {
   ...AI_DICT,
@@ -207,6 +213,7 @@ const DICT_TYPE = {
   ...SYSTEM_DICT,
   ...COMMON_DICT,
   ...OA_DICT,
+  ...HRM_DICT,
 } as const;
 
 export { DICT_TYPE };
