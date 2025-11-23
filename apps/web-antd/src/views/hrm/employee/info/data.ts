@@ -168,8 +168,12 @@ export function useAvatarFormSchema(): VbenFormSchema[] {
   return [
     {
       fieldName: 'avatar',
-      label: '上传照片',
       component: 'ImageUpload',
+      componentProps: {
+        contentText: '上传员工照片',
+        showDescription: false,
+        maxNumber: 1
+      },
     },
   ];
 }

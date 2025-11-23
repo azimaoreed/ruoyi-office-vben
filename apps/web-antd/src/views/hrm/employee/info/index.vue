@@ -651,7 +651,7 @@ onMounted(async () => {
             <BasicForm />
           </div>
           <!-- 右侧照片区域 -->
-          <div class="w-[280px]">
+          <div class="w-[160px]">
             <AvatarForm />
           </div>
         </div>

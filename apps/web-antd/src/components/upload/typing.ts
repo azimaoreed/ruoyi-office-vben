@@ -36,4 +36,6 @@ export interface FileUploadProps {
   // 是否显示下面的描述
   showDescription?: boolean;
   value?: string | string[];
+  // 上传按钮的文本内容
+  contentText?: string;
 }

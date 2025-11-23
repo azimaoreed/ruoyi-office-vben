@@ -34,6 +34,7 @@ const props = withDefaults(defineProps<FileUploadProps>(), {
   api: undefined,
   resultField: '',
   showDescription: true,
+  contentText: undefined,
 });
 const emit = defineEmits([
   'change',
@@ -299,7 +300,7 @@ function getValue() {
         class="flex flex-col items-center justify-center"
       >
         <IconifyIcon icon="lucide:cloud-upload" />
-        <div class="mt-2">{{ $t('ui.upload.imgUpload') }}</div>
+        <div class="mt-2">{{ contentText || $t('ui.upload.imgUpload') }}</div>
       </div>
     </Upload>
     <div
