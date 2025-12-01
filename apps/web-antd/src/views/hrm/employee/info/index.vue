@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import type { EmployeeArchiveApi } from '#/api/hrm/employee';
 
-import { computed, onMounted, ref } from 'vue';
+import { computed, h, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import { Page } from '@vben/common-ui';
 import { useTabs } from '@vben/hooks';
 
-import { Button, message, Space, Table } from 'ant-design-vue';
+import { Button, DatePicker, Input, message, Space, Table } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import { useVbenForm } from '#/adapter/form';
@@ -44,24 +44,18 @@ const workExperienceColumns = [
     dataIndex: 'startTime', 
     width: 150,
     customRender: ({ text, index }: any) => {
-      if (readonly.value) return text;
-      return {
-        children: [
-          {
-            is: 'input',
-            props: {
-              type: 'date',
-              value: text,
-              class: 'w-full rounded border border-gray-300 px-2 py-1',
-              onInput: (e: any) => {
-                if (workExperienceList.value[index]) {
-                  workExperienceList.value[index].startTime = e.target.value;
-                }
-              },
-            },
-          },
-        ],
-      };
+      if (readonly.value) return text || '-';
+      return h(DatePicker, {
+        value: text ? dayjs(text) : null,
+        format: 'YYYY-MM-DD',
+        placeholder: '请选择开始时间',
+        style: { width: '100%' },
+        onChange: (date: any) => {
+          if (workExperienceList.value[index]) {
+            workExperienceList.value[index].startTime = date ? dayjs(date).format('YYYY-MM-DD') : undefined;
+          }
+        },
+      } as any);
     },
   },
   { 
@@ -69,24 +63,18 @@ const workExperienceColumns = [
     dataIndex: 'endTime', 
     width: 150,
     customRender: ({ text, index }: any) => {
-      if (readonly.value) return text;
-      return {
-        children: [
-          {
-            is: 'input',
-            props: {
-              type: 'date',
-              value: text,
-              class: 'w-full rounded border border-gray-300 px-2 py-1',
-              onInput: (e: any) => {
-                if (workExperienceList.value[index]) {
-                  workExperienceList.value[index].endTime = e.target.value;
-                }
-              },
-            },
-          },
-        ],
-      };
+      if (readonly.value) return text || '-';
+      return h(DatePicker, {
+        value: text ? dayjs(text) : null,
+        format: 'YYYY-MM-DD',
+        placeholder: '请选择截止时间',
+        style: { width: '100%' },
+        onChange: (date: any) => {
+          if (workExperienceList.value[index]) {
+            workExperienceList.value[index].endTime = date ? dayjs(date).format('YYYY-MM-DD') : undefined;
+          }
+        },
+      } as any);
     },
   },
   { 
@@ -94,69 +82,47 @@ const workExperienceColumns = [
     dataIndex: 'jobPosition', 
     width: 150,
     customRender: ({ text, index }: any) => {
-      if (readonly.value) return text;
-      return {
-        children: [
-          {
-            is: 'input',
-            props: {
-              value: text,
-              placeholder: '请输入职务',
-              class: 'w-full rounded border border-gray-300 px-2 py-1',
-              onInput: (e: any) => {
-                if (workExperienceList.value[index]) {
-                  workExperienceList.value[index].jobPosition = e.target.value;
-                }
-              },
-            },
-          },
-        ],
-      };
+      if (readonly.value) return text || '-';
+      return h(Input, {
+        value: text,
+        placeholder: '请输入职务',
+        onChange: (e: any) => {
+          if (workExperienceList.value[index]) {
+            workExperienceList.value[index].jobPosition = e.target.value;
+          }
+        },
+      } as any);
     },
   },
   { 
     title: '单位名称', 
     dataIndex: 'companyName',
     customRender: ({ text, index }: any) => {
-      if (readonly.value) return text;
-      return {
-        children: [
-          {
-            is: 'input',
-            props: {
-              value: text,
-              placeholder: '请输入单位名称',
-              class: 'w-full rounded border border-gray-300 px-2 py-1',
-              onInput: (e: any) => {
-                if (workExperienceList.value[index]) {
-                  workExperienceList.value[index].companyName = e.target.value;
-                }
-              },
-            },
-          },
-        ],
-      };
+      if (readonly.value) return text || '-';
+      return h(Input, {
+        value: text,
+        placeholder: '请输入单位名称',
+        onChange: (e: any) => {
+          if (workExperienceList.value[index]) {
+            workExperienceList.value[index].companyName = e.target.value;
+          }
+        },
+      } as any);
     },
   },
   {
     title: '操作',
     key: 'action',
     width: 100,
-    customRender: ({ index }: any) => ({
-      children: [
-        {
-          is: Button,
-          props: {
-            type: 'link',
-            size: 'small',
-            danger: true,
-            disabled: readonly.value,
-            onClick: () => handleDeleteWorkExperience(index),
-          },
-          children: '删除',
-        },
-      ],
-    }),
+    customRender: ({ index }: any) => {
+      if (readonly.value) return '-';
+      return h(Button, {
+        type: 'link',
+        size: 'small',
+        danger: true,
+        onClick: () => handleDeleteWorkExperience(index),
+      }, () => '删除');
+    },
   },
 ];
 
@@ -167,24 +133,18 @@ const educationColumns = [
     dataIndex: 'startTime', 
     width: 150,
     customRender: ({ text, index }: any) => {
-      if (readonly.value) return text;
-      return {
-        children: [
-          {
-            is: 'input',
-            props: {
-              type: 'date',
-              value: text,
-              class: 'w-full rounded border border-gray-300 px-2 py-1',
-              onInput: (e: any) => {
-                if (educationList.value[index]) {
-                  educationList.value[index].startTime = e.target.value;
-                }
-              },
-            },
-          },
-        ],
-      };
+      if (readonly.value) return text || '-';
+      return h(DatePicker, {
+        value: text ? dayjs(text) : null,
+        format: 'YYYY-MM-DD',
+        placeholder: '请选择开始时间',
+        style: { width: '100%' },
+        onChange: (date: any) => {
+          if (educationList.value[index]) {
+            educationList.value[index].startTime = date ? dayjs(date).format('YYYY-MM-DD') : undefined;
+          }
+        },
+      } as any);
     },
   },
   { 
@@ -192,24 +152,18 @@ const educationColumns = [
     dataIndex: 'endTime', 
     width: 150,
     customRender: ({ text, index }: any) => {
-      if (readonly.value) return text;
-      return {
-        children: [
-          {
-            is: 'input',
-            props: {
-              type: 'date',
-              value: text,
-              class: 'w-full rounded border border-gray-300 px-2 py-1',
-              onInput: (e: any) => {
-                if (educationList.value[index]) {
-                  educationList.value[index].endTime = e.target.value;
-                }
-              },
-            },
-          },
-        ],
-      };
+      if (readonly.value) return text || '-';
+      return h(DatePicker, {
+        value: text ? dayjs(text) : null,
+        format: 'YYYY-MM-DD',
+        placeholder: '请选择截止时间',
+        style: { width: '100%' },
+        onChange: (date: any) => {
+          if (educationList.value[index]) {
+            educationList.value[index].endTime = date ? dayjs(date).format('YYYY-MM-DD') : undefined;
+          }
+        },
+      } as any);
     },
   },
   { 
@@ -217,69 +171,47 @@ const educationColumns = [
     dataIndex: 'major', 
     width: 150,
     customRender: ({ text, index }: any) => {
-      if (readonly.value) return text;
-      return {
-        children: [
-          {
-            is: 'input',
-            props: {
-              value: text,
-              placeholder: '请输入专业',
-              class: 'w-full rounded border border-gray-300 px-2 py-1',
-              onInput: (e: any) => {
-                if (educationList.value[index]) {
-                  educationList.value[index].major = e.target.value;
-                }
-              },
-            },
-          },
-        ],
-      };
+      if (readonly.value) return text || '-';
+      return h(Input, {
+        value: text,
+        placeholder: '请输入专业',
+        onChange: (e: any) => {
+          if (educationList.value[index]) {
+            educationList.value[index].major = e.target.value;
+          }
+        },
+      } as any);
     },
   },
   { 
     title: '学校名称', 
     dataIndex: 'schoolName',
     customRender: ({ text, index }: any) => {
-      if (readonly.value) return text;
-      return {
-        children: [
-          {
-            is: 'input',
-            props: {
-              value: text,
-              placeholder: '请输入学校名称',
-              class: 'w-full rounded border border-gray-300 px-2 py-1',
-              onInput: (e: any) => {
-                if (educationList.value[index]) {
-                  educationList.value[index].schoolName = e.target.value;
-                }
-              },
-            },
-          },
-        ],
-      };
+      if (readonly.value) return text || '-';
+      return h(Input, {
+        value: text,
+        placeholder: '请输入学校名称',
+        onChange: (e: any) => {
+          if (educationList.value[index]) {
+            educationList.value[index].schoolName = e.target.value;
+          }
+        },
+      } as any);
     },
   },
   {
     title: '操作',
     key: 'action',
     width: 100,
-    customRender: ({ index }: any) => ({
-      children: [
-        {
-          is: Button,
-          props: {
-            type: 'link',
-            size: 'small',
-            danger: true,
-            disabled: readonly.value,
-            onClick: () => handleDeleteEducation(index),
-          },
-          children: '删除',
-        },
-      ],
-    }),
+    customRender: ({ index }: any) => {
+      if (readonly.value) return '-';
+      return h(Button, {
+        type: 'link',
+        size: 'small',
+        danger: true,
+        onClick: () => handleDeleteEducation(index),
+      }, () => '删除');
+    },
   },
 ];
 
@@ -290,24 +222,16 @@ const familyColumns = [
     dataIndex: 'name', 
     width: 150,
     customRender: ({ text, index }: any) => {
-      if (readonly.value) return text;
-      return {
-        children: [
-          {
-            is: 'input',
-            props: {
-              value: text,
-              placeholder: '请输入姓名',
-              class: 'w-full rounded border border-gray-300 px-2 py-1',
-              onInput: (e: any) => {
-                if (familyList.value[index]) {
-                  familyList.value[index].name = e.target.value;
-                }
-              },
-            },
-          },
-        ],
-      };
+      if (readonly.value) return text || '-';
+      return h(Input, {
+        value: text,
+        placeholder: '请输入姓名',
+        onChange: (e: any) => {
+          if (familyList.value[index]) {
+            familyList.value[index].name = e.target.value;
+          }
+        },
+      } as any);
     },
   },
   { 
@@ -315,24 +239,16 @@ const familyColumns = [
     dataIndex: 'relationship', 
     width: 150,
     customRender: ({ text, index }: any) => {
-      if (readonly.value) return text;
-      return {
-        children: [
-          {
-            is: 'input',
-            props: {
-              value: text,
-              placeholder: '请输入关系',
-              class: 'w-full rounded border border-gray-300 px-2 py-1',
-              onInput: (e: any) => {
-                if (familyList.value[index]) {
-                  familyList.value[index].relationship = e.target.value;
-                }
-              },
-            },
-          },
-        ],
-      };
+      if (readonly.value) return text || '-';
+      return h(Input, {
+        value: text,
+        placeholder: '请输入关系',
+        onChange: (e: any) => {
+          if (familyList.value[index]) {
+            familyList.value[index].relationship = e.target.value;
+          }
+        },
+      } as any);
     },
   },
   { 
@@ -340,69 +256,47 @@ const familyColumns = [
     dataIndex: 'mobile', 
     width: 150,
     customRender: ({ text, index }: any) => {
-      if (readonly.value) return text;
-      return {
-        children: [
-          {
-            is: 'input',
-            props: {
-              value: text,
-              placeholder: '请输入联系电话',
-              class: 'w-full rounded border border-gray-300 px-2 py-1',
-              onInput: (e: any) => {
-                if (familyList.value[index]) {
-                  familyList.value[index].mobile = e.target.value;
-                }
-              },
-            },
-          },
-        ],
-      };
+      if (readonly.value) return text || '-';
+      return h(Input, {
+        value: text,
+        placeholder: '请输入联系电话',
+        onChange: (e: any) => {
+          if (familyList.value[index]) {
+            familyList.value[index].mobile = e.target.value;
+          }
+        },
+      } as any);
     },
   },
   { 
     title: '工作单位', 
     dataIndex: 'workUnit',
     customRender: ({ text, index }: any) => {
-      if (readonly.value) return text;
-      return {
-        children: [
-          {
-            is: 'input',
-            props: {
-              value: text,
-              placeholder: '请输入工作单位',
-              class: 'w-full rounded border border-gray-300 px-2 py-1',
-              onInput: (e: any) => {
-                if (familyList.value[index]) {
-                  familyList.value[index].workUnit = e.target.value;
-                }
-              },
-            },
-          },
-        ],
-      };
+      if (readonly.value) return text || '-';
+      return h(Input, {
+        value: text,
+        placeholder: '请输入工作单位',
+        onChange: (e: any) => {
+          if (familyList.value[index]) {
+            familyList.value[index].workUnit = e.target.value;
+          }
+        },
+      } as any);
     },
   },
   {
     title: '操作',
     key: 'action',
     width: 100,
-    customRender: ({ index }: any) => ({
-      children: [
-        {
-          is: Button,
-          props: {
-            type: 'link',
-            size: 'small',
-            danger: true,
-            disabled: readonly.value,
-            onClick: () => handleDeleteFamily(index),
-          },
-          children: '删除',
-        },
-      ],
-    }),
+    customRender: ({ index }: any) => {
+      if (readonly.value) return '-';
+      return h(Button, {
+        type: 'link',
+        size: 'small',
+        danger: true,
+        onClick: () => handleDeleteFamily(index),
+      }, () => '删除');
+    },
   },
 ];
 
@@ -468,7 +362,7 @@ async function loadData() {
     const data = await getEmployeeArchive(Number(id));
     formData.value = data;
     
-    // 设置表单数据
+    // 后端返回的日期已经是 YYYY-MM-DD 格式（LocalDate），直接使用
     await basicFormApi.setValues(data);
     await avatarFormApi.setValues(data);
     await workFormApi.setValues(data);
@@ -481,6 +375,8 @@ async function loadData() {
           ? dayjs(item.startTime).format('YYYY-MM-DD')
           : '',
         endTime: item.endTime ? dayjs(item.endTime).format('YYYY-MM-DD') : '',
+        jobPosition: item.jobPosition || '',
+        companyName: item.companyName || '',
       }));
     }
 
@@ -492,6 +388,8 @@ async function loadData() {
           ? dayjs(item.startTime).format('YYYY-MM-DD')
           : '',
         endTime: item.endTime ? dayjs(item.endTime).format('YYYY-MM-DD') : '',
+        major: item.major || '',
+        schoolName: item.schoolName || '',
       }));
     }
 
@@ -531,24 +429,22 @@ async function handleSave() {
       ...workValues,
     } as EmployeeArchiveApi.EmployeeArchive;
     
-    values.workExperienceList = workExperienceList.value.map((item) => ({
-      ...item,
-      startTime: item.startTime
-        ? dayjs(item.startTime).format('YYYY-MM-DD HH:mm:ss')
-        : undefined,
-      endTime: item.endTime
-        ? dayjs(item.endTime).format('YYYY-MM-DD HH:mm:ss')
-        : undefined,
-    }));
-    values.educationList = educationList.value.map((item) => ({
-      ...item,
-      startTime: item.startTime
-        ? dayjs(item.startTime).format('YYYY-MM-DD HH:mm:ss')
-        : undefined,
-      endTime: item.endTime
-        ? dayjs(item.endTime).format('YYYY-MM-DD HH:mm:ss')
-        : undefined,
-    }));
+    // 处理日期字段：空值统一转换为 undefined，后端 LocalDate 会自动处理 YYYY-MM-DD 格式
+    // 注意：表格中的 onChange 已直接设置为 undefined，这里只处理表单字段可能的空字符串情况
+    if (!values.birthday || values.birthday === '') {
+      values.birthday = undefined;
+    }
+    if (!values.entryDate || values.entryDate === '') {
+      values.entryDate = undefined;
+    }
+    if (!values.formalDate || values.formalDate === '') {
+      values.formalDate = undefined;
+    }
+    
+    // 表格中的日期字段已在 onChange 中设置为 undefined，直接使用即可
+    values.workExperienceList = workExperienceList.value;
+    values.educationList = educationList.value;
+    
     values.familyList = familyList.value;
 
     if (formData.value.id) {
@@ -577,12 +473,13 @@ function handleClose() {
 
 // ========== 工作经历相关操作 ==========
 function handleAddWorkExperience() {
-  workExperienceList.value.push({
-    startTime: undefined,
-    endTime: undefined,
+  const newItem: EmployeeArchiveApi.EmployeeWorkExperience = {
+    startTime: '',
+    endTime: '',
     jobPosition: '',
     companyName: '',
-  });
+  };
+  workExperienceList.value.push(newItem);
 }
 
 function handleDeleteWorkExperience(index: number) {
@@ -591,12 +488,13 @@ function handleDeleteWorkExperience(index: number) {
 
 // ========== 教育经历相关操作 ==========
 function handleAddEducation() {
-  educationList.value.push({
-    startTime: undefined,
-    endTime: undefined,
+  const newItem: EmployeeArchiveApi.EmployeeEducation = {
+    startTime: '',
+    endTime: '',
     major: '',
     schoolName: '',
-  });
+  };
+  educationList.value.push(newItem);
 }
 
 function handleDeleteEducation(index: number) {
@@ -605,28 +503,62 @@ function handleDeleteEducation(index: number) {
 
 // ========== 家属信息相关操作 ==========
 function handleAddFamily() {
-  familyList.value.push({
+  const newItem: EmployeeArchiveApi.EmployeeFamily = {
     name: '',
     relationship: '',
     mobile: '',
     workUnit: '',
-  });
+  };
+  familyList.value.push(newItem);
 }
 
 function handleDeleteFamily(index: number) {
   familyList.value.splice(index, 1);
 }
 
+// 监听 readonly 状态变化，更新表单的 disabled 状态
+watch(
+  readonly,
+  (isReadonly) => {
+    // 更新基本信息表单
+    const basicSchema = useBasicFormSchema();
+    const updatedBasicSchema = basicSchema.map((item) => ({
+      ...item,
+      componentProps: {
+        ...item.componentProps,
+        disabled: isReadonly,
+      },
+    }));
+    basicFormApi.updateSchema(updatedBasicSchema);
+
+    // 更新照片表单
+    const avatarSchema = useAvatarFormSchema();
+    const updatedAvatarSchema = avatarSchema.map((item) => ({
+      ...item,
+      componentProps: {
+        ...item.componentProps,
+        disabled: isReadonly,
+      },
+    }));
+    avatarFormApi.updateSchema(updatedAvatarSchema);
+
+    // 更新工作信息表单
+    const workSchema = useWorkFormSchema();
+    const updatedWorkSchema = workSchema.map((item) => ({
+      ...item,
+      componentProps: {
+        ...item.componentProps,
+        disabled: isReadonly,
+      },
+    }));
+    workFormApi.updateSchema(updatedWorkSchema);
+  },
+  { immediate: true },
+);
+
 onMounted(async () => {
   // 判断是否只读
   readonly.value = route.query.readonly === 'true';
-
-  // 如果设置了 readonly，禁用表单
-  if (readonly.value) {
-    basicFormApi.setFieldValue('disabled', true);
-    avatarFormApi.setFieldValue('disabled', true);
-    workFormApi.setFieldValue('disabled', true);
-  }
 
   // 加载数据
   await loadData();
@@ -670,14 +602,14 @@ onMounted(async () => {
       <CardContainer title="工作经历">
         <template #extra>
           <Button v-if="!readonly" type="primary"  @click="handleAddWorkExperience">
-            {{ $t('common.add') }}
+            {{ $t('ui.actionTitle.create') }}
           </Button>
         </template>
         <Table
           :columns="workExperienceColumns"
           :data-source="workExperienceList"
           :pagination="false"
-          row-key="id"
+          :row-key="(record, index) => record.id || `work_${index}`"
           size="small"
         />
       </CardContainer>
@@ -688,14 +620,14 @@ onMounted(async () => {
       <CardContainer title="教育经历">
         <template #extra>
           <Button v-if="!readonly" type="primary"  @click="handleAddEducation">
-            {{ $t('common.add') }}
+            {{ $t('ui.actionTitle.create') }}
           </Button>
         </template>
         <Table
           :columns="educationColumns"
           :data-source="educationList"
           :pagination="false"
-          row-key="id"
+          :row-key="(record, index) => record.id || `edu_${index}`"
           size="small"
         />
       </CardContainer>
@@ -706,14 +638,14 @@ onMounted(async () => {
       <CardContainer title="家属信息">
         <template #extra>
           <Button v-if="!readonly" type="primary" @click="handleAddFamily">
-            {{ $t('common.add') }}
+            {{ $t('ui.actionTitle.create') }}
           </Button>
         </template>
         <Table
           :columns="familyColumns"
           :data-source="familyList"
           :pagination="false"
-          row-key="id"
+          :row-key="(record, index) => record.id || `family_${index}`"
           size="small"
         />
       </CardContainer>

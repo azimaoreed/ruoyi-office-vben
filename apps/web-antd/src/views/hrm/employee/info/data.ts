@@ -3,6 +3,7 @@ import type { VbenFormSchema } from '@vben/common-ui';
 import { DICT_TYPE } from '@vben/constants';
 import { getDictOptions } from '@vben/hooks';
 
+import { z } from '#/adapter/form';
 import { getSimpleDeptList } from '#/api/system/dept';
 
 /**
@@ -44,7 +45,7 @@ export function useBasicFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请选择出生日期',
         format: 'YYYY-MM-DD',
-        valueFormat: 'YYYY-MM-DD HH:mm:ss',
+        valueFormat: 'YYYY-MM-DD',
       },
     },
     {
@@ -123,8 +124,12 @@ export function useBasicFormSchema(): VbenFormSchema[] {
       component: 'Input',
       componentProps: {
         placeholder: '请输入手机号',
+        maxLength: 11,
       },
-      rules: 'required',
+      rules: z
+        .string()
+        .min(1, '手机号不能为空')
+        .regex(/^1[3-9]\d{9}$/, '请输入正确的手机号码'),
     },
     {
       fieldName: 'householdAddress',
@@ -245,7 +250,7 @@ export function useWorkFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请选择入职日期',
         format: 'YYYY-MM-DD',
-        valueFormat: 'YYYY-MM-DD HH:mm:ss',
+        valueFormat: 'YYYY-MM-DD',
       },
     },
     {
@@ -255,7 +260,7 @@ export function useWorkFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请选择转正日期',
         format: 'YYYY-MM-DD',
-        valueFormat: 'YYYY-MM-DD HH:mm:ss',
+        valueFormat: 'YYYY-MM-DD',
       },
     },
     {

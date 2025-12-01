@@ -9,7 +9,7 @@ export namespace EmployeeArchiveApi {
     employeeNo?: string; // 员工编号
     name?: string; // 姓名
     sex?: number; // 性别（1:男 2:女）
-    birthday?: Date | string; // 出生日期
+    birthday?: string; // 出生日期 (YYYY-MM-DD)
     bloodType?: number; // 血型（1:A 2:B 3:AB 4:O）
     education?: string; // 文化程度
     nation?: string; // 民族
@@ -31,8 +31,8 @@ export namespace EmployeeArchiveApi {
     deptId?: number; // 所属部门
     deptName?: string; // 所属部门名称
     companyName?: string; // 所属单位
-    entryDate?: Date | string; // 入职日期
-    formalDate?: Date | string; // 转正日期
+    entryDate?: string; // 入职日期 (YYYY-MM-DD)
+    formalDate?: string; // 转正日期 (YYYY-MM-DD)
     remark?: string; // 备注
     createTime?: Date | string; // 创建时间
     workExperienceList?: EmployeeWorkExperience[]; // 工作经历列表
@@ -43,8 +43,8 @@ export namespace EmployeeArchiveApi {
   /** 员工工作经历 */
   export interface EmployeeWorkExperience {
     id?: number; // 编号
-    startTime?: Date | string; // 开始时间
-    endTime?: Date | string; // 截止时间
+    startTime?: string; // 开始时间 (YYYY-MM-DD)
+    endTime?: string; // 截止时间 (YYYY-MM-DD)
     jobPosition?: string; // 职务
     companyName?: string; // 单位名称
   }
@@ -52,8 +52,8 @@ export namespace EmployeeArchiveApi {
   /** 员工教育经历 */
   export interface EmployeeEducation {
     id?: number; // 编号
-    startTime?: Date | string; // 开始时间
-    endTime?: Date | string; // 截止时间
+    startTime?: string; // 开始时间 (YYYY-MM-DD)
+    endTime?: string; // 截止时间 (YYYY-MM-DD)
     major?: string; // 专业
     schoolName?: string; // 学校名称
   }
