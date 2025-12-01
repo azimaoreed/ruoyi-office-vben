@@ -590,7 +590,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <Page :loading="loading" :title="pageTitle">
+  <Page :loading="loading" :title="pageTitle" auto-content-height>
     <template #extra>
       <Space>
         <Button @click="handleClose">关闭</Button>
