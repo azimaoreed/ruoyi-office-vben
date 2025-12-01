@@ -4,7 +4,6 @@ import { DICT_TYPE } from '@vben/constants';
 import { getDictOptions } from '@vben/hooks';
 
 import { z } from '#/adapter/form';
-import { getSimpleDeptList } from '#/api/system/dept';
 
 /**
  * 基本信息表单配置
@@ -186,7 +185,10 @@ export function useAvatarFormSchema(): VbenFormSchema[] {
 /**
  * 工作信息表单配置
  */
-export function useWorkFormSchema(): VbenFormSchema[] {
+export function useWorkFormSchema(
+  deptSelectModalRef?: any,
+  readonly?: any,
+): VbenFormSchema[] {
   return [
     {
       fieldName: 'bankName',
@@ -223,24 +225,43 @@ export function useWorkFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'deptId',
+      fieldName: 'deptName',
       label: '所属部门',
-      component: 'ApiTreeSelect',
+      component: 'HelpInput',
       componentProps: {
-        api: getSimpleDeptList,
         placeholder: '请选择所属部门',
-        fieldNames: {
-          label: 'name',
-          value: 'id',
+        bind: {
+          readonly,
+          onClick: () => {
+            if (!readonly?.value && deptSelectModalRef?.value) {
+              deptSelectModalRef.value.modalApi.open();
+            }
+          },
+        },
+        onClick: () => {
+          if (!readonly?.value && deptSelectModalRef?.value) {
+            deptSelectModalRef.value.modalApi.open();
+          }
         },
       },
     },
     {
+      fieldName: 'deptId',
+      label: '部门ID',
+      component: 'Input',
+      dependencies: {
+        triggerFields: [''],
+        show: () => false,
+      },
+    },
+    {
       fieldName: 'companyName',
-      label: '所属单位',
+      label: '所属公司',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入所属单位',
+        placeholder: '所属公司',
+        readonly: true,
+        disabled: true,
       },
     },
     {

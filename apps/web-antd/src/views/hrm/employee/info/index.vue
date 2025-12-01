@@ -9,6 +9,7 @@ import { useTabs } from '@vben/hooks';
 
 import { Button, DatePicker, Input, message, Space, Table } from 'ant-design-vue';
 import dayjs from 'dayjs';
+import type { SystemDeptApi } from '#/api/system/dept';
 
 import { useVbenForm } from '#/adapter/form';
 import {
@@ -18,6 +19,7 @@ import {
 } from '#/api/hrm/employee';
 import { CardContainer } from '#/components/basic-form';
 
+import { DeptSelectModal } from '#/views/system/dept/components';
 import { useAvatarFormSchema, useBasicFormSchema, useWorkFormSchema } from './data';
 
 defineOptions({ name: 'HrmEmployeeArchiveInfo' });
@@ -29,6 +31,9 @@ const { closeCurrentTab } = useTabs();
 const formData = ref<Partial<EmployeeArchiveApi.EmployeeArchive>>({});
 const readonly = ref(false);
 const loading = ref(false);
+
+// 部门选择弹窗引用
+const deptSelectModalRef = ref<InstanceType<typeof DeptSelectModal>>();
 
 // 工作经历列表
 const workExperienceList = ref<EmployeeArchiveApi.EmployeeWorkExperience[]>([]);
@@ -339,7 +344,7 @@ const [WorkForm, workFormApi] = useVbenForm({
   },
   wrapperClass: 'grid grid-cols-2 gap-4',
   layout: 'horizontal',
-  schema: useWorkFormSchema(),
+  schema: useWorkFormSchema(deptSelectModalRef, readonly),
   showDefaultActions: false,
 });
 
@@ -451,12 +456,23 @@ async function handleSave() {
       values.id = formData.value.id;
       await updateEmployeeArchive(values);
       message.success('保存成功');
+      // 保存成功后重新加载数据
+      await loadData();
     } else {
-      await createEmployeeArchive(values);
+      const result = await createEmployeeArchive(values);
       message.success('新增成功');
+      // 新增成功后，如果有返回ID，更新路由并加载数据
+      if (result && typeof result === 'number') {
+        formData.value.id = result;
+        router.replace({
+          query: {
+            ...route.query,
+            id: result,
+          },
+        });
+        await loadData();
+      }
     }
-
-    handleClose();
   } catch (error) {
     console.error('保存失败', error);
     message.error('保存失败');
@@ -516,6 +532,14 @@ function handleDeleteFamily(index: number) {
   familyList.value.splice(index, 1);
 }
 
+/** 处理部门选择 */
+function handleDeptSelect(dept: SystemDeptApi.Dept & { companyName?: string }) {
+  // 设置部门ID、部门名称和公司名称
+  workFormApi.setFieldValue('deptId', dept.id);
+  workFormApi.setFieldValue('deptName', dept.name);
+  workFormApi.setFieldValue('companyName', dept.companyName || '');
+}
+
 // 监听 readonly 状态变化，更新表单的 disabled 状态
 watch(
   readonly,
@@ -543,7 +567,7 @@ watch(
     avatarFormApi.updateSchema(updatedAvatarSchema);
 
     // 更新工作信息表单
-    const workSchema = useWorkFormSchema();
+    const workSchema = useWorkFormSchema(deptSelectModalRef, readonly);
     const updatedWorkSchema = workSchema.map((item) => ({
       ...item,
       componentProps: {
@@ -594,6 +618,8 @@ onMounted(async () => {
     <div class="mb-4 rounded-lg bg-white p-4 shadow-sm">
       <CardContainer title="工作信息">
         <WorkForm />
+        <!-- 部门选择弹窗 -->
+        <DeptSelectModal ref="deptSelectModalRef" @select="handleDeptSelect" />
       </CardContainer>
     </div>
 
@@ -652,4 +678,8 @@ onMounted(async () => {
     </div>
   </Page>
 </template>
+
+<style scoped>
+
+</style>
 
