@@ -9,6 +9,7 @@ import { Page } from '@vben/common-ui';
 import { downloadFileFromBlobPart, isEmpty } from '@vben/utils';
 
 import { message } from 'ant-design-vue';
+import type { SystemDeptApi } from '#/api/system/dept';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
@@ -19,6 +20,8 @@ import {
 } from '#/api/hrm/employee';
 import { $t } from '#/locales';
 
+import { DeptSelectModal } from '#/views/system/dept/components';
+
 import { useGridColumns, useGridFormSchema } from './data';
 
 defineOptions({ name: 'HrmEmployeeArchiveList' });
@@ -27,6 +30,9 @@ const router = useRouter();
 
 // 选中的记录ID列表
 const checkedIds = ref<number[]>([]);
+
+// 部门选择弹窗引用
+const deptSelectModalRef = ref<InstanceType<typeof DeptSelectModal>>();
 
 /** 刷新表格 */
 function onRefresh() {
@@ -124,9 +130,16 @@ function handleRowCheckboxChange() {
   checkedIds.value = records.map((item: EmployeeArchiveApi.EmployeeArchive) => item.id as number);
 }
 
+/** 部门选择处理 */
+function handleDeptSelect(dept: SystemDeptApi.Dept & { companyName?: string }) {
+  // 设置部门ID和部门名称
+  gridApi.formApi.setFieldValue('deptId', dept.id);
+  gridApi.formApi.setFieldValue('deptName', dept.name);
+}
+
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
-    schema: useGridFormSchema(),
+    schema: useGridFormSchema(deptSelectModalRef),
     wrapperClass: 'grid-cols-4',
     collapsed: true,
   },
@@ -139,10 +152,20 @@ const [Grid, gridApi] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
+          // 过滤掉空的 deptId，避免清空后仍然传递参数
+          const queryParams = { ...formValues };
+          if (!queryParams.deptId || queryParams.deptId === '') {
+            delete queryParams.deptId;
+          }
+          // 如果 deptName 为空，也删除 deptId
+          if (!queryParams.deptName || queryParams.deptName === '') {
+            delete queryParams.deptId;
+            delete queryParams.deptName;
+          }
           return await getEmployeeArchivePage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
-            ...formValues,
+            ...queryParams,
           });
         },
       },
@@ -228,6 +251,8 @@ onActivated(() => {
         />
       </template>
     </Grid>
+    <!-- 部门选择弹窗 -->
+    <DeptSelectModal ref="deptSelectModalRef" @select="handleDeptSelect" />
   </Page>
 </template>
 

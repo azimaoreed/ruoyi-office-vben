@@ -209,9 +209,10 @@ export function useWorkFormSchema(
     {
       fieldName: 'jobPosition',
       label: '职务',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
-        placeholder: '请输入职务',
+        placeholder: '请选择职务',
+        options: getDictOptions(DICT_TYPE.HRM_JOB_POSITION),
       },
     },
     {
@@ -288,6 +289,7 @@ export function useWorkFormSchema(
       fieldName: 'remark',
       label: '备注',
       component: 'Input',
+      formItemClass: 'col-span-2',
       componentProps: {
         placeholder: '请输入备注',
       },

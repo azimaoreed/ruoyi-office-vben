@@ -5,12 +5,12 @@ import type { EmployeeArchiveApi } from '#/api/hrm/employee';
 import { DICT_TYPE } from '@vben/constants';
 import { getDictOptions } from '@vben/hooks';
 
-import { getSimpleDeptList } from '#/api/system/dept';
-
 /**
  * 表格搜索表单配置
  */
-export function useGridFormSchema(): VbenFormSchema[] {
+export function useGridFormSchema(
+  deptSelectModalRef?: any,
+): VbenFormSchema[] {
   return [
     {
       fieldName: 'employeeNo',
@@ -29,16 +29,36 @@ export function useGridFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'deptId',
+      fieldName: 'deptName',
       label: '所属部门',
-      component: 'ApiTreeSelect',
+      component: 'HelpInput',
       componentProps: {
-        api: getSimpleDeptList,
         placeholder: '请选择所属部门',
-        fieldNames: {
-          label: 'name',
-          value: 'id',
+        bind: {
+          onClick: () => {
+            if (deptSelectModalRef?.value) {
+              deptSelectModalRef.value.modalApi.open();
+            }
+          },
         },
+      },
+      dependencies: {
+        triggerFields: ['deptName'],
+        onChange: (formApi, deptName) => {
+          // 当部门名称被清空时，同时清空部门ID
+          if (!deptName || deptName === '') {
+            formApi.setFieldValue('deptId', undefined);
+          }
+        },
+      },
+    },
+    {
+      fieldName: 'deptId',
+      label: '部门ID',
+      component: 'Input',
+      dependencies: {
+        triggerFields: [''],
+        show: () => false,
       },
     },
     {
@@ -117,13 +137,13 @@ export function useGridColumns(): VxeTableGridOptions<EmployeeArchiveApi.Employe
       title: '入职日期',
       field: 'entryDate',
       width: 120,
-      formatter: 'formatDateTime',
+      formatter: 'formatDate',
     },
     {
       title: '转正日期',
       field: 'formalDate',
       width: 120,
-      formatter: 'formatDateTime',
+      formatter: 'formatDate',
     },
     {
       title: '所属单位',
@@ -145,7 +165,7 @@ export function useGridColumns(): VxeTableGridOptions<EmployeeArchiveApi.Employe
       title: '操作',
       field: 'action',
       fixed: 'right',
-      width: 180,
+      width: 220,
       slots: { default: 'actions' },
     },
   ];

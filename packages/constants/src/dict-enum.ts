@@ -196,6 +196,7 @@ const OA_DICT = {
 const HRM_DICT = {
   HRM_BLOOD_TYPE: 'hrm_blood_type', // 血型
   HRM_EMPLOYEE_STATUS: 'hrm_employee_status', // 人员状态
+  HRM_JOB_POSITION: 'hrm_job_position', // 职务
 } as const;
 
 /** 字典类型枚举 - 统一导出 */
