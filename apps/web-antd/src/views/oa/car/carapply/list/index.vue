@@ -221,6 +221,7 @@ onActivated(() => {
             {
               label: $t('common.delete'),
               type: 'link',
+              danger: true,
               ifShow: () =>
                 BpmProcessInstanceStatusEditValue.includes(
                   row.processStatus as number,
@@ -234,6 +235,7 @@ onActivated(() => {
             {
               label: $t('common.delete'),
               type: 'link',
+              danger: true,
               ifShow: () =>
                 !BpmProcessInstanceStatusEditValue.includes(
                   row.processStatus as number,

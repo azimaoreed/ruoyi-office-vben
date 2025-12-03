@@ -60,18 +60,6 @@ function handleEdit(row: EmployeeArchiveApi.EmployeeArchive) {
   });
 }
 
-/** 查看员工档案 */
-function handleView(row: EmployeeArchiveApi.EmployeeArchive) {
-  router.push({
-    path: '/hrm/employee/employee-archive-info',
-    query: {
-      id: row.id,
-      readonly: 'true',
-      t: Date.now(),
-    },
-  });
-}
-
 /** 删除员工档案 */
 async function handleDelete(row: EmployeeArchiveApi.EmployeeArchive) {
   const hideLoading = message.loading({
@@ -227,12 +215,6 @@ onActivated(() => {
         <TableAction
           :actions="[
             {
-              label: $t('ui.actionTitle.view'),
-              icon: ACTION_ICON.VIEW,
-              auth: ['hrm:employee-archive:query'],
-              onClick: () => handleView(row),
-            },
-            {
               label: $t('ui.actionTitle.edit'),
               icon: ACTION_ICON.EDIT,
               auth: ['hrm:employee-archive:update'],
@@ -240,6 +222,8 @@ onActivated(() => {
             },
             {
               label: $t('ui.actionTitle.delete'),
+              type: 'link',
+              danger: true,
               icon: ACTION_ICON.DELETE,
               popConfirm: {
                 title: $t('ui.actionMessage.deleteConfirm', [row.name]),

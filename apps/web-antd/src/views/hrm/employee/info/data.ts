@@ -58,9 +58,10 @@ export function useBasicFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'education',
       label: '文化程度',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
-        placeholder: '请输入文化程度',
+        placeholder: '请选择文化程度',
+        options: getDictOptions(DICT_TYPE.HRM_EDUCATION),
       },
     },
     {

@@ -5,6 +5,8 @@ import type { EmployeeArchiveApi } from '#/api/hrm/employee';
 import { DICT_TYPE } from '@vben/constants';
 import { getDictOptions } from '@vben/hooks';
 
+import { createRouterLinkColumn } from '#/adapter/vxe-table';
+
 /**
  * 表格搜索表单配置
  */
@@ -44,10 +46,10 @@ export function useGridFormSchema(
       },
       dependencies: {
         triggerFields: ['deptName'],
-        onChange: (formApi, deptName) => {
+        trigger: (values: any, form: any) => {
           // 当部门名称被清空时，同时清空部门ID
-          if (!deptName || deptName === '') {
-            formApi.setFieldValue('deptId', undefined);
+          if (!values.deptName || values.deptName === '') {
+            form.setFieldValue('deptId', undefined);
           }
         },
       },
@@ -94,9 +96,14 @@ export function useGridColumns(): VxeTableGridOptions<EmployeeArchiveApi.Employe
       fixed: 'left',
     },
     {
-      title: '员工编号',
-      field: 'employeeNo',
-      minWidth: 120,
+      ...createRouterLinkColumn({
+        field: 'employeeNo',
+        title: '员工编号',
+        path: '/hrm/employee/employee-archive-info',
+        idField: 'id',
+        queryParam: 'id',
+        minWidth: 120,
+      }),
       fixed: 'left',
     },
     {
