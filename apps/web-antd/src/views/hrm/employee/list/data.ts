@@ -16,10 +16,10 @@ export function useGridFormSchema(
   return [
     {
       fieldName: 'employeeNo',
-      label: '员工编号',
+      label: '员工工号',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入员工编号',
+        placeholder: '请输入员工工号',
       },
     },
     {
@@ -98,7 +98,7 @@ export function useGridColumns(): VxeTableGridOptions<EmployeeArchiveApi.Employe
     {
       ...createRouterLinkColumn({
         field: 'employeeNo',
-        title: '员工编号',
+        title: '员工工号',
         path: '/hrm/employee/employee-archive-info',
         idField: 'id',
         queryParam: 'id',

@@ -316,7 +316,7 @@ const [BasicForm, basicFormApi] = useVbenForm({
   },
   wrapperClass: 'grid grid-cols-2 gap-4',
   layout: 'horizontal',
-  schema: useBasicFormSchema(),
+  schema: useBasicFormSchema(!!formData.value.id),
   showDefaultActions: false,
 });
 
@@ -356,8 +356,8 @@ const pageTitle = computed(() => {
 });
 
 /** 加载数据 */
-async function loadData() {
-  const id = route.query.id as string;
+async function loadData(newId?: string) {
+  const id = newId || route.query.id as string;
   if (!id) {
     return;
   }
@@ -434,6 +434,11 @@ async function handleSave() {
       ...workValues,
     } as EmployeeArchiveApi.EmployeeArchive;
     
+    // 新增时，员工工号由后端自动生成，前端不传或传空
+    if (!values.id && (!values.employeeNo || values.employeeNo.trim() === '')) {
+      values.employeeNo = undefined;
+    }
+    
     // 处理日期字段：空值统一转换为 undefined，后端 LocalDate 会自动处理 YYYY-MM-DD 格式
     // 注意：表格中的 onChange 已直接设置为 undefined，这里只处理表单字段可能的空字符串情况
     if (!values.birthday || values.birthday === '') {
@@ -464,13 +469,7 @@ async function handleSave() {
       // 新增成功后，如果有返回ID，更新路由并加载数据
       if (result && typeof result === 'number') {
         formData.value.id = result;
-        router.replace({
-          query: {
-            ...route.query,
-            id: result,
-          },
-        });
-        await loadData();
+        await loadData(result);
       }
     }
   } catch (error) {
@@ -545,12 +544,12 @@ watch(
   readonly,
   (isReadonly) => {
     // 更新基本信息表单
-    const basicSchema = useBasicFormSchema();
+    const basicSchema = useBasicFormSchema(!!formData.value.id);
     const updatedBasicSchema = basicSchema.map((item) => ({
       ...item,
       componentProps: {
         ...item.componentProps,
-        disabled: isReadonly,
+        disabled: isReadonly || item.fieldName === 'employeeNo', // 员工工号始终禁用
       },
     }));
     basicFormApi.updateSchema(updatedBasicSchema);

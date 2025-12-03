@@ -8,7 +8,7 @@ import { z } from '#/adapter/form';
 /**
  * 基本信息表单配置
  */
-export function useBasicFormSchema(): VbenFormSchema[] {
+export function useBasicFormSchema(_isEdit?: boolean): VbenFormSchema[] {
   return [
     {
       fieldName: 'name',
@@ -21,12 +21,14 @@ export function useBasicFormSchema(): VbenFormSchema[] {
     },
     {
       fieldName: 'employeeNo',
-      label: '员工编号',
+      label: '员工工号',
       component: 'Input',
+      help: '系统自动生成，无需手动输入',
       componentProps: {
-        placeholder: '请输入员工编号',
+        placeholder: '系统自动生成',
+        readonly: true,
+        disabled: true,
       },
-      rules: 'required',
     },
     {
       fieldName: 'sex',
