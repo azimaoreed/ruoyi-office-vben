@@ -17,6 +17,8 @@ import {
   deleteEmployeeArchiveList,
   exportEmployeeArchiveExcel,
   getEmployeeArchivePage,
+  generateUserForEmployee,
+  batchGenerateUserForEmployee,
 } from '#/api/hrm/employee';
 import { $t } from '#/locales';
 
@@ -112,6 +114,43 @@ async function handleExport() {
   }
 }
 
+/** 生成用户 */
+async function handleGenerateUser(row: EmployeeArchiveApi.EmployeeArchive) {
+  if (row.userGenerated) {
+    message.warning('该员工已生成用户，无需重复生成');
+    return;
+  }
+  const hideLoading = message.loading('正在生成用户...', 0);
+  try {
+    await generateUserForEmployee(row.id as number);
+    message.success('生成用户成功');
+    onRefresh();
+  } catch (error) {
+    message.error('生成用户失败');
+  } finally {
+    hideLoading();
+  }
+}
+
+/** 批量生成用户 */
+async function handleBatchGenerateUser() {
+  if (isEmpty(checkedIds.value)) {
+    message.warning('请先选择要生成用户的记录');
+    return;
+  }
+  const hideLoading = message.loading('正在批量生成用户...', 0);
+  try {
+    await batchGenerateUserForEmployee(checkedIds.value);
+    message.success('批量生成用户成功');
+    checkedIds.value = [];
+    onRefresh();
+  } catch (error) {
+    message.error('批量生成用户失败');
+  } finally {
+    hideLoading();
+  }
+}
+
 /** 复选框变化事件 */
 function handleRowCheckboxChange() {
   const records = gridApi.grid.getCheckboxRecords();
@@ -200,6 +239,14 @@ onActivated(() => {
               onClick: handleExport,
             },
             {
+              label: '批量生成用户',
+              type: 'primary',
+              icon: ACTION_ICON.ADD,
+              disabled: isEmpty(checkedIds),
+              auth: ['hrm:employee-archive:create'],
+              onClick: handleBatchGenerateUser,
+            },
+            {
               label: $t('ui.actionTitle.deleteBatch'),
               type: 'primary',
               danger: true,
@@ -219,6 +266,14 @@ onActivated(() => {
               icon: ACTION_ICON.EDIT,
               auth: ['hrm:employee-archive:update'],
               onClick: () => handleEdit(row),
+            },
+            {
+              label: '生成用户',
+              type: 'link',
+              icon: ACTION_ICON.ADD,
+              disabled: row.userGenerated,
+              auth: ['hrm:employee-archive:create'],
+              onClick: () => handleGenerateUser(row),
             },
             {
               label: $t('ui.actionTitle.delete'),

@@ -134,6 +134,21 @@ export function useBasicFormSchema(_isEdit?: boolean): VbenFormSchema[] {
         .regex(/^1[3-9]\d{9}$/, '请输入正确的手机号码'),
     },
     {
+      fieldName: 'email',
+      label: '邮箱',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入邮箱',
+      },
+      rules: z
+        .string()
+        .optional()
+        .refine(
+          (val) => !val || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val),
+          '请输入正确的邮箱地址',
+        ),
+    },
+    {
       fieldName: 'householdAddress',
       label: '户籍所在地',
       component: 'Input',

@@ -19,6 +19,7 @@ export namespace EmployeeArchiveApi {
     weight?: number; // 体重(kg)
     idCard?: string; // 身份证号码
     mobile?: string; // 手机号
+    email?: string; // 邮箱
     householdAddress?: string; // 户籍所在地
     currentAddress?: string; // 现居住地址
     emergencyContact?: string; // 紧急联系人
@@ -34,6 +35,8 @@ export namespace EmployeeArchiveApi {
     entryDate?: string; // 入职日期 (YYYY-MM-DD)
     formalDate?: string; // 转正日期 (YYYY-MM-DD)
     remark?: string; // 备注
+    userId?: number; // 关联用户ID
+    userGenerated?: boolean; // 是否已生成用户
     createTime?: Date | string; // 创建时间
     workExperienceList?: EmployeeWorkExperience[]; // 工作经历列表
     educationList?: EmployeeEducation[]; // 教育经历列表
@@ -130,5 +133,15 @@ export function exportEmployeeArchiveExcel(
   return requestClient.download('/hrm/employee-archive/export-excel', {
     params,
   });
+}
+
+/** 为员工生成系统用户 */
+export function generateUserForEmployee(id: number) {
+  return requestClient.post<number>(`/hrm/employee-archive/generate-user?id=${id}`);
+}
+
+/** 批量为员工生成系统用户 */
+export function batchGenerateUserForEmployee(ids: number[]) {
+  return requestClient.post<boolean>(`/hrm/employee-archive/batch-generate-user?ids=${ids.join(',')}`);
 }
 

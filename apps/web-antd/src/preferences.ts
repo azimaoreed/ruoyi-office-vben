@@ -46,6 +46,6 @@ export const overridesPreferences = defineOverridesPreferences({
     showIcon: false,
   },
   navigation: {
-    showIcon: false,
+    showIcon: true,
   },
 });

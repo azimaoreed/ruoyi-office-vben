@@ -459,10 +459,16 @@ async function handleSave() {
 
     if (formData.value.id) {
       values.id = formData.value.id;
+      const oldUserGenerated = formData.value.userGenerated;
       await updateEmployeeArchive(values);
-      message.success('保存成功');
       // 保存成功后重新加载数据
       await loadData();
+      // 如果已生成用户，提示同步更新
+      if (oldUserGenerated) {
+        message.success('保存成功，并自动更新用户信息');
+      } else {
+        message.success('保存成功');
+      }
     } else {
       const result = await createEmployeeArchive(values);
       message.success('新增成功');

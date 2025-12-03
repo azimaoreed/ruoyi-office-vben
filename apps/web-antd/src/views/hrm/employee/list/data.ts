@@ -163,6 +163,24 @@ export function useGridColumns(): VxeTableGridOptions<EmployeeArchiveApi.Employe
       width: 120,
     },
     {
+      title: '邮箱',
+      field: 'email',
+      width: 180,
+    },
+    {
+      title: '用户状态',
+      field: 'userGenerated',
+      width: 100,
+      cellRender: {
+        name: 'VxeCellRender',
+        props: {
+          render: ({ row }: any) => {
+            return row.userGenerated ? '已生成' : '未生成';
+          },
+        },
+      },
+    },
+    {
       title: '创建时间',
       field: 'createTime',
       width: 160,
