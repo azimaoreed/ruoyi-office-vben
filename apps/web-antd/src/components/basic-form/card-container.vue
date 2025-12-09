@@ -33,7 +33,7 @@ defineProps<Props>();
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  margin-bottom: 12px;
+  margin: 12px 0;
   font-weight: 700;
   color: hsl(var(--primary));
 

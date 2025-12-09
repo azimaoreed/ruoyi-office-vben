@@ -11,6 +11,10 @@ export namespace EmployeeEntryBillApi {
     billCode: string;
     processInstanceId?: string;
     processStatus?: number;
+    companyId?: number;
+    companyName?: string;
+    deptId?: number;
+    deptName?: string;
     // 员工基本信息
     name: string;
     sex: number;
@@ -25,12 +29,14 @@ export namespace EmployeeEntryBillApi {
     emergencyContact?: string;
     emergencyPhone?: string;
     avatar?: string;
-    // 入职相关信息
+    // 入职相关信息（员工所属的组织信息）
     entryDate: Date;
     probationPeriod?: number;
     expectedFormalDate?: Date;
-    deptId: number;
-    deptName: string;
+    empDeptId: number;
+    empDeptName: string;
+    empCompanyId: number;
+    empCompanyName: string;
     jobPosition?: string;
     jobTitle?: string;
     employeeStatus: number;
@@ -40,8 +46,6 @@ export namespace EmployeeEntryBillApi {
     bankAccount?: string;
     // 关联字段
     employeeId?: number;
-    companyId: number;
-    companyName: string;
     creator?: number;
     creatorName?: string;
     remark?: string;
@@ -86,10 +90,10 @@ export namespace EmployeeEntryBillApi {
     processStatus?: number;
     name?: string;
     mobile?: string;
-    deptId?: number;
-    deptName?: string;
-    companyId?: number;
-    companyName?: string;
+    empDeptId?: number;
+    empDeptName?: string;
+    empCompanyId?: number;
+    empCompanyName?: string;
     employeeStatus?: number;
     entryDate?: Date[];
     createTime?: Date[];

@@ -1,6 +1,11 @@
 import type { Ref } from 'vue';
 
 import type { VbenFormSchema } from '#/adapter/form';
+import type { EmployeeEntryBillApi } from '#/api/hrm/employee-entry';
+
+import { h } from 'vue';
+import { Button, DatePicker, Input } from 'ant-design-vue';
+import dayjs from 'dayjs';
 
 import { DICT_TYPE } from '@vben/constants';
 import { getDictOptions } from '@vben/hooks';
@@ -10,7 +15,7 @@ import { z } from '#/adapter/form';
 /** 新增/修改的表单 */
 export function useFormSchema(
   deptSelectModalRef?: any,
-  readonly?: Ref<boolean>
+  readonly?: Ref<boolean>,
 ): VbenFormSchema[] {
   return [
     {
@@ -153,7 +158,7 @@ export function useFormSchema(
         maxNumber: 1,
       },
     },
-    // ========== 入职相关信息 ==========
+    // ========== 入职相关信息（员工所属的组织信息） ==========
     {
       fieldName: 'entryDate',
       label: '入职日期',
@@ -186,12 +191,12 @@ export function useFormSchema(
       },
     },
     {
-      fieldName: 'deptName',
-      label: '所属部门',
+      fieldName: 'empDeptName',
+      label: '员工所属部门',
       rules: 'required',
       component: 'HelpInput',
       componentProps: {
-        placeholder: '请选择所属部门',
+        placeholder: '请选择员工所属部门',
         bind: {
           readonly,
           onClick: () => {
@@ -208,8 +213,27 @@ export function useFormSchema(
       },
     },
     {
-      fieldName: 'deptId',
-      label: '部门ID',
+      fieldName: 'empDeptId',
+      label: '员工所属部门ID',
+      component: 'Input',
+      dependencies: {
+        triggerFields: [''],
+        show: () => false,
+      },
+    },
+    {
+      fieldName: 'empCompanyName',
+      label: '员工所属公司',
+      component: 'Input',
+      componentProps: {
+        placeholder: '员工所属公司',
+        readonly: true,
+        disabled: true,
+      },
+    },
+    {
+      fieldName: 'empCompanyId',
+      label: '员工所属公司ID',
       component: 'Input',
       dependencies: {
         triggerFields: [''],
@@ -279,22 +303,319 @@ export function useFormSchema(
       },
     },
     {
-      fieldName: 'companyName',
-      label: '所属公司',
-      component: 'Input',
-      componentProps: {
-        placeholder: '所属公司',
-        readonly: true,
-        disabled: true,
-      },
-    },
-    {
       fieldName: 'remark',
       label: '备注',
       component: 'Textarea',
       formItemClass: 'col-span-full',
       componentProps: {
         placeholder: '请输入备注',
+      },
+    },
+  ];
+}
+
+/**
+ * 工作经历表格列定义
+ */
+export function useWorkExperienceColumns(
+  readonly: Ref<boolean>,
+  workExperienceList: Ref<EmployeeEntryBillApi.EmployeeWorkExperience[]>,
+  handleDelete: (index: number) => void,
+) {
+  return [
+    {
+      title: '开始时间',
+      dataIndex: 'startTime',
+      width: 150,
+      customRender: ({ text, index }: any) => {
+        if (readonly.value) return text || '-';
+        return h(DatePicker, {
+          value: text ? dayjs(text) : null,
+          format: 'YYYY-MM-DD',
+          placeholder: '请选择开始时间',
+          style: { width: '100%' },
+          onChange: (date: any) => {
+            if (workExperienceList.value[index]) {
+              workExperienceList.value[index].startTime = date
+                ? dayjs(date).format('YYYY-MM-DD')
+                : undefined;
+            }
+          },
+        } as any);
+      },
+    },
+    {
+      title: '截止时间',
+      dataIndex: 'endTime',
+      width: 150,
+      customRender: ({ text, index }: any) => {
+        if (readonly.value) return text || '-';
+        return h(DatePicker, {
+          value: text ? dayjs(text) : null,
+          format: 'YYYY-MM-DD',
+          placeholder: '请选择截止时间',
+          style: { width: '100%' },
+          onChange: (date: any) => {
+            if (workExperienceList.value[index]) {
+              workExperienceList.value[index].endTime = date
+                ? dayjs(date).format('YYYY-MM-DD')
+                : undefined;
+            }
+          },
+        } as any);
+      },
+    },
+    {
+      title: '职务',
+      dataIndex: 'jobPosition',
+      width: 150,
+      customRender: ({ text, index }: any) => {
+        if (readonly.value) return text || '-';
+        return h(Input, {
+          value: text,
+          placeholder: '请输入职务',
+          onChange: (e: any) => {
+            if (workExperienceList.value[index]) {
+              workExperienceList.value[index].jobPosition = e.target.value;
+            }
+          },
+        } as any);
+      },
+    },
+    {
+      title: '单位名称',
+      dataIndex: 'companyName',
+      customRender: ({ text, index }: any) => {
+        if (readonly.value) return text || '-';
+        return h(Input, {
+          value: text,
+          placeholder: '请输入单位名称',
+          onChange: (e: any) => {
+            if (workExperienceList.value[index]) {
+              workExperienceList.value[index].companyName = e.target.value;
+            }
+          },
+        } as any);
+      },
+    },
+    {
+      title: '操作',
+      key: 'action',
+      width: 100,
+      customRender: ({ index }: any) => {
+        if (readonly.value) return '-';
+        return h(
+          Button,
+          {
+            type: 'link',
+            size: 'small',
+            danger: true,
+            onClick: () => handleDelete(index),
+          },
+          () => '删除',
+        );
+      },
+    },
+  ];
+}
+
+/**
+ * 教育经历表格列定义
+ */
+export function useEducationColumns(
+  readonly: Ref<boolean>,
+  educationList: Ref<EmployeeEntryBillApi.EmployeeEducation[]>,
+  handleDelete: (index: number) => void,
+) {
+  return [
+    {
+      title: '开始时间',
+      dataIndex: 'startTime',
+      width: 150,
+      customRender: ({ text, index }: any) => {
+        if (readonly.value) return text || '-';
+        return h(DatePicker, {
+          value: text ? dayjs(text) : null,
+          format: 'YYYY-MM-DD',
+          placeholder: '请选择开始时间',
+          style: { width: '100%' },
+          onChange: (date: any) => {
+            if (educationList.value[index]) {
+              educationList.value[index].startTime = date
+                ? dayjs(date).format('YYYY-MM-DD')
+                : undefined;
+            }
+          },
+        } as any);
+      },
+    },
+    {
+      title: '截止时间',
+      dataIndex: 'endTime',
+      width: 150,
+      customRender: ({ text, index }: any) => {
+        if (readonly.value) return text || '-';
+        return h(DatePicker, {
+          value: text ? dayjs(text) : null,
+          format: 'YYYY-MM-DD',
+          placeholder: '请选择截止时间',
+          style: { width: '100%' },
+          onChange: (date: any) => {
+            if (educationList.value[index]) {
+              educationList.value[index].endTime = date
+                ? dayjs(date).format('YYYY-MM-DD')
+                : undefined;
+            }
+          },
+        } as any);
+      },
+    },
+    {
+      title: '专业',
+      dataIndex: 'major',
+      width: 150,
+      customRender: ({ text, index }: any) => {
+        if (readonly.value) return text || '-';
+        return h(Input, {
+          value: text,
+          placeholder: '请输入专业',
+          onChange: (e: any) => {
+            if (educationList.value[index]) {
+              educationList.value[index].major = e.target.value;
+            }
+          },
+        } as any);
+      },
+    },
+    {
+      title: '学校名称',
+      dataIndex: 'schoolName',
+      customRender: ({ text, index }: any) => {
+        if (readonly.value) return text || '-';
+        return h(Input, {
+          value: text,
+          placeholder: '请输入学校名称',
+          onChange: (e: any) => {
+            if (educationList.value[index]) {
+              educationList.value[index].schoolName = e.target.value;
+            }
+          },
+        } as any);
+      },
+    },
+    {
+      title: '操作',
+      key: 'action',
+      width: 100,
+      customRender: ({ index }: any) => {
+        if (readonly.value) return '-';
+        return h(
+          Button,
+          {
+            type: 'link',
+            size: 'small',
+            danger: true,
+            onClick: () => handleDelete(index),
+          },
+          () => '删除',
+        );
+      },
+    },
+  ];
+}
+
+/**
+ * 家属信息表格列定义
+ */
+export function useFamilyColumns(
+  readonly: Ref<boolean>,
+  familyList: Ref<EmployeeEntryBillApi.EmployeeFamily[]>,
+  handleDelete: (index: number) => void,
+) {
+  return [
+    {
+      title: '姓名',
+      dataIndex: 'name',
+      width: 150,
+      customRender: ({ text, index }: any) => {
+        if (readonly.value) return text || '-';
+        return h(Input, {
+          value: text,
+          placeholder: '请输入姓名',
+          onChange: (e: any) => {
+            if (familyList.value[index]) {
+              familyList.value[index].name = e.target.value;
+            }
+          },
+        } as any);
+      },
+    },
+    {
+      title: '关系',
+      dataIndex: 'relationship',
+      width: 150,
+      customRender: ({ text, index }: any) => {
+        if (readonly.value) return text || '-';
+        return h(Input, {
+          value: text,
+          placeholder: '请输入关系',
+          onChange: (e: any) => {
+            if (familyList.value[index]) {
+              familyList.value[index].relationship = e.target.value;
+            }
+          },
+        } as any);
+      },
+    },
+    {
+      title: '联系电话',
+      dataIndex: 'mobile',
+      width: 150,
+      customRender: ({ text, index }: any) => {
+        if (readonly.value) return text || '-';
+        return h(Input, {
+          value: text,
+          placeholder: '请输入联系电话',
+          onChange: (e: any) => {
+            if (familyList.value[index]) {
+              familyList.value[index].mobile = e.target.value;
+            }
+          },
+        } as any);
+      },
+    },
+    {
+      title: '工作单位',
+      dataIndex: 'workUnit',
+      customRender: ({ text, index }: any) => {
+        if (readonly.value) return text || '-';
+        return h(Input, {
+          value: text,
+          placeholder: '请输入工作单位',
+          onChange: (e: any) => {
+            if (familyList.value[index]) {
+              familyList.value[index].workUnit = e.target.value;
+            }
+          },
+        } as any);
+      },
+    },
+    {
+      title: '操作',
+      key: 'action',
+      width: 100,
+      customRender: ({ index }: any) => {
+        if (readonly.value) return '-';
+        return h(
+          Button,
+          {
+            type: 'link',
+            size: 'small',
+            danger: true,
+            onClick: () => handleDelete(index),
+          },
+          () => '删除',
+        );
       },
     },
   ];

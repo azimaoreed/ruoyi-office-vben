@@ -23,6 +23,8 @@ interface Props {
   accept?: string;
   /** 最大文件大小（MB） */
   maxSize?: number;
+  /** 隐藏上传按钮（当需要在外部自定义按钮位置时使用） */
+  hideUploadButton?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -31,6 +33,7 @@ const props = withDefaults(defineProps<Props>(), {
   maxCount: 10,
   accept: '*',
   maxSize: 10,
+  hideUploadButton: false,
 });
 
 const emit = defineEmits<{
@@ -108,9 +111,26 @@ function handleFileUpload(file: File) {
   return true;
 }
 
+/** 触发文件选择（供外部调用） */
+function handleTriggerUpload() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.multiple = true;
+  input.accept = props.accept === '*' ? '' : props.accept;
+  input.onchange = (e) => {
+    const files = (e.target as HTMLInputElement).files;
+    if (files) {
+      Array.from(files).forEach(file => {
+        handleFileUpload(file);
+      });
+    }
+  };
+  input.click();
+}
+
 // 上传按钮配置
 const uploadActions = computed(() => {
-  if (props.readonly || tableData.value.length >= props.maxCount) {
+  if (props.readonly || tableData.value.length >= props.maxCount || props.hideUploadButton) {
     return [];
   }
   
@@ -118,24 +138,14 @@ const uploadActions = computed(() => {
     {
       label: '上传附件',
       type: 'primary' as const,
-      onClick: () => {
-        // 触发文件选择
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.multiple = true;
-        input.accept = props.accept === '*' ? '' : props.accept;
-        input.onchange = (e) => {
-          const files = (e.target as HTMLInputElement).files;
-          if (files) {
-            Array.from(files).forEach(file => {
-              handleFileUpload(file);
-            });
-          }
-        };
-        input.click();
-      },
+      onClick: handleTriggerUpload,
     },
   ];
+});
+
+// 暴露方法给父组件
+defineExpose({
+  handleTriggerUpload,
 });
 
 

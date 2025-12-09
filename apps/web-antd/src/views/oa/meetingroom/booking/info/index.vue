@@ -13,7 +13,7 @@ import {
 import { useTabs } from '@vben/hooks';
 import { useUserStore } from '@vben/stores';
 
-import { message } from 'ant-design-vue';
+import { Button, message } from 'ant-design-vue';
 
 import { withdrawProcessToStart } from '#/api/bpm/task';
 import {
@@ -56,6 +56,9 @@ const basicFormRef = ref();
 
 // 会议室选择弹窗引用
 const modalRef = ref<InstanceType<typeof MeetingRoomSelectModal>>();
+
+// 附件列表引用
+const attachmentListRef = ref();
 
 // 表单schema - 使用shallowRef避免深度响应式
 const formSchema = shallowRef<VbenFormSchema[]>([]);
@@ -235,6 +238,13 @@ async function beforeApproval(): Promise<boolean> {
   return true;
 }
 
+// 处理附件上传
+function handleUploadAttachment() {
+  if (attachmentListRef.value) {
+    attachmentListRef.value.handleTriggerUpload();
+  }
+}
+
 // 暴露方法给父组件调用
 defineExpose({
   beforeApproval,
@@ -270,11 +280,18 @@ onMounted(() => {
       <template #form-extension>
         <!-- 附件列表 -->
         <CardContainer :title="$t('common.attachmentInfo')">
+          <template #extra>
+            <Button v-if="!readonly" type="primary" @click="handleUploadAttachment">
+              上传附件
+            </Button>
+          </template>
           <AttachmentList
+            ref="attachmentListRef"
             v-model="formData.attachments"
             :readonly="readonly"
             :max-count="10"
             :max-size="20"
+            :hide-upload-button="true"
           />
         </CardContainer>
       </template>

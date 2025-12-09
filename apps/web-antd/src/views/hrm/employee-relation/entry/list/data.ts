@@ -53,8 +53,8 @@ export function useGridFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'deptId',
-      label: '所属部门',
+      fieldName: 'empDeptId',
+      label: '员工所属部门',
       component: 'ApiTreeSelect',
       componentProps: {
         allowClear: true,
@@ -62,7 +62,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
         labelField: 'name',
         valueField: 'id',
         childrenField: 'children',
-        placeholder: '请选择所属部门',
+        placeholder: '请选择员工所属部门',
         treeDefaultExpandAll: true,
       },
     },
@@ -131,8 +131,8 @@ export function useGridColumns(): VxeTableGridOptions<EmployeeEntryBillApi.Emplo
       minWidth: 180,
     },
     {
-      field: 'deptName',
-      title: '所属部门',
+      field: 'empDeptName',
+      title: '员工所属部门',
       minWidth: 120,
     },
     {
@@ -171,8 +171,8 @@ export function useGridColumns(): VxeTableGridOptions<EmployeeEntryBillApi.Emplo
       minWidth: 100,
     },
     {
-      field: 'companyName',
-      title: '所属公司',
+      field: 'empCompanyName',
+      title: '员工所属公司',
       minWidth: 120,
     },
     {

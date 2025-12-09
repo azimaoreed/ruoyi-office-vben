@@ -2,7 +2,7 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { EmployeeEntryBillApi } from '#/api/hrm/employee-entry';
 
-import { h, nextTick, onMounted, ref, shallowRef } from 'vue';
+import { nextTick, onMounted, ref, shallowRef } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { Loading } from '@vben/common-ui';
@@ -13,8 +13,7 @@ import {
 import { useTabs } from '@vben/hooks';
 import { useUserStore } from '@vben/stores';
 
-import { Button, DatePicker, Input, message, Table } from 'ant-design-vue';
-import dayjs from 'dayjs';
+import { Button, message, Table } from 'ant-design-vue';
 
 import { withdrawProcessToStart } from '#/api/bpm/task';
 import {
@@ -27,7 +26,12 @@ import { BasicForm, CardContainer } from '#/components/basic-form';
 import { $t } from '#/locales';
 import { DeptSelectModal } from '#/views/system/dept/components';
 
-import { useFormSchema } from './data';
+import {
+  useFormSchema,
+  useWorkExperienceColumns,
+  useEducationColumns,
+  useFamilyColumns,
+} from './data';
 
 defineOptions({ name: 'HrmEmployeeEntryBillInfo' });
 
@@ -57,6 +61,9 @@ const basicFormRef = ref();
 // 部门选择弹窗引用
 const deptSelectModalRef = ref<InstanceType<typeof DeptSelectModal>>();
 
+// 附件列表引用
+const attachmentListRef = ref();
+
 // 工作经历列表
 const workExperienceList = ref<EmployeeEntryBillApi.EmployeeWorkExperience[]>(
   [],
@@ -71,8 +78,7 @@ const formSchema = shallowRef<VbenFormSchema[]>([]);
 
 // 初始化表单schema
 function initFormSchema() {
-  const nodeKeyName = ref(props.nodeKeyName || '');
-  formSchema.value = useFormSchema(deptSelectModalRef, readonly, nodeKeyName);
+  formSchema.value = useFormSchema(deptSelectModalRef, readonly);
 }
 
 // 优先使用 props 传递的 id，如果没有则使用路由参数
@@ -235,8 +241,10 @@ async function loadData() {
 function handleDeptSelect(dept: any) {
   if (basicFormRef.value && dept) {
     const deptData = {
-      deptId: dept.id,
-      deptName: dept.name,
+      empDeptId: dept.id,
+      empDeptName: dept.name,
+      empCompanyId: dept.companyId,
+      empCompanyName: dept.companyName || '',
     };
     basicFormRef.value.setFormValues(deptData);
 
@@ -245,7 +253,6 @@ function handleDeptSelect(dept: any) {
   }
 }
 
-
 // 暴露方法给父组件调用
 defineExpose({
   loadData,
@@ -253,287 +260,25 @@ defineExpose({
 });
 
 // 工作经历表格列定义
-const workExperienceColumns = [
-  {
-    title: '开始时间',
-    dataIndex: 'startTime',
-    width: 150,
-    customRender: ({ text, index }: any) => {
-      if (readonly.value) return text || '-';
-      return h(DatePicker, {
-        value: text ? dayjs(text) : null,
-        format: 'YYYY-MM-DD',
-        placeholder: '请选择开始时间',
-        style: { width: '100%' },
-        onChange: (date: any) => {
-          if (workExperienceList.value[index]) {
-            workExperienceList.value[index].startTime = date
-              ? dayjs(date).format('YYYY-MM-DD')
-              : undefined;
-          }
-        },
-      } as any);
-    },
-  },
-  {
-    title: '截止时间',
-    dataIndex: 'endTime',
-    width: 150,
-    customRender: ({ text, index }: any) => {
-      if (readonly.value) return text || '-';
-      return h(DatePicker, {
-        value: text ? dayjs(text) : null,
-        format: 'YYYY-MM-DD',
-        placeholder: '请选择截止时间',
-        style: { width: '100%' },
-        onChange: (date: any) => {
-          if (workExperienceList.value[index]) {
-            workExperienceList.value[index].endTime = date
-              ? dayjs(date).format('YYYY-MM-DD')
-              : undefined;
-          }
-        },
-      } as any);
-    },
-  },
-  {
-    title: '职务',
-    dataIndex: 'jobPosition',
-    width: 150,
-    customRender: ({ text, index }: any) => {
-      if (readonly.value) return text || '-';
-      return h(Input, {
-        value: text,
-        placeholder: '请输入职务',
-        onChange: (e: any) => {
-          if (workExperienceList.value[index]) {
-            workExperienceList.value[index].jobPosition = e.target.value;
-          }
-        },
-      } as any);
-    },
-  },
-  {
-    title: '单位名称',
-    dataIndex: 'companyName',
-    customRender: ({ text, index }: any) => {
-      if (readonly.value) return text || '-';
-      return h(Input, {
-        value: text,
-        placeholder: '请输入单位名称',
-        onChange: (e: any) => {
-          if (workExperienceList.value[index]) {
-            workExperienceList.value[index].companyName = e.target.value;
-          }
-        },
-      } as any);
-    },
-  },
-  {
-    title: '操作',
-    key: 'action',
-    width: 100,
-    customRender: ({ index }: any) => {
-      if (readonly.value) return '-';
-      return h(
-        Button,
-        {
-          type: 'link',
-          size: 'small',
-          danger: true,
-          onClick: () => handleDeleteWorkExperience(index),
-        },
-        () => '删除',
-      );
-    },
-  },
-];
+const workExperienceColumns = useWorkExperienceColumns(
+  readonly,
+  workExperienceList,
+  handleDeleteWorkExperience,
+);
 
 // 教育经历表格列定义
-const educationColumns = [
-  {
-    title: '开始时间',
-    dataIndex: 'startTime',
-    width: 150,
-    customRender: ({ text, index }: any) => {
-      if (readonly.value) return text || '-';
-      return h(DatePicker, {
-        value: text ? dayjs(text) : null,
-        format: 'YYYY-MM-DD',
-        placeholder: '请选择开始时间',
-        style: { width: '100%' },
-        onChange: (date: any) => {
-          if (educationList.value[index]) {
-            educationList.value[index].startTime = date
-              ? dayjs(date).format('YYYY-MM-DD')
-              : undefined;
-          }
-        },
-      } as any);
-    },
-  },
-  {
-    title: '截止时间',
-    dataIndex: 'endTime',
-    width: 150,
-    customRender: ({ text, index }: any) => {
-      if (readonly.value) return text || '-';
-      return h(DatePicker, {
-        value: text ? dayjs(text) : null,
-        format: 'YYYY-MM-DD',
-        placeholder: '请选择截止时间',
-        style: { width: '100%' },
-        onChange: (date: any) => {
-          if (educationList.value[index]) {
-            educationList.value[index].endTime = date
-              ? dayjs(date).format('YYYY-MM-DD')
-              : undefined;
-          }
-        },
-      } as any);
-    },
-  },
-  {
-    title: '专业',
-    dataIndex: 'major',
-    width: 150,
-    customRender: ({ text, index }: any) => {
-      if (readonly.value) return text || '-';
-      return h(Input, {
-        value: text,
-        placeholder: '请输入专业',
-        onChange: (e: any) => {
-          if (educationList.value[index]) {
-            educationList.value[index].major = e.target.value;
-          }
-        },
-      } as any);
-    },
-  },
-  {
-    title: '学校名称',
-    dataIndex: 'schoolName',
-    customRender: ({ text, index }: any) => {
-      if (readonly.value) return text || '-';
-      return h(Input, {
-        value: text,
-        placeholder: '请输入学校名称',
-        onChange: (e: any) => {
-          if (educationList.value[index]) {
-            educationList.value[index].schoolName = e.target.value;
-          }
-        },
-      } as any);
-    },
-  },
-  {
-    title: '操作',
-    key: 'action',
-    width: 100,
-    customRender: ({ index }: any) => {
-      if (readonly.value) return '-';
-      return h(
-        Button,
-        {
-          type: 'link',
-          size: 'small',
-          danger: true,
-          onClick: () => handleDeleteEducation(index),
-        },
-        () => '删除',
-      );
-    },
-  },
-];
+const educationColumns = useEducationColumns(
+  readonly,
+  educationList,
+  handleDeleteEducation,
+);
 
 // 家属信息表格列定义
-const familyColumns = [
-  {
-    title: '姓名',
-    dataIndex: 'name',
-    width: 150,
-    customRender: ({ text, index }: any) => {
-      if (readonly.value) return text || '-';
-      return h(Input, {
-        value: text,
-        placeholder: '请输入姓名',
-        onChange: (e: any) => {
-          if (familyList.value[index]) {
-            familyList.value[index].name = e.target.value;
-          }
-        },
-      } as any);
-    },
-  },
-  {
-    title: '关系',
-    dataIndex: 'relationship',
-    width: 150,
-    customRender: ({ text, index }: any) => {
-      if (readonly.value) return text || '-';
-      return h(Input, {
-        value: text,
-        placeholder: '请输入关系',
-        onChange: (e: any) => {
-          if (familyList.value[index]) {
-            familyList.value[index].relationship = e.target.value;
-          }
-        },
-      } as any);
-    },
-  },
-  {
-    title: '联系电话',
-    dataIndex: 'mobile',
-    width: 150,
-    customRender: ({ text, index }: any) => {
-      if (readonly.value) return text || '-';
-      return h(Input, {
-        value: text,
-        placeholder: '请输入联系电话',
-        onChange: (e: any) => {
-          if (familyList.value[index]) {
-            familyList.value[index].mobile = e.target.value;
-          }
-        },
-      } as any);
-    },
-  },
-  {
-    title: '工作单位',
-    dataIndex: 'workUnit',
-    customRender: ({ text, index }: any) => {
-      if (readonly.value) return text || '-';
-      return h(Input, {
-        value: text,
-        placeholder: '请输入工作单位',
-        onChange: (e: any) => {
-          if (familyList.value[index]) {
-            familyList.value[index].workUnit = e.target.value;
-          }
-        },
-      } as any);
-    },
-  },
-  {
-    title: '操作',
-    key: 'action',
-    width: 100,
-    customRender: ({ index }: any) => {
-      if (readonly.value) return '-';
-      return h(
-        Button,
-        {
-          type: 'link',
-          size: 'small',
-          danger: true,
-          onClick: () => handleDeleteFamily(index),
-        },
-        () => '删除',
-      );
-    },
-  },
-];
+const familyColumns = useFamilyColumns(
+  readonly,
+  familyList,
+  handleDeleteFamily,
+);
 
 // ========== 工作经历相关操作 ==========
 function handleAddWorkExperience() {
@@ -580,6 +325,13 @@ function handleDeleteFamily(index: number) {
   familyList.value.splice(index, 1);
 }
 
+// ========== 附件相关操作 ==========
+function handleUploadAttachment() {
+  if (attachmentListRef.value) {
+    attachmentListRef.value.handleTriggerUpload();
+  }
+}
+
 onMounted(() => {
   initFormSchema();
   loadData();
@@ -608,16 +360,11 @@ onMounted(() => {
       <template #form-extension>
         <!-- 工作经历 -->
         <CardContainer title="工作经历">
-          <div class="mb-4">
-            <Button
-              v-if="!readonly"
-              type="primary"
-              size="small"
-              @click="handleAddWorkExperience"
-            >
-              添加工作经历
+          <template #extra>
+            <Button v-if="!readonly" type="primary"  @click="handleAddWorkExperience">
+              {{ $t('ui.actionTitle.create') }}
             </Button>
-          </div>
+          </template>
           <Table
             :columns="workExperienceColumns"
             :data-source="workExperienceList"
@@ -629,16 +376,11 @@ onMounted(() => {
 
         <!-- 教育经历 -->
         <CardContainer title="教育经历">
-          <div class="mb-4">
-            <Button
-              v-if="!readonly"
-              type="primary"
-              size="small"
-              @click="handleAddEducation"
-            >
-              添加教育经历
+          <template #extra>
+            <Button v-if="!readonly" type="primary"  @click="handleAddEducation">
+              {{ $t('ui.actionTitle.create') }}
             </Button>
-          </div>
+          </template>
           <Table
             :columns="educationColumns"
             :data-source="educationList"
@@ -650,16 +392,11 @@ onMounted(() => {
 
         <!-- 家属信息 -->
         <CardContainer title="家属信息">
-          <div class="mb-4">
-            <Button
-              v-if="!readonly"
-              type="primary"
-              size="small"
-              @click="handleAddFamily"
-            >
-              添加家属信息
+          <template #extra>     
+            <Button v-if="!readonly" type="primary"  @click="handleAddFamily">
+              {{ $t('ui.actionTitle.create') }}
             </Button>
-          </div>
+          </template>
           <Table
             :columns="familyColumns"
             :data-source="familyList"
@@ -671,11 +408,18 @@ onMounted(() => {
 
         <!-- 附件列表 -->
         <CardContainer :title="$t('common.attachmentInfo')">
+          <template #extra>
+            <Button v-if="!readonly" type="primary" @click="handleUploadAttachment">
+              上传附件
+            </Button>
+          </template>
           <AttachmentList
+            ref="attachmentListRef"
             v-model="formData.attachments"
             :readonly="readonly"
             :max-count="10"
             :max-size="20"
+            :hide-upload-button="true"
           />
         </CardContainer>
       </template>
