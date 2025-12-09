@@ -1,8 +1,8 @@
 import type { PageParam, PageResult } from '@vben/request';
 
-import { requestClient } from '#/api/request';
+import type { AttachmentApi } from '#/api/common/attachment';
 
-import type { AttachmentApi } from '../../../common/attachment';
+import { requestClient } from '#/api/request';
 
 export namespace SealApplyBillApi {
   /** 用印申请单信息 */
