@@ -15,18 +15,18 @@ import { useUserStore } from '@vben/stores';
 
 import { Button, message } from 'ant-design-vue';
 
+import { withdrawProcessToStart } from '#/api/bpm/task';
 import {
   getCarApplyBill,
   saveCarApplyBill,
   submitCarApplyBill,
 } from '#/api/oa/car/carapply';
-import { BasicForm, CardContainer } from '#/components/basic-form';
 import { AttachmentList } from '#/components/attachment-list';
+import { BasicForm, CardContainer } from '#/components/basic-form';
 import { $t } from '#/locales';
 
 import { CarSelectModal } from '../../components';
 import { useFormSchema } from './data';
-import { withdrawProcessToStart } from '#/api/bpm/task';
 
 // 定义组件 props
 const props = defineProps<{
@@ -126,9 +126,10 @@ async function handleRevoke(reason: string) {
   ) {
     loading.value = true;
     try {
-      await withdrawProcessToStart(
-        { processInstanceId: formData.value.processInstanceId, reason: reason || '制单人撤回' }
-      );
+      await withdrawProcessToStart({
+        processInstanceId: formData.value.processInstanceId,
+        reason: reason || '制单人撤回',
+      });
       message.success('撤回成功');
       await loadData();
     } catch (error) {
@@ -239,7 +240,11 @@ onMounted(() => {
         <!-- 附件列表 -->
         <CardContainer :title="$t('common.attachmentInfo')">
           <template #extra>
-            <Button v-if="!readonly" type="primary" @click="handleUploadAttachment">
+            <Button
+              v-if="!readonly"
+              type="primary"
+              @click="handleUploadAttachment"
+            >
               上传附件
             </Button>
           </template>

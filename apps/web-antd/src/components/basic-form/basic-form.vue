@@ -295,13 +295,13 @@ defineExpose({
         <a-tabs v-model:active-key="activeKey" class="custom-tabs">
           <a-tab-pane key="1" :tab="$t('common.billInfo')">
             <div class="form-content flex flex-col bg-white">
-                <!-- 基本信息 -->
-                <CardContainer :title="$t('common.baseInfo')">
-                  <!-- 如果有formSchema则渲染内置表单 -->
-                  <component v-if="formApi" :is="FormComponent" ref="formRef" />
-                  <!-- 否则使用插槽 -->
-                  <slot v-else name="base-form"></slot>
-                </CardContainer>
+              <!-- 基本信息 -->
+              <CardContainer :title="$t('common.baseInfo')">
+                <!-- 如果有formSchema则渲染内置表单 -->
+                <component v-if="formApi" :is="FormComponent" ref="formRef" />
+                <!-- 否则使用插槽 -->
+                <slot v-else name="base-form"></slot>
+              </CardContainer>
 
               <!-- 扩展插槽，用于明细表格等 -->
               <slot name="form-extension"></slot>
@@ -403,17 +403,17 @@ defineExpose({
 /* 自定义 tabs 样式 - 使用CSS变量支持主题切换 */
 :deep(.custom-tabs) {
   .ant-tabs-tab {
-    margin-bottom: 0px !important;
+    margin-bottom: 0 !important;
   }
-  
+
   /* 导航栏 - 覆盖默认的 margin-bottom */
   &.ant-tabs-top > .ant-tabs-nav,
   &.ant-tabs-bottom > .ant-tabs-nav,
   &.ant-tabs-top > div > .ant-tabs-nav,
   &.ant-tabs-bottom > div > .ant-tabs-nav {
-    margin-bottom: 0px !important;
+    margin-bottom: 0 !important;
   }
-  
+
   /* 导航栏底部边框 - 使用边框色 */
   .ant-tabs-nav::before {
     border-bottom: 1px solid hsl(var(--primary) / 65%) !important;

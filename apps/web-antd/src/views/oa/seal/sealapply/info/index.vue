@@ -21,12 +21,11 @@ import {
   saveSealApplyBill,
   submitSealApplyBill,
 } from '#/api/oa/seal/sealapply';
-import { BasicForm, CardContainer } from '#/components/basic-form';
 import { AttachmentList } from '#/components/attachment-list';
+import { BasicForm, CardContainer } from '#/components/basic-form';
 import { $t } from '#/locales';
 
 import { SealSelectModal } from '../../components';
-
 import { useFormSchema } from './data';
 
 defineOptions({ name: 'OaSealApplyBillInfo' });
@@ -36,10 +35,10 @@ const props = defineProps<{
   activityNodes?: any[];
   id?: number | string; // 从 BusinessFormComponent 传递的 id
   isApproval?: boolean; // 是否审批态
-  processDefinition?: any; // 流程定义信息
-  processInstance?: any; // 流程实例信息
   nodeKey?: string; // 节点key
   nodeKeyName?: string; // 节点名称
+  processDefinition?: any; // 流程定义信息
+  processInstance?: any; // 流程实例信息
 }>();
 
 const route = useRoute();
@@ -68,7 +67,12 @@ const formSchema = shallowRef<VbenFormSchema[]>([]);
 // 初始化表单schema
 function initFormSchema() {
   const nodeKeyName = ref(props.nodeKeyName || '');
-  formSchema.value = useFormSchema(modalRef, readonly, nodeKeyName, canReturnEdit);
+  formSchema.value = useFormSchema(
+    modalRef,
+    readonly,
+    nodeKeyName,
+    canReturnEdit,
+  );
 }
 
 // 优先使用 props 传递的 id，如果没有则使用路由参数
@@ -187,8 +191,11 @@ async function loadData() {
     formData.value = {
       ...data,
     };
-    if (route.query.isTodo === 'true' && props.nodeKeyName === '申请人归还印章') {
-      canReturnEdit.value = true
+    if (
+      route.query.isTodo === 'true' &&
+      props.nodeKeyName === '申请人归还印章'
+    ) {
+      canReturnEdit.value = true;
     }
     readonly.value =
       props.isApproval === true
@@ -246,9 +253,12 @@ function handleSealSelect(val: any) {
 // 审批前的业务表单处理方法
 async function beforeApproval(): Promise<boolean> {
   try {
-    
     // 只有在审批状态且流程节点为"申请人归还印章"时才执行保存
-    if (props.isApproval && props.nodeKeyName === '申请人归还印章' && basicFormRef.value) {
+    if (
+      props.isApproval &&
+      props.nodeKeyName === '申请人归还印章' &&
+      basicFormRef.value
+    ) {
       // 校验表单
       const { valid } = await basicFormRef.value.validateForm();
       if (!valid) {
@@ -266,7 +276,7 @@ async function beforeApproval(): Promise<boolean> {
       await saveSealApplyBill(data);
     }
     return true;
-  } catch (error) {
+  } catch {
     message.error($t('ui.actionMessage.operationFailed'));
     return false;
   }
@@ -308,7 +318,11 @@ onMounted(() => {
         <!-- 附件列表 -->
         <CardContainer :title="$t('common.attachmentInfo')">
           <template #extra>
-            <Button v-if="!readonly" type="primary" @click="handleUploadAttachment">
+            <Button
+              v-if="!readonly"
+              type="primary"
+              @click="handleUploadAttachment"
+            >
               上传附件
             </Button>
           </template>

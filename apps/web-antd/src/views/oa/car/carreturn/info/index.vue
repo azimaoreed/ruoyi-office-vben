@@ -21,8 +21,8 @@ import {
   saveCarReturnBill,
   submitCarReturnBill,
 } from '#/api/oa/car/carreturn';
-import { BasicForm, CardContainer } from '#/components/basic-form';
 import { AttachmentList } from '#/components/attachment-list';
+import { BasicForm, CardContainer } from '#/components/basic-form';
 import { $t } from '#/locales';
 
 import { CarApplySelectModal, CarSelectModal } from '../../components';
@@ -266,7 +266,11 @@ onMounted(() => {
         <!-- 附件列表 -->
         <CardContainer :title="$t('common.attachmentInfo')">
           <template #extra>
-            <Button v-if="!readonly" type="primary" @click="handleUploadAttachment">
+            <Button
+              v-if="!readonly"
+              type="primary"
+              @click="handleUploadAttachment"
+            >
               上传附件
             </Button>
           </template>

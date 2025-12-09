@@ -281,7 +281,11 @@ onMounted(() => {
         <!-- 附件列表 -->
         <CardContainer :title="$t('common.attachmentInfo')">
           <template #extra>
-            <Button v-if="!readonly" type="primary" @click="handleUploadAttachment">
+            <Button
+              v-if="!readonly"
+              type="primary"
+              @click="handleUploadAttachment"
+            >
               上传附件
             </Button>
           </template>

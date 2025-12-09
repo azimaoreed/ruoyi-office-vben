@@ -27,10 +27,10 @@ import { $t } from '#/locales';
 import { DeptSelectModal } from '#/views/system/dept/components';
 
 import {
-  useFormSchema,
-  useWorkExperienceColumns,
   useEducationColumns,
   useFamilyColumns,
+  useFormSchema,
+  useWorkExperienceColumns,
 } from './data';
 
 defineOptions({ name: 'HrmEmployeeEntryBillInfo' });
@@ -361,7 +361,11 @@ onMounted(() => {
         <!-- 工作经历 -->
         <CardContainer title="工作经历">
           <template #extra>
-            <Button v-if="!readonly" type="primary"  @click="handleAddWorkExperience">
+            <Button
+              v-if="!readonly"
+              type="primary"
+              @click="handleAddWorkExperience"
+            >
               {{ $t('ui.actionTitle.create') }}
             </Button>
           </template>
@@ -377,7 +381,7 @@ onMounted(() => {
         <!-- 教育经历 -->
         <CardContainer title="教育经历">
           <template #extra>
-            <Button v-if="!readonly" type="primary"  @click="handleAddEducation">
+            <Button v-if="!readonly" type="primary" @click="handleAddEducation">
               {{ $t('ui.actionTitle.create') }}
             </Button>
           </template>
@@ -392,8 +396,8 @@ onMounted(() => {
 
         <!-- 家属信息 -->
         <CardContainer title="家属信息">
-          <template #extra>     
-            <Button v-if="!readonly" type="primary"  @click="handleAddFamily">
+          <template #extra>
+            <Button v-if="!readonly" type="primary" @click="handleAddFamily">
               {{ $t('ui.actionTitle.create') }}
             </Button>
           </template>
@@ -409,7 +413,11 @@ onMounted(() => {
         <!-- 附件列表 -->
         <CardContainer :title="$t('common.attachmentInfo')">
           <template #extra>
-            <Button v-if="!readonly" type="primary" @click="handleUploadAttachment">
+            <Button
+              v-if="!readonly"
+              type="primary"
+              @click="handleUploadAttachment"
+            >
               上传附件
             </Button>
           </template>

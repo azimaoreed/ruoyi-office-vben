@@ -3,13 +3,15 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { AttachmentApi } from '#/api/common/attachment';
 
 import { computed, nextTick, ref, watch } from 'vue';
-import { message } from 'ant-design-vue';
-import { TableAction, useVbenVxeGrid, ACTION_ICON } from '#/adapter/vxe-table';
 
-import { 
-  createAttachment, 
-  useAttachmentActions, 
-  useAttachmentColumns 
+import { message } from 'ant-design-vue';
+
+import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
+
+import {
+  createAttachment,
+  useAttachmentActions,
+  useAttachmentColumns,
 } from './data';
 
 interface Props {
@@ -54,10 +56,11 @@ function handleAdd(file: File) {
 /** 删除附件 */
 function handleDelete(row: AttachmentApi.AttachmentSaveReq) {
   const index = tableData.value.findIndex(
-    (item) => (item.id && item.id === row.id) || 
-              (item.fileName === row.fileName && item.uploadTime === row.uploadTime)
+    (item) =>
+      (item.id && item.id === row.id) ||
+      (item.fileName === row.fileName && item.uploadTime === row.uploadTime),
   );
-  if (index > -1) {
+  if (index !== -1) {
     tableData.value.splice(index, 1);
     // 重新排序
     tableData.value.forEach((item, idx) => {
@@ -117,23 +120,27 @@ function handleTriggerUpload() {
   input.type = 'file';
   input.multiple = true;
   input.accept = props.accept === '*' ? '' : props.accept;
-  input.onchange = (e) => {
+  input.addEventListener('change', (e) => {
     const files = (e.target as HTMLInputElement).files;
     if (files) {
-      Array.from(files).forEach(file => {
+      [...files].forEach((file) => {
         handleFileUpload(file);
       });
     }
-  };
+  });
   input.click();
 }
 
 // 上传按钮配置
 const uploadActions = computed(() => {
-  if (props.readonly || tableData.value.length >= props.maxCount || props.hideUploadButton) {
+  if (
+    props.readonly ||
+    tableData.value.length >= props.maxCount ||
+    props.hideUploadButton
+  ) {
     return [];
   }
-  
+
   return [
     {
       label: '上传附件',
@@ -147,7 +154,6 @@ const uploadActions = computed(() => {
 defineExpose({
   handleTriggerUpload,
 });
-
 
 const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
@@ -209,10 +215,10 @@ watch(
   async (attachments) => {
     if (!attachments) {
       return;
-      }
-      await nextTick();
-      tableData.value = [...attachments];
-      await gridApi.grid.reloadData(tableData.value);
+    }
+    await nextTick();
+    tableData.value = [...attachments];
+    await gridApi.grid.reloadData(tableData.value);
   },
   {
     immediate: true,
@@ -233,12 +239,14 @@ watch(
       <Grid class="w-full">
         <template #actions="{ row }">
           <TableAction
-            :actions="useAttachmentActions(
-              props.readonly,
-              () => handlePreview(row),
-              () => handleDownload(row),
-              () => handleDelete(row),
-            )"
+            :actions="
+              useAttachmentActions(
+                props.readonly,
+                () => handlePreview(row),
+                () => handleDownload(row),
+                () => handleDelete(row),
+              )
+            "
           />
         </template>
       </Grid>
@@ -252,10 +260,10 @@ watch(
 }
 
 .attachment-list :deep(.vxe-grid) {
-  padding-left: 0 !important;
-  padding-right: 0 !important;  
   height: auto !important;
   max-height: none !important;
+  padding-right: 0 !important;
+  padding-left: 0 !important;
 }
 
 /* 确保按钮容器与表格对齐 */
