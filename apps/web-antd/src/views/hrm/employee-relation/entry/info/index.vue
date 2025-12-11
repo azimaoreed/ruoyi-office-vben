@@ -2,7 +2,7 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { EmployeeEntryBillApi } from '#/api/hrm/employee-entry';
 
-import { nextTick, onMounted, ref, shallowRef } from 'vue';
+import { nextTick, onMounted, ref, shallowRef, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { Loading } from '@vben/common-ui';
@@ -14,6 +14,8 @@ import { useTabs } from '@vben/hooks';
 import { useUserStore } from '@vben/stores';
 
 import { Button, message, Table } from 'ant-design-vue';
+
+import { useVbenForm } from '#/adapter/form';
 
 import { withdrawProcessToStart } from '#/api/bpm/task';
 import {
@@ -31,6 +33,7 @@ import {
   useFamilyColumns,
   useFormSchema,
   useWorkExperienceColumns,
+  useWorkFormSchema,
 } from './data';
 
 defineOptions({ name: 'HrmEmployeeEntryBillInfo' });
@@ -76,9 +79,51 @@ const familyList = ref<EmployeeEntryBillApi.EmployeeFamily[]>([]);
 // 表单schema - 使用shallowRef避免深度响应式
 const formSchema = shallowRef<VbenFormSchema[]>([]);
 
+// 初始化工作信息表单
+const [WorkForm, workFormApi] = useVbenForm({
+  commonConfig: {
+    componentProps: {
+      class: 'w-full',
+    },
+    formItemClass: 'col-span-1',
+    labelWidth: 120,
+    disabled: readonly.value,
+  },
+  wrapperClass: 'grid grid-cols-2 gap-4',
+  layout: 'horizontal',
+  schema: useWorkFormSchema(deptSelectModalRef, readonly),
+  showDefaultActions: false,
+});
+
 // 初始化表单schema
 function initFormSchema() {
   formSchema.value = useFormSchema(deptSelectModalRef, readonly);
+}
+
+// 更新工作信息表单的schema（当readonly变化时）
+function updateWorkFormSchema() {
+  if (workFormApi) {
+    const workSchema = useWorkFormSchema(deptSelectModalRef, readonly);
+    // 更新每个字段的disabled状态
+    const updatedSchema = workSchema.map((schema) => {
+      const componentProps = schema.componentProps || {};
+      // 如果字段有自定义的disabled函数，则优先使用
+      const hasCustomDisabled =
+        componentProps &&
+        typeof componentProps === 'object' &&
+        'disabled' in componentProps &&
+        typeof componentProps.disabled === 'function';
+
+      return {
+        ...schema,
+        componentProps: {
+          ...componentProps,
+          disabled: hasCustomDisabled ? componentProps.disabled() : readonly.value,
+        },
+      };
+    });
+    workFormApi.updateSchema(updatedSchema);
+  }
 }
 
 // 优先使用 props 传递的 id，如果没有则使用路由参数
@@ -102,9 +147,11 @@ async function handleSaveAndSubmit(isSubmit: boolean) {
 
   // 提交前校验 - 只有提交时才进行校验，保存时不校验
   if (isSubmit) {
-    const { valid } = await basicFormRef.value.validateForm();
+    const { valid: basicValid } = await basicFormRef.value.validateForm();
+    const workValid = await workFormApi.validate();
+    
     // 如果校验不通过，则不允许提交
-    if (!valid) {
+    if (!basicValid || !workValid.valid) {
       loading.value = false;
       return;
     }
@@ -117,11 +164,15 @@ async function handleSaveAndSubmit(isSubmit: boolean) {
       : ((await basicFormRef.value.getFormValues(
           false,
         )) as EmployeeEntryBillApi.EmployeeEntryBill);
+    
+    // 获取工作信息表单的值
+    const workValues = await workFormApi.getValues();
 
     // 合并表单值和其他数据
     const data = {
       ...formData.value,
       ...formValues,
+      ...workValues,
       workExperienceList: workExperienceList.value,
       educationList: educationList.value,
       familyList: familyList.value,
@@ -158,6 +209,7 @@ async function handleRevoke(reason: string) {
         reason: reason || '制单人撤回',
       });
       message.success('撤回成功');
+      // 撤回后重新加载数据，readonly状态会自动更新
       await loadData();
     } catch (error) {
       console.error('撤回失败:', error);
@@ -218,10 +270,19 @@ async function loadData() {
             formData.value.processStatus as number,
           );
 
+    // 重新初始化表单schema（因为readonly状态可能变化）
+    initFormSchema();
+    
+    // 更新工作信息表单的schema（因为readonly状态可能变化）
+    updateWorkFormSchema();
+
     // 设置表单值
     if (basicFormRef.value) {
       await basicFormRef.value.setFormValues(data);
     }
+    
+    // 设置工作信息表单值
+    await workFormApi.setValues(data);
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : '获取员工入职申请单详情失败';
@@ -239,14 +300,21 @@ async function loadData() {
 
 // 处理部门选择
 function handleDeptSelect(dept: any) {
-  if (basicFormRef.value && dept) {
+  if (dept) {
     const deptData = {
       empDeptId: dept.id,
       empDeptName: dept.name,
       empCompanyId: dept.companyId,
       empCompanyName: dept.companyName || '',
     };
-    basicFormRef.value.setFormValues(deptData);
+    
+    // 更新基本信息表单（BasicForm）
+    if (basicFormRef.value) {
+      basicFormRef.value.setFormValues(deptData);
+    }
+    
+    // 更新工作信息表单（WorkForm）
+    workFormApi.setValues(deptData);
 
     // 同时更新formData
     Object.assign(formData.value, deptData);
@@ -262,21 +330,18 @@ defineExpose({
 // 工作经历表格列定义
 const workExperienceColumns = useWorkExperienceColumns(
   readonly,
-  workExperienceList,
   handleDeleteWorkExperience,
 );
 
 // 教育经历表格列定义
 const educationColumns = useEducationColumns(
   readonly,
-  educationList,
   handleDeleteEducation,
 );
 
 // 家属信息表格列定义
 const familyColumns = useFamilyColumns(
   readonly,
-  familyList,
   handleDeleteFamily,
 );
 
@@ -332,6 +397,15 @@ function handleUploadAttachment() {
   }
 }
 
+// 监听readonly变化，更新工作信息表单的schema
+watch(
+  readonly,
+  () => {
+    updateWorkFormSchema();
+  },
+  { immediate: false },
+);
+
 onMounted(() => {
   initFormSchema();
   loadData();
@@ -358,6 +432,11 @@ onMounted(() => {
     >
       <!-- 扩展插槽，用于明细表格等 -->
       <template #form-extension>
+        
+        <CardContainer title="工作信息">
+          <WorkForm />
+        </CardContainer>
+
         <!-- 工作经历 -->
         <CardContainer title="工作经历">
           <template #extra>

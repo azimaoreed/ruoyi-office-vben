@@ -198,6 +198,9 @@ const HRM_DICT = {
   HRM_EMPLOYEE_STATUS: 'hrm_employee_status', // 人员状态
   HRM_JOB_POSITION: 'hrm_job_position', // 职务
   HRM_EDUCATION: 'hrm_education', // 文化程度
+  HRM_NATION: 'hrm_nation', // 民族
+  HRM_POLITICAL_STATUS: 'hrm_political_status', // 政治面貌
+  HRM_MARITAL_STATUS: 'hrm_marital_status', // 婚姻状况
 } as const;
 
 /** 字典类型枚举 - 统一导出 */

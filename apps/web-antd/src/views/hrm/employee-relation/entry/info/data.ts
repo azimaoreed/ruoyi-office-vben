@@ -1,9 +1,9 @@
 import type { Ref } from 'vue';
 
 import type { VbenFormSchema } from '#/adapter/form';
-import type { EmployeeEntryBillApi } from '#/api/hrm/employee-entry';
 
 import { h } from 'vue';
+import { z } from '#/adapter/form';
 
 import { DICT_TYPE } from '@vben/constants';
 import { getDictOptions } from '@vben/hooks';
@@ -11,12 +11,10 @@ import { getDictOptions } from '@vben/hooks';
 import { Button, DatePicker, Input } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
-import { z } from '#/adapter/form';
-
 /** 新增/修改的表单 */
 export function useFormSchema(
-  deptSelectModalRef?: any,
-  readonly?: Ref<boolean>,
+  _deptSelectModalRef?: any,
+  _readonly?: Ref<boolean>,
 ): VbenFormSchema[] {
   return [
     {
@@ -50,15 +48,30 @@ export function useFormSchema(
       fieldName: 'sex',
       label: '性别',
       rules: 'required',
-      component: 'RadioGroup',
+      component: 'Select',
       componentProps: {
+        placeholder: '请选择性别',
         options: getDictOptions(DICT_TYPE.SYSTEM_USER_SEX),
+      },
+    },
+    {
+      fieldName: 'mobile',
+      label: '手机号码',
+      rules: z
+        .string()
+        .min(1, '手机号不能为空')
+        .regex(/^1[3-9]\d{9}$/, '请输入正确的手机号码'),
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入手机号码',
+        maxLength: 11,
       },
     },
     {
       fieldName: 'birthday',
       label: '出生日期',
       component: 'DatePicker',
+      rules: 'required',
       componentProps: {
         placeholder: '请选择出生日期',
         format: 'YYYY-MM-DD',
@@ -67,23 +80,18 @@ export function useFormSchema(
     },
     {
       fieldName: 'idCard',
-      label: '身份证号码',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入身份证号码',
-      },
-    },
-    {
-      fieldName: 'mobile',
-      label: '手机号',
+      label: '身份证号',
       rules: z
         .string()
-        .min(1, '手机号不能为空')
-        .regex(/^1[3-9]\d{9}$/, '请输入正确的手机号码'),
+        .min(1, '身份证号不能为空')
+        .regex(
+          /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[0-9Xx]$/,
+          '请输入18位有效身份证号',
+        ),
       component: 'Input',
+      formItemClass: 'col-span-2',
       componentProps: {
-        placeholder: '请输入手机号',
-        maxLength: 11,
+        placeholder: '请输入身份证号',
       },
     },
     {
@@ -93,48 +101,63 @@ export function useFormSchema(
       componentProps: {
         placeholder: '请输入邮箱',
       },
-      rules: z
-        .string()
-        .optional()
-        .refine(
-          (val) => !val || /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/.test(val),
-          '请输入正确的邮箱地址',
-        ),
     },
     {
       fieldName: 'nation',
       label: '民族',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
-        placeholder: '请输入民族',
+        placeholder: '请选择民族',
+        options: getDictOptions(DICT_TYPE.HRM_NATION),
+      },
+    },
+    {
+      fieldName: 'politicalStatus',
+      label: '政治面貌',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请选择政治面貌',
+        options: getDictOptions(DICT_TYPE.HRM_POLITICAL_STATUS),
+      },
+    },
+    {
+      fieldName: 'maritalStatus',
+      label: '婚姻状况',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请选择婚姻状况',
+        options: getDictOptions(DICT_TYPE.HRM_MARITAL_STATUS),
       },
     },
     {
       fieldName: 'nativePlace',
       label: '籍贯',
+      formItemClass: 'col-span-2',
       component: 'Input',
       componentProps: {
         placeholder: '请输入籍贯',
       },
     },
     {
-      fieldName: 'householdAddress',
-      label: '户籍所在地',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入户籍所在地',
-      },
-    },
-    {
       fieldName: 'currentAddress',
-      label: '现居住地址',
+      label: '现居住地',
       component: 'Input',
+      formItemClass: 'col-span-2',
       componentProps: {
-        placeholder: '请输入现居住地址',
+        placeholder: '请输入现居住地',
       },
     },
     {
-      fieldName: 'emergencyContact',
+      fieldName: 'householdAddress',
+      label: '户口所在地',
+      component: 'Input',
+      formItemClass: 'col-span-2',
+      componentProps: {
+        placeholder: '请输入户口所在地',
+      },
+    },
+    {
+      fieldName: 'emergencyContactName',
       label: '紧急联系人',
       component: 'Input',
       componentProps: {
@@ -142,16 +165,16 @@ export function useFormSchema(
       },
     },
     {
-      fieldName: 'emergencyPhone',
-      label: '联系电话',
+      fieldName: 'emergencyContactMobile',
+      label: '紧急联系人电话',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入联系电话',
+        placeholder: '请输入紧急联系人电话',
       },
     },
     {
       fieldName: 'avatar',
-      label: '照片',
+      label: '头像',
       component: 'ImageUpload',
       componentProps: {
         contentText: '上传员工照片',
@@ -159,134 +182,17 @@ export function useFormSchema(
         maxNumber: 1,
       },
     },
-    // ========== 入职相关信息（员工所属的组织信息） ==========
-    {
-      fieldName: 'entryDate',
-      label: '入职日期',
-      rules: 'required',
-      component: 'DatePicker',
-      componentProps: {
-        placeholder: '请选择入职日期',
-        format: 'YYYY-MM-DD',
-        valueFormat: 'YYYY-MM-DD',
-      },
-    },
-    {
-      fieldName: 'probationPeriod',
-      label: '试用期（月数）',
-      component: 'InputNumber',
-      componentProps: {
-        placeholder: '请输入试用期',
-        min: 0,
-        max: 12,
-      },
-    },
-    {
-      fieldName: 'expectedFormalDate',
-      label: '预计转正日期',
-      component: 'DatePicker',
-      componentProps: {
-        placeholder: '请选择预计转正日期',
-        format: 'YYYY-MM-DD',
-        valueFormat: 'YYYY-MM-DD',
-      },
-    },
-    {
-      fieldName: 'empDeptName',
-      label: '员工所属部门',
-      rules: 'required',
-      component: 'HelpInput',
-      componentProps: {
-        placeholder: '请选择员工所属部门',
-        bind: {
-          readonly,
-          onClick: () => {
-            if (!readonly?.value && deptSelectModalRef?.value) {
-              deptSelectModalRef.value.modalApi.open();
-            }
-          },
-        },
-        onClick: () => {
-          if (!readonly?.value && deptSelectModalRef?.value) {
-            deptSelectModalRef.value.modalApi.open();
-          }
-        },
-      },
-    },
-    {
-      fieldName: 'empDeptId',
-      label: '员工所属部门ID',
-      component: 'Input',
-      dependencies: {
-        triggerFields: [''],
-        show: () => false,
-      },
-    },
-    {
-      fieldName: 'empCompanyName',
-      label: '员工所属公司',
-      component: 'Input',
-      componentProps: {
-        placeholder: '员工所属公司',
-        readonly: true,
-        disabled: true,
-      },
-    },
-    {
-      fieldName: 'empCompanyId',
-      label: '员工所属公司ID',
-      component: 'Input',
-      dependencies: {
-        triggerFields: [''],
-        show: () => false,
-      },
-    },
-    {
-      fieldName: 'jobPosition',
-      label: '职务',
-      component: 'Select',
-      componentProps: {
-        placeholder: '请选择职务',
-        options: getDictOptions(DICT_TYPE.HRM_JOB_POSITION),
-      },
-    },
-    {
-      fieldName: 'jobTitle',
-      label: '职称',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入职称',
-      },
-    },
-    {
-      fieldName: 'employeeStatus',
-      label: '人员状态',
-      rules: 'required',
-      component: 'Select',
-      componentProps: {
-        placeholder: '请选择人员状态',
-        options: getDictOptions(DICT_TYPE.HRM_EMPLOYEE_STATUS),
-      },
-    },
-    {
-      fieldName: 'education',
-      label: '文化程度',
-      component: 'Select',
-      componentProps: {
-        placeholder: '请选择文化程度',
-        options: getDictOptions(DICT_TYPE.HRM_EDUCATION),
-      },
-    },
-    {
-      fieldName: 'salary',
-      label: '薪资',
-      component: 'InputAmount',
-      componentProps: {
-        placeholder: '请输入薪资',
-        showUnit: false,
-        precision: 2,
-      },
-    },
+  ];
+}
+
+/**
+ * 工作信息表单配置
+ */
+export function useWorkFormSchema(
+  deptSelectModalRef?: any,
+  readonly?: Ref<boolean>,
+): VbenFormSchema[] {
+  return [
     {
       fieldName: 'bankName',
       label: '工资开户行',
@@ -304,10 +210,87 @@ export function useFormSchema(
       },
     },
     {
+      fieldName: 'jobPosition',
+      label: '职务',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请选择职务',
+        options: getDictOptions(DICT_TYPE.HRM_JOB_POSITION),
+      },
+    },
+    {
+      fieldName: 'employeeStatus',
+      label: '人员状态',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请选择人员状态',
+        options: getDictOptions(DICT_TYPE.HRM_EMPLOYEE_STATUS),
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'probationPeriod',
+      label: '试用期（月）',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入试用期',
+      },
+    },
+    {
+      fieldName: 'empDeptName',
+      label: '所属部门',
+      component: 'HelpInput',
+      componentProps: {
+        placeholder: '请选择所属部门',
+        bind: {
+          readonly,
+          onClick: () => {
+            if (!readonly?.value && deptSelectModalRef?.value) {
+              deptSelectModalRef.value.modalApi.open();
+            }
+          },
+        },
+        onClick: () => {
+          if (!readonly?.value && deptSelectModalRef?.value) {
+            deptSelectModalRef.value.modalApi.open();
+          }
+        },
+      },
+    },
+    {
+      fieldName: 'empDeptId',
+      label: '部门ID',
+      component: 'Input',
+      dependencies: {
+        triggerFields: [''],
+        show: () => false,
+      },
+    },
+    {
+      fieldName: 'empCompanyName',
+      label: '所属公司',
+      component: 'Input',
+      componentProps: {
+        placeholder: '所属公司',
+        readonly: true,
+        disabled: true,
+      },
+    },
+    {
+      fieldName: 'entryDate',
+      label: '入职日期',
+      component: 'DatePicker',
+      componentProps: {
+        placeholder: '请选择入职日期',
+        format: 'YYYY-MM-DD',
+        valueFormat: 'YYYY-MM-DD',
+      },
+    },
+    {
       fieldName: 'remark',
       label: '备注',
-      component: 'Textarea',
-      formItemClass: 'col-span-full',
+      component: 'Input',
+      formItemClass: 'col-span-2',
       componentProps: {
         placeholder: '请输入备注',
       },
@@ -316,11 +299,10 @@ export function useFormSchema(
 }
 
 /**
- * 工作经历表格列定义
+ * 工作经历列配置
  */
 export function useWorkExperienceColumns(
   readonly: Ref<boolean>,
-  workExperienceList: Ref<EmployeeEntryBillApi.EmployeeWorkExperience[]>,
   handleDelete: (index: number) => void,
 ) {
   return [
@@ -328,7 +310,7 @@ export function useWorkExperienceColumns(
       title: '开始时间',
       dataIndex: 'startTime',
       width: 150,
-      customRender: ({ text, index }: any) => {
+      customRender: ({ text, record }: any) => {
         if (readonly.value) return text || '-';
         return h(DatePicker, {
           value: text ? dayjs(text) : null,
@@ -336,10 +318,8 @@ export function useWorkExperienceColumns(
           placeholder: '请选择开始时间',
           style: { width: '100%' },
           onChange: (date: any) => {
-            if (workExperienceList.value[index]) {
-              workExperienceList.value[index].startTime = date
-                ? dayjs(date).format('YYYY-MM-DD')
-                : undefined;
+            if (record) {
+              record.startTime = date ? dayjs(date).format('YYYY-MM-DD') : undefined;
             }
           },
         } as any);
@@ -349,7 +329,7 @@ export function useWorkExperienceColumns(
       title: '截止时间',
       dataIndex: 'endTime',
       width: 150,
-      customRender: ({ text, index }: any) => {
+      customRender: ({ text, record }: any) => {
         if (readonly.value) return text || '-';
         return h(DatePicker, {
           value: text ? dayjs(text) : null,
@@ -357,10 +337,8 @@ export function useWorkExperienceColumns(
           placeholder: '请选择截止时间',
           style: { width: '100%' },
           onChange: (date: any) => {
-            if (workExperienceList.value[index]) {
-              workExperienceList.value[index].endTime = date
-                ? dayjs(date).format('YYYY-MM-DD')
-                : undefined;
+            if (record) {
+              record.endTime = date ? dayjs(date).format('YYYY-MM-DD') : undefined;
             }
           },
         } as any);
@@ -370,14 +348,14 @@ export function useWorkExperienceColumns(
       title: '职务',
       dataIndex: 'jobPosition',
       width: 150,
-      customRender: ({ text, index }: any) => {
+      customRender: ({ text, record }: any) => {
         if (readonly.value) return text || '-';
         return h(Input, {
           value: text,
           placeholder: '请输入职务',
           onChange: (e: any) => {
-            if (workExperienceList.value[index]) {
-              workExperienceList.value[index].jobPosition = e.target.value;
+            if (record) {
+              record.jobPosition = e.target.value;
             }
           },
         } as any);
@@ -386,14 +364,14 @@ export function useWorkExperienceColumns(
     {
       title: '单位名称',
       dataIndex: 'companyName',
-      customRender: ({ text, index }: any) => {
+      customRender: ({ text, record }: any) => {
         if (readonly.value) return text || '-';
         return h(Input, {
           value: text,
           placeholder: '请输入单位名称',
           onChange: (e: any) => {
-            if (workExperienceList.value[index]) {
-              workExperienceList.value[index].companyName = e.target.value;
+            if (record) {
+              record.companyName = e.target.value;
             }
           },
         } as any);
@@ -421,11 +399,10 @@ export function useWorkExperienceColumns(
 }
 
 /**
- * 教育经历表格列定义
+ * 教育经历列配置
  */
 export function useEducationColumns(
   readonly: Ref<boolean>,
-  educationList: Ref<EmployeeEntryBillApi.EmployeeEducation[]>,
   handleDelete: (index: number) => void,
 ) {
   return [
@@ -433,7 +410,7 @@ export function useEducationColumns(
       title: '开始时间',
       dataIndex: 'startTime',
       width: 150,
-      customRender: ({ text, index }: any) => {
+      customRender: ({ text, record }: any) => {
         if (readonly.value) return text || '-';
         return h(DatePicker, {
           value: text ? dayjs(text) : null,
@@ -441,10 +418,8 @@ export function useEducationColumns(
           placeholder: '请选择开始时间',
           style: { width: '100%' },
           onChange: (date: any) => {
-            if (educationList.value[index]) {
-              educationList.value[index].startTime = date
-                ? dayjs(date).format('YYYY-MM-DD')
-                : undefined;
+            if (record) {
+              record.startTime = date ? dayjs(date).format('YYYY-MM-DD') : undefined;
             }
           },
         } as any);
@@ -454,7 +429,7 @@ export function useEducationColumns(
       title: '截止时间',
       dataIndex: 'endTime',
       width: 150,
-      customRender: ({ text, index }: any) => {
+      customRender: ({ text, record }: any) => {
         if (readonly.value) return text || '-';
         return h(DatePicker, {
           value: text ? dayjs(text) : null,
@@ -462,10 +437,8 @@ export function useEducationColumns(
           placeholder: '请选择截止时间',
           style: { width: '100%' },
           onChange: (date: any) => {
-            if (educationList.value[index]) {
-              educationList.value[index].endTime = date
-                ? dayjs(date).format('YYYY-MM-DD')
-                : undefined;
+            if (record) {
+              record.endTime = date ? dayjs(date).format('YYYY-MM-DD') : undefined;
             }
           },
         } as any);
@@ -475,30 +448,30 @@ export function useEducationColumns(
       title: '专业',
       dataIndex: 'major',
       width: 150,
-      customRender: ({ text, index }: any) => {
+      customRender: ({ text, record }: any) => {
         if (readonly.value) return text || '-';
         return h(Input, {
           value: text,
           placeholder: '请输入专业',
           onChange: (e: any) => {
-            if (educationList.value[index]) {
-              educationList.value[index].major = e.target.value;
+            if (record) {
+              record.major = e.target.value;
             }
           },
         } as any);
       },
     },
     {
-      title: '学校名称',
+      title: '毕业院校',
       dataIndex: 'schoolName',
-      customRender: ({ text, index }: any) => {
+      customRender: ({ text, record }: any) => {
         if (readonly.value) return text || '-';
         return h(Input, {
           value: text,
-          placeholder: '请输入学校名称',
+          placeholder: '请输入毕业院校',
           onChange: (e: any) => {
-            if (educationList.value[index]) {
-              educationList.value[index].schoolName = e.target.value;
+            if (record) {
+              record.schoolName = e.target.value;
             }
           },
         } as any);
@@ -526,11 +499,10 @@ export function useEducationColumns(
 }
 
 /**
- * 家属信息表格列定义
+ * 家属信息列配置
  */
 export function useFamilyColumns(
   readonly: Ref<boolean>,
-  familyList: Ref<EmployeeEntryBillApi.EmployeeFamily[]>,
   handleDelete: (index: number) => void,
 ) {
   return [
@@ -538,14 +510,14 @@ export function useFamilyColumns(
       title: '姓名',
       dataIndex: 'name',
       width: 150,
-      customRender: ({ text, index }: any) => {
+      customRender: ({ text, record }: any) => {
         if (readonly.value) return text || '-';
         return h(Input, {
           value: text,
           placeholder: '请输入姓名',
           onChange: (e: any) => {
-            if (familyList.value[index]) {
-              familyList.value[index].name = e.target.value;
+            if (record) {
+              record.name = e.target.value;
             }
           },
         } as any);
@@ -555,31 +527,31 @@ export function useFamilyColumns(
       title: '关系',
       dataIndex: 'relationship',
       width: 150,
-      customRender: ({ text, index }: any) => {
+      customRender: ({ text, record }: any) => {
         if (readonly.value) return text || '-';
         return h(Input, {
           value: text,
           placeholder: '请输入关系',
           onChange: (e: any) => {
-            if (familyList.value[index]) {
-              familyList.value[index].relationship = e.target.value;
+            if (record) {
+              record.relationship = e.target.value;
             }
           },
         } as any);
       },
     },
     {
-      title: '联系电话',
+      title: '联系方式',
       dataIndex: 'mobile',
       width: 150,
-      customRender: ({ text, index }: any) => {
+      customRender: ({ text, record }: any) => {
         if (readonly.value) return text || '-';
         return h(Input, {
           value: text,
-          placeholder: '请输入联系电话',
+          placeholder: '请输入联系方式',
           onChange: (e: any) => {
-            if (familyList.value[index]) {
-              familyList.value[index].mobile = e.target.value;
+            if (record) {
+              record.mobile = e.target.value;
             }
           },
         } as any);
@@ -588,14 +560,14 @@ export function useFamilyColumns(
     {
       title: '工作单位',
       dataIndex: 'workUnit',
-      customRender: ({ text, index }: any) => {
+      customRender: ({ text, record }: any) => {
         if (readonly.value) return text || '-';
         return h(Input, {
           value: text,
           placeholder: '请输入工作单位',
           onChange: (e: any) => {
-            if (familyList.value[index]) {
-              familyList.value[index].workUnit = e.target.value;
+            if (record) {
+              record.workUnit = e.target.value;
             }
           },
         } as any);

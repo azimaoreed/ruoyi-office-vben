@@ -69,9 +69,10 @@ export function useBasicFormSchema(_isEdit?: boolean): VbenFormSchema[] {
     {
       fieldName: 'nation',
       label: '民族',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
-        placeholder: '请输入民族',
+        placeholder: '请选择民族',
+        options: getDictOptions(DICT_TYPE.HRM_NATION),
       },
     },
     {
