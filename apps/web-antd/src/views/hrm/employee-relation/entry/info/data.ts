@@ -224,7 +224,7 @@ export function useWorkFormSchema(
       component: 'Select',
       componentProps: {
         placeholder: '请选择人员状态',
-        options: getDictOptions(DICT_TYPE.HRM_EMPLOYEE_STATUS),
+        options: getDictOptions(DICT_TYPE.HRM_EMPLOYEE_STATUS, 'number'),
       },
       rules: 'required',
     },
