@@ -23,6 +23,8 @@ export namespace EmployeeEntryBillApi {
     mobile: string;
     email?: string;
     nation?: string;
+    politicalStatus?: string;
+    maritalStatus?: string;
     nativePlace?: string;
     householdAddress?: string;
     currentAddress?: string;

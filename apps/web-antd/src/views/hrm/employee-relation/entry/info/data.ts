@@ -51,7 +51,7 @@ export function useFormSchema(
       component: 'Select',
       componentProps: {
         placeholder: '请选择性别',
-        options: getDictOptions(DICT_TYPE.SYSTEM_USER_SEX),
+        options: getDictOptions(DICT_TYPE.SYSTEM_USER_SEX,'number'),
       },
     },
     {
@@ -130,9 +130,17 @@ export function useFormSchema(
       },
     },
     {
+      fieldName: 'education',
+      label: '文化程度',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请选择文化程度',
+        options: getDictOptions(DICT_TYPE.HRM_EDUCATION),
+      },
+    },
+    {
       fieldName: 'nativePlace',
       label: '籍贯',
-      formItemClass: 'col-span-2',
       component: 'Input',
       componentProps: {
         placeholder: '请输入籍贯',
@@ -157,7 +165,7 @@ export function useFormSchema(
       },
     },
     {
-      fieldName: 'emergencyContactName',
+      fieldName: 'emergencyContact',
       label: '紧急联系人',
       component: 'Input',
       componentProps: {
@@ -165,7 +173,7 @@ export function useFormSchema(
       },
     },
     {
-      fieldName: 'emergencyContactMobile',
+      fieldName: 'emergencyPhone',
       label: '紧急联系人电话',
       component: 'Input',
       componentProps: {

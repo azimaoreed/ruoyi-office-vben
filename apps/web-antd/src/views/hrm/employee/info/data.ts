@@ -35,7 +35,7 @@ export function useBasicFormSchema(_isEdit?: boolean): VbenFormSchema[] {
       label: '性别',
       component: 'RadioGroup',
       componentProps: {
-        options: getDictOptions(DICT_TYPE.SYSTEM_USER_SEX),
+        options: getDictOptions(DICT_TYPE.SYSTEM_USER_SEX,'number'),
       },
       rules: 'required',
     },
@@ -73,6 +73,24 @@ export function useBasicFormSchema(_isEdit?: boolean): VbenFormSchema[] {
       componentProps: {
         placeholder: '请选择民族',
         options: getDictOptions(DICT_TYPE.HRM_NATION),
+      },
+    },
+    {
+      fieldName: 'politicalStatus',
+      label: '政治面貌',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请选择政治面貌',
+        options: getDictOptions(DICT_TYPE.HRM_POLITICAL_STATUS),
+      },
+    },
+    {
+      fieldName: 'maritalStatus',
+      label: '婚姻状况',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请选择婚姻状况',
+        options: getDictOptions(DICT_TYPE.HRM_MARITAL_STATUS),
       },
     },
     {
@@ -116,6 +134,13 @@ export function useBasicFormSchema(_isEdit?: boolean): VbenFormSchema[] {
     {
       fieldName: 'idCard',
       label: '身份证号码',
+      rules: z
+        .string()
+        .min(1, '身份证号不能为空')
+        .regex(
+          /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[0-9Xx]$/,
+          '请输入18位有效身份证号',
+        ),
       component: 'Input',
       componentProps: {
         placeholder: '请输入身份证号码',
