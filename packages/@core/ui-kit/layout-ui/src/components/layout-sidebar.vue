@@ -26,6 +26,11 @@ interface Props {
    */
   domVisible?: boolean;
   /**
+   * 展开所有菜单当前是否激活，用于控制按钮文案
+   * @default false
+   */
+  expandAllMenusActive?: boolean;
+  /**
    * 扩展区域宽度
    */
   extraWidth: number;
@@ -69,20 +74,15 @@ interface Props {
    */
   showCollapseButton?: boolean;
   /**
-   * 显示固定按钮
-   * @default true
-   */
-  showFixedButton?: boolean;
-  /**
    * 显示“展开/收起所有菜单”按钮
    * @default false
    */
   showExpandAllMenusButton?: boolean;
   /**
-   * 展开所有菜单当前是否激活，用于控制按钮文案
-   * @default false
+   * 显示固定按钮
+   * @default true
    */
-  expandAllMenusActive?: boolean;
+  showFixedButton?: boolean;
   /**
    * 主题
    */
@@ -307,7 +307,7 @@ function handleMouseleave() {
     >
       <button
         type="button"
-        class="inline-flex max-w-[120px] items-center justify-center rounded border border-dashed border-border px-2 py-1 text-xs text-foreground/80 hover:border-primary hover:text-primary bg-accent"
+        class="border-border text-foreground/80 hover:border-primary hover:text-primary bg-accent inline-flex max-w-[120px] items-center justify-center rounded border border-dashed px-2 py-1 text-xs"
         @click="emit('toggleExpandAllMenus')"
       >
         {{ expandAllMenusActive ? '收起所有菜单' : '展示所有菜单' }}

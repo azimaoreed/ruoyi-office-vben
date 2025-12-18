@@ -65,8 +65,8 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   sideMouseLeave: [];
-  toggleSidebar: [];
   toggleExpandAllMenus: [];
+  toggleSidebar: [];
 }>();
 const sidebarCollapse = defineModel<boolean>('sidebarCollapse', {
   default: false,

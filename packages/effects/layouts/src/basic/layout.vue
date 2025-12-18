@@ -331,7 +331,10 @@ const headerSlots = computed(() => {
     <!-- 侧边菜单区域 -->
     <template #menu>
       <LayoutMenu
-        :accordion="preferences.navigation.accordion"
+        :accordion="
+          preferences.navigation.accordion &&
+          !preferences.navigation.expandAllMenus
+        "
         :collapse="preferences.sidebar.collapsed"
         :collapse-show-title="preferences.sidebar.collapsedShowTitle"
         :default-active="sidebarActive"
@@ -358,7 +361,10 @@ const headerSlots = computed(() => {
     <!-- 侧边额外区域 -->
     <template #side-extra>
       <LayoutExtraMenu
-        :accordion="preferences.navigation.accordion"
+        :accordion="
+          preferences.navigation.accordion &&
+          !preferences.navigation.expandAllMenus
+        "
         :collapse="preferences.sidebar.extraCollapse"
         :expand-all-menus="preferences.navigation.expandAllMenus"
         :menus="wrapperMenus(extraMenus)"
