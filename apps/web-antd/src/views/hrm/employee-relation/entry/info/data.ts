@@ -304,6 +304,16 @@ export function useWorkFormSchema(
       },
     },
     {
+      fieldName: 'expectedFormalDate',
+      label: '预计转正日期',
+      component: 'DatePicker',
+      componentProps: {
+        placeholder: '请选择预计转正日期',
+        format: 'YYYY-MM-DD',
+        valueFormat: 'YYYY-MM-DD',
+      },
+    },
+    {
       fieldName: 'remark',
       label: '备注',
       component: 'Input',
