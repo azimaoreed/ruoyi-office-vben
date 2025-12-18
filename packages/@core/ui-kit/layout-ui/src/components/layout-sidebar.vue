@@ -74,6 +74,16 @@ interface Props {
    */
   showFixedButton?: boolean;
   /**
+   * 显示“展开/收起所有菜单”按钮
+   * @default false
+   */
+  showExpandAllMenusButton?: boolean;
+  /**
+   * 展开所有菜单当前是否激活，用于控制按钮文案
+   * @default false
+   */
+  expandAllMenusActive?: boolean;
+  /**
    * 主题
    */
   theme: string;
@@ -101,10 +111,15 @@ const props = withDefaults(defineProps<Props>(), {
   show: true,
   showCollapseButton: true,
   showFixedButton: true,
+  showExpandAllMenusButton: false,
+  expandAllMenusActive: false,
   zIndex: 0,
 });
 
-const emit = defineEmits<{ leave: [] }>();
+const emit = defineEmits<{
+  leave: [];
+  toggleExpandAllMenus: [];
+}>();
 const collapse = defineModel<boolean>('collapse');
 const extraCollapse = defineModel<boolean>('extraCollapse');
 const expandOnHovering = defineModel<boolean>('expandOnHovering');
@@ -282,6 +297,22 @@ function handleMouseleave() {
     <VbenScrollbar :style="contentStyle" shadow shadow-border>
       <slot></slot>
     </VbenScrollbar>
+
+    <!-- 展开 / 收起所有菜单按钮，位于固定按钮和折叠按钮之间
+         - 仅在未折叠、非混合侧边栏时显示
+         - 按钮宽度适当缩小，不遮挡底部折叠 / 固定按钮 -->
+    <div
+      v-if="showExpandAllMenusButton && !isSidebarMixed && !collapse"
+      class="absolute bottom-2 left-1/2 z-10 -translate-x-1/2"
+    >
+      <button
+        type="button"
+        class="inline-flex max-w-[120px] items-center justify-center rounded border border-dashed border-border px-2 py-1 text-xs text-foreground/80 hover:border-primary hover:text-primary bg-accent"
+        @click="emit('toggleExpandAllMenus')"
+      >
+        {{ expandAllMenusActive ? '收起所有菜单' : '展示所有菜单' }}
+      </button>
+    </div>
 
     <div :style="collapseStyle"></div>
     <SidebarCollapseButton

@@ -63,7 +63,11 @@ const props = withDefaults(defineProps<Props>(), {
   zIndex: 200,
 });
 
-const emit = defineEmits<{ sideMouseLeave: []; toggleSidebar: [] }>();
+const emit = defineEmits<{
+  sideMouseLeave: [];
+  toggleSidebar: [];
+  toggleExpandAllMenus: [];
+}>();
 const sidebarCollapse = defineModel<boolean>('sidebarCollapse', {
   default: false,
 });
@@ -75,6 +79,14 @@ const sidebarExpandOnHover = defineModel<boolean>('sidebarExpandOnHover', {
   default: false,
 });
 const sidebarEnable = defineModel<boolean>('sidebarEnable', { default: true });
+const sidebarShowExpandAllMenusButton = defineModel<boolean>(
+  'sidebarShowExpandAllMenusButton',
+  { default: false },
+);
+const navigationExpandAllMenusActive = defineModel<boolean>(
+  'navigationExpandAllMenusActive',
+  { default: false },
+);
 
 // side是否处于hover状态展开菜单中
 const sidebarExpandOnHovering = ref(false);
@@ -491,6 +503,8 @@ const idMainContent = ELEMENT_ID_MAIN_CONTENT;
       v-model:extra-visible="sidebarExtraVisible"
       :show-collapse-button="sidebarCollapsedButton"
       :show-fixed-button="sidebarFixedButton"
+      :show-expand-all-menus-button="sidebarShowExpandAllMenusButton"
+      :expand-all-menus-active="navigationExpandAllMenusActive"
       :collapse-width="getSideCollapseWidth"
       :dom-visible="!isMobile"
       :extra-width="sidebarExtraWidth"
@@ -504,6 +518,7 @@ const idMainContent = ELEMENT_ID_MAIN_CONTENT;
       :width="getSidebarWidth"
       :z-index="sidebarZIndex"
       @leave="() => emit('sideMouseLeave')"
+      @toggle-expand-all-menus="() => emit('toggleExpandAllMenus')"
     >
       <template v-if="isSideMode && !isMixedNav" #logo>
         <slot name="logo"></slot>
