@@ -136,6 +136,15 @@ export function useGridColumns(): VxeTableGridOptions<EmployeeEntryBillApi.Emplo
       minWidth: 120,
     },
     {
+      field: 'jobPost',
+      title: '职位',
+      minWidth: 120,
+      cellRender: {
+        name: 'CellDict',
+        props: { type: DICT_TYPE.HRM_JOB_POST },
+      },
+    },
+    {
       field: 'jobPosition',
       title: '职务',
       minWidth: 120,

@@ -251,6 +251,15 @@ export function useWorkFormSchema(
       },
     },
     {
+      fieldName: 'jobPost',
+      label: '职位',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请选择职位',
+        options: getDictOptions(DICT_TYPE.HRM_JOB_POST),
+      },
+    },
+    {
       fieldName: 'jobPosition',
       label: '职务',
       component: 'Select',

@@ -127,9 +127,22 @@ export function useGridColumns(): VxeTableGridOptions<EmployeeArchiveApi.Employe
       minWidth: 150,
     },
     {
-      title: '职务',
-      field: 'jobPosition',
+      field: 'jobPost',
+      title: '职位',
       minWidth: 120,
+      cellRender: {
+        name: 'CellDict',
+        props: { type: DICT_TYPE.HRM_JOB_POST },
+      },
+    },
+    {
+      field: 'jobPosition',
+      title: '职务',
+      minWidth: 120,
+      cellRender: {
+        name: 'CellDict',
+        props: { type: DICT_TYPE.HRM_JOB_POSITION },
+      },
     },
     {
       title: '人员状态',
