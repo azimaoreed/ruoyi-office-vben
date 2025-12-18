@@ -315,18 +315,41 @@ const headerSlots = computed(() => {
     </template>
     <!-- 侧边菜单区域 -->
     <template #menu>
-      <LayoutMenu
-        :accordion="preferences.navigation.accordion"
-        :collapse="preferences.sidebar.collapsed"
-        :collapse-show-title="preferences.sidebar.collapsedShowTitle"
-        :default-active="sidebarActive"
-        :menus="wrapperMenus(sidebarMenus)"
-        :rounded="isMenuRounded"
-        :theme="sidebarTheme"
-        mode="vertical"
-        @open="handleMenuOpen"
-        @select="handleMenuSelect"
-      />
+      <div class="flex h-full flex-col">
+        <LayoutMenu
+          :accordion="preferences.navigation.accordion"
+          :collapse="preferences.sidebar.collapsed"
+          :collapse-show-title="preferences.sidebar.collapsedShowTitle"
+          :default-active="sidebarActive"
+          :expand-all-menus="preferences.navigation.expandAllMenus"
+          :menus="wrapperMenus(sidebarMenus)"
+          :rounded="isMenuRounded"
+          :theme="sidebarTheme"
+          class="flex-1"
+          mode="vertical"
+          @open="handleMenuOpen"
+          @select="handleMenuSelect"
+        />
+        <button
+          v-if="preferences.sidebar.showExpandAllMenusButton"
+          class="mx-2 mb-2 mt-1 rounded border border-dashed border-border px-2 py-1 text-xs text-foreground/80 hover:border-primary hover:text-primary"
+          type="button"
+          @click="
+            () =>
+              updatePreferences({
+                navigation: {
+                  expandAllMenus: !preferences.navigation.expandAllMenus,
+                },
+              })
+          "
+        >
+          {{
+            preferences.navigation.expandAllMenus
+              ? '收起所有菜单'
+              : '展示所有菜单'
+          }}
+        </button>
+      </div>
     </template>
     <template #mixed-menu>
       <LayoutMixedMenu
@@ -344,6 +367,7 @@ const headerSlots = computed(() => {
       <LayoutExtraMenu
         :accordion="preferences.navigation.accordion"
         :collapse="preferences.sidebar.extraCollapse"
+        :expand-all-menus="preferences.navigation.expandAllMenus"
         :menus="wrapperMenus(extraMenus)"
         :rounded="isMenuRounded"
         :theme="sidebarTheme"

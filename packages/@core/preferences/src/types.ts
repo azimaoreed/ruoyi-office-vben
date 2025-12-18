@@ -153,6 +153,8 @@ interface NavigationPreferences {
   accordion: boolean;
   /** 导航菜单是否显示图标 */
   showIcon: boolean;
+  /** 导航菜单是否默认全部展开（仅侧边栏使用），供按钮切换 */
+  expandAllMenus?: boolean;
   /** 导航菜单是否切割，只在 layout=mixed-nav 生效 */
   split: boolean;
   /** 导航菜单风格 */
@@ -174,6 +176,8 @@ interface SidebarPreferences {
   enable: boolean;
   /** 菜单自动展开状态 */
   expandOnHover: boolean;
+  /** 是否显示“展示所有菜单”按钮 */
+  showExpandAllMenusButton?: boolean;
   /** 侧边栏扩展区域是否折叠 */
   extraCollapse: boolean;
   /** 侧边栏扩展区域折叠宽度 */

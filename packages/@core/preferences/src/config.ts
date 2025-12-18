@@ -70,6 +70,7 @@ const defaultPreferences: Preferences = {
   navigation: {
     accordion: true,
     showIcon: true,
+    expandAllMenus: false,
     split: true,
     styleType: 'rounded',
   },
@@ -88,6 +89,7 @@ const defaultPreferences: Preferences = {
     collapseWidth: 60,
     enable: true,
     expandOnHover: true,
+    showExpandAllMenusButton: true,
     extraCollapse: false,
     extraCollapsedWidth: 60,
     fixedButton: true,

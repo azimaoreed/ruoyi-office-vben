@@ -25,6 +25,9 @@ const sidebarExpandOnHover = defineModel<boolean>('sidebarExpandOnHover');
 const sidebarButtons = defineModel<string[]>('sidebarButtons', { default: [] });
 const sidebarCollapsedButton = defineModel<boolean>('sidebarCollapsedButton');
 const sidebarFixedButton = defineModel<boolean>('sidebarFixedButton');
+const sidebarShowExpandAllMenusButton = defineModel<boolean>(
+  'sidebarShowExpandAllMenusButton',
+);
 
 onMounted(() => {
   if (
@@ -36,11 +39,19 @@ onMounted(() => {
   if (sidebarFixedButton.value && !sidebarButtons.value.includes('fixed')) {
     sidebarButtons.value.push('fixed');
   }
+  if (
+    sidebarShowExpandAllMenusButton.value &&
+    !sidebarButtons.value.includes('expandAllMenus')
+  ) {
+    sidebarButtons.value.push('expandAllMenus');
+  }
 });
 
 const handleCheckboxChange = () => {
   sidebarCollapsedButton.value = !!sidebarButtons.value.includes('collapsed');
   sidebarFixedButton.value = !!sidebarButtons.value.includes('fixed');
+  sidebarShowExpandAllMenusButton.value =
+    !!sidebarButtons.value.includes('expandAllMenus');
 };
 </script>
 
@@ -81,6 +92,10 @@ const handleCheckboxChange = () => {
     :items="[
       { label: $t('preferences.sidebar.buttonCollapsed'), value: 'collapsed' },
       { label: $t('preferences.sidebar.buttonFixed'), value: 'fixed' },
+      {
+        label: $t('preferences.sidebar.buttonExpandAllMenus'),
+        value: 'expandAllMenus',
+      },
     ]"
     multiple
     v-model="sidebarButtons"

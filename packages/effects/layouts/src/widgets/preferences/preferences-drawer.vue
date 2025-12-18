@@ -100,6 +100,9 @@ const sidebarAutoActivateChild = defineModel<boolean>(
 const sidebarExpandOnHover = defineModel<boolean>('sidebarExpandOnHover');
 const sidebarCollapsedButton = defineModel<boolean>('sidebarCollapsedButton');
 const sidebarFixedButton = defineModel<boolean>('sidebarFixedButton');
+const sidebarShowExpandAllMenusButton = defineModel<boolean>(
+  'sidebarShowExpandAllMenusButton',
+);
 const headerEnable = defineModel<boolean>('headerEnable');
 const headerMode = defineModel<LayoutHeaderModeType>('headerMode');
 const headerMenuAlign =
@@ -354,6 +357,9 @@ async function handleReset() {
                 v-model:sidebar-width="sidebarWidth"
                 v-model:sidebar-collapsed-button="sidebarCollapsedButton"
                 v-model:sidebar-fixed-button="sidebarFixedButton"
+                v-model:sidebar-show-expand-all-menus-button="
+                  sidebarShowExpandAllMenusButton
+                "
                 :current-layout="appLayout"
                 :disabled="!isSideMode"
               />
