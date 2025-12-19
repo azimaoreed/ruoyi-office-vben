@@ -3,13 +3,14 @@ import type { Ref } from 'vue';
 import type { VbenFormSchema } from '#/adapter/form';
 
 import { h } from 'vue';
-import { z } from '#/adapter/form';
 
 import { DICT_TYPE } from '@vben/constants';
 import { getDictOptions } from '@vben/hooks';
 
 import { Button, DatePicker, Input } from 'ant-design-vue';
 import dayjs from 'dayjs';
+
+import { z } from '#/adapter/form';
 
 /** 新增/修改的表单 */
 export function useFormSchema(
@@ -51,7 +52,7 @@ export function useFormSchema(
       component: 'Select',
       componentProps: {
         placeholder: '请选择性别',
-        options: getDictOptions(DICT_TYPE.SYSTEM_USER_SEX,'number'),
+        options: getDictOptions(DICT_TYPE.SYSTEM_USER_SEX, 'number'),
       },
     },
     {
@@ -85,7 +86,7 @@ export function useFormSchema(
         .string()
         .min(1, '身份证号不能为空')
         .regex(
-          /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[0-9Xx]$/,
+          /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[0-9X]$/i,
           '请输入18位有效身份证号',
         ),
       component: 'Input',
@@ -346,7 +347,9 @@ export function useWorkExperienceColumns(
           style: { width: '100%' },
           onChange: (date: any) => {
             if (record) {
-              record.startTime = date ? dayjs(date).format('YYYY-MM-DD') : undefined;
+              record.startTime = date
+                ? dayjs(date).format('YYYY-MM-DD')
+                : undefined;
             }
           },
         } as any);
@@ -365,7 +368,9 @@ export function useWorkExperienceColumns(
           style: { width: '100%' },
           onChange: (date: any) => {
             if (record) {
-              record.endTime = date ? dayjs(date).format('YYYY-MM-DD') : undefined;
+              record.endTime = date
+                ? dayjs(date).format('YYYY-MM-DD')
+                : undefined;
             }
           },
         } as any);
@@ -446,7 +451,9 @@ export function useEducationColumns(
           style: { width: '100%' },
           onChange: (date: any) => {
             if (record) {
-              record.startTime = date ? dayjs(date).format('YYYY-MM-DD') : undefined;
+              record.startTime = date
+                ? dayjs(date).format('YYYY-MM-DD')
+                : undefined;
             }
           },
         } as any);
@@ -465,7 +472,9 @@ export function useEducationColumns(
           style: { width: '100%' },
           onChange: (date: any) => {
             if (record) {
-              record.endTime = date ? dayjs(date).format('YYYY-MM-DD') : undefined;
+              record.endTime = date
+                ? dayjs(date).format('YYYY-MM-DD')
+                : undefined;
             }
           },
         } as any);

@@ -79,6 +79,20 @@ export namespace EmployeeArchiveApi {
     entryDate?: Date[]; // 入职日期
     createTime?: Date[]; // 创建时间
   }
+
+  /** 员工选择分页请求（过滤正式员工） */
+  export interface EmployeeArchiveSelectReqVO extends PageParam {
+    employeeNo?: string;
+    name?: string;
+    deptId?: number;
+    jobPost?: string;
+    jobPosition?: string;
+    employeeStatus?: number; // 额外筛选其他状态（后端会强制过滤正式）
+    entryDate?: Date[];
+    createTime?: Date[];
+    /** 需要排除的人员状态集合，例如 [1, 3] */
+    excludeEmployeeStatusList?: number[];
+  }
 }
 
 /** 查询员工档案分页 */
@@ -87,6 +101,16 @@ export function getEmployeeArchivePage(
 ) {
   return requestClient.get<PageResult<EmployeeArchiveApi.EmployeeArchive>>(
     '/hrm/employee-archive/page',
+    { params },
+  );
+}
+
+/** 员工档案选择分页（过滤正式员工） */
+export function getEmployeeArchiveSelectPage(
+  params: EmployeeArchiveApi.EmployeeArchiveSelectReqVO,
+) {
+  return requestClient.get<PageResult<EmployeeArchiveApi.EmployeeArchive>>(
+    '/hrm/employee-archive/select-page',
     { params },
   );
 }
