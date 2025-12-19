@@ -57,7 +57,9 @@ const basicFormRef = ref();
 const attachmentListRef = ref();
 
 // 员工选择弹窗引用（暂时使用null，后续可以创建员工选择弹窗组件）
-const employeeSelectModalRef = ref<InstanceType<typeof EmployeeSelectModal> | null>(null);
+const employeeSelectModalRef = ref<InstanceType<
+  typeof EmployeeSelectModal
+> | null>(null);
 
 // 表单schema - 使用shallowRef避免深度响应式
 const formSchema = shallowRef<VbenFormSchema[]>([]);
@@ -89,7 +91,7 @@ async function handleSaveAndSubmit(isSubmit: boolean) {
   // 提交前校验 - 只有提交时才进行校验，保存时不校验
   if (isSubmit) {
     const { valid: basicValid } = await basicFormRef.value.validateForm();
-    
+
     // 如果校验不通过，则不允许提交
     if (!basicValid) {
       loading.value = false;
@@ -104,7 +106,7 @@ async function handleSaveAndSubmit(isSubmit: boolean) {
       : ((await basicFormRef.value.getFormValues(
           false,
         )) as EmployeeRegularBillApi.EmployeeRegularBill);
-    
+
     // 合并表单值和其他数据
     const data = {
       ...formData.value,
@@ -229,7 +231,7 @@ function handleEmployeeSelect(employee: any) {
       probationPeriod: employee.probationPeriod,
       expectedFormalDate: employee.expectedFormalDate || employee.formalDate,
     };
-    
+
     // 更新表单
     if (basicFormRef.value) {
       basicFormRef.value.setFormValues(employeeData);
@@ -321,4 +323,3 @@ onMounted(() => {
 <style scoped>
 /* 业务页面样式已封装到BasicForm组件中，无需重复定义 */
 </style>
-

@@ -138,9 +138,7 @@ export function updateEmployeeArchive(
 
 /** 删除员工档案 */
 export function deleteEmployeeArchive(id: number) {
-  return requestClient.delete<boolean>(
-    `/hrm/employee-archive/delete?id=${id}`,
-  );
+  return requestClient.delete<boolean>(`/hrm/employee-archive/delete?id=${id}`);
 }
 
 /** 批量删除员工档案 */
@@ -161,11 +159,14 @@ export function exportEmployeeArchiveExcel(
 
 /** 为员工生成系统用户 */
 export function generateUserForEmployee(id: number) {
-  return requestClient.post<number>(`/hrm/employee-archive/generate-user?id=${id}`);
+  return requestClient.post<number>(
+    `/hrm/employee-archive/generate-user?id=${id}`,
+  );
 }
 
 /** 批量为员工生成系统用户 */
 export function batchGenerateUserForEmployee(ids: number[]) {
-  return requestClient.post<boolean>(`/hrm/employee-archive/batch-generate-user?ids=${ids.join(',')}`);
+  return requestClient.post<boolean>(
+    `/hrm/employee-archive/batch-generate-user?ids=${ids.join(',')}`,
+  );
 }
-

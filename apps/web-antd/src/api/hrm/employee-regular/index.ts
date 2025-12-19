@@ -59,10 +59,9 @@ export namespace EmployeeRegularBillApi {
 export function getEmployeeRegularBillPage(
   params: EmployeeRegularBillApi.EmployeeRegularBillPageReqVO,
 ) {
-  return requestClient.get<PageResult<EmployeeRegularBillApi.EmployeeRegularBill>>(
-    '/hrm/employee-regular-bill/page',
-    { params },
-  );
+  return requestClient.get<
+    PageResult<EmployeeRegularBillApi.EmployeeRegularBill>
+  >('/hrm/employee-regular-bill/page', { params });
 }
 
 /** 查询员工转正申请单详情 */
@@ -118,4 +117,3 @@ export function exportEmployeeRegularBill(params: any) {
     params,
   });
 }
-

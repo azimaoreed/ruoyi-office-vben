@@ -112,7 +112,9 @@ function handleRowCheckboxChange({
 
 /** 导出表格 */
 async function handleExport() {
-  const data = await exportEmployeeRegularBill(await gridApi.formApi.getValues());
+  const data = await exportEmployeeRegularBill(
+    await gridApi.formApi.getValues(),
+  );
   downloadFileFromBlobPart({ fileName: '员工转正申请单.xls', source: data });
 }
 
@@ -228,4 +230,3 @@ onActivated(() => {
     </Grid>
   </Page>
 </template>
-

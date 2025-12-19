@@ -22,7 +22,7 @@ const emit = defineEmits<{
 }>();
 
 const formData = reactive({
-  selectedEmployee: null as null | EmployeeArchiveApi.EmployeeArchive,
+  selectedEmployee: null as EmployeeArchiveApi.EmployeeArchive | null,
 });
 
 /** 表格实例 */
@@ -99,4 +99,3 @@ defineExpose({
     <Grid />
   </Modal>
 </template>
-

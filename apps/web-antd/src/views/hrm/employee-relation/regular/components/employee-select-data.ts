@@ -2,14 +2,14 @@ import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 import type { EmployeeArchiveApi } from '#/api/hrm/employee';
 
-import dayjs from 'dayjs';
-
+import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 import { handleTree } from '@vben/utils';
+
+import dayjs from 'dayjs';
 
 import { getEmployeeArchiveSelectPage } from '#/api/hrm/employee';
 import { getDeptList } from '#/api/system/dept';
-import { DICT_TYPE } from '@vben/constants';
-import { getDictOptions } from '@vben/hooks';
 
 /** 选择弹窗 - 搜索条件 */
 export function useEmployeeSelectFormSchema(): VbenFormSchema[] {
@@ -176,4 +176,3 @@ export async function queryEmployeeSelectPage(
   } as EmployeeArchiveApi.EmployeeArchiveSelectReqVO;
   return await getEmployeeArchiveSelectPage(queryParams);
 }
-
