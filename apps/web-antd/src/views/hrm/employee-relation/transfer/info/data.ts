@@ -277,13 +277,14 @@ export function useFormSchema(
         placeholder: '请选择变更为公司',
         treeDefaultExpandAll: true,
         onChange: (_value: any, option: any) => {
-          if (option && formApi) {
-            // 如果是公司节点，设置公司名称
-            if (option.type === 'company') {
-              formApi.setFieldValue('newCompanyName', option.name || '');
-              formApi.setFieldValue('newDeptId', null);
-              formApi.setFieldValue('newDeptName', '');
-            }
+          if (
+            option &&
+            formApi && // 如果是公司节点，设置公司名称
+            option.type === 'company'
+          ) {
+            formApi.setFieldValue('newCompanyName', option.name || '');
+            formApi.setFieldValue('newDeptId', null);
+            formApi.setFieldValue('newDeptName', '');
           }
         },
       }),
@@ -353,6 +354,3 @@ export function useFormSchema(
     },
   ];
 }
-
-
-

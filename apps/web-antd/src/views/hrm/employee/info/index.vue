@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { EmployeeArchiveApi } from '#/api/hrm/employee';
+import type { SystemDeptApi } from '#/api/system/dept';
 
 import { computed, h, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -7,9 +8,15 @@ import { useRoute, useRouter } from 'vue-router';
 import { Page } from '@vben/common-ui';
 import { useTabs } from '@vben/hooks';
 
-import { Button, DatePicker, Input, message, Space, Table } from 'ant-design-vue';
+import {
+  Button,
+  DatePicker,
+  Input,
+  message,
+  Space,
+  Table,
+} from 'ant-design-vue';
 import dayjs from 'dayjs';
-import type { SystemDeptApi } from '#/api/system/dept';
 
 import { useVbenForm } from '#/adapter/form';
 import {
@@ -18,9 +25,13 @@ import {
   updateEmployeeArchive,
 } from '#/api/hrm/employee';
 import { CardContainer } from '#/components/basic-form';
-
 import { DeptSelectModal } from '#/views/system/dept/components';
-import { useAvatarFormSchema, useBasicFormSchema, useWorkFormSchema } from './data';
+
+import {
+  useAvatarFormSchema,
+  useBasicFormSchema,
+  useWorkFormSchema,
+} from './data';
 
 defineOptions({ name: 'HrmEmployeeArchiveInfo' });
 
@@ -44,9 +55,9 @@ const familyList = ref<EmployeeArchiveApi.EmployeeFamily[]>([]);
 
 // 工作经历表格列定义
 const workExperienceColumns = [
-  { 
-    title: '开始时间', 
-    dataIndex: 'startTime', 
+  {
+    title: '开始时间',
+    dataIndex: 'startTime',
     width: 150,
     customRender: ({ text, index }: any) => {
       if (readonly.value) return text || '-';
@@ -57,15 +68,17 @@ const workExperienceColumns = [
         style: { width: '100%' },
         onChange: (date: any) => {
           if (workExperienceList.value[index]) {
-            workExperienceList.value[index].startTime = date ? dayjs(date).format('YYYY-MM-DD') : undefined;
+            workExperienceList.value[index].startTime = date
+              ? dayjs(date).format('YYYY-MM-DD')
+              : undefined;
           }
         },
       } as any);
     },
   },
-  { 
-    title: '截止时间', 
-    dataIndex: 'endTime', 
+  {
+    title: '截止时间',
+    dataIndex: 'endTime',
     width: 150,
     customRender: ({ text, index }: any) => {
       if (readonly.value) return text || '-';
@@ -76,15 +89,17 @@ const workExperienceColumns = [
         style: { width: '100%' },
         onChange: (date: any) => {
           if (workExperienceList.value[index]) {
-            workExperienceList.value[index].endTime = date ? dayjs(date).format('YYYY-MM-DD') : undefined;
+            workExperienceList.value[index].endTime = date
+              ? dayjs(date).format('YYYY-MM-DD')
+              : undefined;
           }
         },
       } as any);
     },
   },
-  { 
-    title: '职务', 
-    dataIndex: 'jobPosition', 
+  {
+    title: '职务',
+    dataIndex: 'jobPosition',
     width: 150,
     customRender: ({ text, index }: any) => {
       if (readonly.value) return text || '-';
@@ -99,8 +114,8 @@ const workExperienceColumns = [
       } as any);
     },
   },
-  { 
-    title: '单位名称', 
+  {
+    title: '单位名称',
     dataIndex: 'companyName',
     customRender: ({ text, index }: any) => {
       if (readonly.value) return text || '-';
@@ -121,21 +136,25 @@ const workExperienceColumns = [
     width: 100,
     customRender: ({ index }: any) => {
       if (readonly.value) return '-';
-      return h(Button, {
-        type: 'link',
-        size: 'small',
-        danger: true,
-        onClick: () => handleDeleteWorkExperience(index),
-      }, () => '删除');
+      return h(
+        Button,
+        {
+          type: 'link',
+          size: 'small',
+          danger: true,
+          onClick: () => handleDeleteWorkExperience(index),
+        },
+        () => '删除',
+      );
     },
   },
 ];
 
 // 教育经历表格列定义
 const educationColumns = [
-  { 
-    title: '开始时间', 
-    dataIndex: 'startTime', 
+  {
+    title: '开始时间',
+    dataIndex: 'startTime',
     width: 150,
     customRender: ({ text, index }: any) => {
       if (readonly.value) return text || '-';
@@ -146,15 +165,17 @@ const educationColumns = [
         style: { width: '100%' },
         onChange: (date: any) => {
           if (educationList.value[index]) {
-            educationList.value[index].startTime = date ? dayjs(date).format('YYYY-MM-DD') : undefined;
+            educationList.value[index].startTime = date
+              ? dayjs(date).format('YYYY-MM-DD')
+              : undefined;
           }
         },
       } as any);
     },
   },
-  { 
-    title: '截止时间', 
-    dataIndex: 'endTime', 
+  {
+    title: '截止时间',
+    dataIndex: 'endTime',
     width: 150,
     customRender: ({ text, index }: any) => {
       if (readonly.value) return text || '-';
@@ -165,15 +186,17 @@ const educationColumns = [
         style: { width: '100%' },
         onChange: (date: any) => {
           if (educationList.value[index]) {
-            educationList.value[index].endTime = date ? dayjs(date).format('YYYY-MM-DD') : undefined;
+            educationList.value[index].endTime = date
+              ? dayjs(date).format('YYYY-MM-DD')
+              : undefined;
           }
         },
       } as any);
     },
   },
-  { 
-    title: '专业', 
-    dataIndex: 'major', 
+  {
+    title: '专业',
+    dataIndex: 'major',
     width: 150,
     customRender: ({ text, index }: any) => {
       if (readonly.value) return text || '-';
@@ -188,8 +211,8 @@ const educationColumns = [
       } as any);
     },
   },
-  { 
-    title: '学校名称', 
+  {
+    title: '学校名称',
     dataIndex: 'schoolName',
     customRender: ({ text, index }: any) => {
       if (readonly.value) return text || '-';
@@ -210,21 +233,25 @@ const educationColumns = [
     width: 100,
     customRender: ({ index }: any) => {
       if (readonly.value) return '-';
-      return h(Button, {
-        type: 'link',
-        size: 'small',
-        danger: true,
-        onClick: () => handleDeleteEducation(index),
-      }, () => '删除');
+      return h(
+        Button,
+        {
+          type: 'link',
+          size: 'small',
+          danger: true,
+          onClick: () => handleDeleteEducation(index),
+        },
+        () => '删除',
+      );
     },
   },
 ];
 
 // 家属信息表格列定义
 const familyColumns = [
-  { 
-    title: '姓名', 
-    dataIndex: 'name', 
+  {
+    title: '姓名',
+    dataIndex: 'name',
     width: 150,
     customRender: ({ text, index }: any) => {
       if (readonly.value) return text || '-';
@@ -239,9 +266,9 @@ const familyColumns = [
       } as any);
     },
   },
-  { 
-    title: '关系', 
-    dataIndex: 'relationship', 
+  {
+    title: '关系',
+    dataIndex: 'relationship',
     width: 150,
     customRender: ({ text, index }: any) => {
       if (readonly.value) return text || '-';
@@ -256,9 +283,9 @@ const familyColumns = [
       } as any);
     },
   },
-  { 
-    title: '联系电话', 
-    dataIndex: 'mobile', 
+  {
+    title: '联系电话',
+    dataIndex: 'mobile',
     width: 150,
     customRender: ({ text, index }: any) => {
       if (readonly.value) return text || '-';
@@ -273,8 +300,8 @@ const familyColumns = [
       } as any);
     },
   },
-  { 
-    title: '工作单位', 
+  {
+    title: '工作单位',
     dataIndex: 'workUnit',
     customRender: ({ text, index }: any) => {
       if (readonly.value) return text || '-';
@@ -295,12 +322,16 @@ const familyColumns = [
     width: 100,
     customRender: ({ index }: any) => {
       if (readonly.value) return '-';
-      return h(Button, {
-        type: 'link',
-        size: 'small',
-        danger: true,
-        onClick: () => handleDeleteFamily(index),
-      }, () => '删除');
+      return h(
+        Button,
+        {
+          type: 'link',
+          size: 'small',
+          danger: true,
+          onClick: () => handleDeleteFamily(index),
+        },
+        () => '删除',
+      );
     },
   },
 ];
@@ -357,7 +388,7 @@ const pageTitle = computed(() => {
 
 /** 加载数据 */
 async function loadData(newId?: string) {
-  const id = newId || route.query.id as string;
+  const id = newId || (route.query.id as string);
   if (!id) {
     return;
   }
@@ -366,7 +397,7 @@ async function loadData(newId?: string) {
   try {
     const data = await getEmployeeArchive(Number(id));
     formData.value = data;
-    
+
     // 后端返回的日期已经是 YYYY-MM-DD 格式（LocalDate），直接使用
     await basicFormApi.setValues(data);
     await avatarFormApi.setValues(data);
@@ -416,7 +447,7 @@ async function handleSave() {
   const basicValid = await basicFormApi.validate();
   const avatarValid = await avatarFormApi.validate();
   const workValid = await workFormApi.validate();
-  
+
   if (!basicValid.valid || !avatarValid.valid || !workValid.valid) {
     return;
   }
@@ -427,18 +458,18 @@ async function handleSave() {
     const basicValues = await basicFormApi.getValues();
     const avatarValues = await avatarFormApi.getValues();
     const workValues = await workFormApi.getValues();
-    
+
     const values = {
       ...basicValues,
       ...avatarValues,
       ...workValues,
     } as EmployeeArchiveApi.EmployeeArchive;
-    
+
     // 新增时，员工工号由后端自动生成，前端不传或传空
     if (!values.id && (!values.employeeNo || values.employeeNo.trim() === '')) {
       values.employeeNo = undefined;
     }
-    
+
     // 处理日期字段：空值统一转换为 undefined，后端 LocalDate 会自动处理 YYYY-MM-DD 格式
     // 注意：表格中的 onChange 已直接设置为 undefined，这里只处理表单字段可能的空字符串情况
     if (!values.birthday || values.birthday === '') {
@@ -450,11 +481,11 @@ async function handleSave() {
     if (!values.formalDate || values.formalDate === '') {
       values.formalDate = undefined;
     }
-    
+
     // 表格中的日期字段已在 onChange 中设置为 undefined，直接使用即可
     values.workExperienceList = workExperienceList.value;
     values.educationList = educationList.value;
-    
+
     values.familyList = familyList.value;
 
     if (formData.value.id) {
@@ -538,7 +569,9 @@ function handleDeleteFamily(index: number) {
 }
 
 /** 处理部门选择 */
-function handleDeptSelect(dept: SystemDeptApi.Dept & { companyName?: string; companyId?: number }) {
+function handleDeptSelect(
+  dept: SystemDeptApi.Dept & { companyId?: number; companyName?: string },
+) {
   // 设置部门ID、部门名称、公司ID和公司名称
   workFormApi.setFieldValue('deptId', dept.id);
   workFormApi.setFieldValue('deptName', dept.name);
@@ -600,7 +633,9 @@ onMounted(async () => {
     <template #extra>
       <Space>
         <Button @click="handleClose">关闭</Button>
-        <Button v-if="!readonly" type="primary" @click="handleSave">保存</Button>
+        <Button v-if="!readonly" type="primary" @click="handleSave">
+          保存
+        </Button>
       </Space>
     </template>
 
@@ -633,7 +668,11 @@ onMounted(async () => {
     <div class="mb-4 rounded-lg bg-white p-4 shadow-sm">
       <CardContainer title="工作经历">
         <template #extra>
-          <Button v-if="!readonly" type="primary"  @click="handleAddWorkExperience">
+          <Button
+            v-if="!readonly"
+            type="primary"
+            @click="handleAddWorkExperience"
+          >
             {{ $t('ui.actionTitle.create') }}
           </Button>
         </template>
@@ -651,7 +690,7 @@ onMounted(async () => {
     <div class="mb-4 rounded-lg bg-white p-4 shadow-sm">
       <CardContainer title="教育经历">
         <template #extra>
-          <Button v-if="!readonly" type="primary"  @click="handleAddEducation">
+          <Button v-if="!readonly" type="primary" @click="handleAddEducation">
             {{ $t('ui.actionTitle.create') }}
           </Button>
         </template>
@@ -685,7 +724,4 @@ onMounted(async () => {
   </Page>
 </template>
 
-<style scoped>
-
-</style>
-
+<style scoped></style>

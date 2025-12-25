@@ -35,7 +35,7 @@ export function useBasicFormSchema(_isEdit?: boolean): VbenFormSchema[] {
       label: '性别',
       component: 'RadioGroup',
       componentProps: {
-        options: getDictOptions(DICT_TYPE.SYSTEM_USER_SEX,'number'),
+        options: getDictOptions(DICT_TYPE.SYSTEM_USER_SEX, 'number'),
       },
       rules: 'required',
     },
@@ -138,7 +138,7 @@ export function useBasicFormSchema(_isEdit?: boolean): VbenFormSchema[] {
         .string()
         .min(1, '身份证号不能为空')
         .regex(
-          /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[0-9Xx]$/,
+          /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[0-9X]$/i,
           '请输入18位有效身份证号',
         ),
       component: 'Input',
@@ -170,7 +170,7 @@ export function useBasicFormSchema(_isEdit?: boolean): VbenFormSchema[] {
         .string()
         .optional()
         .refine(
-          (val) => !val || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val),
+          (val) => !val || /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/.test(val),
           '请输入正确的邮箱地址',
         ),
     },
@@ -220,7 +220,7 @@ export function useAvatarFormSchema(): VbenFormSchema[] {
       componentProps: {
         contentText: '上传员工照片',
         showDescription: false,
-        maxNumber: 1
+        maxNumber: 1,
       },
     },
   ];
@@ -358,4 +358,3 @@ export function useWorkFormSchema(
     },
   ];
 }
-

@@ -179,6 +179,3 @@ export function useGridColumns(): VxeTableGridOptions<EmployeeTransferBillApi.Em
     },
   ];
 }
-
-
-

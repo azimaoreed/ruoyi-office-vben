@@ -131,6 +131,3 @@ export function exportEmployeeTransferBill(params: any) {
     params,
   });
 }
-
-
-

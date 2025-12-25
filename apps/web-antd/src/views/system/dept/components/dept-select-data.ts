@@ -2,11 +2,14 @@ import type { SystemDeptApi } from '#/api/system/dept';
 
 import { ref } from 'vue';
 
-import { getDeptList } from '#/api/system/dept';
 import { handleTree } from '@vben/utils';
 
+import { getDeptList } from '#/api/system/dept';
+
 /** 部门树数据 */
-const treeData = ref<(SystemDeptApi.Dept & { children?: SystemDeptApi.Dept[] })[]>([]);
+const treeData = ref<
+  (SystemDeptApi.Dept & { children?: SystemDeptApi.Dept[] })[]
+>([]);
 
 /** 扁平化的部门列表（用于查找） */
 const flatDeptList = ref<SystemDeptApi.Dept[]>([]);
@@ -25,7 +28,10 @@ export async function loadTreeData() {
 }
 
 /** 查找部门所属的公司信息（名称和ID） */
-export function findCompany(deptId: number): { name: string; id: number | undefined } {
+export function findCompany(deptId: number): {
+  id: number | undefined;
+  name: string;
+} {
   if (!deptId) {
     return { name: '', id: undefined };
   }
@@ -42,7 +48,10 @@ export function findCompany(deptId: number): { name: string; id: number | undefi
   }
 
   // 递归查找父级公司
-  function findParentCompany(parentId?: number): { name: string; id: number | undefined } {
+  function findParentCompany(parentId?: number): {
+    id: number | undefined;
+    name: string;
+  } {
     if (!parentId) {
       return { name: '', id: undefined };
     }
@@ -83,4 +92,3 @@ export function useDeptSelectData() {
     findCompanyId,
   };
 }
-

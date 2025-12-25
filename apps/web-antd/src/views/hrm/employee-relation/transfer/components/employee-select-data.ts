@@ -165,6 +165,3 @@ export async function queryEmployeeSelectPage(
   } as EmployeeArchiveApi.EmployeeArchiveSelectReqVO;
   return await getEmployeeArchiveSelectPage(queryParams);
 }
-
-
-

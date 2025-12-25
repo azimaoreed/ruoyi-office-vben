@@ -9,15 +9,20 @@ import { message, Tree } from 'ant-design-vue';
 
 import { useDeptSelectData } from './dept-select-data';
 
-const { treeData, loadTreeData, findCompany } = useDeptSelectData();
-
 /** 定义组件事件 */
 const emit = defineEmits<{
-  (e: 'select', dept: SystemDeptApi.Dept & { companyName?: string; companyId?: number }): void;
+  (
+    e: 'select',
+    dept: SystemDeptApi.Dept & { companyId?: number; companyName?: string },
+  ): void;
 }>();
 
+const { treeData, loadTreeData, findCompany } = useDeptSelectData();
+
 const formData = reactive({
-  selectedDept: null as null | (SystemDeptApi.Dept & { companyName?: string; companyId?: number }),
+  selectedDept: null as
+    | null
+    | (SystemDeptApi.Dept & { companyId?: number; companyName?: string }),
 });
 
 // 树选中的 keys（用于 v-model）
@@ -27,11 +32,7 @@ const selectedKeys = ref<number[]>([]);
 watch(
   () => formData.selectedDept,
   (dept) => {
-    if (dept?.id) {
-      selectedKeys.value = [dept.id];
-    } else {
-      selectedKeys.value = [];
-    }
+    selectedKeys.value = dept?.id ? [dept.id] : [];
   },
   { immediate: true },
 );
@@ -80,7 +81,7 @@ function handleSelect(keys: any[]) {
 
   const selectedId = keys[0];
   const selectedNode = findDeptById(treeData.value, selectedId);
-  
+
   if (selectedNode) {
     // 检查是否为公司类型，公司类型不可选
     if (selectedNode.orgType === '1') {
@@ -89,7 +90,7 @@ function handleSelect(keys: any[]) {
       selectedKeys.value = [];
       return;
     }
-    
+
     formData.selectedDept = selectedNode;
     selectedKeys.value = [selectedId];
   }
@@ -99,7 +100,7 @@ function handleSelect(keys: any[]) {
 function findDeptById(
   nodes: (SystemDeptApi.Dept & { children?: SystemDeptApi.Dept[] })[],
   id: number,
-): SystemDeptApi.Dept | null {
+): null | SystemDeptApi.Dept {
   for (const node of nodes) {
     if (node.id === id) {
       return node;
@@ -124,7 +125,7 @@ defineExpose({
   <Modal>
     <div class="dept-select-container">
       <Tree
-        v-model:selectedKeys="selectedKeys"
+        v-model:selected-keys="selectedKeys"
         :tree-data="treeData as any"
         :field-names="{ children: 'children', title: 'name', key: 'id' }"
         :block-node="true"
@@ -148,8 +149,7 @@ defineExpose({
 .dept-select-container {
   min-height: 400px;
   max-height: 500px;
-  overflow-y: auto;
   padding: 16px;
+  overflow-y: auto;
 }
 </style>
-

@@ -230,6 +230,3 @@ onActivated(() => {
     </Grid>
   </Page>
 </template>
-
-
-
