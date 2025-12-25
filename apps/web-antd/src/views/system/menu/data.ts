@@ -102,6 +102,7 @@ export function useFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请选择菜单图标',
         prefix: 'carbon',
+        pageSize: 144,
       },
       // rules: 'required',
       dependencies: {
