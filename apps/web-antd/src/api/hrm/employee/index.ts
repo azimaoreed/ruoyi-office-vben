@@ -31,6 +31,7 @@ export namespace EmployeeArchiveApi {
     employeeStatus?: number; // 人员状态（1:正式 2:试用期 3:实习生 4:兼职 5:零时工）
     deptId?: number; // 所属部门
     deptName?: string; // 所属部门名称
+    companyId?: number; // 所属公司ID
     companyName?: string; // 所属单位
     entryDate?: string; // 入职日期 (YYYY-MM-DD)
     formalDate?: string; // 转正日期 (YYYY-MM-DD)

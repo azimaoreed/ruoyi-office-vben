@@ -24,37 +24,37 @@ export async function loadTreeData() {
   }
 }
 
-/** 查找部门所属的公司名称 */
-export function findCompanyName(deptId: number): string {
+/** 查找部门所属的公司信息（名称和ID） */
+export function findCompany(deptId: number): { name: string; id: number | undefined } {
   if (!deptId) {
-    return '';
+    return { name: '', id: undefined };
   }
 
   // 查找当前部门
   const dept = flatDeptList.value.find((d) => d.id === deptId);
   if (!dept) {
-    return '';
+    return { name: '', id: undefined };
   }
 
-  // 如果当前部门就是公司，返回公司名称
+  // 如果当前部门就是公司，返回公司信息
   if (dept.orgType === '1') {
-    return dept.name;
+    return { name: dept.name, id: dept.id };
   }
 
   // 递归查找父级公司
-  function findParentCompany(parentId?: number): string {
+  function findParentCompany(parentId?: number): { name: string; id: number | undefined } {
     if (!parentId) {
-      return '';
+      return { name: '', id: undefined };
     }
 
     const parent = flatDeptList.value.find((d) => d.id === parentId);
     if (!parent) {
-      return '';
+      return { name: '', id: undefined };
     }
 
-    // 如果父级是公司，返回公司名称
+    // 如果父级是公司，返回公司信息
     if (parent.orgType === '1') {
-      return parent.name;
+      return { name: parent.name, id: parent.id };
     }
 
     // 继续向上查找
@@ -64,11 +64,23 @@ export function findCompanyName(deptId: number): string {
   return findParentCompany(dept.parentId);
 }
 
+/** 查找部门所属的公司名称（便捷方法） */
+export function findCompanyName(deptId: number): string {
+  return findCompany(deptId).name;
+}
+
+/** 查找部门所属的公司ID（便捷方法） */
+export function findCompanyId(deptId: number): number | undefined {
+  return findCompany(deptId).id;
+}
+
 export function useDeptSelectData() {
   return {
     treeData,
     loadTreeData,
+    findCompany,
     findCompanyName,
+    findCompanyId,
   };
 }
 

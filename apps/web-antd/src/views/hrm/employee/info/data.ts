@@ -309,6 +309,15 @@ export function useWorkFormSchema(
       },
     },
     {
+      fieldName: 'companyId',
+      label: '公司ID',
+      component: 'Input',
+      dependencies: {
+        triggerFields: [''],
+        show: () => false,
+      },
+    },
+    {
       fieldName: 'companyName',
       label: '所属公司',
       component: 'Input',

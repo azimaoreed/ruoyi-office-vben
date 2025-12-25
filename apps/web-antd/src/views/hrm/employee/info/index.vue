@@ -538,10 +538,11 @@ function handleDeleteFamily(index: number) {
 }
 
 /** 处理部门选择 */
-function handleDeptSelect(dept: SystemDeptApi.Dept & { companyName?: string }) {
-  // 设置部门ID、部门名称和公司名称
+function handleDeptSelect(dept: SystemDeptApi.Dept & { companyName?: string; companyId?: number }) {
+  // 设置部门ID、部门名称、公司ID和公司名称
   workFormApi.setFieldValue('deptId', dept.id);
   workFormApi.setFieldValue('deptName', dept.name);
+  workFormApi.setFieldValue('companyId', dept.companyId);
   workFormApi.setFieldValue('companyName', dept.companyName || '');
 }
 

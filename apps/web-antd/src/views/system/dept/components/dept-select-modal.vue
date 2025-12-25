@@ -9,15 +9,15 @@ import { message, Tree } from 'ant-design-vue';
 
 import { useDeptSelectData } from './dept-select-data';
 
+const { treeData, loadTreeData, findCompany } = useDeptSelectData();
+
 /** 定义组件事件 */
 const emit = defineEmits<{
-  (e: 'select', dept: SystemDeptApi.Dept & { companyName?: string }): void;
+  (e: 'select', dept: SystemDeptApi.Dept & { companyName?: string; companyId?: number }): void;
 }>();
 
-const { treeData, loadTreeData, findCompanyName } = useDeptSelectData();
-
 const formData = reactive({
-  selectedDept: null as null | (SystemDeptApi.Dept & { companyName?: string }),
+  selectedDept: null as null | (SystemDeptApi.Dept & { companyName?: string; companyId?: number }),
 });
 
 // 树选中的 keys（用于 v-model）
@@ -55,11 +55,12 @@ async function handleConfirm() {
     return false;
   }
 
-  // 查找所属公司名称
-  const companyName = findCompanyName(formData.selectedDept.id!);
+  // 查找所属公司信息（名称和ID）
+  const company = findCompany(formData.selectedDept.id!);
   const deptWithCompany = {
     ...formData.selectedDept,
-    companyName,
+    companyName: company.name,
+    companyId: company.id,
   };
 
   emit('select', deptWithCompany);
