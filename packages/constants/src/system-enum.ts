@@ -1003,7 +1003,7 @@ export enum BpmTaskStatusEnum {
    */
   CANCEL = 4,
   /**
-   * 未开始
+   * 未提交
    */
   NOT_START = -1,
   /**
@@ -1093,7 +1093,7 @@ export const BpmProcessInstanceStatus = {
 export const BILL_FLOW_STATUS = [
   {
     value: BpmProcessInstanceStatus.NOT_START,
-    label: '未开始',
+    label: '未提交',
   },
   {
     value: BpmProcessInstanceStatus.RUNNING,
@@ -1116,22 +1116,25 @@ export const BILL_FLOW_STATUS = [
 /**
  * 可以编辑的流程实例状态
  */
-export const BpmProcessInstanceStatusEditValue = [BpmProcessInstanceStatus.NOT_START, BpmProcessInstanceStatus.REJECT, BpmProcessInstanceStatus.CANCEL];
-
+export const BpmProcessInstanceStatusEditValue = [
+  BpmProcessInstanceStatus.NOT_START,
+  BpmProcessInstanceStatus.REJECT,
+  BpmProcessInstanceStatus.CANCEL,
+];
 
 // 获取审批状态颜色
 export const getStatusColor = (val: any) => {
   switch (val) {
-    case BpmProcessInstanceStatus.RUNNING: {
-      return {
-        color: '#1677ff',
-        status: 'processing',
-      };
-    }
     case BpmProcessInstanceStatus.APPROVE: {
       return {
         color: '#87d068',
         status: 'success',
+      };
+    }
+    case BpmProcessInstanceStatus.CANCEL: {
+      return {
+        color: '#faad14',
+        status: 'orange',
       };
     }
     case BpmProcessInstanceStatus.REJECT: {
@@ -1140,10 +1143,10 @@ export const getStatusColor = (val: any) => {
         status: 'error',
       };
     }
-    case BpmProcessInstanceStatus.CANCEL: {
+    case BpmProcessInstanceStatus.RUNNING: {
       return {
-        color: '#faad14',
-        status: 'orange',
+        color: '#1677ff',
+        status: 'processing',
       };
     }
     default: {

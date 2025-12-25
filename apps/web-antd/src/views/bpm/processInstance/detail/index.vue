@@ -66,7 +66,7 @@ const isApproval = computed(() => {
     return false;
   }
 
-  // 情况2：queryApproval为'true'且当前任务状态为-1未开始且当前登录人等于制单人
+  // 情况2：queryApproval为'true'且当前任务状态为-1未提交且当前登录人等于制单人
   if (queryApproval === 'true') {
     // 获取流程发起人信息
     const startUser = processInstance.value?.startUser;
@@ -74,7 +74,7 @@ const isApproval = computed(() => {
     const currentUserId = userStore.userInfo?.id;
 
     // 检查是否满足返回false的条件：
-    // 1. 当前任务状态为-1（未开始）
+    // 1. 当前任务状态为-1（未提交）
     // 2. 当前登录人等于制单人
     if (
       nodeKey.value === BpmNodeIdEnum.START_USER_NODE_ID &&
@@ -111,7 +111,9 @@ const processInstanceLoading = ref(false); // 流程实例的加载中
 const processInstance = ref<BpmProcessInstanceApi.ProcessInstance>(); // 流程实例
 const processDefinition = ref<any>({}); // 流程定义
 // 使用 props 中的 nodeKey 或者从 route.query 获取
-const nodeKey = computed(() => props.nodeKey || (route.query.nodeKey as string)); // 节点key
+const nodeKey = computed(
+  () => props.nodeKey || (route.query.nodeKey as string),
+); // 节点key
 const nodeKeyName = ref<string>(); // 节点名称
 const processModelView = ref<any>({}); // 流程模型视图
 const operationButtonRef = ref(); // 操作按钮组件 ref
@@ -173,7 +175,7 @@ async function getApprovalDetail() {
     }
 
     processInstance.value = data.processInstance;
-    processDefinition.value = data.processDefinition;   
+    processDefinition.value = data.processDefinition;
     nodeKeyName.value = data.todoTask?.name;
 
     // 设置表单信息
@@ -271,7 +273,10 @@ function setFieldPermission(field: string, permission: string) {
 async function handleBeforeApproval(): Promise<boolean> {
   try {
     // 如果是业务表单且有预处理方法，则调用
-    if (businessFormRef.value && typeof businessFormRef.value.beforeApproval === 'function') {
+    if (
+      businessFormRef.value &&
+      typeof businessFormRef.value.beforeApproval === 'function'
+    ) {
       const result = await businessFormRef.value.beforeApproval();
       return result !== false; // 如果返回false则阻止审批
     }

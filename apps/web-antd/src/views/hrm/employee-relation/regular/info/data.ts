@@ -203,12 +203,10 @@ export function useFormSchema(
     {
       fieldName: 'remark',
       label: '备注',
-      component: 'Input',
-      formItemClass: 'col-span-2',
+      component: 'Textarea',
+      formItemClass: 'col-span-full',
       componentProps: {
         placeholder: '请输入备注',
-        type: 'textarea',
-        rows: 3,
       },
     },
   ];

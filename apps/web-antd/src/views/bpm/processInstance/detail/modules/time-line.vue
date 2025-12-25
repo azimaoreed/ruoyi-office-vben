@@ -14,7 +14,14 @@ import {
 import { IconifyIcon } from '@vben/icons';
 import { formatDateTime, isEmpty } from '@vben/utils';
 
-import { Avatar, Button, Image, Steps, Timeline, Tooltip } from 'ant-design-vue';
+import {
+  Avatar,
+  Button,
+  Image,
+  Steps,
+  Timeline,
+  Tooltip,
+} from 'ant-design-vue';
 
 import { UserSelectModal } from '#/components/select-modal';
 
@@ -23,9 +30,9 @@ defineOptions({ name: 'BpmProcessInstanceTimeline' });
 const props = withDefaults(
   defineProps<{
     activityNodes: BpmProcessInstanceApi.ApprovalNodeInfo[]; // 审批节点信息
+    direction?: 'horizontal' | 'vertical'; // 时间轴方向：vertical(垂直) | horizontal(水平)
     enableApproveUserSelect?: boolean; // 是否开启审批人自选功能
     showStatusIcon?: boolean; // 是否显示头像右下角状态图标
-    direction?: 'vertical' | 'horizontal'; // 时间轴方向：vertical(垂直) | horizontal(水平)
   }>(),
   {
     showStatusIcon: true, // 默认值为 true
@@ -47,7 +54,7 @@ const statusIconMap: Record<
 > = {
   // 跳过
   '-2': { color: '#909398', icon: 'mdi:skip-forward-outline' },
-  // 审批未开始
+  // 审批未提交
   '-1': { color: '#909398', icon: 'mdi:clock-outline' },
   // 待审批
   '0': { color: '#ff943e', icon: 'mdi:loading', animation: 'animate-spin' },
@@ -245,27 +252,42 @@ const batchSetCustomApproveUsers = (data: Record<string, any[]>) => {
 
 // 转换审批节点数据为Steps格式
 function convertActivityNodesToSteps() {
-  return props.activityNodes.map((activity, index) => {
+  return props.activityNodes.map((activity, _index) => {
     // 确定步骤状态
-    let status: 'wait' | 'process' | 'finish' | 'error' = 'wait';
-    if (activity.status === 2) {
-      status = 'finish'; // 审批通过
-    } else if (activity.status === 1 || activity.status === 0) {
-      status = 'process'; // 审批中或待审批
-    } else if (activity.status === 3 || activity.status === 5) {
-      status = 'error'; // 审批不通过或退回
+    let status: 'error' | 'finish' | 'process' | 'wait' = 'wait';
+    switch (activity.status) {
+      case 0:
+      case 1: {
+        status = 'process'; // 审批中或待审批
+
+        break;
+      }
+      case 2: {
+        status = 'finish'; // 审批通过
+
+        break;
+      }
+      case 3:
+      case 5: {
+        status = 'error'; // 审批不通过或退回
+
+        break;
+      }
+      // No default
     }
 
     // 构建描述信息
     const getDescription = () => {
       const tasks = activity.tasks || [];
       const candidateUsers = activity.candidateUsers || [];
-      
+
       if (tasks.length > 0) {
-        return tasks.map((task: any) => {
-          const user = task.assigneeUser || task.ownerUser;
-          return user?.nickname || '未知用户';
-        }).join(', ');
+        return tasks
+          .map((task: any) => {
+            const user = task.assigneeUser || task.ownerUser;
+            return user?.nickname || '未知用户';
+          })
+          .join(', ');
       } else if (candidateUsers.length > 0) {
         return candidateUsers.map((user: any) => user.nickname).join(', ');
       }
@@ -277,15 +299,18 @@ function convertActivityNodesToSteps() {
       status,
       description: getDescription(),
       // subTitle: getApprovalNodeTime(activity),
-      icon: activity.nodeType === BpmNodeTypeEnum.END_EVENT_NODE ? 'CheckCircleOutlined' : undefined, // 结束节点使用特殊图标
+      icon:
+        activity.nodeType === BpmNodeTypeEnum.END_EVENT_NODE
+          ? 'CheckCircleOutlined'
+          : undefined, // 结束节点使用特殊图标
     };
   });
 }
 
 // 获取当前激活的步骤索引
 function getCurrentStepIndex() {
-  const currentIndex = props.activityNodes.findIndex(activity => 
-    activity.status === 1 || activity.status === 0 // 审批中或待审批
+  const currentIndex = props.activityNodes.findIndex(
+    (activity) => activity.status === 1 || activity.status === 0, // 审批中或待审批
   );
   return currentIndex === -1 ? props.activityNodes.length - 1 : currentIndex;
 }
@@ -303,14 +328,10 @@ defineExpose({ setCustomApproveUsers, batchSetCustomApproveUsers });
         :items="convertActivityNodesToSteps()"
         class="custom-steps"
       />
-    
     </div>
 
     <!-- 垂直布局：使用Timeline组件 -->
-    <Timeline 
-      v-else
-      class="pt-5"
-    >
+    <Timeline v-else class="pt-5">
       <!-- 遍历每个审批节点 -->
       <Timeline.Item
         v-for="(activity, index) in activityNodes"
@@ -568,13 +589,13 @@ defineExpose({ setCustomApproveUsers, batchSetCustomApproveUsers });
 
 .custom-steps :deep(.ant-steps-item-description) {
   margin-top: 4px;
-  color: #666;
   font-size: 12px;
+  color: #666;
 }
 
 .custom-steps :deep(.ant-steps-item-subtitle) {
-  color: #999;
   font-size: 11px;
+  color: #999;
 }
 
 /* Timeline垂直样式（保持原有样式） */
@@ -583,7 +604,7 @@ defineExpose({ setCustomApproveUsers, batchSetCustomApproveUsers });
 }
 
 :deep(.ant-timeline-item-content) {
-  margin-left: 20px;
   padding-left: 0;
+  margin-left: 20px;
 }
 </style>

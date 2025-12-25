@@ -36,7 +36,7 @@ const props = withDefaults(defineProps<Props>(), {
 // 获取审批状态名称
 const getStatusName = (val: any) => {
   const name: any = BILL_FLOW_STATUS.find((item: any) => item.value === val);
-  return name?.label || '未开始';
+  return name?.label || '未提交';
 };
 
 // 复制单据编号
@@ -82,7 +82,6 @@ const fallbackCopy = (text: string) => {
       <div class="header-content">
         <div class="title-section">
           <span class="title-name">{{ props.headerData.billName }}</span>
-
         </div>
         <div class="status-section">
           <a-tag
@@ -96,26 +95,62 @@ const fallbackCopy = (text: string) => {
     <div class="info-row">
       <div class="info-content">
         <span class="info-item">
-            单据编号: {{ props.headerData.billCode }}
-            <span
-              v-if="props.headerData.billCode"
-              @click="handleCopyBillCode"
-              title="复制单据编号"
-              class="copy-icon"
-            >
-              <IconifyIcon icon="mdi:content-copy" />
-            </span>
+          单据编号: {{ props.headerData.billCode }}
+          <span
+            v-if="props.headerData.billCode"
+            @click="handleCopyBillCode"
+            title="复制单据编号"
+            class="copy-icon"
+          >
+            <IconifyIcon icon="mdi:content-copy" />
+          </span>
         </span>
-        <span class="info-item"> 申请人 : {{ props.headerData.creatorName }} </span>
-        <span class="info-item"> 申请日期 : {{ formatDate(props.headerData.createTime) }} </span>
-        <span class="info-item"> 所属单位 : {{ props.headerData.companyName }} </span>
-        <span class="info-item"> 所属部门 : {{ props.headerData.deptName }} </span>
+        <span class="info-item">
+          申请人 : {{ props.headerData.creatorName }}
+        </span>
+        <span class="info-item">
+          申请日期 : {{ formatDate(props.headerData.createTime) }}
+        </span>
+        <span class="info-item">
+          所属单位 : {{ props.headerData.companyName }}
+        </span>
+        <span class="info-item">
+          所属部门 : {{ props.headerData.deptName }}
+        </span>
       </div>
     </div>
   </div>
 </template>
 <style scoped>
-/* 头部表单容器 */
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .info-content {
+    gap: 20px;
+  }
+
+  .info-item {
+    font-size: 13px;
+  }
+
+  .title-name {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .info-content {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+}
+
 .header-form {
   width: 100%;
   padding: 0;
@@ -129,25 +164,25 @@ const fallbackCopy = (text: string) => {
 
 .header-content {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  width: 100%;
   flex-wrap: wrap;
   gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .title-section {
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: 8px;
-  flex: 1;
   min-width: 0;
 }
 
 .status-section {
   display: flex;
-  align-items: flex-start;
   flex-shrink: 0;
+  align-items: flex-start;
 }
 
 /* 信息行 */
@@ -171,13 +206,12 @@ const fallbackCopy = (text: string) => {
 
 /* 标题样式 */
 .title-name {
+  margin: 0;
   font-size: 18px;
   font-weight: 700;
   line-height: 24px;
   color: #333;
-  margin: 0;
 }
-
 
 /* 复制图标样式 */
 .copy-icon {
@@ -199,32 +233,5 @@ const fallbackCopy = (text: string) => {
   background: rgb(24 144 255 / 10%);
 }
 
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .header-content {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  
-  .info-content {
-    gap: 20px;
-  }
-  
-  .info-item {
-    font-size: 13px;
-  }
-  
-  .title-name {
-    font-size: 16px;
-  }
-}
-
-@media (max-width: 480px) {
-  .info-content {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-}
+/* 头部表单容器 */
 </style>
