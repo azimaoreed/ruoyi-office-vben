@@ -39,6 +39,7 @@ export namespace EmployeeTransferBillApi {
     newCompanyName?: string;
     newDeptId?: number;
     newDeptName?: string;
+    effectiveImmediately?: boolean;
     effectiveDate?: Date;
     // 制单人信息
     deptId: number;
@@ -131,3 +132,4 @@ export function exportEmployeeTransferBill(params: any) {
     params,
   });
 }
+

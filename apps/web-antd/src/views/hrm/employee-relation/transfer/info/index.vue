@@ -15,6 +15,8 @@ import { useUserStore } from '@vben/stores';
 
 import { Button, message } from 'ant-design-vue';
 
+import { useVbenForm } from '#/adapter/form';
+
 import { withdrawProcessToStart } from '#/api/bpm/task';
 import {
   getEmployeeTransferBill,
@@ -24,9 +26,10 @@ import {
 import { AttachmentList } from '#/components/attachment-list';
 import { BasicForm, CardContainer } from '#/components/basic-form';
 import { $t } from '#/locales';
+import { DeptSelectModal } from '#/views/system/dept/components';
 
 import EmployeeSelectModal from '../components/employee-select-modal.vue';
-import { useFormSchema } from './data';
+import { useFormSchema, useTransferFormSchema } from './data';
 
 defineOptions({ name: 'HrmEmployeeTransferBillInfo' });
 
@@ -61,12 +64,57 @@ const employeeSelectModalRef = ref<InstanceType<
   typeof EmployeeSelectModal
 > | null>(null);
 
+// 部门选择弹窗引用
+const deptSelectModalRef = ref<InstanceType<typeof DeptSelectModal>>();
+
 // 表单schema - 使用shallowRef避免深度响应式
 const formSchema = shallowRef<VbenFormSchema[]>([]);
+
+// 初始化调动信息表单
+const [TransferForm, transferFormApi] = useVbenForm({
+  commonConfig: {
+    componentProps: {
+      class: 'w-full',
+    },
+    formItemClass: 'col-span-1',
+    labelWidth: 120,
+    disabled: readonly.value,
+  },
+  wrapperClass: 'grid grid-cols-2 gap-4',
+  layout: 'horizontal',
+  schema: useTransferFormSchema(deptSelectModalRef, readonly),
+  showDefaultActions: false,
+});
 
 // 初始化表单schema
 function initFormSchema() {
   formSchema.value = useFormSchema(employeeSelectModalRef, readonly);
+}
+
+// 更新调动信息表单的schema（当readonly变化时）
+function updateTransferFormSchema() {
+  if (transferFormApi) {
+    const transferSchema = useTransferFormSchema(deptSelectModalRef, readonly);
+    // 更新每个字段的disabled状态
+    const updatedSchema = transferSchema.map((schema) => {
+      const componentProps = schema.componentProps || {};
+      // 如果字段有自定义的disabled函数，则优先使用
+      const hasCustomDisabled =
+        componentProps &&
+        typeof componentProps === 'object' &&
+        'disabled' in componentProps &&
+        typeof componentProps.disabled === 'function';
+
+      return {
+        ...schema,
+        componentProps: {
+          ...componentProps,
+          disabled: hasCustomDisabled ? componentProps.disabled() : readonly.value,
+        },
+      };
+    });
+    transferFormApi.updateSchema(updatedSchema);
+  }
 }
 
 // 优先使用 props 传递的 id，如果没有则使用路由参数
@@ -91,9 +139,10 @@ async function handleSaveAndSubmit(isSubmit: boolean) {
   // 提交前校验 - 只有提交时才进行校验，保存时不校验
   if (isSubmit) {
     const { valid: basicValid } = await basicFormRef.value.validateForm();
+    const transferValid = await transferFormApi.validate();
 
     // 如果校验不通过，则不允许提交
-    if (!basicValid) {
+    if (!basicValid || !transferValid.valid) {
       loading.value = false;
       return;
     }
@@ -107,10 +156,14 @@ async function handleSaveAndSubmit(isSubmit: boolean) {
           false,
         )) as EmployeeTransferBillApi.EmployeeTransferBill);
 
+    // 获取调动信息表单的值
+    const transferValues = await transferFormApi.getValues();
+
     // 合并表单值和其他数据
     const data = {
       ...formData.value,
       ...formValues,
+      ...transferValues,
     };
 
     id = await (isSubmit
@@ -192,10 +245,16 @@ async function loadData() {
     // 重新初始化表单schema（因为readonly状态可能变化）
     initFormSchema();
 
+    // 更新调动信息表单的schema（因为readonly状态可能变化）
+    updateTransferFormSchema();
+
     // 设置表单值
     if (basicFormRef.value) {
       await basicFormRef.value.setFormValues(data);
     }
+
+    // 设置调动信息表单值
+    await transferFormApi.setValues(data);
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : '获取人事调动申请单详情失败';
@@ -237,13 +296,39 @@ function handleEmployeeSelect(employee: any) {
       originalCompanyName: employee.companyName || '',
     };
 
-    // 更新表单
+    // 更新基本信息表单（BasicForm）
     if (basicFormRef.value) {
       basicFormRef.value.setFormValues(employeeData);
     }
 
+    // 更新调动信息表单（TransferForm）
+    transferFormApi.setValues(employeeData);
+
     // 同时更新formData
     Object.assign(formData.value, employeeData);
+  }
+}
+
+// 处理部门选择
+function handleDeptSelect(dept: any) {
+  if (dept) {
+    const deptData = {
+      newDeptId: dept.id,
+      newDeptName: dept.name,
+      newCompanyId: dept.companyId,
+      newCompanyName: dept.companyName || '',
+    };
+
+    // 更新基本信息表单（BasicForm）
+    if (basicFormRef.value) {
+      basicFormRef.value.setFormValues(deptData);
+    }
+
+    // 更新调动信息表单（TransferForm）
+    transferFormApi.setValues(deptData);
+
+    // 同时更新formData
+    Object.assign(formData.value, deptData);
   }
 }
 
@@ -265,6 +350,7 @@ watch(
   readonly,
   () => {
     initFormSchema();
+    updateTransferFormSchema();
   },
   { immediate: false },
 );
@@ -293,8 +379,13 @@ onMounted(() => {
       :hide-footer="props.isApproval"
       :activity-nodes="props.activityNodes"
     >
-      <!-- 扩展插槽，用于附件等扩展区域 -->
+      <!-- 扩展插槽，用于调动信息等扩展区域 -->
       <template #form-extension>
+        <!-- 调动信息 -->
+        <CardContainer title="调动信息">
+          <TransferForm />
+        </CardContainer>
+
         <!-- 附件列表 -->
         <CardContainer :title="$t('common.attachmentInfo')">
           <template #extra>
@@ -322,6 +413,8 @@ onMounted(() => {
       ref="employeeSelectModalRef"
       @select="handleEmployeeSelect"
     />
+    <!-- 部门选择弹窗 -->
+    <DeptSelectModal ref="deptSelectModalRef" @select="handleDeptSelect" />
   </Loading>
 </template>
 

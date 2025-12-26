@@ -5,8 +5,6 @@ import type { VbenFormSchema } from '#/adapter/form';
 import { DICT_TYPE } from '@vben/constants';
 import { getDictOptions } from '@vben/hooks';
 
-import { getCurrentUserCompanyDeptTree } from '#/utils/dept-tree';
-
 /** 新增/修改的表单 */
 export function useFormSchema(
   employeeSelectModalRef?: any,
@@ -103,6 +101,10 @@ export function useFormSchema(
         readonly: true,
         disabled: true,
       },
+      dependencies: {
+        triggerFields: [''],
+        show: () => false,
+      },
     },
     {
       fieldName: 'empDeptId',
@@ -121,6 +123,10 @@ export function useFormSchema(
         placeholder: '所属公司',
         readonly: true,
         disabled: true,
+      },
+      dependencies: {
+        triggerFields: [''],
+        show: () => false,
       },
     },
     {
@@ -165,7 +171,15 @@ export function useFormSchema(
         disabled: true,
       },
     },
-    // ========== 调动信息 ==========
+  ];
+}
+
+/** 调动信息表单 */
+export function useTransferFormSchema(
+  deptSelectModalRef?: any,
+  readonly?: Ref<boolean>,
+): VbenFormSchema[] {
+  return [
     {
       fieldName: 'transferType',
       label: '异动类型',
@@ -179,10 +193,10 @@ export function useFormSchema(
     {
       fieldName: 'transferReason',
       label: '异动原因',
-      component: 'Textarea',
-      formItemClass: 'col-span-full',
+      component: 'Select',
       componentProps: {
-        placeholder: '请输入异动原因',
+        placeholder: '请选择异动原因',
+        options: getDictOptions(DICT_TYPE.HRM_TRANSFER_REASON),
       },
     },
     {
@@ -264,34 +278,18 @@ export function useFormSchema(
       },
     },
     {
-      fieldName: 'newCompanyId',
+      fieldName: 'newCompanyName',
       label: '变更为公司',
-      rules: 'required',
-      component: 'ApiTreeSelect',
-      componentProps: (_values, formApi) => ({
-        allowClear: true,
-        api: () => getCurrentUserCompanyDeptTree(true), // true表示包含公司本身
-        labelField: 'name',
-        valueField: 'id',
-        childrenField: 'children',
-        placeholder: '请选择变更为公司',
-        treeDefaultExpandAll: true,
-        onChange: (_value: any, option: any) => {
-          if (
-            option &&
-            formApi && // 如果是公司节点，设置公司名称
-            option.type === 'company'
-          ) {
-            formApi.setFieldValue('newCompanyName', option.name || '');
-            formApi.setFieldValue('newDeptId', null);
-            formApi.setFieldValue('newDeptName', '');
-          }
-        },
-      }),
+      component: 'Input',
+      componentProps: {
+        placeholder: '变更为公司',
+        readonly: true,
+        disabled: true,
+      },
     },
     {
-      fieldName: 'newCompanyName',
-      label: '变更为公司名称',
+      fieldName: 'newCompanyId',
+      label: '变更为公司ID',
       component: 'Input',
       dependencies: {
         triggerFields: [''],
@@ -299,48 +297,64 @@ export function useFormSchema(
       },
     },
     {
-      fieldName: 'newDeptId',
+      fieldName: 'newDeptName',
       label: '变更为部门',
       rules: 'required',
-      component: 'ApiTreeSelect',
-      componentProps: (_values, formApi) => ({
-        allowClear: true,
-        api: () => getCurrentUserCompanyDeptTree(false), // false表示不包含公司本身
-        labelField: 'name',
-        valueField: 'id',
-        childrenField: 'children',
+      component: 'HelpInput',
+      componentProps: {
         placeholder: '请选择变更为部门',
-        treeDefaultExpandAll: true,
-        onChange: (_value: any, option: any) => {
-          if (option && formApi) {
-            formApi.setFieldValue('newDeptName', option.name || '');
-            // 如果选择了部门，自动设置部门所属的公司
-            if (option.companyId) {
-              formApi.setFieldValue('newCompanyId', option.companyId);
-              formApi.setFieldValue('newCompanyName', option.companyName || '');
+        bind: {
+          readonly,
+          onClick: () => {
+            if (!readonly?.value && deptSelectModalRef?.value) {
+              // 选择部门前清空公司与生效日期，确保由新部门决定公司
+              deptSelectModalRef.value.modalApi.open();
             }
+          },
+        },
+        onClick: () => {
+          if (!readonly?.value && deptSelectModalRef?.value) {
+            deptSelectModalRef.value.modalApi.open();
           }
         },
-      }),
+      },
     },
     {
-      fieldName: 'newDeptName',
-      label: '变更为部门名称',
+      fieldName: 'newDeptId',
+      label: '变更为部门ID',
       component: 'Input',
       dependencies: {
         triggerFields: [''],
         show: () => false,
+      },
+    },
+    {
+      fieldName: 'effectiveImmediately',
+      label: '是否立即生效',
+      component: 'RadioGroup',
+      componentProps: {
+        options: [
+          { label: '是', value: true },
+          { label: '否', value: false },
+        ],
       },
     },
     {
       fieldName: 'effectiveDate',
       label: '生效日期',
-      rules: 'required',
       component: 'DatePicker',
-      componentProps: {
-        placeholder: '请选择生效日期',
-        format: 'YYYY-MM-DD',
-        valueFormat: 'YYYY-MM-DD',
+      dependencies: {
+        triggerFields: ['effectiveImmediately'],
+        rules: (values) => (values.effectiveImmediately ? '' : 'required'),
+      },
+      componentProps: (values) => {
+        const disabled = values.effectiveImmediately === true;
+        return {
+          placeholder: '请选择生效日期',
+          format: 'YYYY-MM-DD',
+          valueFormat: 'YYYY-MM-DD',
+          disabled,
+        };
       },
     },
     {

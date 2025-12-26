@@ -203,6 +203,7 @@ const HRM_DICT = {
   HRM_POLITICAL_STATUS: 'hrm_political_status', // 政治面貌
   HRM_MARITAL_STATUS: 'hrm_marital_status', // 婚姻状况
   HRM_TRANSFER_TYPE: 'hrm_transfer_type', // 异动类型
+  HRM_TRANSFER_REASON: 'hrm_transfer_reason', // 异动原因
 } as const;
 
 /** 字典类型枚举 - 统一导出 */
