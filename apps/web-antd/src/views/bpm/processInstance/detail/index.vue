@@ -29,7 +29,7 @@ import {
   SvgBpmCancelIcon,
   SvgBpmRejectIcon,
   SvgBpmRunningIcon,
-} from '#/views/bpm/processInstance/detail/modules/icons';
+} from '@vben/icons';
 
 import ProcessInstanceBpmnViewer from './modules/bpm-viewer.vue';
 import ProcessInstanceOperationButton from './modules/operation-button.vue';

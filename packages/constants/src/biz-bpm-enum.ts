@@ -304,3 +304,71 @@ export enum ProcessVariableEnum {
    */
   START_USER_ID = 'PROCESS_START_USER_ID',
 }
+
+
+/**
+ * 可以编辑的流程实例状态
+ */
+export const BpmProcessInstanceStatusEditValue = [
+  BpmProcessInstanceStatus.NOT_START,
+  BpmProcessInstanceStatus.REJECT,
+  BpmProcessInstanceStatus.CANCEL,
+];
+
+// 获取审批状态颜色
+export const getStatusColor = (val: any) => {
+  switch (val) {
+    case BpmProcessInstanceStatus.APPROVE: {
+      return {
+        color: '#87d068',
+        status: 'success',
+      };
+    }
+    case BpmProcessInstanceStatus.CANCEL: {
+      return {
+        color: '#faad14',
+        status: 'orange',
+      };
+    }
+    case BpmProcessInstanceStatus.REJECT: {
+      return {
+        color: '#ff4d4f',
+        status: 'error',
+      };
+    }
+    case BpmProcessInstanceStatus.RUNNING: {
+      return {
+        color: '#1677ff',
+        status: 'processing',
+      };
+    }
+    default: {
+      return {
+        color: '#000005',
+        status: 'default',
+      };
+    }
+  }
+};
+export const BILL_FLOW_STATUS = [
+  {
+    value: BpmProcessInstanceStatus.NOT_START,
+    label: '未提交',
+  },
+  {
+    value: BpmProcessInstanceStatus.RUNNING,
+    label: '审批中',
+  },
+  {
+    value: BpmProcessInstanceStatus.APPROVE,
+    label: '审批通过',
+  },
+  {
+    value: BpmProcessInstanceStatus.REJECT,
+    label: '审批拒绝',
+  },
+  {
+    value: BpmProcessInstanceStatus.CANCEL,
+    label: '已撤销',
+  },
+];
