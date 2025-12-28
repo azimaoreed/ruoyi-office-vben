@@ -31,6 +31,9 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'mobile',
       label: '手机号',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入手机号',
+      },
       rules: 'required',
     },
     {
@@ -90,7 +93,7 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '所在地',
       component: 'ApiTreeSelect',
       componentProps: {
-        api: () => getAreaTree(),
+        api: getAreaTree,
         fieldNames: { label: 'name', value: 'id', children: 'children' },
         placeholder: '请选择所在地',
       },
@@ -100,7 +103,7 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '用户标签',
       component: 'ApiSelect',
       componentProps: {
-        api: () => getSimpleTagList(),
+        api: getSimpleTagList,
         labelField: 'name',
         valueField: 'id',
         mode: 'multiple',
@@ -112,7 +115,7 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '用户分组',
       component: 'ApiSelect',
       componentProps: {
-        api: () => getSimpleGroupList(),
+        api: getSimpleGroupList,
         labelField: 'name',
         valueField: 'id',
         placeholder: '请选择用户分组',
@@ -173,7 +176,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '用户标签',
       component: 'ApiSelect',
       componentProps: {
-        api: () => getSimpleTagList(),
+        api: getSimpleTagList,
         labelField: 'name',
         valueField: 'id',
         mode: 'multiple',
@@ -186,7 +189,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '用户等级',
       component: 'ApiSelect',
       componentProps: {
-        api: () => getSimpleLevelList(),
+        api: getSimpleLevelList,
         labelField: 'name',
         valueField: 'id',
         placeholder: '请选择用户等级',
@@ -198,7 +201,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '用户分组',
       component: 'ApiSelect',
       componentProps: {
-        api: () => getSimpleGroupList(),
+        api: getSimpleGroupList,
         labelField: 'name',
         valueField: 'id',
         placeholder: '请选择用户分组',
@@ -327,7 +330,7 @@ export function useLevelFormSchema(): VbenFormSchema[] {
       label: '用户等级',
       component: 'ApiSelect',
       componentProps: {
-        api: () => getSimpleLevelList(),
+        api: getSimpleLevelList,
         labelField: 'name',
         valueField: 'id',
         placeholder: '请选择用户等级',

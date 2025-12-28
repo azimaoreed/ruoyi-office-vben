@@ -1,20 +1,43 @@
 <script setup lang="ts">
-import { Page } from '@vben/common-ui';
+import type { StatsData } from './data';
+
+import { onMounted, ref } from 'vue';
+
+import { ComparisonCard, Page } from '@vben/common-ui';
 
 import { Col, Row } from 'ant-design-vue';
 
-// 导入业务逻辑
-import { useIotHome } from './data';
-// 导入组件
-import ComparisonCard from './modules/ComparisonCard.vue';
-import DeviceCountCard from './modules/DeviceCountCard.vue';
-import DeviceStateCountCard from './modules/DeviceStateCountCard.vue';
-import MessageTrendCard from './modules/MessageTrendCard.vue';
+import { getStatisticsSummary } from '#/api/iot/statistics';
+
+import { defaultStatsData } from './data';
+import DeviceCountCard from './modules/device-count-card.vue';
+import DeviceStateCountCard from './modules/device-state-count-card.vue';
+import MessageTrendCard from './modules/message-trend-card.vue';
 
 defineOptions({ name: 'IoTHome' });
 
-// 使用业务逻辑 Hook
-const { loading, statsData } = useIotHome();
+const loading = ref(true);
+const statsData = ref<StatsData>(defaultStatsData);
+
+/** 加载统计数据 */
+async function loadStatisticsData(): Promise<StatsData> {
+  return await getStatisticsSummary();
+}
+
+/** 加载数据 */
+async function loadData() {
+  loading.value = true;
+  try {
+    statsData.value = await loadStatisticsData();
+  } finally {
+    loading.value = false;
+  }
+}
+
+/** 组件挂载时加载数据 */
+onMounted(() => {
+  loadData();
+});
 </script>
 
 <template>
@@ -81,9 +104,3 @@ const { loading, statsData } = useIotHome();
     </Row>
   </Page>
 </template>
-
-<style scoped>
-:deep(.vben-page-content) {
-  padding: 16px;
-}
-</style>

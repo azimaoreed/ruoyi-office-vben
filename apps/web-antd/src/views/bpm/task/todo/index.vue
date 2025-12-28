@@ -17,7 +17,7 @@ function handleAudit(row: BpmTaskApi.Task) {
   router.push({
     name: 'BpmProcessInstanceTodoDetail',
     query: {
-      id: row.processInstance.id,
+      id: row.processInstance!.id,
       taskId: row.id,
       isTodo: 'true',
       nodeKey: row.taskDefinitionKey,
@@ -48,13 +48,11 @@ const [Grid] = useVbenVxeGrid({
     },
     rowConfig: {
       keyField: 'id',
+      isHover: true,
     },
     toolbarConfig: {
       refresh: true,
       search: true,
-    },
-    cellConfig: {
-      height: 64,
     },
   } as VxeTableGridOptions<BpmTaskApi.Task>,
 });

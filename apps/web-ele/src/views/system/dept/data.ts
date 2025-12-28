@@ -44,7 +44,8 @@ export function useFormSchema(): VbenFormSchema[] {
         valueField: 'id',
         childrenField: 'children',
         placeholder: '请选择上级部门',
-        treeDefaultExpandAll: true,
+        defaultExpandAll: true,
+        checkStrictly: true,
       },
       rules: 'selectRequired',
     },
@@ -74,7 +75,7 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '负责人',
       component: 'ApiSelect',
       componentProps: {
-        api: () => getSimpleUserList(),
+        api: getSimpleUserList,
         labelField: 'nickname',
         valueField: 'id',
         placeholder: '请选择负责人',

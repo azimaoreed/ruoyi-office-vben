@@ -3,7 +3,8 @@ import type { PageParam, PageResult } from '@vben/request';
 import { requestClient } from '#/api/request';
 
 export namespace IotDeviceApi {
-  /** IoT 设备 VO */
+  // TODO @haohao：需要跟后端对齐，必要的 ReqVO、RespVO
+  /** 设备 */
   export interface Device {
     id?: number; // 设备 ID，主键，自增
     deviceName: string; // 设备名称
@@ -48,7 +49,7 @@ export namespace IotDeviceApi {
     dataSpecsList: any[]; // 数据定义列表
   }
 
-  /** IoT 设备属性 VO */
+  /** 设备属性 VO */
   export interface DeviceProperty {
     identifier: string; // 属性标识符
     value: string; // 最新值
@@ -62,7 +63,7 @@ export namespace IotDeviceApi {
     password: string; // 密码
   }
 
-  /** IoT 设备发送消息 Request VO */
+  /** 设备发送消息 Request VO */
   export interface DeviceMessageSendReq {
     deviceId: number; // 设备编号
     method: string; // 请求方法
@@ -74,13 +75,6 @@ export namespace IotDeviceApi {
     ids: number[]; // 设备 ID 列表
     groupIds: number[]; // 分组 ID 列表
   }
-}
-
-/** IoT 设备状态枚举 */
-export enum DeviceStateEnum {
-  INACTIVE = 0, // 未激活
-  OFFLINE = 2, // 离线
-  ONLINE = 1, // 在线
 }
 
 /** 查询设备分页 */
@@ -150,6 +144,14 @@ export function getDeviceListByProductId(productId: number) {
 /** 获取导入模板 */
 export function importDeviceTemplate() {
   return requestClient.download('/iot/device/get-import-template');
+}
+
+/** 导入设备 */
+export function importDevice(file: File, updateSupport: boolean) {
+  return requestClient.upload('/iot/device/import', {
+    file,
+    updateSupport,
+  });
 }
 
 /** 获取设备属性最新数据 */

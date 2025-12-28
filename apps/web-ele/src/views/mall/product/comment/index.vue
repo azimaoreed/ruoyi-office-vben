@@ -2,8 +2,6 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { MallCommentApi } from '#/api/mall/product/comment';
 
-import { h } from 'vue';
-
 import { confirm, DocAlert, Page, prompt, useVbenModal } from '@vben/common-ui';
 
 import { ElInput, ElMessage, ElRate } from 'element-plus';
@@ -37,17 +35,17 @@ function handleCreate() {
 /** 回复评价 */
 function handleReply(row: MallCommentApi.Comment) {
   prompt({
-    component: () => {
-      return h(ElInput, {
-        type: 'textarea',
-        placeholder: '请输入回复内容',
-      });
+    component: ElInput,
+    componentProps: {
+      type: 'textarea',
+      placeholder: '请输入回复内容',
+      rows: 4,
     },
     content: row.content
       ? `用户评论：${row.content}\n请输入回复内容：`
       : '请输入回复内容：',
     title: '回复评论',
-    modelPropName: 'value',
+    modelPropName: 'modelValue',
   }).then(async (val) => {
     if (val) {
       await replyComment({
@@ -71,17 +69,13 @@ async function handleStatusChange(
     })
       .then(async () => {
         // 更新状态
-        const res = await updateCommentVisible({
+        await updateCommentVisible({
           id: row.id!,
           visible: newStatus,
         });
-        if (res) {
-          // 提示并返回成功
-          ElMessage.success(`${text}成功`);
-          resolve(true);
-        } else {
-          reject(new Error('操作失败'));
-        }
+        // 提示并返回成功
+        ElMessage.success(`${text}成功`);
+        resolve(true);
       })
       .catch(() => {
         reject(new Error('取消操作'));
@@ -131,10 +125,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <FormModal @success="handleRefresh" />
     <Grid table-title="评论列表">
       <template #descriptionScores="{ row }">
-        <ElRate v-model="row.descriptionScores" :disabled="true" />
+        <ElRate :model-value="row.descriptionScores" disabled />
       </template>
       <template #benefitScores="{ row }">
-        <ElRate v-model="row.benefitScores" :disabled="true" />
+        <ElRate :model-value="row.benefitScores" disabled />
       </template>
       <template #toolbar-tools>
         <TableAction
@@ -154,8 +148,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
           :actions="[
             {
               label: '回复',
-              type: 'primary',
-              link: true,
+              type: 'text',
               auth: ['product:comment:update'],
               onClick: handleReply.bind(null, row),
             },

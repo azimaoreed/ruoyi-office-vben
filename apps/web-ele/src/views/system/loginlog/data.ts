@@ -1,6 +1,5 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { SystemLoginLogApi } from '#/api/system/login-log';
 import type { DescriptionItemSchema } from '#/components/description';
 
 import { h } from 'vue';
@@ -54,7 +53,7 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
     },
     {
       field: 'logType',
-      title: '操作类型',
+      title: '登录类型',
       minWidth: 120,
       cellRender: {
         name: 'CellDict',
@@ -109,11 +108,11 @@ export function useDetailSchema(): DescriptionItemSchema[] {
     },
     {
       field: 'logType',
-      label: '操作类型',
-      content: (data: SystemLoginLogApi.LoginLog) => {
+      label: '登录类型',
+      render: (val) => {
         return h(DictTag, {
           type: DICT_TYPE.SYSTEM_LOGIN_TYPE,
-          value: data?.logType,
+          value: val,
         });
       },
     },
@@ -132,19 +131,17 @@ export function useDetailSchema(): DescriptionItemSchema[] {
     {
       field: 'result',
       label: '登录结果',
-      content: (data: SystemLoginLogApi.LoginLog) => {
+      render: (val) => {
         return h(DictTag, {
           type: DICT_TYPE.SYSTEM_LOGIN_RESULT,
-          value: data?.result,
+          value: val,
         });
       },
     },
     {
       field: 'createTime',
       label: '登录日期',
-      content: (data: SystemLoginLogApi.LoginLog) => {
-        return formatDateTime(data?.createTime || '') as string;
-      },
+      render: (val) => formatDateTime(val) as string,
     },
   ];
 }

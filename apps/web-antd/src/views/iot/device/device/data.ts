@@ -1,16 +1,13 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
-import { DICT_TYPE } from '@vben/constants';
+import { DeviceTypeEnum, DICT_TYPE, LocationTypeEnum } from '@vben/constants';
 import { getDictOptions } from '@vben/hooks';
 
 import { z } from '#/adapter/form';
 import { getSimpleDeviceList } from '#/api/iot/device/device';
 import { getSimpleDeviceGroupList } from '#/api/iot/device/group';
-import {
-  DeviceTypeEnum,
-  getSimpleProductList,
-} from '#/api/iot/product/product';
+import { getSimpleProductList } from '#/api/iot/product/product';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -28,10 +25,14 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '产品',
       component: 'ApiSelect',
       componentProps: {
-        api: () => getSimpleProductList(),
+        api: getSimpleProductList,
         labelField: 'name',
         valueField: 'id',
         placeholder: '请选择产品',
+      },
+      dependencies: {
+        triggerFields: ['id'],
+        disabled: (values: any) => !!values?.id,
       },
       rules: 'required',
     },
@@ -41,6 +42,10 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'Input',
       componentProps: {
         placeholder: '请输入 DeviceName',
+      },
+      dependencies: {
+        triggerFields: ['id'],
+        disabled: (values: any) => !!values?.id,
       },
       rules: z
         .string()
@@ -63,7 +68,7 @@ export function useFormSchema(): VbenFormSchema[] {
       },
       dependencies: {
         triggerFields: ['deviceType'],
-        show: (values) => values.deviceType === 1, // GATEWAY_SUB
+        show: (values) => values.deviceType === DeviceTypeEnum.GATEWAY_SUB,
       },
     },
     {
@@ -89,7 +94,7 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '设备分组',
       component: 'ApiSelect',
       componentProps: {
-        api: () => getSimpleDeviceGroupList(),
+        api: getSimpleDeviceGroupList,
         labelField: 'name',
         valueField: 'id',
         mode: 'multiple',
@@ -129,20 +134,20 @@ export function useFormSchema(): VbenFormSchema[] {
       },
       dependencies: {
         triggerFields: ['locationType'],
-        show: (values) => values.locationType === 3, // MANUAL
+        show: (values) => values.locationType === LocationTypeEnum.MANUAL,
       },
     },
     {
       fieldName: 'latitude',
-      label: '设备维度',
+      label: '设备纬度',
       component: 'InputNumber',
       componentProps: {
-        placeholder: '请输入设备维度',
+        placeholder: '请输入设备纬度',
         class: 'w-full',
       },
       dependencies: {
         triggerFields: ['locationType'],
-        show: (values) => values.locationType === 3, // MANUAL
+        show: (values) => values.locationType === LocationTypeEnum.MANUAL,
       },
     },
   ];
@@ -156,7 +161,7 @@ export function useGroupFormSchema(): VbenFormSchema[] {
       label: '设备分组',
       component: 'ApiSelect',
       componentProps: {
-        api: () => getSimpleDeviceGroupList(),
+        api: getSimpleDeviceGroupList,
         labelField: 'name',
         valueField: 'id',
         mode: 'multiple',
@@ -199,7 +204,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '产品',
       component: 'ApiSelect',
       componentProps: {
-        api: () => getSimpleProductList(),
+        api: getSimpleProductList,
         labelField: 'name',
         valueField: 'id',
         placeholder: '请选择产品',
@@ -239,7 +244,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '设备状态',
       component: 'Select',
       componentProps: {
-        options: getDictOptions(DICT_TYPE.IOT_DEVICE_STATUS, 'number'),
+        options: getDictOptions(DICT_TYPE.IOT_DEVICE_STATE, 'number'),
         placeholder: '请选择设备状态',
         allowClear: true,
       },
@@ -249,7 +254,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '设备分组',
       component: 'ApiSelect',
       componentProps: {
-        api: () => getSimpleDeviceGroupList(),
+        api: getSimpleDeviceGroupList,
         labelField: 'name',
         valueField: 'id',
         placeholder: '请选择设备分组',
@@ -295,12 +300,12 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
       slots: { default: 'groups' },
     },
     {
-      field: 'status',
+      field: 'state',
       title: '设备状态',
       minWidth: 100,
       cellRender: {
         name: 'CellDict',
-        props: { type: DICT_TYPE.IOT_DEVICE_STATUS },
+        props: { type: DICT_TYPE.IOT_DEVICE_STATE },
       },
     },
     {

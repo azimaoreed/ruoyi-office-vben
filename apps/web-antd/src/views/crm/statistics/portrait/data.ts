@@ -39,13 +39,11 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'RangePicker',
       componentProps: {
         ...getRangePickerDefaultProps(),
-        format: 'YYYY-MM-DD',
-        picker: 'year',
       },
       defaultValue: [
         formatDateTime(beginOfDay(new Date(Date.now() - 3600 * 1000 * 24 * 7))),
         formatDateTime(endOfDay(new Date(Date.now() - 3600 * 1000 * 24))),
-      ] as [Date, Date],
+      ],
     },
     {
       fieldName: 'deptId',
@@ -60,6 +58,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
         valueField: 'id',
         childrenField: 'children',
         treeDefaultExpandAll: true,
+        placeholder: '请选择归属部门',
       },
       defaultValue: userStore.userInfo?.deptId,
     },
@@ -68,7 +67,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '员工',
       component: 'ApiSelect',
       componentProps: {
-        api: () => getSimpleUserList(),
+        api: getSimpleUserList,
         labelField: 'nickname',
         valueField: 'id',
         placeholder: '请选择员工',

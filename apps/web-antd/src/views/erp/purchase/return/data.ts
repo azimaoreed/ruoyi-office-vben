@@ -66,7 +66,7 @@ export function useFormSchema(formType: string): VbenFormSchema[] {
         placeholder: '请选择供应商',
         allowClear: true,
         showSearch: true,
-        api: () => getSupplierSimpleList(),
+        api: getSupplierSimpleList,
         labelField: 'name',
         valueField: 'id',
       },
@@ -173,7 +173,7 @@ export function useFormSchema(formType: string): VbenFormSchema[] {
         placeholder: '请选择结算账户',
         allowClear: true,
         showSearch: true,
-        api: () => getAccountSimpleList(),
+        api: getAccountSimpleList,
         labelField: 'name',
         valueField: 'id',
       },
@@ -195,6 +195,7 @@ export function useFormSchema(formType: string): VbenFormSchema[] {
 /** 表单的明细表格列 */
 export function useFormItemColumns(
   formData?: any[],
+  disabled?: boolean,
 ): VxeTableGridOptions['columns'] {
   return [
     { type: 'seq', title: '序号', minWidth: 50, fixed: 'left' },
@@ -295,6 +296,7 @@ export function useFormItemColumns(
       width: 50,
       fixed: 'right',
       slots: { default: 'actions' },
+      visible: !disabled,
     },
   ];
 }
@@ -319,7 +321,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
         placeholder: '请选择产品',
         allowClear: true,
         showSearch: true,
-        api: () => getProductSimpleList(),
+        api: getProductSimpleList,
         labelField: 'name',
         valueField: 'id',
       },
@@ -341,7 +343,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
         placeholder: '请选择供应商',
         allowClear: true,
         showSearch: true,
-        api: () => getSupplierSimpleList(),
+        api: getSupplierSimpleList,
         labelField: 'name',
         valueField: 'id',
       },
@@ -354,7 +356,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
         placeholder: '请选择仓库',
         allowClear: true,
         showSearch: true,
-        api: () => getWarehouseSimpleList(),
+        api: getWarehouseSimpleList,
         labelField: 'name',
         valueField: 'id',
       },
@@ -367,7 +369,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
         placeholder: '请选择创建人',
         allowClear: true,
         showSearch: true,
-        api: () => getSimpleUserList(),
+        api: getSimpleUserList,
         labelField: 'nickname',
         valueField: 'id',
       },
@@ -490,12 +492,13 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
     },
     {
       title: '操作',
-      width: 220,
+      width: 260,
       fixed: 'right',
       slots: { default: 'actions' },
     },
   ];
 }
+
 /** 列表的搜索表单 */
 export function useOrderGridFormSchema(): VbenFormSchema[] {
   return [
@@ -516,7 +519,7 @@ export function useOrderGridFormSchema(): VbenFormSchema[] {
         placeholder: '请选择产品',
         allowClear: true,
         showSearch: true,
-        api: () => getProductSimpleList(),
+        api: getProductSimpleList,
         labelField: 'name',
         valueField: 'id',
       },

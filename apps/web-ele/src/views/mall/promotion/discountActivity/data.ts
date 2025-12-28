@@ -44,6 +44,7 @@ export function useFormSchema(): VbenFormSchema[] {
         showTime: false,
         valueFormat: 'x',
         format: 'YYYY-MM-DD',
+        class: '!w-full',
       },
       rules: 'required',
     },
@@ -56,6 +57,7 @@ export function useFormSchema(): VbenFormSchema[] {
         showTime: false,
         valueFormat: 'x',
         format: 'YYYY-MM-DD',
+        class: '!w-full',
       },
       rules: 'required',
     },
@@ -67,8 +69,15 @@ export function useFormSchema(): VbenFormSchema[] {
         placeholder: '请输入备注',
         rows: 4,
       },
+      formItemClass: 'col-span-2',
     },
-    // TODO
+    {
+      fieldName: 'spuIds',
+      label: '活动商品',
+      component: 'Input',
+      rules: 'required',
+      formItemClass: 'col-span-2',
+    },
   ];
 }
 

@@ -40,7 +40,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       defaultValue: [
         formatDateTime(beginOfDay(new Date(Date.now() - 3600 * 1000 * 24 * 7))),
         formatDateTime(endOfDay(new Date(Date.now() - 3600 * 1000 * 24))),
-      ] as [Date, Date],
+      ],
     },
     {
       fieldName: 'interval',
@@ -48,6 +48,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'Select',
       componentProps: {
         allowClear: true,
+        placeholder: '请选择时间间隔',
         options: getDictOptions(DICT_TYPE.DATE_INTERVAL, 'number'),
       },
       defaultValue: 2,
@@ -65,6 +66,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
         valueField: 'id',
         childrenField: 'children',
         treeDefaultExpandAll: true,
+        placeholder: '请选择归属部门',
       },
       defaultValue: userStore.userInfo?.deptId,
     },
@@ -73,10 +75,11 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '员工',
       component: 'ApiSelect',
       componentProps: {
-        api: () => getSimpleUserList(),
+        api: getSimpleUserList,
         allowClear: true,
         labelField: 'nickname',
         valueField: 'id',
+        placeholder: '请选择员工',
       },
     },
   ];

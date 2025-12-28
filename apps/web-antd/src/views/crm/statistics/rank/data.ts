@@ -57,7 +57,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       defaultValue: [
         formatDateTime(beginOfDay(new Date(Date.now() - 3600 * 1000 * 24 * 7))),
         formatDateTime(endOfDay(new Date(Date.now() - 3600 * 1000 * 24))),
-      ] as [Date, Date],
+      ],
     },
     {
       fieldName: 'deptId',
@@ -72,6 +72,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
         valueField: 'id',
         childrenField: 'children',
         treeDefaultExpandAll: true,
+        placeholder: '请选择归属部门',
       },
       defaultValue: userStore.userInfo?.deptId,
     },

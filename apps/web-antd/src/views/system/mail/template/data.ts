@@ -42,7 +42,7 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '邮箱账号',
       component: 'ApiSelect',
       componentProps: {
-        api: () => getSimpleMailAccountList(),
+        api: getSimpleMailAccountList,
         labelField: 'mail',
         valueField: 'id',
         placeholder: '请选择邮箱账号',
@@ -82,14 +82,6 @@ export function useFormSchema(): VbenFormSchema[] {
         optionType: 'button',
       },
       rules: z.number().default(CommonStatusEnum.ENABLE),
-    },
-    {
-      fieldName: 'remark',
-      label: '备注',
-      component: 'Textarea',
-      componentProps: {
-        placeholder: '请输入备注',
-      },
     },
   ];
 }
@@ -185,7 +177,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '邮箱账号',
       component: 'ApiSelect',
       componentProps: {
-        api: () => getSimpleMailAccountList(),
+        api: getSimpleMailAccountList,
         labelField: 'mail',
         valueField: 'id',
         allowClear: true,

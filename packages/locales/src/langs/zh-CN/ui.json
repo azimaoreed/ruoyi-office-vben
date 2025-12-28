@@ -38,7 +38,9 @@
     "downloadTemplateFail": "下载模板失败",
     "updating": "正在更新 {0}...",
     "updateSuccess": "更新 {0} 成功",
-    "updateFailed": "更新 {0} 失败"
+    "updateFailed": "更新 {0} 失败",
+    "closing": "正在关闭 {0} ...",
+    "closeSuccess": "{0} 关闭成功"
   },
   "placeholder": {
     "input": "请输入",
@@ -121,6 +123,10 @@
       "errorPasswordTip": "密码错误，请重新输入",
       "backToLogin": "返回登录",
       "entry": "进入系统"
+    },
+    "timezone": {
+      "setTimezone": "设置时区",
+      "setSuccess": "时区设置成功"
     }
   },
   "upload": {
@@ -131,7 +137,9 @@
     "maxSize": "单个文件不超过{0}MB",
     "maxSizeMultiple": "只能上传不超过{0}MB的文件!",
     "maxNumber": "最多只能上传{0}个文件",
-    "uploadSuccess": "上传成功"
+    "uploadSuccess": "上传成功",
+    "uploadError": "上传失败",
+    "imgUploading": "图片发送中，请稍等。。。"
   },
   "cropper": {
     "selectImage": "选择图片",

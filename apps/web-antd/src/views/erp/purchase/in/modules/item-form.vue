@@ -65,7 +65,7 @@ const summaries = computed(() => {
 /** 表格配置 */
 const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
-    columns: useFormItemColumns(tableData.value),
+    columns: useFormItemColumns(tableData.value, props.disabled),
     data: tableData.value,
     minHeight: 250,
     autoResize: true,
@@ -95,8 +95,8 @@ watch(
     await nextTick(); // 特殊：保证 gridApi 已经初始化
     await gridApi.grid.reloadData(tableData.value);
     // 更新表格列配置（目的：原数量、已入库动态列）
-    const columns = useFormItemColumns(tableData.value);
-    await gridApi.grid.reloadColumn(columns);
+    const columns = useFormItemColumns(tableData.value, props.disabled);
+    await gridApi.grid.reloadColumn(columns || []);
   },
   {
     immediate: true,
@@ -140,17 +140,18 @@ function handleDelete(row: ErpPurchaseInApi.PurchaseInItem) {
 }
 
 /** 处理仓库变更 */
-const handleWarehouseChange = async (row: ErpPurchaseInApi.PurchaseInItem) => {
+async function handleWarehouseChange(row: ErpPurchaseInApi.PurchaseInItem) {
   const stockCount = await getWarehouseStockCount({
     productId: row.productId!,
     warehouseId: row.warehouseId!,
   });
   row.stockCount = stockCount || 0;
   handleRowChange(row);
-};
+}
 
 /** 处理行数据变更 */
 function handleRowChange(row: any) {
+  // TODO 芋艿
   const index = tableData.value.findIndex((item) => item.seq === row.seq);
   if (index === -1) {
     tableData.value.push(row);
@@ -161,14 +162,14 @@ function handleRowChange(row: any) {
 }
 
 /** 初始化行数据 */
-const initRow = (row: ErpPurchaseInApi.PurchaseInItem): void => {
+function initRow(row: ErpPurchaseInApi.PurchaseInItem) {
   if (row.productPrice && row.count) {
     row.totalProductPrice = erpPriceMultiply(row.productPrice, row.count) ?? 0;
     row.taxPrice =
       erpPriceMultiply(row.totalProductPrice, (row.taxPercent || 0) / 100) ?? 0;
     row.totalPrice = row.totalProductPrice + row.taxPrice;
   }
-};
+}
 
 /** 表单校验 */
 function validate() {
@@ -258,7 +259,6 @@ onMounted(async () => {
     </template>
     <template #actions="{ row }">
       <TableAction
-        v-if="!disabled"
         :actions="[
           {
             label: '删除',

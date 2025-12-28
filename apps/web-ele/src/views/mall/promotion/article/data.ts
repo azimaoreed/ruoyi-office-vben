@@ -1,12 +1,12 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeGridPropTypes } from '#/adapter/vxe-table';
-import type { MallArticleCategoryApi } from '#/api/mall/promotion/articleCategory';
+import type { MallArticleCategoryApi } from '#/api/mall/promotion/article/category';
 
 import { CommonStatusEnum, DICT_TYPE } from '@vben/constants';
 import { getDictOptions } from '@vben/hooks';
 
 import { z } from '#/adapter/form';
-import { getSimpleArticleCategoryList } from '#/api/mall/promotion/articleCategory';
+import { getSimpleArticleCategoryList } from '#/api/mall/promotion/article/category';
 import { getRangePickerDefaultProps } from '#/utils';
 
 /** 关联数据 */
@@ -38,7 +38,7 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '文章分类',
       component: 'ApiSelect',
       componentProps: {
-        api: () => getSimpleArticleCategoryList(),
+        api: getSimpleArticleCategoryList,
         labelField: 'name',
         valueField: 'id',
         placeholder: '请选择文章分类',
@@ -140,7 +140,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '文章分类',
       component: 'ApiSelect',
       componentProps: {
-        api: () => getSimpleArticleCategoryList(),
+        api: getSimpleArticleCategoryList,
         labelField: 'name',
         valueField: 'id',
         placeholder: '请选择文章分类',

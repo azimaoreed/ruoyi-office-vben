@@ -8,22 +8,22 @@ import { z } from '#/adapter/form';
 
 export const EVENT_EXECUTION_OPTIONS = [
   {
-    label: 'start',
+    label: '开始',
     value: 'start',
   },
   {
-    label: 'end',
+    label: '结束',
     value: 'end',
   },
 ];
 
 export const EVENT_OPTIONS = [
-  { label: 'create', value: 'create' },
-  { label: 'assignment', value: 'assignment' },
-  { label: 'complete', value: 'complete' },
-  { label: 'delete', value: 'delete' },
-  { label: 'update', value: 'update' },
-  { label: 'timeout', value: 'timeout' },
+  { label: '创建', value: 'create' },
+  { label: '指派', value: 'assignment' },
+  { label: '完成', value: 'complete' },
+  { label: '删除', value: 'delete' },
+  { label: '更新', value: 'update' },
+  { label: '超时', value: 'timeout' },
 ];
 
 /** 新增/修改的表单 */
@@ -64,6 +64,7 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'Select',
       componentProps: {
         options: getDictOptions(DICT_TYPE.BPM_PROCESS_LISTENER_TYPE, 'string'),
+        placeholder: '请选择类型',
         allowClear: true,
       },
       rules: 'required',
@@ -74,6 +75,7 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'Select',
       componentProps: {
         options: EVENT_OPTIONS,
+        placeholder: '请选择事件',
         allowClear: true,
       },
       rules: 'required',
@@ -97,6 +99,7 @@ export function useFormSchema(): VbenFormSchema[] {
           DICT_TYPE.BPM_PROCESS_LISTENER_VALUE_TYPE,
           'string',
         ),
+        placeholder: '请选择值类型',
         allowClear: true,
       },
       rules: 'required',
@@ -166,6 +169,15 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
+      field: 'status',
+      title: '状态',
+      minWidth: 100,
+      cellRender: {
+        name: 'CellDict',
+        props: { type: DICT_TYPE.COMMON_STATUS },
+      },
+    },
+    {
       field: 'event',
       title: '事件',
       minWidth: 200,
@@ -191,9 +203,8 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
       formatter: 'formatDateTime',
     },
     {
-      field: 'actions',
       title: '操作',
-      minWidth: 180,
+      width: 180,
       fixed: 'right',
       slots: { default: 'actions' },
     },

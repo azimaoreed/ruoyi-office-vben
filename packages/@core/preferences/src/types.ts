@@ -146,15 +146,17 @@ interface LogoPreferences {
   fit: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down';
   /** logo地址 */
   source: string;
+  /** 暗色主题logo地址 (可选，若不设置则使用 source) */
+  sourceDark?: string;
 }
 
 interface NavigationPreferences {
   /** 导航菜单手风琴模式 */
   accordion: boolean;
-  /** 导航菜单是否显示图标 */
-  showIcon: boolean;
   /** 导航菜单是否默认全部展开（仅侧边栏使用），供按钮切换 */
   expandAllMenus?: boolean;
+  /** 导航菜单是否显示图标 */
+  showIcon: boolean;
   /** 导航菜单是否切割，只在 layout=mixed-nav 生效 */
   split: boolean;
   /** 导航菜单风格 */
@@ -176,8 +178,6 @@ interface SidebarPreferences {
   enable: boolean;
   /** 菜单自动展开状态 */
   expandOnHover: boolean;
-  /** 是否显示“展示所有菜单”按钮 */
-  showExpandAllMenusButton?: boolean;
   /** 侧边栏扩展区域是否折叠 */
   extraCollapse: boolean;
   /** 侧边栏扩展区域折叠宽度 */
@@ -188,6 +188,8 @@ interface SidebarPreferences {
   hidden: boolean;
   /** 混合侧边栏宽度 */
   mixedWidth: number;
+  /** 是否显示“展示所有菜单”按钮 */
+  showExpandAllMenusButton?: boolean;
   /** 侧边栏宽度 */
   width: number;
 }
@@ -243,6 +245,8 @@ interface ThemePreferences {
   colorSuccess: string;
   /** 警告色 */
   colorWarning: string;
+  /** 字体大小（单位：px） */
+  fontSize: number;
   /** 当前主题 */
   mode: ThemeModeType;
   /** 圆角 */
@@ -281,6 +285,8 @@ interface WidgetPreferences {
   sidebarToggle: boolean;
   /** 是否显示主题切换部件 */
   themeToggle: boolean;
+  /** 是否显示时区部件 */
+  timezone: boolean;
 }
 
 interface Preferences {

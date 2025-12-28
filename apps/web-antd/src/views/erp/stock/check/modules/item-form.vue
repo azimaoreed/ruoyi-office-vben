@@ -49,7 +49,7 @@ const summaries = computed(() => {
 /** 表格配置 */
 const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
-    columns: useFormItemColumns(),
+    columns: useFormItemColumns(props.disabled),
     data: tableData.value,
     minHeight: 250,
     autoResize: true,
@@ -106,6 +106,7 @@ function handleAdd() {
 
 /** 处理删除 */
 function handleDelete(row: ErpStockCheckApi.StockCheckItem) {
+  // TODO 芋艿
   const index = tableData.value.findIndex((item) => item.seq === row.seq);
   if (index !== -1) {
     tableData.value.splice(index, 1);
@@ -174,11 +175,11 @@ function handleRowChange(row: any) {
 }
 
 /** 初始化行数据 */
-const initRow = (row: ErpStockCheckApi.StockCheckItem): void => {
+function initRow(row: ErpStockCheckApi.StockCheckItem) {
   if (row.productPrice && row.count) {
     row.totalPrice = erpPriceMultiply(row.productPrice, row.count) ?? 0;
   }
-};
+}
 
 /** 表单校验 */
 function validate() {
@@ -265,7 +266,6 @@ onMounted(async () => {
     </template>
     <template #actions="{ row }">
       <TableAction
-        v-if="!disabled"
         :actions="[
           {
             label: '删除',

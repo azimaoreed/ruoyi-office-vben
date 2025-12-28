@@ -183,7 +183,7 @@ export function useDataFormSchema(): VbenFormSchema[] {
       component: 'ApiSelect',
       componentProps: (values) => {
         return {
-          api: () => getSimpleDictTypeList(),
+          api: getSimpleDictTypeList,
           placeholder: '请输入字典类型',
           labelField: 'name',
           valueField: 'type',
@@ -219,6 +219,8 @@ export function useDataFormSchema(): VbenFormSchema[] {
       component: 'InputNumber',
       componentProps: {
         placeholder: '请输入显示排序',
+        controlsPosition: 'right',
+        class: '!w-full',
       },
       rules: 'required',
     },

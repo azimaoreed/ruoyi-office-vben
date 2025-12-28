@@ -50,7 +50,7 @@ export function useFormSchema(formType: string): VbenFormSchema[] {
         placeholder: '请选择供应商',
         allowClear: true,
         showSearch: true,
-        api: () => getSupplierSimpleList(),
+        api: getSupplierSimpleList,
         labelField: 'name',
         valueField: 'id',
       },
@@ -100,7 +100,9 @@ export function useFormSchema(formType: string): VbenFormSchema[] {
 }
 
 /** 表单的明细表格列 */
-export function useFormItemColumns(): VxeTableGridOptions['columns'] {
+export function useFormItemColumns(
+  disabled: boolean,
+): VxeTableGridOptions['columns'] {
   return [
     { type: 'seq', title: '序号', minWidth: 50, fixed: 'left' },
     {
@@ -163,6 +165,7 @@ export function useFormItemColumns(): VxeTableGridOptions['columns'] {
       width: 50,
       fixed: 'right',
       slots: { default: 'actions' },
+      visible: !disabled,
     },
   ];
 }
@@ -187,7 +190,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
         placeholder: '请选择产品',
         allowClear: true,
         showSearch: true,
-        api: () => getProductSimpleList(),
+        api: getProductSimpleList,
         labelField: 'name',
         valueField: 'id',
       },
@@ -209,7 +212,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
         placeholder: '请选择供应商',
         allowClear: true,
         showSearch: true,
-        api: () => getSupplierSimpleList(),
+        api: getSupplierSimpleList,
         labelField: 'name',
         valueField: 'id',
       },
@@ -222,7 +225,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
         placeholder: '请选择仓库',
         allowClear: true,
         showSearch: true,
-        api: () => getWarehouseSimpleList(),
+        api: getWarehouseSimpleList,
         labelField: 'name',
         valueField: 'id',
       },
@@ -235,7 +238,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
         placeholder: '请选择创建人',
         allowClear: true,
         showSearch: true,
-        api: () => getSimpleUserList(),
+        api: getSimpleUserList,
         labelField: 'nickname',
         valueField: 'id',
       },

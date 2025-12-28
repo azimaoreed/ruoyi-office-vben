@@ -36,6 +36,7 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'Select',
       componentProps: {
         options: getDictOptions(DICT_TYPE.SYSTEM_SOCIAL_TYPE, 'number'),
+        placeholder: '请选择社交平台',
       },
       rules: 'required',
     },
@@ -79,6 +80,18 @@ export function useFormSchema(): VbenFormSchema[] {
         triggerFields: ['socialType'],
         show: (values) =>
           values.socialType === SystemUserSocialTypeEnum.WECHAT_ENTERPRISE.type,
+      },
+    },
+    {
+      fieldName: 'publicKey',
+      label: 'publicKey',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入 publicKey 公钥',
+      },
+      dependencies: {
+        triggerFields: ['socialType'],
+        show: (values) => values.socialType === 40,
       },
     },
     {

@@ -28,6 +28,9 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'username',
       label: '用户名称',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入用户名称',
+      },
       rules: 'required',
     },
     {
@@ -47,6 +50,9 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'nickname',
       label: '用户昵称',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入用户昵称',
+      },
       rules: 'required',
     },
     {
@@ -62,7 +68,8 @@ export function useFormSchema(): VbenFormSchema[] {
         valueField: 'id',
         childrenField: 'children',
         placeholder: '请选择归属部门',
-        treeDefaultExpandAll: true,
+        defaultExpandAll: true,
+        checkStrictly: true,
       },
     },
     {
@@ -70,7 +77,7 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '岗位',
       component: 'ApiSelect',
       componentProps: {
-        api: () => getSimplePostList(),
+        api: getSimplePostList,
         labelField: 'name',
         valueField: 'id',
         multiple: true,
@@ -116,6 +123,9 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'remark',
       label: '备注',
       component: 'Textarea',
+      componentProps: {
+        placeholder: '请输入备注',
+      },
     },
   ];
 }
@@ -212,7 +222,7 @@ export function useAssignRoleFormSchema(): VbenFormSchema[] {
       label: '角色',
       component: 'ApiSelect',
       componentProps: {
-        api: () => getSimpleRoleList(),
+        api: getSimpleRoleList,
         labelField: 'name',
         valueField: 'id',
         multiple: true,

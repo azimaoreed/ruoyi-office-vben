@@ -1,11 +1,14 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { SystemOperateLogApi } from '#/api/system/operate-log';
 import type { DescriptionItemSchema } from '#/components/description';
 
+import { h } from 'vue';
+
+import { DICT_TYPE } from '@vben/constants';
 import { formatDateTime } from '@vben/utils';
 
 import { getSimpleUserList } from '#/api/system/user';
+import { DictTag } from '#/components/dict-tag';
 import { getRangePickerDefaultProps } from '#/utils';
 
 /** 列表的搜索表单 */
@@ -16,7 +19,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '操作人',
       component: 'ApiSelect',
       componentProps: {
-        api: () => getSimpleUserList(),
+        api: getSimpleUserList,
         labelField: 'nickname',
         valueField: 'id',
         allowClear: true,
@@ -134,11 +137,16 @@ export function useDetailSchema(): DescriptionItemSchema[] {
     {
       field: 'traceId',
       label: '链路追踪',
-      hidden: (data: SystemOperateLogApi.OperateLog) => !data?.traceId,
+      show: (data) => !data?.traceId,
     },
     {
       field: 'userId',
       label: '操作人编号',
+    },
+    {
+      field: 'userType',
+      label: '操作人类型',
+      render: (val) => h(DictTag, { type: DICT_TYPE.USER_TYPE, value: val }),
     },
     {
       field: 'userName',
@@ -167,13 +175,14 @@ export function useDetailSchema(): DescriptionItemSchema[] {
     {
       field: 'extra',
       label: '操作拓展参数',
-      hidden: (data: SystemOperateLogApi.OperateLog) => !data?.extra,
+      show: (val) => !val,
     },
     {
+      field: 'requestUrl',
       label: '请求 URL',
-      content: (data: SystemOperateLogApi.OperateLog) => {
-        if (data?.requestMethod && data?.requestUrl) {
-          return `${data.requestMethod} ${data.requestUrl}`;
+      render: (val, data) => {
+        if (data?.requestMethod && val) {
+          return `${data.requestMethod} ${val}`;
         }
         return '';
       },
@@ -181,9 +190,7 @@ export function useDetailSchema(): DescriptionItemSchema[] {
     {
       field: 'createTime',
       label: '操作时间',
-      content: (data: SystemOperateLogApi.OperateLog) => {
-        return formatDateTime(data?.createTime || '') as string;
-      },
+      render: (val) => formatDateTime(val) as string,
     },
     {
       field: 'bizId',

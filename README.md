@@ -9,7 +9,7 @@
 
 ## 🐶 新手必读
 
-- nodejs > 20.10.0 && pnpm > 10.14.0 (强制使用pnpm)
+- nodejs > 20.12.0 && pnpm > 10.22.0 (强制使用pnpm)
 - 演示地址【Vue3 + element-plus】：<http://dashboard-vue3.yudao.iocoder.cn>
 - 演示地址【Vue3 + vben5(ant-design-vue)】：<http://dashboard-vben.yudao.iocoder.cn>
 - 演示地址【Vue2 + element-ui】：<http://dashboard.yudao.iocoder.cn>
@@ -21,9 +21,9 @@
 **芋道**，以开发者为中心，打造中国第一流的快速开发平台，全部开源，个人与企业可 100% 免费使用。
 
 - 采用最新 [vue-vben-admin](https://github.com/vbenjs/vue-vben-admin) v5 实现
-- 支持 [Ant Design Vue](https://www.antdv.com/) | [Element Plus](https://element-plus.org/zh-CN/) | [Naive UI](https://www.naiveui.com/) 多种免费开源的中后台模版，具备如下特性：
+- 支持 [Ant Design Vue](https://www.antdv.com/) | [Element Plus](https://element-plus.org/zh-CN/) | [Naive UI](https://www.naiveui.com/) | [TDesign](https://tdesign.tencent.com/) 多种免费开源的中后台模版，具备如下特性：
 
-![首页](.image/demo/vben.png)
+![首页](.gitee/image/demo/vben.png)
 
 - **最新技术栈**：使用 Vue3、Vite6 等前端前沿技术开发
 - **TypeScript**: 应用程序级 JavaScript 的语言
@@ -33,28 +33,30 @@
 - **组件**：二次封装了多个常用的组件
 - **示例**：内置丰富的示例
 
-## 外包项目请联系【非项目需求请勿扫码，非客服，不解答项目问题】
+## [外包项目请联系【非项目需求请勿扫码，非客服，不解答项目问题】](https://www.shuduokeji.com)
 
-![alt 软件定制开发 数舵科技](.image/wx-xingyu.png)
+![alt 软件定制开发 数舵科技](.gitee/image/wx-xingyu.png)
 
 ## 技术栈
 
 | 框架 | 说明 | 版本 |
 | --- | --- | --- |
-| [Vue](https://staging-cn.vuejs.org/) | vue框架 | 3.5.17 |
-| [Vite](https://cn.vitejs.dev//) | 开发与构建工具 | 7.1.2 |
+| [Vue](https://staging-cn.vuejs.org/) | vue框架 | 3.5.24 |
+| [Vite](https://cn.vitejs.dev//) | 开发与构建工具 | 7.2.2 |
 | [Ant Design Vue](https://www.antdv.com/) | Ant Design Vue | 4.2.6 |
 | [Element Plus](https://element-plus.org/zh-CN/) | Element Plus | 2.10.2 |
 | [Naive UI](https://www.naiveui.com/) | Naive UI | 2.42.0 |
-| [TypeScript](https://www.typescriptlang.org/docs/) | JavaScript 超集 | 5.8.3 |
+| [TDesign](https://tdesign.tencent.com/) | TDesign | 1.17.1 |
+| [TypeScript](https://www.typescriptlang.org/docs/) | JavaScript 超集 | 5.9.3 |
 | [pinia](https://pinia.vuejs.org/) | Vue 存储库替代 vuex5 | 3.0.3 |
 | [vueuse](https://vueuse.org/) | 常用工具集 | 13.4.0 |
 | [vue-i18n](https://kazupon.github.io/vue-i18n/zh/introduction.html/) | 国际化 | 11.1.7 |
 | [vue-router](https://router.vuejs.org/) | Vue 路由 | 4.5.1 |
-| [Tailwind CSS](https://tailwindcss.com/) | 原子 CSS | 3.4.17 |
-| [Iconify](https://icon-sets.iconify.design/) | 在线图标库 | 2.2.354 |
+| [Tailwind CSS](https://tailwindcss.com/) | 原子 CSS | 3.4.18 |
+| [Iconify](https://iconify.design/) | 图标组件 | 5.0.0 |
+| [Iconify](https://icon-sets.iconify.design/) | 在线图标库 | 2.2.406 |
 | [TinyMCE](https://www.tiny.cloud/) | 富文本编辑器 | 6.1.0 |
-| [Echarts](https://echarts.apache.org/) | 图表库 | 5.6.0 |
+| [Echarts](https://echarts.apache.org/) | 图表库 | 6.0.0 |
 | [axios](https://axios-http.com/) | http客户端 | 1.10.0 |
 | [dayjs](https://day.js.org/) | 日期处理库 | 1.11.13 |
 | [vee-validate](https://vee-validate.logaretm.com/) | 表单验证 | 4.15.1 |
@@ -66,11 +68,11 @@
 
 ① Spring Boot 单体架构：<https://doc.iocoder.cn>
 
-![架构图](/.image/common/ruoyi-vue-pro-architecture.png)
+![架构图](/.gitee/image/common/ruoyi-vue-pro-architecture.png)
 
 ② Spring Cloud 微服务架构：<https://cloud.iocoder.cn>
 
-![架构图](/.image/common/yudao-cloud-architecture.png)
+![架构图](/.gitee/image/common/yudao-cloud-architecture.png)
 
 ## 内置功能
 
@@ -78,7 +80,7 @@
 
 系统内置多种多种业务功能，可以用于快速你的业务系统：
 
-![功能分层](/.image/common/ruoyi-vue-pro-biz.png)
+![功能分层](/.gitee/image/common/ruoyi-vue-pro-biz.png)
 
 - 通用模块（必选）：系统功能、基础设施
 - 通用模块（可选）：工作流程、支付系统、数据报表、会员中心
@@ -108,17 +110,17 @@
 | 🚀 | 应用管理 | 管理 SSO 单点登录的应用，支持多种 OAuth2 授权方式 |
 | 🚀 | 地区管理 | 展示省份、城市、区镇等城市信息，支持 IP 对应城市 |
 
-![功能图](/.image/common/system-feature.png)
+![功能图](/.gitee/image/common/system-feature.png)
 
 ### 工作流程
 
-![功能图](/.image/common/bpm-feature.png)
+![功能图](/.gitee/image/common/bpm-feature.png)
 
 基于 Flowable 构建，可支持信创（国产）数据库，满足中国特色流程操作：
 
 | BPMN 设计器 | 钉钉/飞书设计器 |
 | --- | --- |
-| ![工作流设计器](.image/工作流设计器-bpmn.jpg) | ![工作流设计器](.image/工作流设计器-simple.jpg) |
+| ![工作流设计器](.gitee/image/工作流设计器-bpmn.jpg) | ![工作流设计器](.gitee/image/工作流设计器-simple.jpg) |
 
 > 历经头部企业生产验证，工作流引擎须标配仿钉钉/飞书 + BPMN 双设计器！！！
 >
@@ -184,7 +186,7 @@
 | 🚀 | 日志服务 | 轻量级日志中心，查看远程服务器的日志 |
 | 🚀 | 单元测试 | 基于 JUnit + Mockito 实现单元测试，保证功能的正确性、代码的质量等 |
 
-![功能图](/.image/common/infra-feature.png)
+![功能图](/.gitee/image/common/infra-feature.png)
 
 ### 数据报表
 
@@ -201,6 +203,7 @@
 | 🚀 | 数据统计 | 统计公众号的用户增减、累计用户、消息概况、接口分析等数据 |
 | 🚀 | 粉丝管理 | 查看已关注、取关的粉丝列表，可对粉丝进行同步、打标签等操作 |
 | 🚀 | 消息管理 | 查看粉丝发送的消息列表，可主动回复粉丝消息 |
+| 🚀 | 模版消息 | 配置和发送模版消息，用于向粉丝推送通知类消息 |
 | 🚀 | 自动回复 | 自动回复粉丝发送的消息，支持关注回复、消息回复、关键字回复 |
 | 🚀 | 标签管理 | 对公众号的标签进行创建、查询、修改、删除等操作 |
 | 🚀 | 菜单管理 | 自定义公众号的菜单，也可以从公众号同步菜单 |
@@ -212,26 +215,26 @@
 
 演示地址：<https://doc.iocoder.cn/mall-preview/>
 
-![功能图](/.image/common/mall-feature.png)
+![功能图](/.gitee/image/common/mall-feature.png)
 
-![功能图](/.image/common/mall-preview.png)
+![功能图](/.gitee/image/common/mall-preview.png)
 
 ### ERP 系统
 
 演示地址：<https://doc.iocoder.cn/erp-preview/>
 
-![功能图](/.image/common/erp-feature.png)
+![功能图](/.gitee/image/common/erp-feature.png)
 
 ### CRM 系统
 
 演示地址：<https://doc.iocoder.cn/crm-preview/>
 
-![功能图](/.image/common/crm-feature.png)
+![功能图](/.gitee/image/common/crm-feature.png)
 
 ### AI 大模型
 
 演示地址：<https://doc.iocoder.cn/ai-preview/>
 
-![功能图](/.image/common/ai-feature.png)
+![功能图](/.gitee/image/common/ai-feature.png)
 
-![功能图](/.image/common/ai-preview.gif)
+![功能图](/.gitee/image/common/ai-preview.gif)

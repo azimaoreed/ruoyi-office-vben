@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-// TODO @gjd：https://t.zsxq.com/pmNb1 AI 对话、绘图底部没对齐，特别是样式方面
 import type { AiChatConversationApi } from '#/api/ai/chat/conversation';
 import type { AiChatMessageApi } from '#/api/ai/chat/message';
 
@@ -18,21 +17,23 @@ import {
   sendChatMessageStream,
 } from '#/api/ai/chat/message';
 
-import ConversationList from './components/conversation/ConversationList.vue';
-import ConversationUpdateForm from './components/conversation/ConversationUpdateForm.vue';
-import MessageList from './components/message/MessageList.vue';
-import MessageListEmpty from './components/message/MessageListEmpty.vue';
-import MessageLoading from './components/message/MessageLoading.vue';
-import MessageNewConversation from './components/message/MessageNewConversation.vue';
+import ConversationList from './modules/conversation/list.vue';
+import ConversationUpdateForm from './modules/conversation/update-form.vue';
+import MessageFileUpload from './modules/message/file-upload.vue';
+import MessageListEmpty from './modules/message/list-empty.vue';
+import MessageList from './modules/message/list.vue';
+import MessageLoading from './modules/message/loading.vue';
+import MessageNewConversation from './modules/message/new-conversation.vue';
 
 /** AI 聊天对话 列表 */
 defineOptions({ name: 'AiChat' });
 
-const route = useRoute(); // 路由
+const route = useRoute();
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: ConversationUpdateForm,
   destroyOnClose: true,
 });
+
 // 聊天对话
 const conversationListRef = ref();
 const activeConversationId = ref<null | number>(null); // 选中的对话编号
@@ -56,6 +57,8 @@ const conversationInAbortController = ref<any>(); // 对话进行中 abort 控�
 const inputTimeout = ref<any>(); // 处理输入中回车的定时器
 const prompt = ref<string>(); // prompt
 const enableContext = ref<boolean>(true); // 是否开启上下文
+const enableWebSearch = ref<boolean>(false); // 是否开启联网搜索
+const uploadFiles = ref<string[]>([]); // 上传的文件 URL 列表
 // 接收 Stream 消息
 const receiveMessageFullText = ref('');
 const receiveMessageDisplayedText = ref('');
@@ -87,7 +90,7 @@ async function handleConversationClick(
 ) {
   // 对话进行中，不允许切换
   if (conversationInProgress.value) {
-    alert('对话中，不允许切换!');
+    await alert('对话中，不允许切换!');
     return false;
   }
 
@@ -97,9 +100,12 @@ async function handleConversationClick(
   // 刷新 message 列表
   await getMessageList();
   // 滚动底部
-  scrollToBottom(true);
+  await scrollToBottom(true);
+  prompt.value = '';
   // 清空输入框
   prompt.value = '';
+  // 清空文件列表
+  uploadFiles.value = [];
   return true;
 }
 
@@ -117,19 +123,23 @@ async function handlerConversationDelete(
 async function handleConversationClear() {
   // 对话进行中，不允许切换
   if (conversationInProgress.value) {
-    alert('对话中，不允许切换!');
+    await alert('对话中，不允许切换!');
     return false;
   }
   activeConversationId.value = null;
   activeConversation.value = null;
   activeMessageList.value = [];
+  // 清空输入框和文件列表
+  prompt.value = '';
+  uploadFiles.value = [];
 }
 
 async function openChatConversationUpdateForm() {
   formModalApi.setData({ id: activeConversationId.value }).open();
 }
+
+/** 对话更新成功，刷新最新信息 */
 async function handleConversationUpdateSuccess() {
-  // 对话更新成功，刷新最新信息
   await getConversation(activeConversationId.value);
 }
 
@@ -138,10 +148,13 @@ async function handleConversationCreate() {
   // 创建对话
   await conversationListRef.value.createConversation();
 }
+
 /** 处理聊天对话的创建成功 */
 async function handleConversationCreateSuccess() {
   // 创建新的对话，清空输入框
   prompt.value = '';
+  // 清空文件列表
+  uploadFiles.value = [];
 }
 
 // =========== 【消息列表】相关 ===========
@@ -228,6 +241,7 @@ function handleGoTopMessage() {
 }
 
 // =========== 【发送消息】相关 ===========
+
 /** 处理来自 keydown 的发送消息 */
 async function handleSendByKeydown(event: any) {
   // 判断用户是否在输入
@@ -282,7 +296,6 @@ function onCompositionstart() {
 }
 
 function onCompositionend() {
-  // console.log('输入结束...')
   setTimeout(() => {
     isComposing.value = false;
   }, 200);
@@ -299,12 +312,19 @@ async function doSendMessage(content: string) {
     message.error('还没创建对话，不能发送!');
     return;
   }
-  // 清空输入框
+
+  // 准备附件 URL 数组
+  const attachmentUrls = [...uploadFiles.value];
+
+  // 清空输入框和文件列表
   prompt.value = '';
+  uploadFiles.value = [];
+
   // 执行发送
   await doSendMessageStream({
     conversationId: activeConversationId.value,
     content,
+    attachmentUrls,
   } as AiChatMessageApi.ChatMessage);
 }
 
@@ -325,6 +345,7 @@ async function doSendMessageStream(userMessage: AiChatMessageApi.ChatMessage) {
         conversationId: activeConversationId.value,
         type: 'user',
         content: userMessage.content,
+        attachmentUrls: userMessage.attachmentUrls || [],
         createTime: new Date(),
       } as AiChatMessageApi.ChatMessage,
       {
@@ -332,6 +353,7 @@ async function doSendMessageStream(userMessage: AiChatMessageApi.ChatMessage) {
         conversationId: activeConversationId.value,
         type: 'assistant',
         content: '思考中...',
+        reasoningContent: '',
         createTime: new Date(),
       } as AiChatMessageApi.ChatMessage,
     );
@@ -339,7 +361,7 @@ async function doSendMessageStream(userMessage: AiChatMessageApi.ChatMessage) {
     await nextTick();
     await scrollToBottom(); // 底部
     // 1.3 开始滚动
-    textRoll();
+    textRoll().then();
 
     // 2. 发送 event stream
     let isFirstChunk = true; // 是否是第一个 chunk 消息段
@@ -348,17 +370,23 @@ async function doSendMessageStream(userMessage: AiChatMessageApi.ChatMessage) {
       userMessage.content,
       conversationInAbortController.value,
       enableContext.value,
+      enableWebSearch.value,
       async (res: any) => {
         const { code, data, msg } = JSON.parse(res.data);
         if (code !== 0) {
-          alert(`对话异常! ${msg}`);
+          await alert(`对话异常! ${msg}`);
+          // 如果未接收到消息，则进行删除
+          if (receiveMessageFullText.value === '') {
+            activeMessageList.value.pop();
+          }
           return;
         }
 
-        // 如果内容为空，就不处理。
-        if (data.receive.content === '') {
+        // 如果内容和推理内容都为空，就不处理
+        if (data.receive.content === '' && !data.receive.reasoningContent) {
           return;
         }
+
         // 首次返回需要添加一个 message 到页面，后面的都是更新
         if (isFirstChunk) {
           isFirstChunk = false;
@@ -367,15 +395,31 @@ async function doSendMessageStream(userMessage: AiChatMessageApi.ChatMessage) {
           activeMessageList.value.pop();
           // 更新返回的数据
           activeMessageList.value.push(data.send, data.receive);
+          data.send.attachmentUrls = userMessage.attachmentUrls;
         }
-        // debugger
-        receiveMessageFullText.value =
-          receiveMessageFullText.value + data.receive.content;
+
+        // 处理 reasoningContent
+        if (data.receive.reasoningContent) {
+          const lastMessage =
+            activeMessageList.value[activeMessageList.value.length - 1];
+          // 累加推理内容
+          lastMessage!.reasoningContent =
+            (lastMessage!.reasoningContent || '') +
+            data.receive.reasoningContent;
+        }
+
+        // 处理正常内容
+        if (data.receive.content !== '') {
+          receiveMessageFullText.value =
+            receiveMessageFullText.value + data.receive.content;
+        }
+
         // 滚动到最下面
         await scrollToBottom();
       },
       (error: any) => {
-        alert(`对话异常! ${error}`);
+        // 异常提示，并停止流
+        alert(`对话异常!`);
         stopStream();
         // 需要抛出异常，禁止重试
         throw error;
@@ -383,6 +427,7 @@ async function doSendMessageStream(userMessage: AiChatMessageApi.ChatMessage) {
       () => {
         stopStream();
       },
+      userMessage.attachmentUrls,
     );
   } catch {}
 }
@@ -428,7 +473,7 @@ async function textRoll() {
     // 设置状态
     textRoleRunning.value = true;
     receiveMessageDisplayedText.value = '';
-    const task = async () => {
+    async function task() {
       // 调整速度
       const diff =
         (receiveMessageFullText.value.length -
@@ -472,7 +517,7 @@ async function textRoll() {
           clearTimeout(timer);
         }
       }
-    };
+    }
     let timer = setTimeout(task, textSpeed.value);
   } catch {}
 }
@@ -490,11 +535,6 @@ onMounted(async () => {
   activeMessageListLoading.value = true;
   await getMessageList();
 });
-// TODO @芋艿：深度思考
-// TODO @芋艿：联网搜索
-// TODO @芋艿：附件支持
-// TODO @芋艿：mcp 相关
-// TODO @芋艿：异常消息的处理
 </script>
 
 <template>
@@ -503,7 +543,7 @@ onMounted(async () => {
       <!-- 左侧：对话列表 -->
       <ConversationList
         class="!bg-card"
-        :active-id="activeConversationId as any"
+        :active-id="activeConversationId"
         ref="conversationListRef"
         @on-conversation-create="handleConversationCreateSuccess"
         @on-conversation-click="handleConversationClick"
@@ -514,7 +554,7 @@ onMounted(async () => {
       <!-- 右侧：详情部分 -->
       <Layout class="bg-card mx-4">
         <Layout.Header
-          class="!bg-card border-border flex items-center justify-between border-b"
+          class="border-border !bg-card flex !h-12 items-center justify-between border-b !px-4"
         >
           <div class="text-lg font-bold">
             {{ activeConversation?.title ? activeConversation?.title : '对话' }}
@@ -573,12 +613,12 @@ onMounted(async () => {
           </div>
         </Layout.Content>
 
-        <Layout.Footer class="!bg-card m-0 flex flex-col p-0">
+        <Layout.Footer class="!bg-card flex flex-col !p-0">
           <form
-            class="border-border my-5 mb-5 mt-2 flex flex-col rounded-xl border px-2 py-2.5"
+            class="border-border mx-4 mb-8 mt-2 flex flex-col rounded-xl border p-2"
           >
             <textarea
-              class="box-border h-24 resize-none overflow-auto border-none px-0 py-1 focus:outline-none"
+              class="box-border h-24 resize-none overflow-auto rounded-md p-2 focus:outline-none"
               v-model="prompt"
               @keydown="handleSendByKeydown"
               @input="handlePromptInput"
@@ -587,9 +627,19 @@ onMounted(async () => {
               placeholder="问我任何问题...（Shift+Enter 换行，按下 Enter 发送）"
             ></textarea>
             <div class="flex justify-between pb-0 pt-1">
-              <div class="flex items-center">
-                <Switch v-model:checked="enableContext" />
-                <span class="ml-1 text-sm text-gray-400">上下文</span>
+              <div class="flex items-center gap-3">
+                <MessageFileUpload
+                  v-model="uploadFiles"
+                  :disabled="conversationInProgress"
+                />
+                <div class="flex items-center">
+                  <Switch v-model:checked="enableContext" size="small" />
+                  <span class="ml-1 text-sm text-gray-400">上下文</span>
+                </div>
+                <div class="flex items-center">
+                  <Switch v-model:checked="enableWebSearch" size="small" />
+                  <span class="ml-1 text-sm text-gray-400">联网搜索</span>
+                </div>
               </div>
               <Button
                 type="primary"

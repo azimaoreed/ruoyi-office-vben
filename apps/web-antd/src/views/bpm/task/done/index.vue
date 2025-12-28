@@ -2,7 +2,7 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { BpmTaskApi } from '#/api/bpm/task';
 
-import { DocAlert, Page } from '@vben/common-ui';
+import { Page } from '@vben/common-ui';
 
 import { message } from 'ant-design-vue';
 
@@ -15,7 +15,7 @@ import { useGridColumns, useGridFormSchema } from './data';
 defineOptions({ name: 'BpmDoneTask' });
 
 /** 查看历史 */
-function handleHistory(row: BpmTaskApi.TaskManager) {
+function handleHistory(row: BpmTaskApi.Task) {
   router.push({
     name: 'BpmProcessInstanceDetail',
     query: {
@@ -26,11 +26,18 @@ function handleHistory(row: BpmTaskApi.TaskManager) {
 }
 
 /** 撤回任务 */
-async function handleWithdraw(row: BpmTaskApi.TaskManager) {
-  await withdrawTask(row.id);
-  message.success('撤回成功');
-  // 刷新表格数据
-  await gridApi.query();
+async function handleWithdraw(row: BpmTaskApi.Task) {
+  const hideLoading = message.loading({
+    content: '正在撤回中...',
+    duration: 0,
+  });
+  try {
+    await withdrawTask(row.id);
+    message.success('撤回成功');
+    await gridApi.query();
+  } finally {
+    hideLoading();
+  }
 }
 
 const [Grid, gridApi] = useVbenVxeGrid({
@@ -56,21 +63,18 @@ const [Grid, gridApi] = useVbenVxeGrid({
     },
     rowConfig: {
       keyField: 'id',
+      isHover: true,
     },
     toolbarConfig: {
       refresh: true,
       search: true,
     },
-    cellConfig: {
-      height: 64,
-    },
-  } as VxeTableGridOptions<BpmTaskApi.TaskManager>,
+  } as VxeTableGridOptions<BpmTaskApi.Task>,
 });
 </script>
 
 <template>
   <Page auto-content-height>
-
     <Grid table-title="已办任务">
       <template #actions="{ row }">
         <TableAction
@@ -78,9 +82,12 @@ const [Grid, gridApi] = useVbenVxeGrid({
             {
               label: '撤回',
               type: 'link',
-              icon: ACTION_ICON.EDIT,
-              color: 'warning',
-              onClick: handleWithdraw.bind(null, row),
+              danger: true,
+              icon: ACTION_ICON.DELETE,
+              popConfirm: {
+                title: '确定要撤回该任务吗？',
+                confirm: handleWithdraw.bind(null, row),
+              },
             },
             {
               label: '历史',
