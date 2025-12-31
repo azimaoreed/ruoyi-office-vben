@@ -58,7 +58,6 @@ export const SystemUserSocialTypeEnum = {
   },
 };
 
-
 /**
  * Created by 芋道源码
  *
