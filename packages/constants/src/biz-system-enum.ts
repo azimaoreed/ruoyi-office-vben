@@ -57,3 +57,15 @@ export const SystemUserSocialTypeEnum = {
     img: 'https://s1.ax1x.com/2022/05/22/OzMrzn.png',
   },
 };
+
+
+/**
+ * Created by 芋道源码
+ *
+ * 枚举类
+ */
+
+export const OrgTypeEnum = {
+  COMPANY: '1', // 公司
+  DEPARTMENT: '0', // 部门
+};
