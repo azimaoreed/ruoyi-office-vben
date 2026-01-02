@@ -24,8 +24,8 @@ import {
 import { AttachmentList } from '#/components/attachment-list';
 import { BasicForm, CardContainer } from '#/components/basic-form';
 import { $t } from '#/locales';
+import EmployeeSelectModal from '#/views/hrm/employee/components/employee-select-modal.vue';
 
-import EmployeeSelectModal from '../components/employee-select-modal.vue';
 import { useFormSchema } from './data';
 
 defineOptions({ name: 'HrmEmployeeRegularBillInfo' });
@@ -315,6 +315,7 @@ onMounted(() => {
     <!-- 员工选择弹窗 -->
     <EmployeeSelectModal
       ref="employeeSelectModalRef"
+      :include-employee-status-list="[2, 3, 5]"
       @select="handleEmployeeSelect"
     />
   </Loading>

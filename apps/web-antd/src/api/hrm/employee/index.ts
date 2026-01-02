@@ -91,6 +91,8 @@ export namespace EmployeeArchiveApi {
     employeeStatus?: number; // 额外筛选其他状态（后端会强制过滤正式）
     entryDate?: Date[];
     createTime?: Date[];
+    /** 需要包含的人员状态集合（优先级高于excludeEmployeeStatusList），例如 [2, 3, 5] */
+    includeEmployeeStatusList?: number[];
     /** 需要排除的人员状态集合，例如 [1, 3] */
     excludeEmployeeStatusList?: number[];
   }

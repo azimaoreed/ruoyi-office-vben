@@ -205,6 +205,8 @@ const HRM_DICT = {
   HRM_MARITAL_STATUS: 'hrm_marital_status', // 婚姻状况
   HRM_TRANSFER_TYPE: 'hrm_transfer_type', // 异动类型
   HRM_TRANSFER_REASON: 'hrm_transfer_reason', // 异动原因
+  HRM_RESIGNATION_TYPE: 'hrm_resignation_type', // 离职类型
+  HRM_RESIGNATION_REASON: 'hrm_resignation_reason', // 离职原因
 } as const;
 
 /** 字典类型枚举 - 统一导出 */

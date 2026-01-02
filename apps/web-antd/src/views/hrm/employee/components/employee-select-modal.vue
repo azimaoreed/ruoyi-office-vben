@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { EmployeeSelectConfig } from './employee-select-data';
+
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { EmployeeArchiveApi } from '#/api/hrm/employee';
 
@@ -16,6 +18,23 @@ import {
   useEmployeeSelectFormSchema,
 } from './employee-select-data';
 
+/** 组件Props */
+const props = withDefaults(
+  defineProps<{
+    /** 排除的人员状态列表 */
+    excludeEmployeeStatusList?: number[];
+    /** 包含的人员状态列表（优先级高于excludeEmployeeStatusList） */
+    includeEmployeeStatusList?: number[];
+    /** 是否在搜索表单中显示人员状态筛选 */
+    showEmployeeStatusFilter?: boolean;
+  }>(),
+  {
+    excludeEmployeeStatusList: undefined,
+    includeEmployeeStatusList: undefined,
+    showEmployeeStatusFilter: true,
+  },
+);
+
 /** 定义组件事件 */
 const emit = defineEmits<{
   (e: 'select', employee: EmployeeArchiveApi.EmployeeArchive): void;
@@ -25,36 +44,46 @@ const formData = reactive({
   selectedEmployee: null as EmployeeArchiveApi.EmployeeArchive | null,
 });
 
+// 构建配置对象
+const config: EmployeeSelectConfig = {
+  includeEmployeeStatusList: props.includeEmployeeStatusList,
+  excludeEmployeeStatusList: props.excludeEmployeeStatusList,
+  showEmployeeStatusFilter: props.showEmployeeStatusFilter,
+};
+
+// 构建gridOptions配置
+const gridOptions = {
+  columns: useEmployeeSelectColumns(config),
+  height: 440,
+  keepSource: true,
+  proxyConfig: {
+    ajax: {
+      query: async ({ page }, formValues) => {
+        return await queryEmployeeSelectPage(page, formValues, config);
+      },
+    },
+  },
+  rowConfig: {
+    keyField: 'id',
+  },
+  radioConfig: {
+    labelField: 'id',
+    trigger: 'row',
+  },
+  pagerConfig: {
+    enabled: true,
+  },
+} as VxeTableGridOptions<EmployeeArchiveApi.EmployeeArchive>;
+
 /** 表格实例 */
 const [Grid] = useVbenVxeGrid({
   separator: false,
   formOptions: {
-    schema: useEmployeeSelectFormSchema(),
+    schema: useEmployeeSelectFormSchema(config),
     submitOnChange: true,
     collapsed: true,
   },
-  gridOptions: {
-    columns: useEmployeeSelectColumns(),
-    height: 440,
-    keepSource: true,
-    proxyConfig: {
-      ajax: {
-        query: async ({ page }, formValues) => {
-          return await queryEmployeeSelectPage(page, formValues);
-        },
-      },
-    },
-    rowConfig: {
-      keyField: 'id',
-    },
-    radioConfig: {
-      labelField: 'id',
-      trigger: 'row',
-    },
-    pagerConfig: {
-      enabled: true,
-    },
-  } as VxeTableGridOptions<EmployeeArchiveApi.EmployeeArchive>,
+  gridOptions: gridOptions as any,
   gridEvents: {
     radioChange: ({ row }: { row: EmployeeArchiveApi.EmployeeArchive }) => {
       formData.selectedEmployee = row;

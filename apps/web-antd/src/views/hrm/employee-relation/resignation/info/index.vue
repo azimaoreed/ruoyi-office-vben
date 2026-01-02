@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { VbenFormSchema } from '#/adapter/form';
-import type { EmployeeTransferBillApi } from '#/api/hrm/employee-transfer';
+import type { EmployeeResignationBillApi } from '#/api/hrm/employee-resignation';
 
 import { nextTick, onMounted, ref, shallowRef, watch } from 'vue';
 import { useRoute } from 'vue-router';
@@ -18,19 +18,18 @@ import { Button, message } from 'ant-design-vue';
 import { useVbenForm } from '#/adapter/form';
 import { withdrawProcessToStart } from '#/api/bpm/task';
 import {
-  getEmployeeTransferBill,
-  saveEmployeeTransferBill,
-  submitEmployeeTransferBill,
-} from '#/api/hrm/employee-transfer';
+  getEmployeeResignationBill,
+  saveEmployeeResignationBill,
+  submitEmployeeResignationBill,
+} from '#/api/hrm/employee-resignation';
 import { AttachmentList } from '#/components/attachment-list';
 import { BasicForm, CardContainer } from '#/components/basic-form';
 import { $t } from '#/locales';
 import EmployeeSelectModal from '#/views/hrm/employee/components/employee-select-modal.vue';
-import { DeptSelectModal } from '#/views/system/dept/components';
 
-import { useFormSchema, useTransferFormSchema } from './data';
+import { useFormSchema, useResignationFormSchema } from './data';
 
-defineOptions({ name: 'HrmEmployeeTransferBillInfo' });
+defineOptions({ name: 'HrmEmployeeResignationBillInfo' });
 
 // 定义组件 props
 const props = defineProps<{
@@ -47,7 +46,9 @@ const route = useRoute();
 const userStore = useUserStore();
 const { closeCurrentTab } = useTabs();
 
-const formData = ref<Partial<EmployeeTransferBillApi.EmployeeTransferBill>>({});
+const formData = ref<
+  Partial<EmployeeResignationBillApi.EmployeeResignationBill>
+>({});
 
 const readonly = ref(false);
 const loading = ref(false);
@@ -63,14 +64,16 @@ const employeeSelectModalRef = ref<InstanceType<
   typeof EmployeeSelectModal
 > | null>(null);
 
-// 部门选择弹窗引用
-const deptSelectModalRef = ref<InstanceType<typeof DeptSelectModal>>();
+// 工作交接人选择弹窗引用
+const handoverPersonSelectModalRef = ref<InstanceType<
+  typeof EmployeeSelectModal
+> | null>(null);
 
 // 表单schema - 使用shallowRef避免深度响应式
 const formSchema = shallowRef<VbenFormSchema[]>([]);
 
-// 初始化调动信息表单
-const [TransferForm, transferFormApi] = useVbenForm({
+// 初始化离职信息表单
+const [ResignationForm, resignationFormApi] = useVbenForm({
   commonConfig: {
     componentProps: {
       class: 'w-full',
@@ -81,7 +84,7 @@ const [TransferForm, transferFormApi] = useVbenForm({
   },
   wrapperClass: 'grid grid-cols-2 gap-4',
   layout: 'horizontal',
-  schema: useTransferFormSchema(deptSelectModalRef, readonly),
+  schema: useResignationFormSchema(handoverPersonSelectModalRef, readonly),
   showDefaultActions: false,
 });
 
@@ -90,12 +93,15 @@ function initFormSchema() {
   formSchema.value = useFormSchema(employeeSelectModalRef, readonly);
 }
 
-// 更新调动信息表单的schema（当readonly变化时）
-function updateTransferFormSchema() {
-  if (transferFormApi) {
-    const transferSchema = useTransferFormSchema(deptSelectModalRef, readonly);
+// 更新离职信息表单的schema（当readonly变化时）
+function updateResignationFormSchema() {
+  if (resignationFormApi) {
+    const resignationSchema = useResignationFormSchema(
+      handoverPersonSelectModalRef,
+      readonly,
+    );
     // 更新每个字段的disabled状态
-    const updatedSchema = transferSchema.map((schema) => {
+    const updatedSchema = resignationSchema.map((schema) => {
       const componentProps = schema.componentProps || {};
       // 如果字段有自定义的disabled函数，则优先使用
       const hasCustomDisabled =
@@ -114,7 +120,7 @@ function updateTransferFormSchema() {
         },
       };
     });
-    transferFormApi.updateSchema(updatedSchema);
+    resignationFormApi.updateSchema(updatedSchema);
   }
 }
 
@@ -140,10 +146,10 @@ async function handleSaveAndSubmit(isSubmit: boolean) {
   // 提交前校验 - 只有提交时才进行校验，保存时不校验
   if (isSubmit) {
     const { valid: basicValid } = await basicFormRef.value.validateForm();
-    const transferValid = await transferFormApi.validate();
+    const resignationValid = await resignationFormApi.validate();
 
     // 如果校验不通过，则不允许提交
-    if (!basicValid || !transferValid.valid) {
+    if (!basicValid || !resignationValid.valid) {
       loading.value = false;
       return;
     }
@@ -152,24 +158,24 @@ async function handleSaveAndSubmit(isSubmit: boolean) {
   try {
     // 获取表单值 - 保存时不进行校验
     const formValues = isSubmit
-      ? ((await basicFormRef.value.getFormValues()) as EmployeeTransferBillApi.EmployeeTransferBill)
+      ? ((await basicFormRef.value.getFormValues()) as EmployeeResignationBillApi.EmployeeResignationBill)
       : ((await basicFormRef.value.getFormValues(
           false,
-        )) as EmployeeTransferBillApi.EmployeeTransferBill);
+        )) as EmployeeResignationBillApi.EmployeeResignationBill);
 
-    // 获取调动信息表单的值
-    const transferValues = await transferFormApi.getValues();
+    // 获取离职信息表单的值
+    const resignationValues = await resignationFormApi.getValues();
 
     // 合并表单值和其他数据
     const data = {
       ...formData.value,
       ...formValues,
-      ...transferValues,
+      ...resignationValues,
     };
 
     id = await (isSubmit
-      ? submitEmployeeTransferBill(data)
-      : saveEmployeeTransferBill(data));
+      ? submitEmployeeResignationBill(data)
+      : saveEmployeeResignationBill(data));
 
     message.success({
       content: $t('ui.actionMessage.operationSuccess'),
@@ -230,7 +236,7 @@ async function loadData() {
   // 加载数据
   loading.value = true;
   try {
-    const data = await getEmployeeTransferBill(id);
+    const data = await getEmployeeResignationBill(id);
     // 扩展数据，添加显示需要的字段
     formData.value = {
       ...data,
@@ -246,21 +252,21 @@ async function loadData() {
     // 重新初始化表单schema（因为readonly状态可能变化）
     initFormSchema();
 
-    // 更新调动信息表单的schema（因为readonly状态可能变化）
-    updateTransferFormSchema();
+    // 更新离职信息表单的schema（因为readonly状态可能变化）
+    updateResignationFormSchema();
 
     // 设置表单值
     if (basicFormRef.value) {
       await basicFormRef.value.setFormValues(data);
     }
 
-    // 设置调动信息表单值
-    await transferFormApi.setValues(data);
+    // 设置离职信息表单值
+    await resignationFormApi.setValues(data);
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : '获取人事调动申请单详情失败';
+      error instanceof Error ? error.message : '获取员工离职申请单详情失败';
     message.error(errorMessage);
-    console.error('获取人事调动申请单详情失败:', error);
+    console.error('获取员工离职申请单详情失败:', error);
   } finally {
     loading.value = false;
 
@@ -288,13 +294,6 @@ function handleEmployeeSelect(employee: any) {
       jobPost: employee.jobPost,
       jobPosition: employee.jobPosition,
       employeeStatus: employee.employeeStatus,
-      // 设置原职位、原职务、原部门、原公司
-      originalJobPost: employee.jobPost,
-      originalJobPosition: employee.jobPosition,
-      originalDeptId: employee.deptId,
-      originalDeptName: employee.deptName || '',
-      originalCompanyId: employee.companyId,
-      originalCompanyName: employee.companyName || '',
     };
 
     // 更新基本信息表单（BasicForm）
@@ -302,34 +301,25 @@ function handleEmployeeSelect(employee: any) {
       basicFormRef.value.setFormValues(employeeData);
     }
 
-    // 更新调动信息表单（TransferForm）
-    transferFormApi.setValues(employeeData);
-
     // 同时更新formData
     Object.assign(formData.value, employeeData);
   }
 }
 
-// 处理部门选择
-function handleDeptSelect(dept: any) {
-  if (dept) {
-    const deptData = {
-      newDeptId: dept.id,
-      newDeptName: dept.name,
-      newCompanyId: dept.companyId,
-      newCompanyName: dept.companyName || '',
+// 处理工作交接人选择
+function handleHandoverPersonSelect(employee: any) {
+  if (employee) {
+    // 从员工档案中读取信息并填充表单
+    const handoverPersonData = {
+      handoverPersonId: employee.id,
+      handoverPersonName: employee.name || '',
     };
 
-    // 更新基本信息表单（BasicForm）
-    if (basicFormRef.value) {
-      basicFormRef.value.setFormValues(deptData);
-    }
-
-    // 更新调动信息表单（TransferForm）
-    transferFormApi.setValues(deptData);
+    // 更新离职信息表单
+    resignationFormApi.setValues(handoverPersonData);
 
     // 同时更新formData
-    Object.assign(formData.value, deptData);
+    Object.assign(formData.value, handoverPersonData);
   }
 }
 
@@ -351,7 +341,7 @@ watch(
   readonly,
   () => {
     initFormSchema();
-    updateTransferFormSchema();
+    updateResignationFormSchema();
   },
   { immediate: false },
 );
@@ -368,7 +358,7 @@ onMounted(() => {
       ref="basicFormRef"
       :header-data="{
         ...formData,
-        billName: '人事调动申请单',
+        billName: '员工离职申请单',
       }"
       :form-data="formData"
       :form-schema="formSchema"
@@ -380,11 +370,11 @@ onMounted(() => {
       :hide-footer="props.isApproval"
       :activity-nodes="props.activityNodes"
     >
-      <!-- 扩展插槽，用于调动信息等扩展区域 -->
+      <!-- 扩展插槽，用于离职信息等扩展区域 -->
       <template #form-extension>
-        <!-- 调动信息 -->
-        <CardContainer title="调动信息">
-          <TransferForm />
+        <!-- 离职信息 -->
+        <CardContainer title="离职信息">
+          <ResignationForm />
         </CardContainer>
 
         <!-- 附件列表 -->
@@ -415,8 +405,12 @@ onMounted(() => {
       :exclude-employee-status-list="[6, 7]"
       @select="handleEmployeeSelect"
     />
-    <!-- 部门选择弹窗 -->
-    <DeptSelectModal ref="deptSelectModalRef" @select="handleDeptSelect" />
+    <!-- 工作交接人选择弹窗 -->
+    <EmployeeSelectModal
+      ref="handoverPersonSelectModalRef"
+      :exclude-employee-status-list="[6, 7]"
+      @select="handleHandoverPersonSelect"
+    />
   </Loading>
 </template>
 
