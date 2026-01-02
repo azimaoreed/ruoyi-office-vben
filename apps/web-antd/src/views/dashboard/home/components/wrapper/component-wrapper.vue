@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import { Icon } from '@iconify/vue';
 import { Alert } from 'ant-design-vue';
 
 import { getComponent } from '../registry';
@@ -26,10 +25,6 @@ const hasError = computed(() => {
 // 标题配置
 const showTitle = computed(() => props.config?.showTitle !== false); // 默认显示
 const title = computed(() => props.config?.title || '');
-const titleIcon = computed(() => props.config?.titleIcon || '');
-const titleIconColor = computed(
-  () => props.config?.titleIconColor || '#1890ff',
-);
 </script>
 
 <template>
@@ -39,12 +34,6 @@ const titleIconColor = computed(
       v-if="showTitle && title"
       class="component-title flex items-center border-b bg-white px-3 py-2"
     >
-      <Icon
-        v-if="titleIcon"
-        :icon="titleIcon"
-        :style="{ color: titleIconColor }"
-        class="mr-2 text-lg"
-      />
       <span class="text-sm font-medium">{{ title }}</span>
     </div>
 

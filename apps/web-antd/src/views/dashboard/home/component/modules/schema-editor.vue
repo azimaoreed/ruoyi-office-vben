@@ -33,7 +33,8 @@ watch(
   () => props.value,
   (newVal) => {
     if (newVal) {
-      localValue.value = structuredClone(newVal);
+      // eslint-disable-next-line unicorn/prefer-structured-clone
+      localValue.value = JSON.parse(JSON.stringify(newVal));
     }
   },
   { immediate: true, deep: true },

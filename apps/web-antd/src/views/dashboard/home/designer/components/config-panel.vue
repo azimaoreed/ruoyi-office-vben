@@ -5,11 +5,9 @@ import type { SystemHomeComponentApi } from '#/api/system/home/component';
 
 import { computed, ref, watch } from 'vue';
 
-import { Icon } from '@iconify/vue';
 import {
   Collapse,
   CollapsePanel,
-  ColorPicker,
   Empty,
   Form,
   FormItem,
@@ -90,12 +88,6 @@ function getFormComponent(type: string) {
     case 'boolean': {
       return Switch;
     }
-    case 'color': {
-      return ColorPicker;
-    }
-    case 'icon': {
-      return Input;
-    }
     case 'number': {
       return InputNumber;
     }
@@ -104,20 +96,6 @@ function getFormComponent(type: string) {
     }
   }
 }
-
-// 常用图标列表
-const commonIcons = [
-  'lucide:home',
-  'lucide:user',
-  'lucide:settings',
-  'lucide:file-text',
-  'lucide:bar-chart',
-  'lucide:pie-chart',
-  'lucide:trending-up',
-  'lucide:calendar',
-  'lucide:clock',
-  'lucide:inbox',
-];
 </script>
 
 <template>
@@ -156,44 +134,19 @@ const commonIcons = [
               :required="prop.required"
             >
               <!-- 颜色选择器 -->
-              <ColorPicker
-                v-if="prop.type === 'color'"
-                v-model:value="formData[prop.key]"
-                show-text
-                @change="handleUpdateConfig"
-              />
-
-              <!-- 图标选择器 -->
-              <div v-else-if="prop.type === 'icon'" class="space-y-2">
+              <div v-if="prop.type === 'color'" class="flex items-center gap-2">
+                <input
+                  v-model="formData[prop.key]"
+                  type="color"
+                  class="h-8 w-16 cursor-pointer rounded border"
+                  @change="handleUpdateConfig"
+                />
                 <Input
                   v-model:value="formData[prop.key]"
                   :placeholder="`请输入${prop.label}`"
+                  class="flex-1"
                   @change="handleUpdateConfig"
-                >
-                  <template #prefix>
-                    <Icon
-                      v-if="formData[prop.key]"
-                      :icon="formData[prop.key]"
-                    />
-                  </template>
-                </Input>
-                <div class="grid grid-cols-5 gap-2">
-                  <div
-                    v-for="iconName in commonIcons"
-                    :key="iconName"
-                    class="icon-item flex cursor-pointer items-center justify-center rounded border p-2 hover:border-blue-400 hover:bg-blue-50"
-                    :class="{
-                      'border-blue-400 bg-blue-50':
-                        formData[prop.key] === iconName,
-                    }"
-                    @click="
-                      formData[prop.key] = iconName;
-                      handleUpdateConfig();
-                    "
-                  >
-                    <Icon :icon="iconName" class="text-lg" />
-                  </div>
-                </div>
+                />
               </div>
 
               <!-- 其他类型 -->
@@ -261,13 +214,5 @@ const commonIcons = [
 
 .config-collapse :deep(.ant-collapse-content-box) {
   padding: 16px 12px;
-}
-
-.icon-item {
-  transition: all 0.2s;
-}
-
-.icon-item:hover {
-  transform: scale(1.1);
 }
 </style>

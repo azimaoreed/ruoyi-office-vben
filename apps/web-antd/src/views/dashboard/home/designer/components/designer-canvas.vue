@@ -35,7 +35,8 @@ const localLayout = ref<GridLayoutItem[]>([]);
 watch(
   () => props.layout,
   (newLayout) => {
-    localLayout.value = structuredClone(newLayout);
+    // eslint-disable-next-line unicorn/prefer-structured-clone
+    localLayout.value = JSON.parse(JSON.stringify(newLayout));
   },
   { immediate: true },
 );
