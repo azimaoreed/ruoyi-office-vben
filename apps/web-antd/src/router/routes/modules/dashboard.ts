@@ -31,6 +31,46 @@ const routes: RouteRecordRaw[] = [
           title: $t('page.dashboard.analytics'),
         },
       },
+      {
+        name: 'DashboardHome',
+        path: '/home',
+        component: () => import('#/views/dashboard/home/index.vue'),
+        meta: {
+          icon: 'lucide:home',
+          title: '我的首页',
+        },
+      },
+      {
+        name: 'HomePageManage',
+        path: '/home/manage',
+        component: () => import('#/views/dashboard/home/manage/index.vue'),
+        meta: {
+          icon: 'lucide:layout-dashboard',
+          title: '首页管理',
+          authority: ['system:home:query'],
+        },
+      },
+      {
+        name: 'HomeComponentManage',
+        path: '/home/component',
+        component: () => import('#/views/dashboard/home/component/index.vue'),
+        meta: {
+          icon: 'lucide:component',
+          title: '组件管理',
+          authority: ['system:home-component:query'],
+        },
+      },
+      {
+        name: 'HomeDesigner',
+        path: '/home/designer',
+        component: () => import('#/views/dashboard/home/designer/index.vue'),
+        meta: {
+          icon: 'lucide:layout-dashboard',
+          title: '首页设计器',
+          hideInMenu: true,
+          authority: ['system:home:update'],
+        },
+      },
     ],
   },
   {
