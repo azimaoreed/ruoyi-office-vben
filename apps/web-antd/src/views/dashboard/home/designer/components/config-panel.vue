@@ -13,7 +13,7 @@ import {
   FormItem,
   Input,
   InputNumber,
-  Switch,
+  Select,
 } from 'ant-design-vue';
 
 interface Props {
@@ -31,8 +31,9 @@ const emit = defineEmits<Emits>();
 const formData = ref<Record<string, any>>({});
 const configSchema = ref<null | SystemHomeComponentApi.ConfigSchema>(null);
 const activeKeys = ref<string[]>(['basic']); // 默认展开基础配置
+const lastSelectedItemId = ref<null | string>(null); // 记录上次选中的组件ID
 
-/** 当前选中的组件定义 */
+/** 当前选中组件的定义信息 */
 const currentComponent = computed(() => {
   if (!props.selectedItem) return null;
   return props.components.find(
@@ -40,27 +41,104 @@ const currentComponent = computed(() => {
   );
 });
 
-/** 解析 configSchema */
+/** 分离基础配置、内边距配置、外边距配置和浮动标题配置 */
+const basicProperties = computed(() => {
+  if (!configSchema.value?.properties) return [];
+  return configSchema.value.properties.filter(
+    (prop) =>
+      ![
+        'floatingTitle',
+        'marginBottom',
+        'marginLeft',
+        'marginRight',
+        'marginTop',
+        'paddingBottom',
+        'paddingLeft',
+        'paddingRight',
+        'paddingTop',
+        'titleBold',
+        'titleColor',
+        'titleFontSize',
+        'titleMarginBottom',
+        'titleMarginLeft',
+        'titleMarginRight',
+        'titleMarginTop',
+      ].includes(prop.key),
+  );
+});
+
+const paddingProperties = computed(() => {
+  if (!configSchema.value?.properties) return [];
+  return configSchema.value.properties.filter((prop) =>
+    ['paddingBottom', 'paddingLeft', 'paddingRight', 'paddingTop'].includes(
+      prop.key,
+    ),
+  );
+});
+
+// const marginProperties = computed(() => {
+//   if (!configSchema.value?.properties) return [];
+//   return configSchema.value.properties.filter((prop) =>
+//     ['marginBottom', 'marginLeft', 'marginRight', 'marginTop'].includes(
+//       prop.key,
+//     ),
+//   );
+// });
+
+const floatingTitleProperties = computed(() => {
+  if (!configSchema.value?.properties) return [];
+  return configSchema.value.properties.filter((prop) =>
+    [
+      'floatingTitle',
+      'titleBold',
+      'titleColor',
+      'titleFontSize',
+      'titleMarginBottom',
+      'titleMarginLeft',
+      'titleMarginRight',
+      'titleMarginTop',
+    ].includes(prop.key),
+  );
+});
+
+// 监听 selectedItem 的变化，确保切换组件时更新配置
 watch(
-  currentComponent,
-  (component) => {
-    if (!component || !component.configSchema) {
-      configSchema.value = null;
+  () => props.selectedItem?.i,
+  (newId, oldId) => {
+    // 检查是否真的切换了组件（同时检查新旧ID）
+    if (newId === oldId || newId === lastSelectedItemId.value) {
+      return;
+    }
+
+    lastSelectedItemId.value = newId || null;
+    const newItem = props.selectedItem;
+
+    if (!newItem) {
       formData.value = {};
+      configSchema.value = null;
+      return;
+    }
+
+    // 重新解析当前组件的 schema
+    const component = props.components.find(
+      (c) => c.code === newItem.componentCode,
+    );
+
+    if (!component || !component.configSchema) {
+      formData.value = {};
+      configSchema.value = null;
       return;
     }
 
     try {
-      configSchema.value = JSON.parse(component.configSchema);
+      const schema = JSON.parse(component.configSchema);
+      configSchema.value = schema;
 
-      // 初始化表单数据（使用默认值或当前值）
+      // 更新 formData 为新组件的配置
       const newFormData: Record<string, any> = {};
-      configSchema.value?.properties.forEach((prop) => {
-        if (
-          props.selectedItem?.config &&
-          props.selectedItem.config[prop.key] !== undefined
-        ) {
-          newFormData[prop.key] = props.selectedItem.config[prop.key];
+      schema.properties?.forEach((prop: any) => {
+        if (newItem.config && newItem.config[prop.key] !== undefined) {
+          newFormData[prop.key] = newItem.config[prop.key];
         } else if (prop.default !== undefined) {
           newFormData[prop.key] = prop.default;
         }
@@ -69,11 +147,11 @@ watch(
       formData.value = newFormData;
     } catch (error) {
       console.error('Failed to parse config schema:', error);
-      configSchema.value = null;
       formData.value = {};
+      configSchema.value = null;
     }
   },
-  { immediate: true },
+  { immediate: true, flush: 'post' },
 );
 
 /** 更新配置 */
@@ -85,9 +163,6 @@ function handleUpdateConfig() {
 /** 根据类型获取表单组件 */
 function getFormComponent(type: string) {
   switch (type) {
-    case 'boolean': {
-      return Switch;
-    }
     case 'number': {
       return InputNumber;
     }
@@ -128,13 +203,28 @@ function getFormComponent(type: string) {
         <CollapsePanel key="basic" header="基础配置">
           <Form layout="vertical" class="px-2">
             <FormItem
-              v-for="prop in configSchema.properties"
+              v-for="prop in basicProperties"
               :key="prop.key"
               :label="prop.label"
               :required="prop.required"
             >
+              <!-- 布尔下拉选择 -->
+              <Select
+                v-if="prop.type === 'boolean'"
+                v-model:value="formData[prop.key]"
+                :options="[
+                  { label: '显示', value: true as any },
+                  { label: '不显示', value: false as any },
+                ]"
+                class="w-full"
+                @change="handleUpdateConfig"
+              />
+
               <!-- 颜色选择器 -->
-              <div v-if="prop.type === 'color'" class="flex items-center gap-2">
+              <div
+                v-else-if="prop.type === 'color'"
+                class="flex items-center gap-2"
+              >
                 <input
                   v-model="formData[prop.key]"
                   type="color"
@@ -158,6 +248,172 @@ function getFormComponent(type: string) {
                 class="w-full"
                 @change="handleUpdateConfig"
               />
+            </FormItem>
+          </Form>
+        </CollapsePanel>
+
+        <!-- 组件内边距设置 -->
+        <CollapsePanel
+          v-if="paddingProperties.length > 0"
+          key="padding"
+          header="组件内边距设置"
+        >
+          <Form layout="vertical" class="px-2">
+            <div class="mb-3 text-xs text-gray-500">
+              组件内部内容与边框的距离（padding）
+            </div>
+            <FormItem
+              v-for="prop in paddingProperties"
+              :key="prop.key"
+              :label="prop.label"
+            >
+              <InputNumber
+                v-model:value="formData[prop.key]"
+                :min="prop.min || 0"
+                :max="prop.max || 50"
+                :step="1"
+                class="w-full"
+                @change="handleUpdateConfig"
+              />
+            </FormItem>
+          </Form>
+        </CollapsePanel>
+
+        <!-- 组件外边距设置 - 已隐藏 -->
+        <!-- <CollapsePanel v-if="marginProperties.length > 0" key="margin" header="组件外边距设置">
+          <Form layout="vertical" class="px-2">
+            <div class="mb-3 text-xs text-gray-500">
+              组件与其他组件之间的距离（margin），优先级高于全局配置
+            </div>
+            <FormItem
+              v-for="prop in marginProperties"
+              :key="prop.key"
+              :label="prop.label"
+            >
+              <InputNumber
+                v-model:value="formData[prop.key]"
+                :min="prop.min || 0"
+                :max="prop.max || 50"
+                :step="1"
+                class="w-full"
+                @change="handleUpdateConfig"
+              />
+            </FormItem>
+          </Form>
+        </CollapsePanel> -->
+
+        <!-- 浮动标题配置 -->
+        <CollapsePanel
+          v-if="floatingTitleProperties.length > 0"
+          key="floatingTitle"
+          header="浮动标题设置"
+        >
+          <Form layout="vertical" class="px-2">
+            <div class="mb-3 text-xs text-gray-500">
+              浮动标题不占据组件空间，使用绝对定位悬浮在组件上方
+            </div>
+
+            <!-- 浮动标题开关 -->
+            <FormItem
+              v-for="prop in floatingTitleProperties.filter(
+                (p) => p.key === 'floatingTitle',
+              )"
+              :key="prop.key"
+              :label="prop.label"
+            >
+              <Select
+                v-model:value="formData[prop.key]"
+                :options="[
+                  { label: '浮动', value: true as any },
+                  { label: '不浮动', value: false as any },
+                ]"
+                class="w-full"
+                @change="handleUpdateConfig"
+              />
+            </FormItem>
+
+            <!-- 浮动标题边距配置（仅在浮动时显示） -->
+            <template v-if="formData.floatingTitle === true">
+              <div class="mb-2 mt-3 text-xs text-gray-500">
+                标题定位：设置边距控制标题位置（如：上边距0=居顶，右边距0=居右）
+              </div>
+              <FormItem
+                v-for="prop in floatingTitleProperties.filter((p) =>
+                  p.key.startsWith('titleMargin'),
+                )"
+                :key="prop.key"
+                :label="prop.label"
+              >
+                <InputNumber
+                  v-model:value="formData[prop.key]"
+                  :min="prop.min || 0"
+                  :max="prop.max || 100"
+                  :step="1"
+                  class="w-full"
+                  @change="handleUpdateConfig"
+                />
+              </FormItem>
+            </template>
+
+            <!-- 标题样式配置（浮动和不浮动都显示） -->
+            <div class="mb-2 mt-3 text-xs text-gray-500">
+              标题样式：自定义标题文字的外观
+            </div>
+
+            <!-- 文字大小 -->
+            <FormItem
+              v-for="prop in floatingTitleProperties.filter(
+                (p) => p.key === 'titleFontSize',
+              )"
+              :key="prop.key"
+              :label="prop.label"
+            >
+              <InputNumber
+                v-model:value="formData[prop.key]"
+                :min="prop.min || 10"
+                :max="prop.max || 24"
+                :step="1"
+                class="w-full"
+                @change="handleUpdateConfig"
+              />
+            </FormItem>
+
+            <!-- 文字加粗 -->
+            <FormItem
+              v-for="prop in floatingTitleProperties.filter(
+                (p) => p.key === 'titleBold',
+              )"
+              :key="prop.key"
+              :label="prop.label"
+            >
+              <Select
+                v-model:value="formData[prop.key]"
+                :options="[
+                  { label: '加粗', value: true as any },
+                  { label: '不加粗', value: false as any },
+                ]"
+                class="w-full"
+                @change="handleUpdateConfig"
+              />
+            </FormItem>
+
+            <!-- 文字颜色 -->
+            <FormItem
+              v-for="prop in floatingTitleProperties.filter(
+                (p) => p.key === 'titleColor',
+              )"
+              :key="prop.key"
+              :label="prop.label"
+            >
+              <Input
+                v-model:value="formData[prop.key]"
+                :placeholder="prop.default || '#000000'"
+                class="w-full"
+                @change="handleUpdateConfig"
+              />
+              <div class="mt-1 text-xs text-gray-400">
+                支持颜色值，如：#FFFFFF、#000000、rgb(255,255,255)
+              </div>
             </FormItem>
           </Form>
         </CollapsePanel>

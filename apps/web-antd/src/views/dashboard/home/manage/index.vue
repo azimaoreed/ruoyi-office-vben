@@ -6,19 +6,26 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { Page, useVbenModal } from '@vben/common-ui';
+import { useUserStore } from '@vben/stores';
 
-import { message } from 'ant-design-vue';
+import { message, Tag } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   deleteHomePage,
   getHomePagePage,
-  setDefaultHomePage,
+  setMyHomePage,
 } from '#/api/system/home';
 import { $t } from '#/locales';
 
 import { useGridColumns, useGridFormSchema } from './data';
 import Form from './modules/form.vue';
+
+const userStore = useUserStore();
+// 获取当前用户ID的辅助函数，在 ifShow 中直接调用以确保响应式追踪
+function getCurrentUserId(): string | undefined {
+  return userStore.userInfo?.id?.toString();
+}
 
 const router = useRouter();
 
@@ -60,15 +67,15 @@ async function handleDelete(row: SystemHomePageApi.HomePage) {
   }
 }
 
-/** 设置默认首页 */
-async function handleSetDefault(row: SystemHomePageApi.HomePage) {
+/** 设置为我的首页 */
+async function handleSetMyHome(row: SystemHomePageApi.HomePage) {
   const hideLoading = message.loading({
-    content: '设置默认首页中...',
+    content: '设置中...',
     duration: 0,
   });
   try {
-    await setDefaultHomePage(row.id!);
-    message.success('设置默认首页成功');
+    await setMyHomePage(row.id!);
+    message.success('设置成功');
     handleRefresh();
   } finally {
     hideLoading();
@@ -78,7 +85,7 @@ async function handleSetDefault(row: SystemHomePageApi.HomePage) {
 /** 进入设计器 */
 function handleDesign(row: SystemHomePageApi.HomePage) {
   router.push({
-    path: '/home/designer',
+    path: '/workspace/home/designer',
     query: { pageId: row.id },
   });
 }
@@ -149,6 +156,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
         />
       </template>
 
+      <template #useStatus="{ row }">
+        <Tag v-if="row.useStatus === '使用中'" color="success">使用中</Tag>
+      </template>
+
       <template #actions="{ row }">
         <TableAction
           :actions="[
@@ -156,26 +167,43 @@ const [Grid, gridApi] = useVbenVxeGrid({
               label: '编辑',
               type: 'link',
               icon: ACTION_ICON.EDIT,
+              ifShow: () => {
+                // 只有当前用户创建的首页可以编辑
+                return row.creator === getCurrentUserId();
+              },
               onClick: () => handleEdit(row),
             },
             {
               label: '设计',
               type: 'link',
-              icon: ACTION_ICON.DESIGN,
+              icon: ACTION_ICON.AUDIT,
+              ifShow: () => {
+                // 只有当前用户创建的首页可以设计
+                return row.creator === getCurrentUserId();
+              },
               onClick: () => handleDesign(row),
             },
             {
-              label: '设为默认',
+              label: '设置为首页',
               type: 'link',
-              icon: ACTION_ICON.SETTING,
-              ifShow: () => !row.isDefault,
-              onClick: () => handleSetDefault(row),
+
+              // 只有未使用中的首页，才显示“设置为首页”
+              ifShow: () => row.useStatus !== '使用中',
+              onClick: () => handleSetMyHome(row),
             },
             {
               label: '删除',
               type: 'link',
               danger: true,
               icon: ACTION_ICON.DELETE,
+              ifShow: () => {
+                // 不允许删除系统默认首页
+                if (row.code === 'default_workspace') {
+                  return false;
+                }
+                // 只有创建者可以删除
+                return row.creator === getCurrentUserId();
+              },
               popConfirm: {
                 title: $t('ui.actionMessage.deleteConfirm', [row.name]),
                 confirm: () => handleDelete(row),

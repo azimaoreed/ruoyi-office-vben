@@ -42,9 +42,11 @@ export namespace SystemHomeComponentApi {
   export interface ConfigSchemaProperty {
     key: string;
     label: string;
-    type: 'boolean' | 'number' | 'string';
+    type: 'boolean' | 'color' | 'number' | 'string';
     default?: any;
     required: boolean;
+    min?: number;
+    max?: number;
   }
 
   /** 配置Schema */

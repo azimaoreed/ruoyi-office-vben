@@ -8,7 +8,14 @@ import { useRoute, useRouter } from 'vue-router';
 
 import { Page } from '@vben/common-ui';
 
-import { Button, message } from 'ant-design-vue';
+import {
+  Button,
+  Form,
+  FormItem,
+  InputNumber,
+  message,
+  Modal,
+} from 'ant-design-vue';
 
 import {
   getHomePage,
@@ -30,6 +37,14 @@ const layout = ref<GridLayoutItem[]>([]);
 const selectedItemId = ref<null | string>(null);
 const components = ref<SystemHomeComponentApi.Component[]>([]);
 const saving = ref(false);
+const configPanelCollapsed = ref(false); // 配置面板收起状态
+const showGlobalSettings = ref(false); // 全局设置对话框
+
+// 全局布局配置
+const globalConfig = ref({
+  containerPadding: 10, // 容器内边距
+  margin: 10, // 组件间距
+});
 
 /** 当前选中的布局项 */
 const selectedItem = computed(() => {
@@ -74,6 +89,22 @@ async function loadLayout() {
       minW: 2,
       minH: 2,
     }));
+
+    // 如果有布局数据，尝试从第一个布局项中恢复全局配置
+    if (layoutItems.length > 0 && layoutItems[0].config) {
+      try {
+        const firstConfig = JSON.parse(layoutItems[0].config);
+        if (firstConfig._globalMargin !== undefined) {
+          globalConfig.value.margin = firstConfig._globalMargin;
+        }
+        if (firstConfig._globalContainerPadding !== undefined) {
+          globalConfig.value.containerPadding =
+            firstConfig._globalContainerPadding;
+        }
+      } catch {
+        // 忽略解析错误
+      }
+    }
   } catch (error) {
     console.error('Failed to load layout:', error);
   }
@@ -171,7 +202,7 @@ async function handleSave() {
 
   saving.value = true;
   try {
-    // 构建布局JSON
+    // 构建布局JSON（将全局配置保存到每个组件的 config 中）
     const layoutConfig: LayoutConfig = {
       items: layout.value.map((item) => ({
         i: item.i,
@@ -180,7 +211,16 @@ async function handleSave() {
         w: item.w,
         h: item.h,
         componentCode: item.componentCode,
-        config: item.config,
+        config: {
+          ...item.config,
+          // 将全局配置保存到第一个组件的配置中（用于恢复）
+          ...(layout.value.indexOf(item) === 0
+            ? {
+                _globalMargin: globalConfig.value.margin,
+                _globalContainerPadding: globalConfig.value.containerPadding,
+              }
+            : {}),
+        },
         isDraggable: item.isDraggable,
         isResizable: item.isResizable,
         minW: item.minW,
@@ -190,8 +230,11 @@ async function handleSave() {
       rowHeight: 60,
       isDraggable: true,
       isResizable: true,
-      margin: [10, 10],
-      containerPadding: [10, 10],
+      margin: [globalConfig.value.margin, globalConfig.value.margin],
+      containerPadding: [
+        globalConfig.value.containerPadding,
+        globalConfig.value.containerPadding,
+      ],
       verticalCompact: false,
       preventCollision: false,
       useCssTransforms: true,
@@ -235,8 +278,9 @@ onMounted(() => {
   <Page
     :content-class="{
       'p-0!': true,
+      'm-0!': true,
     }"
-    :content-style="{ height: 'calc(100vh - 64px)' }"
+    :content-style="{ height: 'calc(100vh - 64px)', padding: '0', margin: '0' }"
   >
     <!-- 顶部工具栏 -->
     <div
@@ -251,6 +295,7 @@ onMounted(() => {
       </div>
 
       <div class="flex items-center space-x-2">
+        <Button @click="showGlobalSettings = true"> 全局设置 </Button>
         <Button @click="handlePreview"> 预览 </Button>
         <Button type="primary" :loading="saving" @click="handleSave">
           保存
@@ -262,7 +307,7 @@ onMounted(() => {
     <div class="designer-content flex h-full">
       <!-- 左侧：组件面板 -->
       <div class="w-64 flex-shrink-0">
-        <ComponentPanel @addComponent="handleAddComponent" />
+        <ComponentPanel @add-component="handleAddComponent" />
       </div>
 
       <!-- 中间：画布 -->
@@ -272,18 +317,93 @@ onMounted(() => {
           v-model:selected-item-id="selectedItemId"
           :col-num="24"
           :row-height="60"
+          :container-padding="globalConfig.containerPadding"
+          :margin="globalConfig.margin"
         />
       </div>
 
       <!-- 右侧：配置面板 -->
-      <div class="w-80 flex-shrink-0">
-        <ConfigPanel
-          :selected-item="selectedItem"
-          :components="components"
-          @updateConfig="handleUpdateConfig"
-        />
+      <div
+        class="config-panel-wrapper flex-shrink-0 transition-all duration-300"
+        :class="configPanelCollapsed ? 'w-12' : 'w-80'"
+      >
+        <!-- 收起状态的按钮 -->
+        <div
+          v-show="configPanelCollapsed"
+          class="flex h-full items-center justify-center border-l bg-white"
+        >
+          <Button type="text" @click="configPanelCollapsed = false">
+            <template #icon>
+              <span class="text-lg">◀</span>
+            </template>
+          </Button>
+        </div>
+
+        <!-- 配置面板（始终存在，用 v-show 控制显示） -->
+        <div v-show="!configPanelCollapsed" class="relative h-full">
+          <Button
+            type="text"
+            class="absolute right-2 top-2 z-10"
+            size="small"
+            @click="configPanelCollapsed = true"
+          >
+            <template #icon>
+              <span class="text-sm">▶</span>
+            </template>
+          </Button>
+          <ConfigPanel
+            :selected-item="selectedItem"
+            :components="components"
+            @update-config="handleUpdateConfig"
+          />
+        </div>
       </div>
     </div>
+
+    <!-- 全局设置对话框 -->
+    <Modal
+      v-model:open="showGlobalSettings"
+      title="全局布局设置"
+      :width="500"
+      @ok="showGlobalSettings = false"
+    >
+      <Form layout="vertical" class="pt-4">
+        <FormItem label="容器内边距（px）">
+          <InputNumber
+            v-model:value="globalConfig.containerPadding"
+            :min="0"
+            :max="50"
+            :step="1"
+            class="w-full"
+          />
+          <div class="mt-1 text-xs text-gray-500">
+            <div>控制画布和首页渲染时四周的空白区域</div>
+            <div class="mt-1 text-orange-500">
+              • 设置为 0 可完全消除边距，让组件紧贴边缘
+            </div>
+            <div>• 建议值：0-20px</div>
+            <div class="mt-1 text-blue-500">
+              • 此设置会同时应用到设计器和首页预览
+            </div>
+          </div>
+        </FormItem>
+
+        <FormItem label="组件间距（px）">
+          <InputNumber
+            v-model:value="globalConfig.margin"
+            :min="0"
+            :max="30"
+            :step="1"
+            class="w-full"
+          />
+          <div class="mt-1 text-xs text-gray-500">
+            <div>控制组件之间的间隔距离</div>
+            <div class="mt-1">• 设置为 0 组件将无间隙排列</div>
+            <div>• 建议值：5-15px</div>
+          </div>
+        </FormItem>
+      </Form>
+    </Modal>
   </Page>
 </template>
 
@@ -294,5 +414,9 @@ onMounted(() => {
 
 .designer-content {
   height: calc(100% - 64px);
+}
+
+.config-panel-wrapper {
+  position: relative;
 }
 </style>

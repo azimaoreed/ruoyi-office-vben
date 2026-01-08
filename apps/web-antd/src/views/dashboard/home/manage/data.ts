@@ -52,15 +52,10 @@ export function useFormSchema(): VbenFormSchema[] {
         placeholder: '请输入预览图URL',
       },
     },
-    {
-      fieldName: 'isDefault',
-      label: '是否默认',
-      component: 'Switch',
-      defaultValue: false,
-    },
+
     {
       fieldName: 'status',
-      label: '首页状态',
+      label: '启用状态',
       component: 'RadioGroup',
       componentProps: {
         options: getDictOptions(DICT_TYPE.COMMON_STATUS, 'number'),
@@ -141,17 +136,14 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
       minWidth: 200,
     },
     {
-      field: 'isDefault',
-      title: '是否默认',
+      field: 'useStatus',
+      title: '使用状态',
       minWidth: 100,
-      cellRender: {
-        name: 'CellSwitch',
-        props: { disabled: true },
-      },
+      slots: { default: 'useStatus' },
     },
     {
       field: 'status',
-      title: '首页状态',
+      title: '启用状态',
       minWidth: 100,
       cellRender: {
         name: 'CellDict',
@@ -171,7 +163,7 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
     },
     {
       title: '操作',
-      width: 220,
+      width: 280,
       fixed: 'right',
       slots: { default: 'actions' },
     },

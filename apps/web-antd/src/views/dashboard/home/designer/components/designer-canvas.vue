@@ -13,6 +13,8 @@ interface Props {
   colNum?: number;
   rowHeight?: number;
   selectedItemId?: null | string;
+  containerPadding?: number;
+  margin?: number;
 }
 
 interface Emits {
@@ -25,6 +27,8 @@ const props = withDefaults(defineProps<Props>(), {
   colNum: 24,
   rowHeight: 60,
   selectedItemId: null,
+  containerPadding: 10,
+  margin: 10,
 });
 
 const emit = defineEmits<Emits>();
@@ -34,7 +38,11 @@ const localLayout = ref<GridLayoutItem[]>([]);
 // 初始化本地布局
 watch(
   () => props.layout,
-  (newLayout) => {
+  (newLayout, oldLayout) => {
+    // 避免循环更新：检查是否真的变化了
+    if (JSON.stringify(newLayout) === JSON.stringify(oldLayout)) {
+      return;
+    }
     // eslint-disable-next-line unicorn/prefer-structured-clone
     localLayout.value = JSON.parse(JSON.stringify(newLayout));
   },
@@ -171,7 +179,8 @@ const isEmpty = computed(() => localLayout.value.length === 0);
 
 <template>
   <div
-    class="designer-canvas h-full w-full overflow-auto bg-gray-50 p-4"
+    class="designer-canvas h-full w-full overflow-auto bg-gray-50"
+    :style="{ padding: `${containerPadding}px` }"
     @dragover="handleDragOver"
     @drop="handleDrop"
   >
@@ -189,7 +198,13 @@ const isEmpty = computed(() => localLayout.value.length === 0);
       :vertical-compact="false"
       :prevent-collision="false"
       :use-css-transforms="true"
-      :margin="[10, 10]"
+      :margin="[margin, margin]"
+      :style="{
+        marginLeft: containerPadding === 0 ? `-${margin}px` : '0',
+        marginTop: containerPadding === 0 ? `-${margin}px` : '0',
+        marginRight: containerPadding === 0 ? `-${margin}px` : '0',
+        marginBottom: containerPadding === 0 ? `-${margin}px` : '0',
+      }"
       @layout-updated="handleLayoutUpdated"
     >
       <GridItem
@@ -245,6 +260,10 @@ const isEmpty = computed(() => localLayout.value.length === 0);
 <style scoped>
 .designer-canvas {
   position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: #f5f5f5;
 
   /* 24列布局，使用双层网格线系统 */
   background-image: 
@@ -323,6 +342,15 @@ const isEmpty = computed(() => localLayout.value.length === 0);
 
 :deep(.vue-grid-layout) {
   min-height: 500px;
+}
+
+/* 当容器内边距为0时，使用负margin抵消边缘组件的间距，需要调整overflow */
+.designer-canvas[style*='padding: 0px'] {
+  overflow: visible;
+}
+
+.designer-canvas[style*='padding: 0px'] > .vue-grid-layout {
+  position: relative;
 }
 
 :deep(.vue-grid-item) {

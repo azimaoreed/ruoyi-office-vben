@@ -13,6 +13,9 @@ export namespace SystemHomePageApi {
     isDefault: boolean;
     status: number;
     sort: number;
+    creator?: string;
+    /** 使用状态：使用中 / 空字符串 */
+    useStatus?: string;
     createTime?: Date;
   }
 
@@ -93,9 +96,9 @@ export function enableHomePage(pageId: number) {
   return requestClient.post(`/system/home/page/enable?pageId=${pageId}`);
 }
 
-/** 设置默认首页 */
-export function setDefaultHomePage(id: number) {
-  return requestClient.put(`/system/home/page/set-default?id=${id}`);
+/** 设置为我的首页 */
+export function setMyHomePage(id: number) {
+  return requestClient.put(`/system/home/page/set-my-home?id=${id}`);
 }
 
 /** 保存首页布局 */

@@ -13,6 +13,8 @@ import WorkbenchQuickNav from './navigation/workbench-quick-nav.vue';
 import AnalyticsVisitsData from './statistics/analytics-visits-data.vue';
 // 统计卡片组件
 import AnalyticsVisits from './statistics/analytics-visits.vue';
+// 任务列表组件
+import WorkbenchTaskList from './taskLists/workbench-task-list.vue';
 
 /**
  * 组件注册项
@@ -98,4 +100,11 @@ registerComponent({
   component: WorkbenchQuickNav,
   name: '快捷导航',
   description: '展示快捷导航入口',
+});
+
+registerComponent({
+  code: 'workbench_task_list',
+  component: WorkbenchTaskList,
+  name: '任务列表',
+  description: '展示我的单据、待办任务、已办任务、抄送我的',
 });
