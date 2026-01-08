@@ -350,7 +350,7 @@ async function loadData(tab: TabKey) {
 }
 
 // Tab切换事件
-function handleTabChange(key: string | number) {
+function handleTabChange(key: number | string) {
   activeTab.value = String(key) as TabKey;
   loadData(activeTab.value);
 }
