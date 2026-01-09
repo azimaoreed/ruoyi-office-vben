@@ -55,17 +55,13 @@ SELECT * FROM system_home_component WHERE code = 'workbench_task_list' AND delet
 
 ### 2. 组件配置项
 
-| 配置项        | 类型    | 默认值     | 说明               |
-| ------------- | ------- | ---------- | ------------------ |
-| title         | string  | '我的任务' | 组件标题           |
-| showTitle     | boolean | true       | 是否显示标题       |
-| titleFontSize | number  | 18         | 标题字体大小（px） |
-| titleColor    | string  | -          | 标题颜色           |
-| titleBold     | boolean | true       | 标题是否加粗       |
-| paddingTop    | number  | 16         | 内边距-上（px）    |
-| paddingRight  | number  | 16         | 内边距-右（px）    |
-| paddingBottom | number  | 16         | 内边距-下（px）    |
-| paddingLeft   | number  | 16         | 内边距-左（px）    |
+| 配置项        | 类型   | 默认值 | 说明                       |
+| ------------- | ------ | ------ | -------------------------- |
+| maxRecordNum  | number | 10     | 显示任务最大值（范围5-50） |
+| paddingTop    | number | 16     | 内边距-上（px）            |
+| paddingRight  | number | 16     | 内边距-右（px）            |
+| paddingBottom | number | 16     | 内边距-下（px）            |
+| paddingLeft   | number | 16     | 内边距-左（px）            |
 
 ### 3. 推荐布局尺寸
 
@@ -81,6 +77,8 @@ SELECT * FROM system_home_component WHERE code = 'workbench_task_list' AND delet
 - `getTaskTodoPage` - 获取待办任务列表
 - `getTaskDonePage` - 获取已办任务列表
 - `getProcessInstanceCopyPage` - 获取抄送我的列表
+
+**注意**：每个Tab显示的任务条数由 `maxRecordNum` 配置项控制，默认为10条，可设置范围为5-50条。
 
 ## 交互说明
 

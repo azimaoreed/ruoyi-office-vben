@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, nextTick, onMounted, ref } from 'vue';
 
 import { Badge, Table, Tabs } from 'ant-design-vue';
 
@@ -12,11 +12,11 @@ import { getTaskDonePage, getTaskTodoPage } from '#/api/bpm/task';
 import { router } from '#/router';
 
 interface Props {
-  title?: string;
+  maxRecordNum?: number;
 }
 
-withDefaults(defineProps<Props>(), {
-  title: '我的任务',
+const props = withDefaults(defineProps<Props>(), {
+  maxRecordNum: 10,
 });
 
 // Tab类型定义
@@ -312,35 +312,38 @@ async function loadData(tab: TabKey) {
   loading.value = true;
   try {
     let response;
+    const pageSize = props.maxRecordNum || 10;
     switch (tab) {
       case 'copy': {
         response = await getProcessInstanceCopyPage({
           pageNo: 1,
-          pageSize: 10,
+          pageSize,
         });
         taskList.value = response.list || [];
         statistics.value.copy = response.total || 0;
         break;
       }
       case 'done': {
-        response = await getTaskDonePage({ pageNo: 1, pageSize: 10 });
+        response = await getTaskDonePage({ pageNo: 1, pageSize });
         taskList.value = response.list || [];
         statistics.value.done = response.total || 0;
         break;
       }
       case 'myBill': {
-        response = await getProcessInstanceMyPage({ pageNo: 1, pageSize: 10 });
+        response = await getProcessInstanceMyPage({ pageNo: 1, pageSize });
         taskList.value = response.list || [];
         statistics.value.myBill = response.total || 0;
         break;
       }
       case 'todo': {
-        response = await getTaskTodoPage({ pageNo: 1, pageSize: 10 });
+        response = await getTaskTodoPage({ pageNo: 1, pageSize });
         taskList.value = response.list || [];
         statistics.value.todo = response.total || 0;
         break;
       }
     }
+    // 等待 DOM 更新完成，确保表格正确渲染所有数据
+    await nextTick();
   } catch (error) {
     console.error('加载任务数据失败:', error);
     taskList.value = [];
@@ -464,57 +467,79 @@ function handleViewMore() {
 }
 
 // 初始化
-onMounted(() => {
-  // 加载所有统计数据
-  Promise.all([
-    getProcessInstanceMyPage({ pageNo: 1, pageSize: 1 }),
-    getTaskTodoPage({ pageNo: 1, pageSize: 1 }),
-    getTaskDonePage({ pageNo: 1, pageSize: 1 }),
-    getProcessInstanceCopyPage({ pageNo: 1, pageSize: 1 }),
-  ])
-    .then(([myBill, todo, done, copy]) => {
-      statistics.value = {
-        myBill: myBill.total || 0,
-        todo: todo.total || 0,
-        done: done.total || 0,
-        copy: copy.total || 0,
-      };
-    })
-    .catch((error) => {
-      console.error('加载统计数据失败:', error);
+onMounted(async () => {
+  const currentTab = activeTab.value;
+
+  // 先加载当前tab的数据（使用loadData函数保证逻辑一致）
+  await loadData(currentTab);
+
+  // 并行加载其他tab的统计数据
+  const otherTabs: TabKey[] = ['myBill', 'todo', 'done', 'copy'].filter(
+    (tab) => tab !== currentTab,
+  ) as TabKey[];
+
+  try {
+    const promises = otherTabs.map((tab) => {
+      switch (tab) {
+        case 'copy': {
+          return getProcessInstanceCopyPage({ pageNo: 1, pageSize: 1 });
+        }
+        case 'done': {
+          return getTaskDonePage({ pageNo: 1, pageSize: 1 });
+        }
+        case 'myBill': {
+          return getProcessInstanceMyPage({ pageNo: 1, pageSize: 1 });
+        }
+        case 'todo': {
+          return getTaskTodoPage({ pageNo: 1, pageSize: 1 });
+        }
+        default: {
+          return Promise.resolve({ total: 0 });
+        }
+      }
     });
 
-  // 加载当前Tab的数据
-  loadData(activeTab.value);
+    const results = await Promise.all(promises);
+
+    // 更新其他tab的统计数据
+    otherTabs.forEach((tab, index) => {
+      statistics.value[tab] = results[index]?.total || 0;
+    });
+  } catch (error) {
+    console.error('加载其他tab统计数据失败:', error);
+  }
 });
 </script>
 
 <template>
-  <div class="workbench-task-list rounded-lg bg-background p-4">
-    <div class="mb-4 flex items-center justify-between">
-      <h3 class="text-lg font-semibold">{{ title }}</h3>
+  <div class="workbench-task-list rounded-lg bg-background">
+    <div class="flex items-end justify-between px-3">
+      <Tabs
+        v-model:active-key="activeTab"
+        class="flex-1"
+        @change="handleTabChange"
+      >
+        <template v-for="tab in tabs" :key="tab.key">
+          <Tabs.TabPane>
+            <template #tab>
+              <Badge :count="tab.count" :overflow-count="99" :offset="[10, 0]">
+                <span class="px-2">{{ tab.label }}</span>
+              </Badge>
+            </template>
+          </Tabs.TabPane>
+        </template>
+      </Tabs>
       <a
-        class="cursor-pointer text-sm text-primary hover:underline"
+        class="cursor-pointer pb-6 text-sm text-primary hover:underline"
         @click="handleViewMore"
       >
         查看更多
       </a>
     </div>
 
-    <Tabs v-model:active-key="activeTab" @change="handleTabChange">
-      <template v-for="tab in tabs" :key="tab.key">
-        <Tabs.TabPane>
-          <template #tab>
-            <Badge :count="tab.count" :overflow-count="99" :offset="[10, 0]">
-              <span class="px-2">{{ tab.label }}</span>
-            </Badge>
-          </template>
-        </Tabs.TabPane>
-      </template>
-    </Tabs>
-
-    <div class="task-table-wrapper">
+    <div class="task-table-wrapper px-3 pb-2">
       <Table
+        :key="`${activeTab}-${taskList.length}`"
         :columns="columns"
         :data-source="taskList"
         :loading="loading"
@@ -584,7 +609,7 @@ onMounted(() => {
 }
 
 .task-table-wrapper {
-  min-height: 400px;
+  min-height: 350px;
 }
 
 /* 单据编号链接样式 */
@@ -615,7 +640,7 @@ onMounted(() => {
 }
 
 .task-table-wrapper :deep(.ant-table-cell) {
-  padding: 8px 12px !important;
+  padding: 6px 8px !important;
 }
 
 /* 优化操作列固定阴影效果，使其更柔和 */

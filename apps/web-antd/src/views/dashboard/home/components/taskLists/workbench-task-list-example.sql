@@ -33,10 +33,7 @@ INSERT INTO `system_home_layout` (
   24,                                -- 宽度=24列，占满整行
   8,                                 -- 高度=8行（480px）
   '{
-    "title": "我的任务",
-    "showTitle": true,
-    "titleFontSize": 18,
-    "titleBold": true,
+    "maxRecordNum": 10,
     "paddingTop": 16,
     "paddingRight": 16,
     "paddingBottom": 16,
@@ -60,7 +57,7 @@ INSERT INTO `system_home_layout` (
   `creator`, `create_time`, `updater`, `update_time`, `deleted`
 ) VALUES (
   @home_page_id, 'workbench_task_list', 0, 0, 16, 8,
-  '{"title": "我的任务", "showTitle": true, "paddingTop": 16, "paddingRight": 16, "paddingBottom": 16, "paddingLeft": 16}',
+  '{"maxRecordNum": 10, "paddingTop": 16, "paddingRight": 16, "paddingBottom": 16, "paddingLeft": 16}',
   'admin', NOW(), 'admin', NOW(), b'0'
 );
 
@@ -90,12 +87,7 @@ INSERT INTO `system_home_layout` (
 
 -- 组件配置项说明（config字段的JSON内容）：
 -- {
---   "title": "我的任务",              // 组件标题
---   "showTitle": true,                // 是否显示标题
---   "titleFontSize": 18,              // 标题字体大小（px）
---   "titleColor": "#000000",          // 标题颜色（可选）
---   "titleBold": true,                // 标题是否加粗
---   "floatingTitle": false,           // 是否浮动标题（不占空间）
+--   "maxRecordNum": 10,               // 显示任务最大值（范围5-50）
 --   "paddingTop": 16,                 // 内边距-上（px）
 --   "paddingRight": 16,               // 内边距-右（px）
 --   "paddingBottom": 16,              // 内边距-下（px）

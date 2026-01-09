@@ -3,6 +3,8 @@ import type { Component } from 'vue';
 // ==============================================
 // 注册所有可用组件
 // ==============================================
+// 应用中心组件
+import WorkbenchAppCenter from './app-center/workbench-app-center.vue';
 // 图表组件
 import AnalyticsVisitsSource from './charts/analytics-visits-source.vue';
 // 列表组件
@@ -10,11 +12,15 @@ import WorkbenchProject from './lists/workbench-project.vue';
 import WorkbenchTrends from './lists/workbench-trends.vue';
 // 快捷导航组件
 import WorkbenchQuickNav from './navigation/workbench-quick-nav.vue';
+// 通知公告组件
+import WorkbenchNotice from './notice/workbench-notice.vue';
 import AnalyticsVisitsData from './statistics/analytics-visits-data.vue';
 // 统计卡片组件
 import AnalyticsVisits from './statistics/analytics-visits.vue';
 // 任务列表组件
 import WorkbenchTaskList from './taskLists/workbench-task-list.vue';
+// 欢迎组件
+import WorkbenchWelcome from './welcome/workbench-welcome.vue';
 
 /**
  * 组件注册项
@@ -107,4 +113,25 @@ registerComponent({
   component: WorkbenchTaskList,
   name: '任务列表',
   description: '展示我的单据、待办任务、已办任务、抄送我的',
+});
+
+registerComponent({
+  code: 'workbench_welcome',
+  component: WorkbenchWelcome,
+  name: '欢迎组件',
+  description: '展示欢迎信息、用户信息和天气',
+});
+
+registerComponent({
+  code: 'workbench_notice',
+  component: WorkbenchNotice,
+  name: '通知公告',
+  description: '展示系统通知公告列表',
+});
+
+registerComponent({
+  code: 'workbench_app_center',
+  component: WorkbenchAppCenter,
+  name: '应用中心',
+  description: '展示常用应用，支持拖拽排序',
 });
