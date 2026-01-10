@@ -249,7 +249,7 @@ watch(
       />
     </template>
     <template #header-right-1>
-      <div v-if="tenantEnable">
+      <div v-if="tenantEnable && false">
         <TenantDropdown
           class="mr-2"
           :tenant-list="tenants"

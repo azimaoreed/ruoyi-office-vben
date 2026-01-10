@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue';
 
+import { useUserStore } from '@vben/stores';
+
 // @ts-ignore - solarlunar 没有类型定义
 import { solar2lunar } from 'solarlunar';
-
-import { useUserStore } from '@vben/stores';
 
 interface Props {
   greeting?: string; // 自定义提示语
