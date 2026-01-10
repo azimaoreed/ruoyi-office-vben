@@ -59,6 +59,7 @@
     "grid-layout-plus": "^1.1.1",
     "highlight.js": "catalog:",
     "pinia": "catalog:",
+    "solarlunar": "^2.0.7",
     "steady-xml": "catalog:",
     "tinymce": "catalog:",
     "video.js": "catalog:",

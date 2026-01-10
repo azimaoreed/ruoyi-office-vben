@@ -818,6 +818,9 @@ importers:
       pinia:
         specifier: ^3.0.3
         version: 3.0.4(typescript@5.9.3)(vue@3.5.26(typescript@5.9.3))
+      solarlunar:
+        specifier: ^2.0.7
+        version: 2.0.7
       steady-xml:
         specifier: 'catalog:'
         version: 0.1.0
@@ -10339,6 +10342,9 @@ packages:
 
   smob@1.5.0:
     resolution: {integrity: sha512-g6T+p7QO8npa+/hNx9ohv1E5pVCmWrVCUzUXJyLdMmftX6ER0oiWY/w9knEonLpnOp6b6FenKnMfR8gqwWdwig==}
+
+  solarlunar@2.0.7:
+    resolution: {integrity: sha512-2SfuCCgAAxFU5MTMYuKGbRgRLcPTJQf3azMEw/GmBpHXA7N2eAQJStSqktZJjnq4qRCboBPnqEB866+PCregag==}
 
   sortablejs@1.14.0:
     resolution: {integrity: sha512-pBXvQCs5/33fdN1/39pPL0NZF20LeRbLQ5jtnheIPN9JQAaufGjKdWduZn4U7wCtVuzKhmRkI0DFYHYRbB2H1w==}
@@ -20913,6 +20919,8 @@ snapshots:
       is-fullwidth-code-point: 5.1.0
 
   smob@1.5.0: {}
+
+  solarlunar@2.0.7: {}
 
   sortablejs@1.14.0: {}
 

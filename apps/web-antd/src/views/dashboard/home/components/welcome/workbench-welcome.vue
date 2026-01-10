@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue';
 
+// @ts-ignore - solarlunar 没有类型定义
+import { solar2lunar } from 'solarlunar';
+
 import { useUserStore } from '@vben/stores';
 
 interface Props {
@@ -168,238 +171,31 @@ const currentDate = computed(() => {
   return `${year}-${month}-${day} 星期${weekDay}`;
 });
 
-// 获取农历日期
+// 获取农历日期（使用 solarlunar 库）
 const lunarDate = computed(() => {
-  return getLunarDate(new Date());
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1;
+  const day = now.getDate();
+
+  try {
+    const lunar = solar2lunar(year, month, day);
+    if (lunar && lunar.lYear) {
+      // 格式化农历日期：天干地支年 + 生肖 + 月份 + 日期
+      // solarlunar 返回的属性名是小写的：animal, monthCn, dayCn
+      // monthCn 已经包含了"月"字，如"冬月"、"正月"等
+      const yearText = `${lunar.gzYear}${lunar.animal}年`;
+      const monthText = lunar.isLeap ? `闰${lunar.monthCn}` : lunar.monthCn;
+      const dayText = lunar.dayCn;
+
+      return `${yearText} ${monthText}${dayText}`;
+    }
+  } catch (error) {
+    console.error('农历转换失败:', error);
+  }
+
+  return '农历';
 });
-
-// 农历转换函数
-function getLunarDate(date: Date) {
-  // 农历数据（1900-2100年）
-
-  const lunarInfo = [
-    0x0_4B_D8, 0x0_4A_E0, 0x0_A5_70, 0x0_54_D5, 0x0_D2_60, 0x0_D9_50, 0x1_65_54,
-    0x0_56_A0, 0x0_9A_D0, 0x0_55_D2, 0x0_4A_E0, 0x0_A5_B6, 0x0_A4_D0, 0x0_D2_50,
-    0x1_D2_55, 0x0_B5_40, 0x0_D6_A0, 0x0_AD_A2, 0x0_95_B0, 0x1_49_77, 0x0_49_70,
-    0x0_A4_B0, 0x0_B4_B5, 0x0_6A_50, 0x0_6D_40, 0x1_AB_54, 0x0_2B_60, 0x0_95_70,
-    0x0_52_F2, 0x0_49_70, 0x0_65_66, 0x0_D4_A0, 0x0_EA_50, 0x1_6A_95, 0x0_5A_D0,
-    0x0_2B_60, 0x1_86_E3, 0x0_92_E0, 0x1_C8_D7, 0x0_C9_50, 0x0_D4_A0, 0x1_D8_A6,
-    0x0_B5_50, 0x0_56_A0, 0x1_A5_B4, 0x0_25_D0, 0x0_92_D0, 0x0_D2_B2, 0x0_A9_50,
-    0x0_B5_57, 0x0_6C_A0, 0x0_B5_50, 0x1_53_55, 0x0_4D_A0, 0x0_A5_B0, 0x1_45_73,
-    0x0_52_B0, 0x0_A9_A8, 0x0_E9_50, 0x0_6A_A0, 0x0_AE_A6, 0x0_AB_50, 0x0_4B_60,
-    0x0_AA_E4, 0x0_A5_70, 0x0_52_60, 0x0_F2_63, 0x0_D9_50, 0x0_5B_57, 0x0_56_A0,
-    0x0_96_D0, 0x0_4D_D5, 0x0_4A_D0, 0x0_A4_D0, 0x0_D4_D4, 0x0_D2_50, 0x0_D5_58,
-    0x0_B5_40, 0x0_B6_A0, 0x1_95_A6, 0x0_95_B0, 0x0_49_B0, 0x0_A9_74, 0x0_A4_B0,
-    0x0_B2_7A, 0x0_6A_50, 0x0_6D_40, 0x0_AF_46, 0x0_AB_60, 0x0_95_70, 0x0_4A_F5,
-    0x0_49_70, 0x0_64_B0, 0x0_74_A3, 0x0_EA_50, 0x0_6B_58, 0x0_5A_C0, 0x0_AB_60,
-    0x0_96_D5, 0x0_92_E0,
-  ];
-
-  const solarMonths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-  const gan = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
-  const zhi = [
-    '子',
-    '丑',
-    '寅',
-    '卯',
-    '辰',
-    '巳',
-    '午',
-    '未',
-    '申',
-    '酉',
-    '戌',
-    '亥',
-  ];
-  const animals = [
-    '鼠',
-    '牛',
-    '虎',
-    '兔',
-    '龙',
-    '蛇',
-    '马',
-    '羊',
-    '猴',
-    '鸡',
-    '狗',
-    '猪',
-  ];
-  const lunarMonths = [
-    '正',
-    '二',
-    '三',
-    '四',
-    '五',
-    '六',
-    '七',
-    '八',
-    '九',
-    '十',
-    '冬',
-    '腊',
-  ];
-  const lunarDays = [
-    '初一',
-    '初二',
-    '初三',
-    '初四',
-    '初五',
-    '初六',
-    '初七',
-    '初八',
-    '初九',
-    '初十',
-    '十一',
-    '十二',
-    '十三',
-    '十四',
-    '十五',
-    '十六',
-    '十七',
-    '十八',
-    '十九',
-    '二十',
-    '廿一',
-    '廿二',
-    '廿三',
-    '廿四',
-    '廿五',
-    '廿六',
-    '廿七',
-    '廿八',
-    '廿九',
-    '三十',
-  ];
-
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-
-  // 简化版：只计算基本农历
-  if (year < 1900 || year > 2099) {
-    return '农历'; // 超出范围
-  }
-
-  // 计算从1900年到当前年的天数
-  let offset = 0;
-  for (let i = 1900; i < year; i++) {
-    const isLeapYear = (i % 4 === 0 && i % 100 !== 0) || i % 400 === 0;
-    offset += isLeapYear ? 366 : 365;
-  }
-
-  // 加上当前年到当前月的天数
-  for (let i = 0; i < month - 1; i++) {
-    offset += solarMonths[i] || 0;
-  }
-  const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
-  if (month > 2 && isLeapYear) offset += 1;
-  offset += day;
-
-  // 1900年1月31日是农历1900年正月初一
-  offset -= 30;
-
-  // 计算农历年月日
-  let lunarYear = 1900;
-  let lunarMonth = 1;
-  let lunarDay = 0;
-  let daysInYear = 0;
-
-  // 计算到哪一年
-  for (let i = 0; i < 200 && offset > 0; i++) {
-    const yearIndex = lunarYear - 1900;
-    if (yearIndex >= 0 && yearIndex < lunarInfo.length) {
-      const lunarYearData = lunarInfo[yearIndex];
-      if (lunarYearData !== undefined) {
-        daysInYear = getDaysInLunarYear(lunarYearData);
-        if (offset >= daysInYear) {
-          offset -= daysInYear;
-          lunarYear++;
-        } else {
-          break;
-        }
-      }
-    } else {
-      break;
-    }
-  }
-
-  // 计算到哪一月
-  const yearIndex = lunarYear - 1900;
-  if (yearIndex >= 0 && yearIndex < lunarInfo.length) {
-    const lunarYearData = lunarInfo[yearIndex];
-    if (lunarYearData !== undefined) {
-      const leapMonth = getLeapMonth(lunarYearData);
-      let isLeap = false;
-
-      for (let i = 1; i <= 12 && offset > 0; i++) {
-        let daysInMonth = 0;
-
-        if (leapMonth > 0 && i === leapMonth + 1 && !isLeap) {
-          i--;
-          isLeap = true;
-          daysInMonth = getLeapDays(lunarYearData);
-        } else {
-          daysInMonth = getLunarMonthDays(lunarYearData, i);
-        }
-
-        if (offset >= daysInMonth) {
-          offset -= daysInMonth;
-          if (isLeap && i === leapMonth) {
-            isLeap = false;
-          }
-          if (!isLeap) lunarMonth = i + 1;
-        } else {
-          lunarDay = offset;
-          break;
-        }
-      }
-    }
-  }
-
-  // 生成天干地支年
-  const ganIndex = (lunarYear - 4) % 10;
-  const zhiIndex = (lunarYear - 4) % 12;
-  const yearText = `${gan[ganIndex]}${zhi[zhiIndex]}${animals[zhiIndex]}年`;
-
-  // 月份
-  const monthText =
-    lunarMonth > 12
-      ? `闰${lunarMonths[(lunarMonth - 13) % 12]}月`
-      : `${lunarMonths[(lunarMonth - 1) % 12]}月`;
-
-  // 日期
-  const dayText = lunarDays[lunarDay] || lunarDays[0];
-
-  return `${yearText} ${monthText}${dayText}`;
-}
-
-// 获取农历年的总天数
-function getDaysInLunarYear(lunarYearInfo: number): number {
-  let days = 0;
-  for (let i = 0x80_00; i > 0x8; i >>= 1) {
-    days += lunarYearInfo & i ? 30 : 29;
-  }
-  return days + getLeapDays(lunarYearInfo);
-}
-
-// 获取农历年的闰月天数
-function getLeapDays(lunarYearInfo: number): number {
-  if (getLeapMonth(lunarYearInfo)) {
-    return lunarYearInfo & 0x1_00_00 ? 30 : 29;
-  }
-  return 0;
-}
-
-// 获取农历年的闰月月份（0表示无闰月）
-function getLeapMonth(lunarYearInfo: number): number {
-  return lunarYearInfo & 0xF;
-}
-
-// 获取农历月的天数
-function getLunarMonthDays(lunarYearInfo: number, month: number): number {
-  return lunarYearInfo & (0x1_00_00 >> month) ? 30 : 29;
-}
 
 // 获取天气图标（高德地图天气代码）
 function getWeatherIcon(iconCode: string) {
