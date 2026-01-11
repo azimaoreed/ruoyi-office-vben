@@ -3,7 +3,12 @@
 /* 主要顶栏样式 - 蓝色渐变背景 */
 .bg-header {
   /* 蓝色渐变背景 - 与欢迎组件一致 */
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%) !important;
+  background: linear-gradient(
+    135deg,
+    #3b82f6 0%,
+    #2563eb 50%,
+    #1d4ed8 100%
+  ) !important;
 
   /* 边框效果 */
   border-bottom: 1px solid rgb(255 255 255 / 10%) !important;
@@ -182,7 +187,12 @@
 
 /* 深色模式适配 */
 [data-theme='dark'] .bg-header {
-  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 50%, #1e3a8a 100%) !important;
+  background: linear-gradient(
+    135deg,
+    #1e40af 0%,
+    #1e3a8a 50%,
+    #1e3a8a 100%
+  ) !important;
 }
 
 /* 深色模式下的搜索框样式 */
