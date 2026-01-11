@@ -134,7 +134,9 @@ onMounted(() => {
               ></div>
 
               <!-- 公告类型 -->
-              <span class="text-gray-500">{{ '【' + getNoticeTypeText(notice.type) + '】' }}</span>
+              <span class="text-gray-500">{{
+                `【${getNoticeTypeText(notice.type)}】`
+              }}</span>
 
               <!-- 公告标题 -->
               <span class="flex-1 truncate text-gray-900">{{
