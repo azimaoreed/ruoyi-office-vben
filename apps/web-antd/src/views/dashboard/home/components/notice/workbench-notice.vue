@@ -3,7 +3,10 @@ import type { SystemNoticeApi } from '#/api/system/notice';
 
 import { computed, onMounted, ref } from 'vue';
 
-import { Badge, Empty, Spin } from 'ant-design-vue';
+import { DICT_TYPE } from '@vben/constants';
+import { getDictLabel } from '@vben/hooks';
+
+import { Badge, Empty, Spin, Tag } from 'ant-design-vue';
 
 import { getNoticePage } from '#/api/system/notice';
 import { router } from '#/router';
@@ -23,68 +26,27 @@ const props = withDefaults(defineProps<Props>(), {
 const loading = ref(false);
 const noticeList = ref<SystemNoticeApi.Notice[]>([]);
 const total = ref(0);
-const unreadCount = ref(0); // 未读数量（模拟，实际需要后端支持）
+const unreadCount = computed(() => {
+  return noticeList.value.filter((notice) => notice.readStatus !== 1).length;
+});
 
 // 预览弹窗
 const previewVisible = ref(false);
 const selectedNotice = ref<null | SystemNoticeApi.Notice>(null);
 
-// 通知类型样式映射
-const noticeTypeMap: Record<
-  number,
-  { color: string; icon: string; text: string }
-> = {
-  1: { text: '通知', color: '#1890FF', icon: 'carbon:notification' },
-  2: { text: '公告', color: '#52C41A', icon: 'carbon:announcement' },
-};
-
-// 通知状态样式映射
-const noticeStatusMap: Record<number, { color: string; text: string }> = {
-  0: { text: '正常', color: '#52C41A' },
-  1: { text: '关闭', color: '#D9D9D9' },
-};
-
-// 获取通知类型样式
-function getNoticeTypeStyle(type: number) {
-  return noticeTypeMap[type] || noticeTypeMap[1];
-}
-
-// 获取通知状态样式
-function getNoticeStatusStyle(status: number) {
-  return noticeStatusMap[status] || noticeStatusMap[0];
-}
-
 // 格式化日期
 function formatDate(date: Date | string | undefined) {
   if (!date) return '';
   const d = new Date(date);
-  const now = new Date();
-  const diff = now.getTime() - d.getTime();
-
-  // 小于1分钟
-  if (diff < 60 * 1000) {
-    return '刚刚';
-  }
-
-  // 小于1小时
-  if (diff < 60 * 60 * 1000) {
-    return `${Math.floor(diff / (60 * 1000))}分钟前`;
-  }
-
-  // 小于24小时
-  if (diff < 24 * 60 * 60 * 1000) {
-    return `${Math.floor(diff / (60 * 60 * 1000))}小时前`;
-  }
-
-  // 小于7天
-  if (diff < 7 * 24 * 60 * 60 * 1000) {
-    return `${Math.floor(diff / (24 * 60 * 60 * 1000))}天前`;
-  }
-
-  // 格式化为 MM-DD
+  const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
-  return `${month}-${day}`;
+  return `${year}-${month}-${day}`;
+}
+
+// 获取公告类型文本
+function getNoticeTypeText(type: number) {
+  return getDictLabel(DICT_TYPE.SYSTEM_NOTICE_TYPE, type) || '未知';
 }
 
 // 加载通知公告列表
@@ -97,8 +59,6 @@ async function loadNoticeList() {
     });
     noticeList.value = response.list || [];
     total.value = response.total || 0;
-    // 模拟未读数量（实际应该从后端获取）
-    unreadCount.value = Math.min(response.total || 0, 5);
   } catch (error) {
     console.error('加载通知公告失败:', error);
     noticeList.value = [];
@@ -115,7 +75,7 @@ function handleViewNotice(notice: SystemNoticeApi.Notice) {
 
 // 跳转到完整列表
 function handleViewMore() {
-  router.push({ name: 'SystemNotice' });
+  router.push({ name: 'NoticeView' });
 }
 
 // 关闭预览弹窗
@@ -159,47 +119,35 @@ onMounted(() => {
           <div
             v-for="notice in noticeList"
             :key="notice.id"
-            class="notice-item cursor-pointer px-4 py-3 transition-colors hover:bg-gray-50"
+            class="notice-item cursor-pointer px-4 py-2.5 transition-colors hover:bg-gray-50"
             @click="handleViewNotice(notice)"
           >
-            <div class="flex items-start gap-3">
-              <!-- 图标 -->
+            <div class="flex items-center gap-2 text-sm">
+              <!-- 已读状态 -->
               <div
-                class="notice-icon flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full"
+                class="h-2 w-2 flex-shrink-0 rounded-full"
                 :style="{
-                  backgroundColor: `${getNoticeTypeStyle(notice.type).color}15`,
+                  backgroundColor:
+                    notice.readStatus === 1 ? '#d9d9d9' : '#ff7a00',
                 }"
-              >
-                <iconify-icon
-                  :icon="getNoticeTypeStyle(notice.type).icon"
-                  class="text-xl"
-                  :style="{ color: getNoticeTypeStyle(notice.type).color }"
-                />
-              </div>
+                :title="notice.readStatus === 1 ? '已读' : '未读'"
+              ></div>
 
-              <!-- 内容 -->
-              <div class="flex-1 overflow-hidden">
-                <div class="mb-1 flex items-center gap-2">
-                  <h4 class="flex-1 truncate text-sm font-medium text-gray-900">
-                    {{ notice.title }}
-                  </h4>
-                  <span
-                    class="text-xs"
-                    :style="{
-                      color: getNoticeStatusStyle(notice.status).color,
-                    }"
-                  >
-                    {{ getNoticeStatusStyle(notice.status).text }}
-                  </span>
-                </div>
-                <div class="mb-1 line-clamp-2 text-xs text-gray-500">
-                  {{ notice.content || '暂无内容' }}
-                </div>
-                <div class="flex items-center gap-4 text-xs text-gray-400">
-                  <span>{{ formatDate(notice.createTime) }}</span>
-                  <span v-if="notice.creator">{{ notice.creator }}</span>
-                </div>
-              </div>
+              <!-- 公告类型 -->
+              <span class="text-gray-500">{{ '【' + getNoticeTypeText(notice.type) + '】' }}</span>
+
+              <!-- 公告标题 -->
+              <span class="flex-1 truncate text-gray-900">{{
+                notice.title
+              }}</span>
+
+              <!-- 是否重要 -->
+              <Tag v-if="notice.isImportant" color="red" size="small">重要</Tag>
+
+              <!-- 公告日期 -->
+              <span class="flex-shrink-0 text-xs text-gray-400">{{
+                formatDate(notice.createTime)
+              }}</span>
             </div>
           </div>
         </div>
@@ -219,6 +167,7 @@ onMounted(() => {
       v-model:visible="previewVisible"
       :notice="selectedNotice"
       @close="handleClosePreview"
+      @refresh="loadNoticeList"
     />
   </div>
 </template>

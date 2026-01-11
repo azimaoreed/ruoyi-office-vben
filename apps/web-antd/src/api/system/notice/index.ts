@@ -10,8 +10,11 @@ export namespace SystemNoticeApi {
     type: number;
     content: string;
     status: number;
+    isImportant?: boolean;
+    readStatus?: number; // 已读状态：1已读，0未读
     remark: string;
     creator?: string;
+    creatorName?: string; // 创建者名称
     createTime?: Date;
   }
 }
@@ -56,4 +59,9 @@ export function deleteNoticeList(ids: number[]) {
 /** 推送公告 */
 export function pushNotice(id: number) {
   return requestClient.post(`/system/notice/push?id=${id}`);
+}
+
+/** 标记公告为已读 */
+export function markNoticeAsRead(id: number) {
+  return requestClient.post(`/system/notice/mark-read?id=${id}`);
 }

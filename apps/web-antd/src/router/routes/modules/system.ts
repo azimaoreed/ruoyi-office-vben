@@ -21,6 +21,16 @@ const routes: RouteRecordRaw[] = [
       hideInMenu: true,
     },
   },
+  {
+    path: '/notice/view',
+    component: () => import('#/views/notice/view/index.vue'),
+    name: 'NoticeView',
+    meta: {
+      title: '通知公告',
+      icon: 'ant-design:notification-outlined',
+      hideInMenu: true,
+    },
+  },
 ];
 
 export default routes;

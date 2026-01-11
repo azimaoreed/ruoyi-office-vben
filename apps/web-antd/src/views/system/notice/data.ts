@@ -29,11 +29,10 @@ export function useFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'type',
       label: '公告类型',
-      component: 'RadioGroup',
+      component: 'Select',
       componentProps: {
         options: getDictOptions(DICT_TYPE.SYSTEM_NOTICE_TYPE, 'number'),
-        buttonStyle: 'solid',
-        optionType: 'button',
+        placeholder: '请选择公告类型',
       },
       rules: 'required',
     },
@@ -53,6 +52,20 @@ export function useFormSchema(): VbenFormSchema[] {
         optionType: 'button',
       },
       rules: z.number().default(CommonStatusEnum.ENABLE),
+    },
+    {
+      fieldName: 'isImportant',
+      label: '是否重要通知',
+      component: 'RadioGroup',
+      componentProps: {
+        options: [
+          { label: '是', value: true },
+          { label: '否', value: false },
+        ],
+        buttonStyle: 'solid',
+        optionType: 'button',
+      },
+      rules: z.boolean().default(false),
     },
     {
       fieldName: 'remark',
@@ -78,12 +91,35 @@ export function useGridFormSchema(): VbenFormSchema[] {
       },
     },
     {
+      fieldName: 'type',
+      label: '公告类型',
+      component: 'Select',
+      componentProps: {
+        options: getDictOptions(DICT_TYPE.SYSTEM_NOTICE_TYPE, 'number'),
+        placeholder: '请选择公告类型',
+        allowClear: true,
+      },
+    },
+    {
       fieldName: 'status',
       label: '公告状态',
       component: 'Select',
       componentProps: {
         options: getDictOptions(DICT_TYPE.COMMON_STATUS, 'number'),
         placeholder: '请选择公告状态',
+        allowClear: true,
+      },
+    },
+    {
+      fieldName: 'isImportant',
+      label: '是否重要通知',
+      component: 'Select',
+      componentProps: {
+        options: [
+          { label: '是', value: true },
+          { label: '否', value: false },
+        ],
+        placeholder: '请选择',
         allowClear: true,
       },
     },
@@ -107,7 +143,7 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'type',
       title: '公告类型',
-      minWidth: 100,
+      minWidth: 120,
       cellRender: {
         name: 'CellDict',
         props: { type: DICT_TYPE.SYSTEM_NOTICE_TYPE },
@@ -120,6 +156,32 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
       cellRender: {
         name: 'CellDict',
         props: { type: DICT_TYPE.COMMON_STATUS },
+      },
+    },
+    {
+      field: 'isImportant',
+      title: '是否重要通知',
+      minWidth: 120,
+      formatter: ({ cellValue }) => {
+        return cellValue ? '是' : '否';
+      },
+    },
+    {
+      field: 'readStatus',
+      title: '已读状态',
+      minWidth: 100,
+      formatter: ({ cellValue }) => {
+        return cellValue === 1 ? '已读' : '未读';
+      },
+      cellRender: {
+        name: 'VxeTag',
+        props: ({ row }) => {
+          const isRead = row.readStatus === 1;
+          return {
+            type: isRead ? 'success' : 'warning',
+            content: isRead ? '已读' : '未读',
+          };
+        },
       },
     },
     {
