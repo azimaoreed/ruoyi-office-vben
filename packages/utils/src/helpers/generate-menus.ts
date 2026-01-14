@@ -47,6 +47,7 @@ function generateMenus(
       badgeVariants,
       hideChildrenInMenu = false,
       icon,
+      id,
       link,
       order,
       title = '',
@@ -77,6 +78,7 @@ function generateMenus(
       badgeType,
       badgeVariants,
       icon,
+      id: (route as any).id ?? id ?? undefined, // 保留菜单ID（优先从route.id获取，其次从meta.id获取）
       name,
       order,
       parent: route.parent,
@@ -163,6 +165,7 @@ function convertServerMenuToRouteRecordStringComponent(
         order: menu.sort,
         title: menu.name,
         activePath: parent, // 用于激活父级菜单，单独路由打开详情时显示菜单用
+        id: menu.id, // 保留菜单ID到meta中，以便后续转换时使用
       },
       name: finalName,
       path: menu.path,

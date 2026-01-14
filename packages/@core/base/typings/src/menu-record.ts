@@ -65,6 +65,10 @@ interface MenuRecordRaw extends MenuRecordBadgeRaw {
    */
   icon?: Component | string;
   /**
+   * 菜单ID（后端菜单编号）
+   */
+  id?: number;
+  /**
    * 菜单名
    */
   name: string;

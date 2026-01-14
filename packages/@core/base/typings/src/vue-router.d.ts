@@ -72,6 +72,10 @@ interface RouteMeta {
    */
   icon?: Component | string;
   /**
+   * 菜单ID（后端菜单编号）
+   */
+  id?: number;
+  /**
    * iframe 地址
    */
   iframeSrc?: string;

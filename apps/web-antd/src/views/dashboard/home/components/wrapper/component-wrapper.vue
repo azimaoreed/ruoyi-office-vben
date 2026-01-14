@@ -22,6 +22,12 @@ const hasError = computed(() => {
   return !component.value;
 });
 
+// 是否允许溢出（某些组件需要显示超出容器的元素，如删除按钮）
+const allowOverflow = computed(() => {
+  // 应用中心组件需要允许溢出，以便删除按钮完整显示
+  return props.componentCode === 'workbench_app_center';
+});
+
 // 标题配置
 const showTitle = computed(() => {
   // 如果 showTitle 未定义，检查是否有 title，有 title 就显示
@@ -144,7 +150,13 @@ const wrapperStyle = computed(() => {
     </div>
 
     <!-- 组件内容 -->
-    <div class="component-content flex-1 overflow-hidden">
+    <div
+      class="component-content flex-1"
+      :class="{
+        'overflow-hidden': !allowOverflow,
+        'overflow-visible': allowOverflow,
+      }"
+    >
       <component
         :is="component"
         v-if="component && !hasError"
