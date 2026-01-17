@@ -116,11 +116,12 @@ watch(
         style="max-height: 60vh; overflow-y: auto"
       >
         <h3 class="mb-2 text-sm font-medium text-gray-700">通知内容</h3>
-        <!-- eslint-disable-next-line vue/no-v-html -->
+        <!-- eslint-disable vue/no-v-html -->
         <div
           class="rounded-lg border border-gray-200 bg-white p-4 text-sm text-gray-900"
           v-html="notice.content || '暂无内容'"
         ></div>
+        <!-- eslint-enable vue/no-v-html -->
       </div>
 
       <!-- 备注 -->
@@ -151,7 +152,7 @@ watch(
 }
 
 .notice-content :deep(a) {
-  color: #1890ff;
+  color: hsl(var(--primary));
   text-decoration: underline;
 }
 

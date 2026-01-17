@@ -229,8 +229,8 @@ const fallbackCopy = (text: string) => {
 }
 
 .copy-icon:hover {
-  color: #1890ff;
-  background: rgb(24 144 255 / 10%);
+  color: hsl(var(--primary));
+  background: hsl(var(--primary) / 10%);
 }
 
 /* 头部表单容器 */

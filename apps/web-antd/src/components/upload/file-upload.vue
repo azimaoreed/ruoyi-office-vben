@@ -319,9 +319,9 @@ function getValue() {
         class="mt-2 flex flex-wrap items-center"
       >
         请上传不超过
-        <div class="text-primary mx-1 font-bold">{{ maxSize }}MB</div>
+        <div class="mx-1 font-bold text-primary">{{ maxSize }}MB</div>
         的
-        <div class="text-primary mx-1 font-bold">{{ accept.join('/') }}</div>
+        <div class="mx-1 font-bold text-primary">{{ accept.join('/') }}</div>
         格式文件
       </div>
     </Upload>
@@ -339,7 +339,7 @@ function getValue() {
 }
 
 .upload-drag-area:hover {
-  border-color: #1890ff;
+  border-color: hsl(var(--primary));
 }
 
 .ant-upload-drag-icon {

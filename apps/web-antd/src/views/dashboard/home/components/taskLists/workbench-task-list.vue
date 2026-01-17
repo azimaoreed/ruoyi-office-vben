@@ -614,14 +614,14 @@ onMounted(async () => {
 
 /* 单据编号链接样式 */
 .bill-code-link {
-  color: #1890ff;
+  color: hsl(var(--primary));
   text-decoration: none;
   cursor: pointer;
   transition: color 0.3s;
 }
 
 .bill-code-link:hover {
-  color: #40a9ff;
+  color: hsl(var(--primary) / 80%);
   text-decoration: underline;
 }
 

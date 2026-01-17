@@ -57,7 +57,7 @@ const projectItems: WorkbenchProjectItem[] = [
     url: 'https://github.com/yudaocode/yudao-mall-uniapp',
   },
   {
-    color: '#1890ff',
+    color: 'hsl(var(--primary))',
     content: 'github.com/YunaiV/yudao-cloud',
     date: '2025-04-05',
     group: 'Spring Cloud 微服务架构',

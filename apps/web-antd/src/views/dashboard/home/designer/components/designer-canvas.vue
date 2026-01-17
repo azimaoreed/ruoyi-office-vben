@@ -317,12 +317,12 @@ const isEmpty = computed(() => localLayout.value.length === 0);
 }
 
 .grid-item-wrapper:hover {
-  border-color: #1890ff;
+  border-color: hsl(var(--primary));
 }
 
 .grid-item-wrapper.is-selected {
-  border-color: #1890ff;
-  box-shadow: 0 0 0 2px rgb(24 144 255 / 20%);
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 2px hsl(var(--primary) / 20%);
 }
 
 .grid-item-content {
@@ -360,8 +360,8 @@ const isEmpty = computed(() => localLayout.value.length === 0);
 /* 拖拽/调整大小时的占位符样式 */
 :deep(.vue-grid-item.vue-grid-placeholder) {
   z-index: 2 !important;
-  background: rgb(24 144 255 / 15%) !important;
-  border: 2px dashed #1890ff !important;
+  background: hsl(var(--primary) / 15%) !important;
+  border: 2px dashed hsl(var(--primary)) !important;
   border-radius: 4px;
   opacity: 1 !important;
 }
@@ -372,7 +372,7 @@ const isEmpty = computed(() => localLayout.value.length === 0);
   bottom: -5px !important;
   width: 10px !important;
   height: 10px !important;
-  background-color: #1890ff;
+  background-color: hsl(var(--primary));
   background-image: none;
   border-radius: 50%;
   opacity: 0;

@@ -46,7 +46,7 @@ export function getFileIcon(fileType: number, fileExtension?: string) {
   if (['doc', 'docx'].includes(ext)) {
     return h(IconifyIcon, {
       icon: 'lucide:file-text',
-      style: { color: '#1890ff', fontSize: '20px' },
+      style: { color: 'hsl(var(--primary))', fontSize: '20px' },
     });
   }
 
