@@ -13,4 +13,6 @@ export const ACTION_ICON = {
   CLOSE: 'lucide:x',
   BOOK: 'lucide:book',
   AUDIT: 'lucide:file-check',
+  SHARE: 'lucide:share-2',
+  PUSH: 'lucide:send',
 };

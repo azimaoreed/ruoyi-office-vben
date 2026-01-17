@@ -21,6 +21,8 @@ import AnalyticsVisits from './statistics/analytics-visits.vue';
 import WorkbenchTaskList from './taskLists/workbench-task-list.vue';
 // 欢迎组件
 import WorkbenchWelcome from './welcome/workbench-welcome.vue';
+// 日程组件
+import WorkbenchSchedule from './schedule/workbench-schedule.vue';
 
 /**
  * 组件注册项
@@ -134,4 +136,11 @@ registerComponent({
   component: WorkbenchAppCenter,
   name: '应用中心',
   description: '展示常用应用，支持拖拽排序',
+});
+
+registerComponent({
+  code: 'workbench_schedule',
+  component: WorkbenchSchedule,
+  name: '我的日程',
+  description: '展示日程日历和待办事项',
 });
