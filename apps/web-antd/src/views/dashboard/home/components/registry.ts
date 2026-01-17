@@ -14,6 +14,8 @@ import WorkbenchTrends from './lists/workbench-trends.vue';
 import WorkbenchQuickNav from './navigation/workbench-quick-nav.vue';
 // 通知公告组件
 import WorkbenchNotice from './notice/workbench-notice.vue';
+// 日程组件
+import WorkbenchSchedule from './schedule/workbench-schedule.vue';
 import AnalyticsVisitsData from './statistics/analytics-visits-data.vue';
 // 统计卡片组件
 import AnalyticsVisits from './statistics/analytics-visits.vue';
@@ -21,8 +23,6 @@ import AnalyticsVisits from './statistics/analytics-visits.vue';
 import WorkbenchTaskList from './taskLists/workbench-task-list.vue';
 // 欢迎组件
 import WorkbenchWelcome from './welcome/workbench-welcome.vue';
-// 日程组件
-import WorkbenchSchedule from './schedule/workbench-schedule.vue';
 
 /**
  * 组件注册项

@@ -232,7 +232,7 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
       formatter: ({ cellValue }) => {
         if (!cellValue) return '-';
-        return cellValue.substring(0, 5); // HH:mm
+        return cellValue.slice(0, 5); // HH:mm
       },
     },
     {
@@ -241,7 +241,7 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
       formatter: ({ cellValue }) => {
         if (!cellValue) return '-';
-        return cellValue.substring(0, 5); // HH:mm
+        return cellValue.slice(0, 5); // HH:mm
       },
     },
     {
@@ -299,4 +299,3 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
     },
   ];
 }
-

@@ -5,6 +5,7 @@ import type { SystemScheduleApi } from '#/api/system/schedule';
 import { computed, ref } from 'vue';
 
 import { confirm, Page, useVbenModal } from '@vben/common-ui';
+import { useUserStore } from '@vben/stores';
 import { isEmpty } from '@vben/utils';
 
 import { message } from 'ant-design-vue';
@@ -16,10 +17,9 @@ import {
   pushSchedule,
 } from '#/api/system/schedule';
 import { $t } from '#/locales';
-import { useUserStore } from '@vben/stores';
 
-import { useGridColumns, useGridFormSchema } from './data';
 import Form from './components/schedule-form.vue';
+import { useGridColumns, useGridFormSchema } from './data';
 
 const userStore = useUserStore();
 const currentUserId = computed(() => userStore.userInfo?.id);
@@ -121,7 +121,6 @@ function canEdit(row: SystemScheduleApi.Schedule): boolean {
   return row.creatorId === currentUserId.value;
 }
 
-
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
     schema: useGridFormSchema(),
@@ -215,4 +214,3 @@ const [Grid, gridApi] = useVbenVxeGrid({
     </Grid>
   </Page>
 </template>
-

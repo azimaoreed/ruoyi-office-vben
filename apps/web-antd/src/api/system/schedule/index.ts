@@ -87,7 +87,9 @@ export function deleteSchedule(id: number) {
 }
 
 /** 根据日期查询日程列表 */
-export function getScheduleListByDate(params: SystemScheduleApi.ScheduleListByDateReq) {
+export function getScheduleListByDate(
+  params: SystemScheduleApi.ScheduleListByDateReq,
+) {
   return requestClient.get<SystemScheduleApi.Schedule[]>(
     '/system/schedule/list-by-date',
     { params },
@@ -96,10 +98,9 @@ export function getScheduleListByDate(params: SystemScheduleApi.ScheduleListByDa
 
 /** 获取有日程的日期列表 */
 export function getScheduleDates(startDate: string, endDate: string) {
-  return requestClient.get<string[]>(
-    '/system/schedule/dates',
-    { params: { startDate, endDate } },
-  );
+  return requestClient.get<string[]>('/system/schedule/dates', {
+    params: { startDate, endDate },
+  });
 }
 
 /** 获取我的日程分页 */
@@ -114,4 +115,3 @@ export function getMySchedulePage(params: SystemScheduleApi.SchedulePageReq) {
 export function pushSchedule(data: SystemScheduleApi.SchedulePushReq) {
   return requestClient.post('/system/schedule/push', data);
 }
-

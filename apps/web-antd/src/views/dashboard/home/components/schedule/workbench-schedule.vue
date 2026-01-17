@@ -1,14 +1,15 @@
 <script lang="ts" setup>
 import type { Dayjs } from 'dayjs';
+
 import type { SystemScheduleApi } from '#/api/system/schedule';
 
 import { computed, onMounted, ref } from 'vue';
 
-import { Calendar, Empty, Spin } from 'ant-design-vue';
-import dayjs from 'dayjs';
-
 import { DICT_TYPE } from '@vben/constants';
 import { getDictLabel } from '@vben/hooks';
+
+import { Calendar, Empty, Spin } from 'ant-design-vue';
+import dayjs from 'dayjs';
 
 import { getScheduleDates, getScheduleListByDate } from '#/api/system/schedule';
 import { router } from '#/router';
@@ -88,7 +89,7 @@ async function loadScheduleListByDate(date: Dayjs) {
 // 格式化时间
 function formatTime(time?: string): string {
   if (!time) return '';
-  return time.substring(0, 5); // HH:mm
+  return time.slice(0, 5); // HH:mm
 }
 
 // 获取日程类型文本
@@ -144,7 +145,10 @@ onMounted(async () => {
     </div>
 
     <!-- 选中日期的日程列表 -->
-    <div v-if="selectedDateSchedules.length > 0" class="schedule-list border-t px-4 py-3">
+    <div
+      v-if="selectedDateSchedules.length > 0"
+      class="schedule-list border-t px-4 py-3"
+    >
       <Spin :spinning="loading">
         <div class="space-y-2">
           <div
@@ -167,10 +171,15 @@ onMounted(async () => {
               <div class="schedule-title text-sm font-medium text-gray-900">
                 {{ schedule.title }}
               </div>
-              <div v-if="schedule.content" class="schedule-desc mt-1 text-xs text-gray-500">
+              <div
+                v-if="schedule.content"
+                class="schedule-desc mt-1 text-xs text-gray-500"
+              >
                 {{ schedule.content }}
               </div>
-              <div class="schedule-meta mt-1 flex items-center gap-2 text-xs text-gray-400">
+              <div
+                class="schedule-meta mt-1 flex items-center gap-2 text-xs text-gray-400"
+              >
                 <span v-if="schedule.scheduleType">
                   {{ getScheduleTypeText(schedule.scheduleType) }}
                 </span>
@@ -188,10 +197,7 @@ onMounted(async () => {
     </div>
 
     <!-- 空状态 -->
-    <div
-      v-else-if="!loading"
-      class="schedule-empty border-t px-4 py-8"
-    >
+    <div v-else-if="!loading" class="schedule-empty border-t px-4 py-8">
       <Empty
         description="该日期暂无日程"
         :image="Empty.PRESENTED_IMAGE_SIMPLE"
@@ -267,4 +273,3 @@ onMounted(async () => {
   background-color: #f5f5f5;
 }
 </style>
-

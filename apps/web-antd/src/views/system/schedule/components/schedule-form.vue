@@ -110,13 +110,12 @@ const [Modal, modalApi] = useVbenModal({
       formData.value = await getSchedule(data.id);
       // 将 receivers 转换为 receiverIds
       const formValues: any = { ...formData.value };
-      if (formValues.receivers && formValues.receivers.length > 0) {
-        formValues.receiverIds = formValues.receivers.map(
-          (r: SystemScheduleApi.Receiver) => r.receiverId,
-        );
-      } else {
-        formValues.receiverIds = [];
-      }
+      formValues.receiverIds =
+        formValues.receivers && formValues.receivers.length > 0
+          ? formValues.receivers.map(
+              (r: SystemScheduleApi.Receiver) => r.receiverId,
+            )
+          : [];
       // 删除 receivers 字段，只保留 receiverIds
       delete formValues.receivers;
       // 设置到 values
@@ -140,4 +139,3 @@ const [Modal, modalApi] = useVbenModal({
     </template>
   </Modal>
 </template>
-
