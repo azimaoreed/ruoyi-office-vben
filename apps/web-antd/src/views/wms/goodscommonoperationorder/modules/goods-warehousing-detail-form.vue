@@ -64,9 +64,10 @@ defineExpose({
     const data = gridApi.grid.getData() as GoodsCommonOperationOrderApi.GoodsWarehousingDetail[];
     const removeRecords = gridApi.grid.getRemoveRecords() as GoodsCommonOperationOrderApi.GoodsWarehousingDetail[];
     const insertRecords = gridApi.grid.getInsertRecords() as GoodsCommonOperationOrderApi.GoodsWarehousingDetail[];
-    return data
-        .filter((row) => !removeRecords.some((removed) => removed.id === row.id))
-        .concat(insertRecords.map((row: any) => ({ ...row, id: undefined })));
+    return [
+      ...data.filter((row) => !removeRecords.some((removed) => removed.id === row.id)),
+      ...insertRecords.map((row: any) => ({ ...row, id: undefined }))
+    ];
   },
 });
 
@@ -253,4 +254,4 @@ watch(
       {{ $t('ui.actionTitle.create', ['采购入库、领用、退库、归还、借用、调拨明细']) }}
     </Button>
   </div>
-</template>
+</template>

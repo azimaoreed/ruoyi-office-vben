@@ -64,9 +64,10 @@ defineExpose({
     const data = gridApi.grid.getData() as PurchaseOrderApi.PurchaseOrderDetail[];
     const removeRecords = gridApi.grid.getRemoveRecords() as PurchaseOrderApi.PurchaseOrderDetail[];
     const insertRecords = gridApi.grid.getInsertRecords() as PurchaseOrderApi.PurchaseOrderDetail[];
-    return data
-        .filter((row) => !removeRecords.some((removed) => removed.id === row.id))
-        .concat(insertRecords.map((row: any) => ({ ...row, id: undefined })));
+    return [
+      ...data.filter((row) => !removeRecords.some((removed) => removed.id === row.id)),
+      ...insertRecords.map((row: any) => ({ ...row, id: undefined }))
+    ];
   },
 });
 
@@ -128,4 +129,4 @@ watch(
       {{ $t('ui.actionTitle.create', ['采购订单明细']) }}
     </Button>
   </div>
-</template>
+</template>

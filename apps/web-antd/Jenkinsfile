@@ -15,6 +15,10 @@ pipeline {
     DEPLOY_PATH = 'web'
     // 工作目录（Monorepo 中的应用目录）
     APP_DIR = 'apps/web-antd'
+    // 部署时排除的目录或文件（使用逗号分隔，支持通配符）
+    // 示例：排除 dist/demo, dist/test, dist/*.map 等
+    // DEPLOY_EXCLUDES = '**/demo/**,**/test/**,**/*.map'
+    DEPLOY_EXCLUDES = ''
   }
 
   stages {
@@ -109,8 +113,10 @@ pipeline {
                   sshTransfer(
                     // 清理远程目录（可选，谨慎使用）
                     cleanRemote: true,
-                    // 排除的文件（可选）
-                    excludes: '',
+                    // 排除的文件或目录（支持通配符，多个用逗号分隔）
+                    // 示例：'**/demo/**,**/test/**,**/*.map,**/*.sourcemap'
+                    // 注意：路径相对于 sourceFiles，即相对于 dist 目录
+                    excludes: env.DEPLOY_EXCLUDES ?: '',
                     // 执行命令失败时是否继续
                     execTimeout: 120000,
                     // 是否展平目录结构

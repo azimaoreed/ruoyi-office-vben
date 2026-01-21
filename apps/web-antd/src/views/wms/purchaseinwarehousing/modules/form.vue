@@ -1,16 +1,22 @@
 <script lang="ts" setup>
 import type { PurchaseInWarehousingApi } from '#/api/wms/purchaseinwarehousing';
 
-import { useVbenModal } from '@vben/common-ui';
-import { message, Tabs, Checkbox, Input, Textarea, Select,RadioGroup,CheckboxGroup, DatePicker } from 'ant-design-vue';
-  import GoodsWarehousingDetailForm from './goods-warehousing-detail-form.vue'
-
 import { computed, ref } from 'vue';
-import { $t } from '#/locales';
-import { useVbenForm } from '#/adapter/form';
-import { getPurchaseInWarehousing, createPurchaseInWarehousing, updatePurchaseInWarehousing } from '#/api/wms/purchaseinwarehousing';
 
-import { useFormSchema } from '../data';
+import { useVbenModal } from '@vben/common-ui';
+
+import { message, Tabs } from 'ant-design-vue';
+
+import { useVbenForm } from '#/adapter/form';
+import {
+  createPurchaseInWarehousing,
+  getPurchaseInWarehousing,
+  updatePurchaseInWarehousing,
+} from '#/api/wms/purchaseinwarehousing';
+import { $t } from '#/locales';
+
+import { useFormSchema } from '../list/data';
+import GoodsWarehousingDetailForm from './goods-warehousing-detail-form.vue';
 
 const emit = defineEmits(['success']);
 const formData = ref<PurchaseInWarehousingApi.PurchaseInWarehousing>();
@@ -20,10 +26,10 @@ const getTitle = computed(() => {
     : $t('ui.actionTitle.create', ['采购入库']);
 });
 
-
-  /** 子表的表单 */
-  const subTabsName = ref('goodsWarehousingDetail')
-      const goodsWarehousingDetailFormRef = ref<InstanceType<typeof GoodsWarehousingDetailForm>>()
+/** 子表的表单 */
+const subTabsName = ref('goodsWarehousingDetail');
+const goodsWarehousingDetailFormRef =
+  ref<InstanceType<typeof GoodsWarehousingDetailForm>>();
 
 const [Form, formApi] = useVbenForm({
   commonConfig: {
@@ -35,7 +41,7 @@ const [Form, formApi] = useVbenForm({
   },
   layout: 'horizontal',
   schema: useFormSchema(),
-  showDefaultActions: false
+  showDefaultActions: false,
 });
 
 const [Modal, modalApi] = useVbenModal({
@@ -44,18 +50,22 @@ const [Modal, modalApi] = useVbenModal({
     if (!valid) {
       return;
     }
-            // 校验子表单
-                 modalApi.lock();
+    // 校验子表单
+    modalApi.lock();
     // 提交表单
-    const data = (await formApi.getValues()) as PurchaseInWarehousingApi.PurchaseInWarehousing;
-            // 拼接子表的数据
-            data.goodsWarehousingDetails = goodsWarehousingDetailFormRef.value?.getData();
+    const data =
+      (await formApi.getValues()) as PurchaseInWarehousingApi.PurchaseInWarehousing;
+    // 拼接子表的数据
+    data.goodsWarehousingDetails =
+      goodsWarehousingDetailFormRef.value?.getData();
     try {
-      await (formData.value?.id ? updatePurchaseInWarehousing(data) : createPurchaseInWarehousing(data));
+      await (formData.value?.id
+        ? updatePurchaseInWarehousing(data)
+        : createPurchaseInWarehousing(data));
       // 关闭并提示
       await modalApi.close();
       emit('success');
-      message.success( $t('ui.actionMessage.operationSuccess') );
+      message.success($t('ui.actionMessage.operationSuccess'));
     } finally {
       modalApi.unlock();
     }
@@ -66,7 +76,8 @@ const [Modal, modalApi] = useVbenModal({
       return;
     }
     // 加载数据
-    let data = modalApi.getData<PurchaseInWarehousingApi.PurchaseInWarehousing>();
+    let data =
+      modalApi.getData<PurchaseInWarehousingApi.PurchaseInWarehousing>();
     if (!data) {
       return;
     }
@@ -88,11 +99,18 @@ const [Modal, modalApi] = useVbenModal({
 <template>
   <Modal :title="getTitle">
     <Form class="mx-4" />
-          <!-- 子表的表单 -->
-      <Tabs v-model:active-key="subTabsName">
-          <Tabs.TabPane key="goodsWarehousingDetail" tab="采购入库、领用、退库、归还、借用、调拨明细" force-render>
-            <GoodsWarehousingDetailForm ref="goodsWarehousingDetailFormRef" :purchase-order-id="formData?.id" />
-          </Tabs.TabPane>
-      </Tabs>
+    <!-- 子表的表单 -->
+    <Tabs v-model:active-key="subTabsName">
+      <Tabs.TabPane
+        key="goodsWarehousingDetail"
+        tab="采购入库、领用、退库、归还、借用、调拨明细"
+        force-render
+      >
+        <GoodsWarehousingDetailForm
+          ref="goodsWarehousingDetailFormRef"
+          :purchase-order-id="formData?.id"
+        />
+      </Tabs.TabPane>
+    </Tabs>
   </Modal>
-</template>
+</template>
