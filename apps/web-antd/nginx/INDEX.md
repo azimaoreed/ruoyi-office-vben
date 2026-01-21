@@ -53,6 +53,7 @@
 #### 快速部署
 
 👉 **[快速部署指南](快速部署指南.md)**
+
 - 一键部署命令
 - 部署前后检查清单
 - 快速验证方法
@@ -60,6 +61,7 @@
 #### 了解配置详情
 
 👉 **[README.md](README.md)**
+
 - 统一配置方案介绍
 - 详细的配置特性
 - 手动部署步骤
@@ -67,6 +69,7 @@
 #### 了解改进内容
 
 👉 **[配置对比.md](配置对比.md)**
+
 - 新旧配置对比
 - 性能改进说明
 - 语法错误修复
@@ -74,6 +77,7 @@
 #### 解决部署问题
 
 👉 **[快速部署指南 - 故障排查](快速部署指南.md#故障排查)**
+
 - 常见问题和解决方案
 - 日志查看方法
 - 回滚步骤
@@ -81,6 +85,7 @@
 #### 查看完整部署流程
 
 👉 **[../docs/部署.md](../docs/部署.md)**
+
 - Jenkins Pipeline 配置
 - Vite 配置说明
 - 完整的部署流程
@@ -90,7 +95,7 @@
 ### 访问地址
 
 | 项目 | URL | 物理路径 |
-|------|-----|----------|
+| --- | --- | --- |
 | VitePress 文档 | http://182.92.106.252/ | `/usr/share/nginx/html/ruoyi-office-doc` |
 | Vben Admin | http://182.92.106.252/web | `/usr/share/nginx/html/web` |
 | 健康检查 | http://182.92.106.252/health | N/A |
@@ -120,21 +125,24 @@ ssh root@182.92.106.252 'docker exec nginx tail -f /var/log/nginx/ruoyi-office-a
 ## 🔄 配置更新流程
 
 1. **编辑配置文件**
+
    ```bash
    # 编辑本地配置
    vi w:/ruoyi-office/ruoyi-office-vben/apps/web-antd/nginx/ruoyi-office.conf
    ```
 
 2. **测试配置语法**
+
    ```bash
    # 上传到服务器临时位置
    scp ruoyi-office.conf root@182.92.106.252:/tmp/
-   
+
    # 测试配置
    ssh root@182.92.106.252 'docker exec nginx nginx -t -c /tmp/ruoyi-office.conf'
    ```
 
 3. **部署配置**
+
    ```bash
    # 使用自动化脚本部署
    ./deploy-nginx-config.sh
@@ -187,10 +195,10 @@ ssh root@182.92.106.252 'cat /data/nginx/conf/conf.d/ruoyi-office.conf'
 
 ## 📝 版本历史
 
-| 版本 | 日期 | 变更说明 |
-|------|------|----------|
+| 版本 | 日期       | 变更说明                                  |
+| ---- | ---------- | ----------------------------------------- |
 | v2.0 | 2026-01-21 | 统一配置方案，修复 web-antd.conf 语法错误 |
-| v1.0 | 2026-01-20 | 初始版本，独立配置文件 |
+| v1.0 | 2026-01-20 | 初始版本，独立配置文件                    |
 
 ## ✅ 配置检查清单
 

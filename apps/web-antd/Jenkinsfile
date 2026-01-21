@@ -48,7 +48,8 @@ pipeline {
           // 使用 npx 运行 pnpm，无需全局安装
           sh '''
             # 使用 npx pnpm 安装依赖（Monorepo工作空间）
-            npx pnpm@latest install --frozen-lockfile --prefer-offline
+            # 去掉 --frozen-lockfile 以确保内部包正确构建
+            npx pnpm@latest install --no-frozen-lockfile
           '''
         }
       }

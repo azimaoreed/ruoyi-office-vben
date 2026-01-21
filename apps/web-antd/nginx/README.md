@@ -2,12 +2,12 @@
 
 ## 📋 配置文件说明
 
-| 文件名 | 说明 | 状态 |
-|--------|------|------|
-| `ruoyi-office.conf` | **统一配置文件（推荐使用）** | ✅ 使用中 |
-| `default.conf` | Nginx原始默认配置 | ⚠️ 将被替换 |
-| `ruoyi-office-doc.conf` | 旧的VitePress文档配置 | ⚠️ 将被替换 |
-| `web-antd.conf` | 旧的Vben配置（语法错误） | ❌ 将被删除 |
+| 文件名                  | 说明                         | 状态        |
+| ----------------------- | ---------------------------- | ----------- |
+| `ruoyi-office.conf`     | **统一配置文件（推荐使用）** | ✅ 使用中   |
+| `default.conf`          | Nginx原始默认配置            | ⚠️ 将被替换 |
+| `ruoyi-office-doc.conf` | 旧的VitePress文档配置        | ⚠️ 将被替换 |
+| `web-antd.conf`         | 旧的Vben配置（语法错误）     | ❌ 将被删除 |
 
 ## 🎯 统一规划架构
 
@@ -189,12 +189,14 @@ EOF
 ### 1. 为什么采用单一 server 块？
 
 **优点**:
+
 - ✅ 配置统一，易于管理
 - ✅ 避免端口冲突
 - ✅ 通过路径隔离不同项目
 - ✅ 便于添加新项目
 
 **缺点**:
+
 - ⚠️ 所有项目共享同一个 server 配置
 - ⚠️ 不能为不同项目设置不同的域名
 
@@ -257,6 +259,7 @@ server {
 ## 📞 技术支持
 
 如有问题，请查看：
+
 - Nginx 错误日志：`/var/log/nginx/ruoyi-office-error.log`
 - Nginx 访问日志：`/var/log/nginx/ruoyi-office-access.log`
 - Docker 容器日志：`docker logs nginx`
