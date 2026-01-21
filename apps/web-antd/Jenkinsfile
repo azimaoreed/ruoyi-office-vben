@@ -1,0 +1,178 @@
+pipeline {
+  agent any
+
+  tools {
+    // 需要在 Jenkins「全局工具配置」里配置一个 NodeJS，名称为 node20
+    nodejs 'node20'
+  }
+
+  environment {
+    // Vite 构建产物目录（相对于 web-antd 目录）
+    DIST_DIR = 'dist'
+    // 远程服务器配置名称（对应 Publish Over SSH 插件中的配置名）
+    REMOTE_SERVER = 'nginx-server'
+    // Nginx 部署目录（相对于 Publish Over SSH 配置的远程目录）
+    DEPLOY_PATH = 'web'
+    // 工作目录（Monorepo 中的应用目录）
+    APP_DIR = 'apps/web-antd'
+  }
+
+  stages {
+    stage('1. 拉取代码') {
+      steps {
+        echo '🚀 开始拉取代码...'
+        checkout scm
+      }
+    }
+
+    stage('2. 环境检查') {
+      steps {
+        echo '🔍 检查构建环境...'
+        sh '''
+          echo "Node版本: $(node -v)"
+          echo "NPM版本: $(npm -v)"
+          
+          # 检查pnpm是否安装
+          if command -v pnpm &> /dev/null; then
+            echo "pnpm版本: $(pnpm -v)"
+          else
+            echo "⚠️  pnpm未安装，正在安装..."
+            npm install -g pnpm@latest
+            echo "pnpm版本: $(pnpm -v)"
+          fi
+          
+          echo "当前目录: $(pwd)"
+          ls -la
+        '''
+      }
+    }
+
+    stage('3. 安装依赖') {
+      steps {
+        echo '📦 开始安装依赖...'
+        script {
+          // Monorepo 需要在根目录安装依赖
+          sh '''
+            # 使用pnpm安装依赖（Monorepo工作空间）
+            pnpm install --frozen-lockfile --prefer-offline
+          '''
+        }
+      }
+    }
+
+    stage('4. 构建应用') {
+      steps {
+        echo '🏗️  开始构建 Vben Admin 应用...'
+        dir(env.APP_DIR) {
+          sh '''
+            # 设置生产环境变量
+            export NODE_ENV=production
+            
+            # 执行构建
+            pnpm build
+            
+            # 验证构建产物
+            if [ -d "${DIST_DIR}" ]; then
+              echo "✓ 构建成功，产物目录: ${DIST_DIR}"
+              ls -lh ${DIST_DIR} | head -n 10
+              echo "产物大小:"
+              du -sh ${DIST_DIR}
+            else
+              echo "✗ 构建失败：产物目录不存在"
+              exit 1
+            fi
+          '''
+        }
+      }
+    }
+
+    stage('5. 部署到 Nginx') {
+      steps {
+        echo '🚚 开始部署到远程服务器...'
+        script {
+          // 使用 Publish Over SSH 插件部署
+          sshPublisher(
+            publishers: [
+              sshPublisherDesc(
+                // 配置名称（对应 Jenkins 系统配置 -> Publish over SSH -> SSH Servers 中的 Name）
+                configName: env.REMOTE_SERVER,
+                transfers: [
+                  sshTransfer(
+                    // 清理远程目录（可选，谨慎使用）
+                    cleanRemote: true,
+                    // 排除的文件（可选）
+                    excludes: '',
+                    // 执行命令失败时是否继续
+                    execTimeout: 120000,
+                    // 是否展平目录结构
+                    flatten: false,
+                    // 创建远程目录（如果不存在）
+                    makeEmptyDirs: true,
+                    // 传输完成后不删除工作空间文件
+                    noDefaultExcludes: false,
+                    // 文件匹配模式（排除文件）
+                    patternSeparator: '[, ]+',
+                    // 远程目录（相对于 SSH Server 配置的 Remote Directory）
+                    remoteDirectory: env.DEPLOY_PATH,
+                    // 去掉前缀：上传时不带 apps/web-antd/dist 这几层目录
+                    removePrefix: "${env.APP_DIR}/${env.DIST_DIR}",
+                    // 要上传的文件：dist 目录下的所有内容
+                    sourceFiles: "${env.APP_DIR}/${env.DIST_DIR}/**"
+                  )
+                ],
+                // 传输成功时的提示
+                usePromotionTimestamp: false,
+                useWorkspaceInPromotion: false,
+                verbose: true
+              )
+            ]
+          )
+        }
+      }
+    }
+
+    stage('6. 验证部署') {
+      steps {
+        echo '✅ 验证部署结果...'
+        script {
+          // 可以添加健康检查，例如访问站点首页
+          sh """
+            echo "部署完成！"
+            echo "访问地址: http://182.92.106.252/${DEPLOY_PATH}/"
+            echo ""
+            echo "温馨提示："
+            echo "  - 如果页面无法访问，请检查 Nginx 配置"
+            echo "  - 如果资源404，请检查 base 路径配置"
+            echo "  - 如果API报错，请检查后端服务状态"
+          """
+        }
+      }
+    }
+  }
+
+  post {
+    success {
+      echo '✅ 构建与部署成功！'
+      echo '📝 部署信息：'
+      echo "  - 构建时间: ${new Date()}"
+      echo "  - Git 提交: ${env.GIT_COMMIT ?: 'N/A'}"
+      echo "  - 构建编号: ${env.BUILD_NUMBER}"
+      echo "  - 访问地址: http://182.92.106.252/web/"
+    }
+    failure {
+      echo '❌ 构建或部署失败！'
+      echo '请查看上方日志排查问题'
+      echo ''
+      echo '常见问题：'
+      echo '  1. pnpm未安装：检查环境检查阶段'
+      echo '  2. 依赖安装失败：检查网络或pnpm-lock.yaml'
+      echo '  3. 构建失败：检查TypeScript错误或配置'
+      echo '  4. 部署失败：检查SSH连接和Nginx配置'
+    }
+    always {
+      echo '🧹 清理构建环境...'
+      // 可以在这里添加清理操作，如删除临时文件
+      // cleanWs()
+    }
+  }
+}
