@@ -91,12 +91,12 @@ environment {
 
 ## 🔍 通配符说明
 
-| 通配符 | 说明 | 示例 |
-|--------|------|------|
-| `**` | 匹配任意层级目录 | `**/demo/**` 匹配所有 demo 目录 |
-| `*` | 匹配单个目录层级 | `*/demo/*` 只匹配一级目录下的 demo |
-| `*.ext` | 匹配特定扩展名 | `*.map` 匹配所有 .map 文件 |
-| `**/*.ext` | 匹配任意层级的特定扩展名 | `**/*.map` 匹配所有 .map 文件 |
+| 通配符     | 说明                     | 示例                               |
+| ---------- | ------------------------ | ---------------------------------- |
+| `**`       | 匹配任意层级目录         | `**/demo/**` 匹配所有 demo 目录    |
+| `*`        | 匹配单个目录层级         | `*/demo/*` 只匹配一级目录下的 demo |
+| `*.ext`    | 匹配特定扩展名           | `*.map` 匹配所有 .map 文件         |
+| `**/*.ext` | 匹配任意层级的特定扩展名 | `**/*.map` 匹配所有 .map 文件      |
 
 ## 📊 路径说明
 
@@ -105,13 +105,15 @@ environment {
 `excludes` 中的路径是**相对于 `sourceFiles`** 的，即相对于 `dist` 目录。
 
 例如：
+
 - `sourceFiles`: `apps/web-antd/dist/**`
-- `excludes`: `**/demo/**` 
+- `excludes`: `**/demo/**`
 - 实际排除: `apps/web-antd/dist/demo/**`
 
 ### 路径示例
 
 假设构建产物结构如下：
+
 ```
 dist/
 ├── index.html
@@ -126,6 +128,7 @@ dist/
 ```
 
 配置：
+
 ```groovy
 DEPLOY_EXCLUDES = '**/demo/**,**/test/**,**/docs/**'
 ```
@@ -160,6 +163,7 @@ git push
 ### 方法1：查看 Jenkins 构建日志
 
 在 Jenkins 构建日志中，Publish Over SSH 插件会显示：
+
 ```
 Excluding: **/demo/**
 Excluding: **/test/**
@@ -181,6 +185,7 @@ ls -la /usr/share/nginx/html/web/demo/  # 应该不存在
 ### 方法3：查看构建产物大小
 
 排除前后对比构建产物大小：
+
 ```bash
 # 排除前
 du -sh dist/  # 例如: 10M
@@ -252,6 +257,7 @@ excludes: '**/demo/** **/test/**'  // 缺少逗号
 ### 4. 排除后无法恢复
 
 排除的文件不会部署到服务器，如果需要恢复，需要：
+
 1. 修改 `DEPLOY_EXCLUDES` 配置
 2. 重新构建和部署
 
@@ -262,7 +268,7 @@ excludes: '**/demo/** **/test/**'  // 缺少逗号
 ## 🆚 方式对比
 
 | 方式 | 作用阶段 | 优点 | 缺点 | 适用场景 |
-|------|----------|------|------|----------|
+| --- | --- | --- | --- | --- |
 | **Jenkinsfile excludes** | 部署阶段 | 简单、灵活 | 文件仍会被构建 | 排除不需要部署的文件 |
 | **Vite 配置** | 构建阶段 | 减少构建时间 | 配置复杂 | 排除不需要编译的文件 |
 | **.gitignore** | Git 阶段 | 不拉取文件 | 不影响构建 | 排除不需要版本控制的文件 |
@@ -293,7 +299,7 @@ build: {
 
 ```groovy
 environment {
-  DEPLOY_EXCLUDES = env.BRANCH_NAME == 'main' 
+  DEPLOY_EXCLUDES = env.BRANCH_NAME == 'main'
     ? '**/demo/**,**/test/**'  // 生产环境排除更多
     : ''                        // 开发环境不排除
 }
@@ -302,6 +308,7 @@ environment {
 ### 3. 定期检查
 
 定期检查排除配置，确保：
+
 - 没有排除必要的文件
 - 排除的文件确实不需要部署
 - 构建产物大小合理
@@ -311,11 +318,13 @@ environment {
 ### 问题1：排除配置不生效
 
 **检查**:
+
 1. 确认 `DEPLOY_EXCLUDES` 格式正确（逗号分隔）
 2. 确认路径相对于 `dist` 目录
 3. 查看 Jenkins 构建日志
 
 **解决**:
+
 ```groovy
 // 检查配置
 echo "DEPLOY_EXCLUDES: ${env.DEPLOY_EXCLUDES}"
@@ -329,6 +338,7 @@ ls -la dist/
 **原因**: 可能是路径匹配不正确
 
 **解决**:
+
 ```groovy
 // 使用更精确的路径
 DEPLOY_EXCLUDES = '**/demo/**,**/test/**'
@@ -342,6 +352,7 @@ DEPLOY_EXCLUDES = 'demo/**,test/**'
 **原因**: 可能排除了必要的文件
 
 **解决**:
+
 1. 检查排除配置
 2. 移除不必要的排除规则
 3. 重新构建部署

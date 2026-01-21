@@ -76,8 +76,10 @@ defineExpose({
     const insertRecords =
       gridApi.grid.getInsertRecords() as PurchaseInWarehousingApi.GoodsWarehousingDetail[];
     return [
-      ...data.filter((row) => !removeRecords.some((removed) => removed.id === row.id)),
-      ...insertRecords.map((row: any) => ({ ...row, id: undefined }))
+      ...data.filter(
+        (row) => !removeRecords.some((removed) => removed.id === row.id),
+      ),
+      ...insertRecords.map((row: any) => ({ ...row, id: undefined })),
     ];
   },
 });
