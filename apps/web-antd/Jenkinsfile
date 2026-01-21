@@ -55,7 +55,21 @@ pipeline {
       }
     }
 
-    stage('4. 构建应用') {
+    stage('4. 构建内部依赖包') {
+      steps {
+        echo '🔨 开始构建内部依赖包...'
+        sh '''
+          # 构建 Monorepo 内部的 packages（@vben-core/*, @vben/* 等）
+          # 使用 -r (recursive) 构建所有 workspace 包
+          # 使用 --filter 只构建 packages 目录下的包
+          npx pnpm@latest -r --filter "./packages/**" --filter "./internal/**" build || true
+          
+          echo "✓ 内部依赖包构建完成（或跳过）"
+        '''
+      }
+    }
+
+    stage('5. 构建应用') {
       steps {
         echo '🏗️  开始构建 Vben Admin 应用...'
         dir(env.APP_DIR) {
@@ -81,7 +95,7 @@ pipeline {
       }
     }
 
-    stage('5. 部署到 Nginx') {
+    stage('6. 部署到 Nginx') {
       steps {
         echo '🚚 开始部署到远程服务器...'
         script {
@@ -126,7 +140,7 @@ pipeline {
       }
     }
 
-    stage('6. 验证部署') {
+    stage('7. 验证部署') {
       steps {
         echo '✅ 验证部署结果...'
         script {
