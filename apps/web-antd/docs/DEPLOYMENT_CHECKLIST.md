@@ -82,7 +82,8 @@ docker exec nginx nginx -t
 docker exec nginx nginx -s reload
 ```
 
-**检查点**: 
+**检查点**:
+
 - ✅ 配置语法验证通过
 - ✅ Nginx 重新加载成功
 
@@ -151,7 +152,8 @@ curl -I http://localhost/web/
 # 应该返回 HTTP/1.1 200 OK
 ```
 
-**检查点**: 
+**检查点**:
+
 - ✅ 文件已传输到服务器
 - ✅ index.html 存在
 - ✅ 本地访问返回 200
@@ -310,9 +312,6 @@ docker exec nginx nginx -s reload
 
 ## 部署成功标志
 
-✅ 所有检查项通过
-✅ 浏览器可以访问 http://182.92.106.252/web
-✅ 页面显示正常，无错误
-✅ Jenkins 构建历史显示成功（绿色）
+✅ 所有检查项通过 ✅ 浏览器可以访问 http://182.92.106.252/web ✅ 页面显示正常，无错误 ✅ Jenkins 构建历史显示成功（绿色）
 
 **恭喜！部署成功！** 🎉
