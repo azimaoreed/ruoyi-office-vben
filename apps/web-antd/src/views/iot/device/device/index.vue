@@ -438,7 +438,7 @@ onMounted(async () => {
     <Grid table-title="设备列表" v-show="viewMode === 'list'">
       <template #product="{ row }">
         <a
-          class="text-primary cursor-pointer"
+          class="cursor-pointer text-primary"
           @click="openProductDetail(row.productId)"
         >
           {{ products.find((p) => p.id === row.productId)?.name || '-' }}

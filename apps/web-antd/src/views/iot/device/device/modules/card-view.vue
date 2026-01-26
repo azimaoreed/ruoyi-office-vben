@@ -138,7 +138,7 @@ onMounted(() => {
                 <div class="info-item">
                   <span class="info-label">所属产品</span>
                   <a
-                    class="info-value text-primary cursor-pointer"
+                    class="info-value cursor-pointer text-primary"
                     @click="
                       (e) => {
                         e.stopPropagation();

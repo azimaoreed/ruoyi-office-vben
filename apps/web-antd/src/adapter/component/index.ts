@@ -550,28 +550,53 @@ async function initComponentAdapter() {
     // 如果你的组件体积比较大，可以使用异步加载
     // Button: () =>
     // import('xxx').then((res) => res.Button),
+    InputAmount: withDefaultPlaceholder(InputAmount, 'input'),
+    ApiCascader: withDefaultPlaceholder(
+      {
+        ...ApiComponent,
+        name: 'ApiCascader',
+      },
+      'select',
+      {
+        component: Cascader,
+        fieldNames: { label: 'label', value: 'value', children: 'children' },
+        loadingSlot: 'suffixIcon',
+        modelPropName: 'value',
+        optionsPropName: 'treeData',
+        visibleEvent: 'onVisibleChange',
+      },
+    ),
 
-    ApiCascader: withDefaultPlaceholder(ApiComponent, 'select', {
-      component: Cascader,
-      fieldNames: { label: 'label', value: 'value', children: 'children' },
-      loadingSlot: 'suffixIcon',
-      modelPropName: 'value',
-      visibleEvent: 'onVisibleChange',
-    }),
-    ApiSelect: withDefaultPlaceholder(ApiComponent, 'select', {
-      component: Select,
-      loadingSlot: 'suffixIcon',
-      modelPropName: 'value',
-      visibleEvent: 'onVisibleChange',
-    }),
-    ApiTreeSelect: withDefaultPlaceholder(ApiComponent, 'select', {
-      component: TreeSelect,
-      fieldNames: { label: 'label', value: 'value', children: 'children' },
-      loadingSlot: 'suffixIcon',
-      modelPropName: 'value',
-      optionsPropName: 'treeData',
-      visibleEvent: 'onVisibleChange',
-    }),
+    ApiSelect: withDefaultPlaceholder(
+      {
+        ...ApiComponent,
+        name: 'ApiSelect',
+      },
+      'select',
+      {
+        component: Select,
+        loadingSlot: 'suffixIcon',
+        visibleEvent: 'onVisibleChange',
+        modelPropName: 'value',
+      },
+    ),
+
+    ApiTreeSelect: withDefaultPlaceholder(
+      {
+        ...ApiComponent,
+        name: 'ApiTreeSelect',
+      },
+      'select',
+      {
+        component: TreeSelect,
+        fieldNames: { label: 'label', value: 'value', children: 'children' },
+        loadingSlot: 'suffixIcon',
+        modelPropName: 'value',
+        optionsPropName: 'treeData',
+        visibleEvent: 'onVisibleChange',
+      },
+    ),
+    
     AutoComplete,
     Cascader,
     Checkbox,
