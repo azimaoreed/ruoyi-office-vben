@@ -10,7 +10,7 @@ import { BpmCandidateStrategyEnum, BpmNodeIdEnum } from '@vben/constants';
 import { useTabs } from '@vben/hooks';
 import { IconifyIcon } from '@vben/icons';
 
-import { Button, Card, message, Space } from 'ant-design-vue';
+import { Button, Card, Col, message, Row, Space } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import { getProcessDefinition } from '#/api/bpm/definition';
@@ -26,6 +26,7 @@ const { closeCurrentTab } = useTabs();
 const { query } = useRoute();
 
 const formLoading = ref(false); // 表单的加载中：1）修改时的数据加载；2）提交的按钮禁用
+const processTimeLineLoading = ref(false); // 审批流的加载中
 
 const processDefineKey = 'oa_leave'; // 流程定义 Key
 const startUserSelectTasks = ref<any>([]); // 发起人需要选择审批人的用户任务列表
@@ -92,10 +93,8 @@ async function onSubmit() {
       ? updateLeave(submitData)
       : createLeave(submitData));
     // 关闭并提示
-    message.success({
-      content: $t('ui.actionMessage.operationSuccess'),
-      key: 'action_process_msg',
-    });
+    message.success($t('ui.actionMessage.operationSuccess'));
+    await closeCurrentTab();
     await router.push({
       name: 'BpmOALeave',
     });
@@ -120,38 +119,43 @@ function onBack() {
 
 /** 审批相关：获取审批详情 */
 async function getApprovalDetail() {
-  const data = await getApprovalDetailApi({
-    processDefinitionId: processDefinitionId.value,
-    // TODO 小北：可以支持 processDefinitionKey 查询
-    activityId: BpmNodeIdEnum.START_USER_NODE_ID,
-    processVariablesStr: JSON.stringify({
-      day: dayjs(formData.value?.startTime).diff(
-        dayjs(formData.value?.endTime),
-        'day',
-      ),
-    }), // 解决 GET 无法传递对象的问题，后端 String 再转 JSON
-  });
-  if (!data) {
-    message.error('查询不到审批详情信息！');
-    return;
-  }
-  // 获取审批节点，显示 Timeline 的数据
-  activityNodes.value = data.activityNodes;
-
-  // 获取发起人自选的任务
-  startUserSelectTasks.value = data.activityNodes?.filter(
-    (node: BpmProcessInstanceApi.ApprovalNodeInfo) =>
-      BpmCandidateStrategyEnum.START_USER_SELECT === node.candidateStrategy,
-  );
-  // 恢复之前的选择审批人
-  if (startUserSelectTasks.value?.length > 0) {
-    for (const node of startUserSelectTasks.value) {
-      startUserSelectAssignees.value[node.id] =
-        tempStartUserSelectAssignees.value[node.id] &&
-        tempStartUserSelectAssignees.value[node.id].length > 0
-          ? tempStartUserSelectAssignees.value[node.id]
-          : [];
+  processTimeLineLoading.value = true;
+  try {
+    const data = await getApprovalDetailApi({
+      processDefinitionId: processDefinitionId.value,
+      // TODO 小北：可以支持 processDefinitionKey 查询
+      activityId: BpmNodeIdEnum.START_USER_NODE_ID,
+      processVariablesStr: JSON.stringify({
+        day: dayjs(formData.value?.startTime).diff(
+          dayjs(formData.value?.endTime),
+          'day',
+        ),
+      }), // 解决 GET 无法传递对象的问题，后端 String 再转 JSON
+    });
+    if (!data) {
+      message.error('查询不到审批详情信息！');
+      return;
     }
+    // 获取审批节点，显示 Timeline 的数据
+    activityNodes.value = data.activityNodes;
+
+    // 获取发起人自选的任务
+    startUserSelectTasks.value = data.activityNodes?.filter(
+      (node: BpmProcessInstanceApi.ApprovalNodeInfo) =>
+        BpmCandidateStrategyEnum.START_USER_SELECT === node.candidateStrategy,
+    );
+    // 恢复之前的选择审批人
+    if (startUserSelectTasks.value?.length > 0) {
+      for (const node of startUserSelectTasks.value) {
+        startUserSelectAssignees.value[node.id] =
+          tempStartUserSelectAssignees.value[node.id] &&
+          tempStartUserSelectAssignees.value[node.id].length > 0
+            ? tempStartUserSelectAssignees.value[node.id]
+            : [];
+      }
+    }
+  } finally {
+    processTimeLineLoading.value = false;
   }
 }
 
@@ -232,30 +236,35 @@ onMounted(async () => {
 
 <template>
   <Page>
-    <div class="mx-auto w-[80vw] max-w-[920px]">
-      <Card :title="getTitle" class="w-full">
-        <template #extra>
-          <Button type="default" @click="onBack">
-            <IconifyIcon icon="lucide:arrow-left" />
-            返回
-          </Button>
-        </template>
+    <Row :gutter="16">
+      <Col :span="16">
+        <Card :title="getTitle" class="w-full" v-loading="formLoading">
+          <template #extra>
+            <Button type="default" @click="onBack">
+              <IconifyIcon icon="lucide:arrow-left" />
+              返回
+            </Button>
+          </template>
 
-        <Form />
-      </Card>
-
-      <Card title="流程" class="mt-2 w-full">
-        <ProcessInstanceTimeline
-          :activity-nodes="activityNodes"
-          :show-status-icon="false"
-          @select-user-confirm="selectUserConfirm"
-        />
-        <template #actions>
-          <Space warp :size="12" class="w-full px-6">
-            <Button type="primary" @click="onSubmit"> 提交 </Button>
-          </Space>
-        </template>
-      </Card>
-    </div>
+          <Form />
+          <template #actions>
+            <Space warp :size="12" class="w-full px-6">
+              <Button type="primary" @click="onSubmit" :loading="formLoading">
+                提交
+              </Button>
+            </Space>
+          </template>
+        </Card>
+      </Col>
+      <Col :span="8">
+        <Card title="流程" class="w-full" v-loading="processTimeLineLoading">
+          <ProcessInstanceTimeline
+            :activity-nodes="activityNodes"
+            :show-status-icon="false"
+            @select-user-confirm="selectUserConfirm"
+          />
+        </Card>
+      </Col>
+    </Row>
   </Page>
 </template>

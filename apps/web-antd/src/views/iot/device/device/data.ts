@@ -1,16 +1,15 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
-import { DeviceTypeEnum, DICT_TYPE, LocationTypeEnum } from '@vben/constants';
+import { DICT_TYPE } from '@vben/constants';
 import { getDictOptions } from '@vben/hooks';
 
 import { z } from '#/adapter/form';
-import { getSimpleDeviceList } from '#/api/iot/device/device';
 import { getSimpleDeviceGroupList } from '#/api/iot/device/group';
 import { getSimpleProductList } from '#/api/iot/product/product';
 
-/** 新增/修改的表单 */
-export function useFormSchema(): VbenFormSchema[] {
+/** 基础表单字段 */
+export function useBasicFormSchema(): VbenFormSchema[] {
   return [
     {
       component: 'Input',
@@ -37,6 +36,14 @@ export function useFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
+      component: 'Input',
+      fieldName: 'deviceType',
+      dependencies: {
+        triggerFields: [''],
+        show: () => false,
+      },
+    },
+    {
       fieldName: 'deviceName',
       label: 'DeviceName',
       component: 'Input',
@@ -56,21 +63,12 @@ export function useFormSchema(): VbenFormSchema[] {
           '支持英文字母、数字、下划线（_）、中划线（-）、点号（.）、半角冒号（:）和特殊字符@',
         ),
     },
-    {
-      fieldName: 'gatewayId',
-      label: '网关设备',
-      component: 'ApiSelect',
-      componentProps: {
-        api: () => getSimpleDeviceList(DeviceTypeEnum.GATEWAY),
-        labelField: 'nickname',
-        valueField: 'id',
-        placeholder: '子设备可选择父设备',
-      },
-      dependencies: {
-        triggerFields: ['deviceType'],
-        show: (values) => values.deviceType === DeviceTypeEnum.GATEWAY_SUB,
-      },
-    },
+  ];
+}
+
+/** 高级设置表单字段（更多设置） */
+export function useAdvancedFormSchema(): VbenFormSchema[] {
+  return [
     {
       fieldName: 'nickname',
       label: '备注名称',
@@ -88,6 +86,11 @@ export function useFormSchema(): VbenFormSchema[] {
         )
         .optional()
         .or(z.literal('')),
+    },
+    {
+      fieldName: 'picUrl',
+      label: '设备图片',
+      component: 'ImageUpload',
     },
     {
       fieldName: 'groupIds',
@@ -115,27 +118,22 @@ export function useFormSchema(): VbenFormSchema[] {
         .or(z.literal('')),
     },
     {
-      fieldName: 'locationType',
-      label: '定位类型',
-      component: 'RadioGroup',
-      componentProps: {
-        options: getDictOptions(DICT_TYPE.IOT_LOCATION_TYPE, 'number'),
-        buttonStyle: 'solid',
-        optionType: 'button',
-      },
-    },
-    {
       fieldName: 'longitude',
       label: '设备经度',
       component: 'InputNumber',
       componentProps: {
         placeholder: '请输入设备经度',
         class: 'w-full',
+        min: -180,
+        max: 180,
+        precision: 6,
       },
-      dependencies: {
-        triggerFields: ['locationType'],
-        show: (values) => values.locationType === LocationTypeEnum.MANUAL,
-      },
+      rules: z
+        .number()
+        .min(-180, '经度范围为 -180 到 180')
+        .max(180, '经度范围为 -180 到 180')
+        .optional()
+        .nullable(),
     },
     {
       fieldName: 'latitude',
@@ -144,11 +142,16 @@ export function useFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入设备纬度',
         class: 'w-full',
+        min: -90,
+        max: 90,
+        precision: 6,
       },
-      dependencies: {
-        triggerFields: ['locationType'],
-        show: (values) => values.locationType === LocationTypeEnum.MANUAL,
-      },
+      rules: z
+        .number()
+        .min(-90, '纬度范围为 -90 到 90')
+        .max(90, '纬度范围为 -90 到 90')
+        .optional()
+        .nullable(),
     },
   ];
 }
@@ -277,6 +280,14 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
       field: 'nickname',
       title: '备注名称',
       minWidth: 120,
+    },
+    {
+      field: 'picUrl',
+      title: '设备图片',
+      width: 100,
+      cellRender: {
+        name: 'CellImage',
+      },
     },
     {
       field: 'productId',

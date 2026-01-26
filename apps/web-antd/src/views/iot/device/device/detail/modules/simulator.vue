@@ -9,7 +9,7 @@ import type { ThingModelData } from '#/api/iot/thingmodel';
 import { computed, ref } from 'vue';
 
 import { ContentWrap } from '@vben/common-ui';
-import { DeviceStateEnum } from '@vben/constants';
+import { IotDeviceMessageMethodEnum } from '@vben/constants';
 import { IconifyIcon } from '@vben/icons';
 
 import {
@@ -26,7 +26,7 @@ import {
 
 import { sendDeviceMessage } from '#/api/iot/device/device';
 import {
-  IotDeviceMessageMethodEnum,
+  DeviceStateEnum,
   IoTThingModelTypeEnum,
 } from '#/views/iot/utils/constants';
 

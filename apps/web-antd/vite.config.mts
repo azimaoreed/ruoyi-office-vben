@@ -41,6 +41,7 @@ export default defineConfig(async () => {
       // 生产环境部署到 /web 路径下
       base: process.env.NODE_ENV === 'production' ? '/web/' : '/',
       server: {
+        allowedHosts: true,
         proxy: {
           '/admin-api': {
             changeOrigin: true,

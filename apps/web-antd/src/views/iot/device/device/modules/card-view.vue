@@ -1,4 +1,8 @@
 <script lang="ts" setup>
+import type { PageParam } from '@vben/request';
+
+import type { IotDeviceApi } from '#/api/iot/device/device';
+
 import { onMounted, ref } from 'vue';
 
 import { DICT_TYPE } from '@vben/constants';
@@ -9,6 +13,7 @@ import {
   Card,
   Col,
   Empty,
+  Image,
   Pagination,
   Popconfirm,
   Row,
@@ -43,9 +48,9 @@ const emit = defineEmits<{
 }>();
 
 const loading = ref(false);
-const list = ref<any[]>([]);
+const list = ref<IotDeviceApi.Device[]>([]);
 const total = ref(0);
-const queryParams = ref({
+const queryParams = ref<Partial<PageParam>>({
   pageNo: 1,
   pageSize: 12,
 });
@@ -63,7 +68,7 @@ async function getList() {
     const data = await getDevicePage({
       ...queryParams.value,
       ...props.searchParams,
-    });
+    } as PageParam);
     list.value = data.list || [];
     total.value = data.total || 0;
   } finally {
@@ -128,8 +133,8 @@ onMounted(() => {
               />
             </div>
             <!-- 内容区域 -->
-            <div class="mb-3">
-              <div class="info-list">
+            <div class="mb-3 flex items-start">
+              <div class="info-list flex-1">
                 <div class="info-item">
                   <span class="info-label">所属产品</span>
                   <a
@@ -154,12 +159,26 @@ onMounted(() => {
                 </div>
                 <div class="info-item">
                   <span class="info-label">Deviceid</span>
-                  <Tooltip :title="item.Deviceid || item.id" placement="top">
+                  <Tooltip :title="String(item.id)" placement="top">
                     <span class="info-value device-id cursor-pointer">
-                      {{ item.Deviceid || item.id }}
+                      {{ item.id }}
                     </span>
                   </Tooltip>
                 </div>
+              </div>
+              <!-- 设备图片 -->
+              <div class="device-image">
+                <Image
+                  v-if="item.picUrl"
+                  :src="item.picUrl"
+                  :preview="true"
+                  class="size-full rounded object-cover"
+                />
+                <IconifyIcon
+                  v-else
+                  icon="lucide:image"
+                  class="text-2xl opacity-50"
+                />
               </div>
             </div>
             <!-- 按钮组 -->
@@ -175,7 +194,7 @@ onMounted(() => {
               <Button
                 size="small"
                 class="action-btn action-btn-detail"
-                @click="emit('detail', item.id)"
+                @click="emit('detail', item.id!)"
               >
                 <IconifyIcon icon="lucide:eye" class="mr-1" />
                 详情
@@ -183,7 +202,7 @@ onMounted(() => {
               <Button
                 size="small"
                 class="action-btn action-btn-data"
-                @click="emit('model', item.id)"
+                @click="emit('model', item.id!)"
               >
                 <IconifyIcon icon="lucide:database" class="mr-1" />
                 数据
@@ -261,6 +280,19 @@ onMounted(() => {
     // 状态标签
     .status-tag {
       font-size: 12px;
+    }
+
+    // 设备图片
+    .device-image {
+      display: flex;
+      flex-shrink: 0;
+      align-items: center;
+      justify-content: center;
+      width: 80px;
+      height: 80px;
+      color: #1890ff;
+      background: linear-gradient(135deg, #40a9ff15 0%, #1890ff15 100%);
+      border-radius: 8px;
     }
 
     // 信息列表
@@ -384,6 +416,11 @@ html.dark {
         .device-id {
           color: rgb(255 255 255 / 75%);
         }
+      }
+
+      .device-image {
+        color: #69c0ff;
+        background: linear-gradient(135deg, #40a9ff25 0%, #1890ff25 100%);
       }
     }
   }

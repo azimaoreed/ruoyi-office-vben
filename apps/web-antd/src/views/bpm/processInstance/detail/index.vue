@@ -10,6 +10,8 @@ import { Page } from '@vben/common-ui';
 import {
   BpmModelFormType,
   BpmModelType,
+  BpmProcessInstanceStatus,
+  DICT_TYPE,
   BpmNodeIdEnum,
   BpmTaskStatusEnum,
 } from '@vben/constants';
@@ -124,13 +126,10 @@ const auditIconsMap: {
     | typeof SvgBpmRejectIcon
     | typeof SvgBpmRunningIcon;
 } = {
-  [BpmTaskStatusEnum.RUNNING]: SvgBpmRunningIcon,
-  [BpmTaskStatusEnum.APPROVE]: SvgBpmApproveIcon,
-  [BpmTaskStatusEnum.REJECT]: SvgBpmRejectIcon,
-  [BpmTaskStatusEnum.CANCEL]: SvgBpmCancelIcon,
-  [BpmTaskStatusEnum.APPROVING]: SvgBpmApproveIcon,
-  [BpmTaskStatusEnum.RETURN]: SvgBpmRejectIcon,
-  [BpmTaskStatusEnum.WAIT]: SvgBpmRunningIcon,
+  [BpmProcessInstanceStatus.RUNNING]: SvgBpmRunningIcon,
+  [BpmProcessInstanceStatus.APPROVE]: SvgBpmApproveIcon,
+  [BpmProcessInstanceStatus.REJECT]: SvgBpmRejectIcon,
+  [BpmProcessInstanceStatus.CANCEL]: SvgBpmCancelIcon,
 };
 
 // ========== 申请信息 ==========
