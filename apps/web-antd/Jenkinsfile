@@ -166,7 +166,7 @@ pipeline {
           // 可以添加健康检查，例如访问站点首页
           sh """
             echo "部署完成！"
-            echo "访问地址: http://182.92.106.252/${DEPLOY_PATH}/"
+            echo "访问地址: http://127.0.0.1/${DEPLOY_PATH}/"
             echo ""
             echo "温馨提示："
             echo "  - 如果页面无法访问，请检查 Nginx 配置"
@@ -185,7 +185,7 @@ pipeline {
       echo "  - 构建时间: ${new Date()}"
       echo "  - Git 提交: ${env.GIT_COMMIT ?: 'N/A'}"
       echo "  - 构建编号: ${env.BUILD_NUMBER}"
-      echo "  - 访问地址: http://182.92.106.252/web/"
+      echo "  - 访问地址: http://127.0.0.1/web/"
     }
     failure {
       echo '❌ 构建或部署失败！'

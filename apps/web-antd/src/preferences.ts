@@ -17,12 +17,17 @@ export const overridesPreferences = defineOverridesPreferences({
     defaultHomePath: '/workspace',
   },
   // 自定义应用 Logo（将图片放在 apps/web-antd/public/static/imgs/ 目录下）
+  /* eslint-disable */
   logo: {
     enable: true,
     fit: 'contain',
-    // 示例：/static/imgs/logo.png，对应路径 apps/web-antd/public/static/imgs/logo.png
-    source: '/static/imgs/logo.png',
+    // 使用 BASE_URL 动态获取 base 路径，支持部署在子路径下
+    // 开发环境: /static/imgs/logo.png
+    // 生产环境: /web/static/imgs/logo.png
+    // 注意：BASE_URL 已包含末尾斜杠，所以不需要再加斜杠
+    source: `${import.meta.env.BASE_URL}static/imgs/logo.png`,
   },
+  /* eslint-enable */
   theme: {
     mode: 'light',
     semiDarkHeader: false,
