@@ -189,7 +189,7 @@ onMounted(async () => {
     <template #doc>
       <DocAlert
         title="WebSocket 实时通信"
-        url="https://doc.iocoder.cn/websocket/"
+        url="http://ruoyioffice.com/websocket/"
       />
     </template>
 

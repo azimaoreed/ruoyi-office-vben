@@ -97,7 +97,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
 <template>
   <Page auto-content-height>
     <template #doc>
-      <DocAlert title="公众号粉丝" url="https://doc.iocoder.cn/mp/user/" />
+      <DocAlert title="公众号粉丝" url="http://ruoyioffice.com/mp/user/" />
     </template>
 
     <FormModal @success="handleRefresh" />

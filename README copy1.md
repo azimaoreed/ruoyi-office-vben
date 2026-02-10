@@ -13,12 +13,12 @@
 - 演示地址【Vue3 + element-plus】：<http://dashboard-vue3.yudao.iocoder.cn>
 - 演示地址【Vue3 + vben5(ant-design-vue)】：<http://dashboard-vben.yudao.iocoder.cn>
 - 演示地址【Vue2 + element-ui】：<http://dashboard.yudao.iocoder.cn>
-- 启动文档：<https://doc.iocoder.cn/quick-start/>
-- 视频教程：<https://doc.iocoder.cn/video/>
+- 启动文档：<http://ruoyioffice.com/quick-start/>
+- 视频教程：<http://ruoyioffice.com/video/>
 
 ## 🐯 平台简介
 
-**芋道**，以开发者为中心，打造中国第一流的快速开发平台，全部开源，个人与企业可 100% 免费使用。
+**宇擎**，以开发者为中心，打造中国第一流的快速开发平台，全部开源，个人与企业可 100% 免费使用。
 
 - 采用最新 [vue-vben-admin](https://github.com/vbenjs/vue-vben-admin) v5 实现
 - 支持 [Ant Design Vue](https://www.antdv.com/) | [Element Plus](https://element-plus.org/zh-CN/) | [Naive UI](https://www.naiveui.com/) | [TDesign](https://tdesign.tencent.com/) 多种免费开源的中后台模版，具备如下特性：
@@ -213,7 +213,7 @@
 
 ### 商城系统
 
-演示地址：<https://doc.iocoder.cn/mall-preview/>
+演示地址：<http://ruoyioffice.com/mall-preview/>
 
 ![功能图](/.gitee/image/common/mall-feature.png)
 
@@ -221,19 +221,19 @@
 
 ### ERP 系统
 
-演示地址：<https://doc.iocoder.cn/erp-preview/>
+演示地址：<http://ruoyioffice.com/erp-preview/>
 
 ![功能图](/.gitee/image/common/erp-feature.png)
 
 ### CRM 系统
 
-演示地址：<https://doc.iocoder.cn/crm-preview/>
+演示地址：<http://ruoyioffice.com/crm-preview/>
 
 ![功能图](/.gitee/image/common/crm-feature.png)
 
 ### AI 大模型
 
-演示地址：<https://doc.iocoder.cn/ai-preview/>
+演示地址：<http://ruoyioffice.com/ai-preview/>
 
 ![功能图](/.gitee/image/common/ai-feature.png)
 

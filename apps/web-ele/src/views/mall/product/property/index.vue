@@ -18,7 +18,7 @@ function handlePropertyIdSelect(propertyId: number) {
     <template #doc>
       <DocAlert
         title="【商品】商品属性"
-        url="https://doc.iocoder.cn/mall/product-property/"
+        url="http://ruoyioffice.com/mall/product-property/"
       />
     </template>
     <div class="flex h-full">

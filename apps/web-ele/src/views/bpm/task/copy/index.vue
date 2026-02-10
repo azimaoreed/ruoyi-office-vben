@@ -61,7 +61,7 @@ const [Grid] = useVbenVxeGrid({
     <template #doc>
       <DocAlert
         title="审批转办、委派、抄送"
-        url="https://doc.iocoder.cn/bpm/task-delegation-and-cc/"
+        url="http://ruoyioffice.com/bpm/task-delegation-and-cc/"
       />
     </template>
 

@@ -106,7 +106,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <template #doc>
       <DocAlert
         title="【产品】产品管理、产品分类"
-        url="https://doc.iocoder.cn/crm/product/"
+        url="http://ruoyioffice.com/crm/product/"
       />
     </template>
 

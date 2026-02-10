@@ -83,7 +83,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <template #doc>
       <DocAlert
         title="AI 工具调用（function calling）"
-        url="https://doc.iocoder.cn/ai/tool/"
+        url="http://ruoyioffice.com/ai/tool/"
       />
     </template>
     <FormModal @success="handleRefresh" />

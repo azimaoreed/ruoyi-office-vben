@@ -104,7 +104,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <template #doc>
       <DocAlert
         title="OAuth 2.0（SSO 单点登录）"
-        url="https://doc.iocoder.cn/oauth2/"
+        url="http://ruoyioffice.com/oauth2/"
       />
     </template>
 

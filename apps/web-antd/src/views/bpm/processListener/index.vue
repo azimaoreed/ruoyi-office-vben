@@ -87,7 +87,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <template #doc>
       <DocAlert
         title="执行监听器、任务监听器"
-        url="https://doc.iocoder.cn/bpm/listener/"
+        url="http://ruoyioffice.com/bpm/listener/"
       />
     </template>
 

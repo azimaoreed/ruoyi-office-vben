@@ -209,7 +209,7 @@ onMounted(async () => {
     <template #doc>
       <DocAlert
         title="【商品】商品 SPU 与 SKU"
-        url="https://doc.iocoder.cn/mall/product-spu-sku/"
+        url="http://ruoyioffice.com/mall/product-spu-sku/"
       />
     </template>
 

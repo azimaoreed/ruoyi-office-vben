@@ -80,11 +80,11 @@ onMounted(() => {
     <template #doc>
       <DocAlert
         title="【交易】交易订单"
-        url="https://doc.iocoder.cn/mall/trade-order/"
+        url="http://ruoyioffice.com/mall/trade-order/"
       />
       <DocAlert
         title="【交易】购物车"
-        url="https://doc.iocoder.cn/mall/trade-cart/"
+        url="http://ruoyioffice.com/mall/trade-cart/"
       />
     </template>
     <ElCard>

@@ -120,7 +120,7 @@ onActivated(() => {
     <template #doc>
       <DocAlert
         title="审批接入（流程表单）"
-        url="https://doc.iocoder.cn/bpm/use-bpm-form/"
+        url="http://ruoyioffice.com/bpm/use-bpm-form/"
       />
     </template>
 

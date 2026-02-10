@@ -77,7 +77,7 @@ const [Modal, modalApi] = useVbenModal({
           <p class="w-24 p-2">开发文档:</p>
           <VbenButton
             variant="link"
-            @click="openWindow('https://doc.iocoder.cn/quick-start/')"
+            @click="openWindow('http://ruoyioffice.com/quick-start/')"
           >
             项目文档
           </VbenButton>

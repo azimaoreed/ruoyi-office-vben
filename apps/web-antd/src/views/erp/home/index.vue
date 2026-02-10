@@ -23,7 +23,7 @@ const purchaseChartRef = ref();
     <template #doc>
       <DocAlert
         title="ERP 手册（功能开启）"
-        url="https://doc.iocoder.cn/erp/build/"
+        url="http://ruoyioffice.com/erp/build/"
       />
     </template>
 

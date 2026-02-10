@@ -53,7 +53,7 @@ onMounted(async () => {
     <template #doc>
       <DocAlert
         title="商城手册（功能开启）"
-        url="https://doc.iocoder.cn/mall/build/"
+        url="http://ruoyioffice.com/mall/build/"
       />
     </template>
 

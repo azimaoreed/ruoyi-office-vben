@@ -134,7 +134,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <template #doc>
       <DocAlert
         title="【库存】其它入库、其它出库"
-        url="https://doc.iocoder.cn/erp/stock-in-out/"
+        url="http://ruoyioffice.com/erp/stock-in-out/"
       />
     </template>
 

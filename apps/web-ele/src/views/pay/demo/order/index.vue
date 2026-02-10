@@ -88,19 +88,19 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <template #doc>
       <DocAlert
         title="支付宝支付接入"
-        url="https://doc.iocoder.cn/pay/alipay-pay-demo/"
+        url="http://ruoyioffice.com/pay/alipay-pay-demo/"
       />
       <DocAlert
         title="支付宝、微信退款接入"
-        url="https://doc.iocoder.cn/pay/refund-demo/"
+        url="http://ruoyioffice.com/pay/refund-demo/"
       />
       <DocAlert
         title="微信公众号支付接入"
-        url="https://doc.iocoder.cn/pay/wx-pub-pay-demo/"
+        url="http://ruoyioffice.com/pay/wx-pub-pay-demo/"
       />
       <DocAlert
         title="微信小程序支付接入"
-        url="https://doc.iocoder.cn/pay/wx-lite-pay-demo/"
+        url="http://ruoyioffice.com/pay/wx-lite-pay-demo/"
       />
     </template>
 

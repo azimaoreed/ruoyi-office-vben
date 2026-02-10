@@ -45,7 +45,7 @@ const [Grid] = useVbenVxeGrid({
     <template #doc>
       <DocAlert
         title="会员等级、积分、签到"
-        url="https://doc.iocoder.cn/member/level/"
+        url="http://ruoyioffice.com/member/level/"
       />
     </template>
     <Grid table-title="签到记录列表" />

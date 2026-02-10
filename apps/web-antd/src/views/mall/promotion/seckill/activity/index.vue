@@ -120,7 +120,7 @@ onMounted(async () => {
     <template #doc>
       <DocAlert
         title="【营销】秒杀活动"
-        url="https://doc.iocoder.cn/mall/promotion-seckill/"
+        url="http://ruoyioffice.com/mall/promotion-seckill/"
       />
     </template>
 

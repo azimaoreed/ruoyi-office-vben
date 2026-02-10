@@ -87,7 +87,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <template #doc>
       <DocAlert
         title="流程表达式"
-        url="https://doc.iocoder.cn/bpm/expression/"
+        url="http://ruoyioffice.com/bpm/expression/"
       />
     </template>
 

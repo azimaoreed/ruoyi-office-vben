@@ -127,11 +127,11 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <template #doc>
       <DocAlert
         title="【商机】商机管理、商机状态"
-        url="https://doc.iocoder.cn/crm/business/"
+        url="http://ruoyioffice.com/crm/business/"
       />
       <DocAlert
         title="【通用】数据权限"
-        url="https://doc.iocoder.cn/crm/permission/"
+        url="http://ruoyioffice.com/crm/permission/"
       />
     </template>
 

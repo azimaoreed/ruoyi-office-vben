@@ -9,7 +9,7 @@ export const VBEN_GITHUB_URL =
  * @zh_CN 文档地址
  */
 // export const VBEN_DOC_URL = 'https://doc.vben.pro';
-export const VBEN_DOC_URL = 'https://doc.iocoder.cn/';
+export const VBEN_DOC_URL = 'http://ruoyioffice.com/';
 
 /**
  * @zh_CN Vben Logo
