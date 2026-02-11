@@ -148,10 +148,11 @@ const formSchema = computed((): VbenFormSchema[] => {
       },
       fieldName: 'username',
       label: $t('authentication.username'),
+      defaultValue: import.meta.env.VITE_APP_DEFAULT_USERNAME || '',
       rules: z
         .string()
         .min(1, { message: $t('authentication.usernameTip') })
-        .default(import.meta.env.VITE_APP_DEFAULT_USERNAME),
+        .default(import.meta.env.VITE_APP_DEFAULT_USERNAME || ''),
     },
     {
       component: 'VbenInputPassword',
@@ -160,10 +161,11 @@ const formSchema = computed((): VbenFormSchema[] => {
       },
       fieldName: 'password',
       label: $t('authentication.password'),
+      defaultValue: import.meta.env.VITE_APP_DEFAULT_PASSWORD || '',
       rules: z
         .string()
         .min(1, { message: $t('authentication.passwordTip') })
-        .default(import.meta.env.VITE_APP_DEFAULT_PASSWORD),
+        .default(import.meta.env.VITE_APP_DEFAULT_PASSWORD || ''),
     },
   ];
 });
