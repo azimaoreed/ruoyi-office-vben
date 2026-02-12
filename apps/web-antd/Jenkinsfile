@@ -22,6 +22,14 @@ pipeline {
     // Node.js 内存限制（单位：MB，默认 4096MB = 4GB）
     // 如果构建仍然失败，可以增加到 6144 或 8192
     NODE_MEMORY_LIMIT = '4096'
+
+    // ========== 流量统计配置 ==========
+    // 百度统计 ID（注册 https://tongji.baidu.com → 获取站点 ID）
+    // 可通过 Jenkins 构建参数覆盖；留空则不启用百度统计
+    VITE_APP_BAIDU_CODE = 'ede2dc454379d7def7b4363ff72f8824'
+    // Google Analytics 衡量 ID（注册 https://analytics.google.com → 创建 GA4 媒体资源 → 获取 G-XXXXXXXXXX）
+    // 可通过 Jenkins 构建参数覆盖；留空则不启用 Google Analytics
+    VITE_APP_GA_ID = ''
   }
 
   stages {
