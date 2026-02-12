@@ -17,7 +17,7 @@
     <!-- ========== 流量统计 ========== -->
     <!-- 百度统计：VITE_APP_BAIDU_CODE 由构建环境变量注入，不硬编码在源码中 -->
     <script>
-      var HM_ID = '<%= VITE_APP_BAIDU_CODE %>'
+      var HM_ID = '<%= typeof VITE_APP_BAIDU_CODE !== "undefined" ? VITE_APP_BAIDU_CODE : "" %>'
       if (HM_ID) {
         var _hmt = _hmt || [];
         (function () {
@@ -30,7 +30,7 @@
     </script>
     <!-- Google Analytics (GA4)：VITE_APP_GA_ID 由构建环境变量注入，不硬编码在源码中 -->
     <script>
-      var GA_ID = '<%= VITE_APP_GA_ID %>'
+      var GA_ID = '<%= typeof VITE_APP_GA_ID !== "undefined" ? VITE_APP_GA_ID : "" %>'
       if (GA_ID) {
         (function () {
           var gs = document.createElement('script');
