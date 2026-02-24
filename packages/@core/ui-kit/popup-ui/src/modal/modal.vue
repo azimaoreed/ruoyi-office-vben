@@ -50,10 +50,12 @@ const props = withDefaults(defineProps<Props>(), {
 const components = globalShareState.getComponents();
 
 const contentRef = ref();
-// const wrapperRef = ref<HTMLElement>();
+// @ts-expect-error unused
+const wrapperRef = ref<HTMLElement>();
 const dialogRef = ref();
 const headerRef = ref();
-// const footerRef = ref();
+// @ts-expect-error unused
+const footerRef = ref();
 
 const id = useId();
 
@@ -242,7 +244,7 @@ function handleClosed() {
           shouldFullscreen ? 'sm:rounded-none' : 'sm:rounded-[var(--radius)]',
           modalClass,
           {
-            'border-border border': bordered,
+            'border border-border': bordered,
             'shadow-3xl': !bordered,
             'left-0 top-0 size-full max-h-full !translate-x-0 !translate-y-0':
               shouldFullscreen,
@@ -306,6 +308,7 @@ function handleClosed() {
         </VisuallyHidden>
       </DialogHeader>
       <div
+        ref="wrapperRef"
         :class="
           cn('relative min-h-40 flex-1 overflow-y-auto p-3', contentClass, {
             'pointer-events-none': showLoading || submitting,
@@ -317,7 +320,7 @@ function handleClosed() {
       <VbenLoading v-if="showLoading || submitting" spinning />
       <VbenIconButton
         v-if="fullscreenButton"
-        class="flex-center text-foreground/80 hover:bg-accent hover:text-accent-foreground absolute right-10 top-3 hidden size-6 rounded-full px-1 text-lg opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none sm:block"
+        class="flex-center absolute right-10 top-3 hidden size-6 rounded-full px-1 text-lg text-foreground/80 opacity-70 transition-opacity hover:bg-accent hover:text-accent-foreground hover:opacity-100 focus:outline-none disabled:pointer-events-none sm:block"
         @click="handleFullscreen"
       >
         <Shrink v-if="fullscreen" class="size-3.5" />
@@ -325,6 +328,7 @@ function handleClosed() {
       </VbenIconButton>
 
       <DialogFooter
+        ref="footerRef"
         v-if="showFooter"
         :class="
           cn(

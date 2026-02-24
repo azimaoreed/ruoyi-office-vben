@@ -34,7 +34,10 @@ import {
 
 // ======================= 自定义组件 =======================
 import { useApiSelect } from '#/components/form-create';
+import AreaSelect from '#/components/form-create/components/area-select.vue';
+import DeptSelect from '#/components/form-create/components/dept-select.vue';
 import DictSelect from '#/components/form-create/components/dict-select.vue';
+import IframeComponent from '#/components/form-create/components/iframe.vue';
 import { useImagesUpload } from '#/components/form-create/components/use-images-upload';
 import { Tinymce } from '#/components/tinymce';
 import { FileUpload, ImageUpload } from '#/components/upload';
@@ -44,12 +47,6 @@ const UserSelect = useApiSelect({
   labelField: 'nickname',
   valueField: 'id',
   url: '/system/user/simple-list',
-});
-const DeptSelect = useApiSelect({
-  name: 'DeptSelect',
-  labelField: 'name',
-  valueField: 'id',
-  url: '/system/dept/simple-list',
 });
 const ApiSelect = useApiSelect({
   name: 'ApiSelect',
@@ -65,6 +62,8 @@ const components = [
   UserSelect,
   DeptSelect,
   ApiSelect,
+  IframeComponent,
+  AreaSelect,
   ElAlert,
   ElTransfer,
   ElAside,

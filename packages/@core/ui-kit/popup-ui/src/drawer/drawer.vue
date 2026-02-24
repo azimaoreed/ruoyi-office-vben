@@ -54,7 +54,8 @@ const components = globalShareState.getComponents();
 const id = useId();
 provide('DISMISSABLE_DRAWER_ID', id);
 
-// const wrapperRef = ref<HTMLElement>();
+// @ts-expect-error unused
+const wrapperRef = ref<HTMLElement>();
 const { $t } = useSimpleLocale();
 const { isMobile } = useIsMobile();
 
@@ -223,7 +224,7 @@ const getForceMount = computed(() => {
             v-if="closable && closeIconPlacement === 'left'"
             as-child
             :disabled="submitting"
-            class="data-[state=open]:bg-secondary ml-[2px] cursor-pointer rounded-full opacity-80 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none"
+            class="ml-[2px] cursor-pointer rounded-full opacity-80 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-secondary"
           >
             <slot name="close-icon">
               <VbenIconButton>
@@ -264,7 +265,7 @@ const getForceMount = computed(() => {
             v-if="closable && closeIconPlacement === 'right'"
             as-child
             :disabled="submitting"
-            class="data-[state=open]:bg-secondary ml-[2px] cursor-pointer rounded-full opacity-80 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none"
+            class="ml-[2px] cursor-pointer rounded-full opacity-80 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-secondary"
           >
             <slot name="close-icon">
               <VbenIconButton>
@@ -281,6 +282,7 @@ const getForceMount = computed(() => {
         </VisuallyHidden>
       </template>
       <div
+        ref="wrapperRef"
         :class="
           cn('relative flex-1 overflow-y-auto p-3', contentClass, {
             'pointer-events-none': showLoading || submitting,

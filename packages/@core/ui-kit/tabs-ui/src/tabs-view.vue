@@ -2,7 +2,7 @@
 import type { TabsEmits, TabsProps } from './types';
 
 import { useForwardPropsEmits } from '@vben-core/composables';
-import { ChevronLeft, ChevronRight } from '@vben-core/icons';
+import { ChevronsLeft, ChevronsRight } from '@vben-core/icons';
 import { VbenScrollbar } from '@vben-core/shadcn-ui';
 
 import { Tabs, TabsChrome } from './components';
@@ -29,7 +29,8 @@ const forward = useForwardPropsEmits(props, emit);
 const {
   handleScrollAt,
   handleWheel,
-  scrollbarRef: _scrollbarRef,
+  // @ts-expect-error unused
+  scrollbarRef,
   scrollDirection,
   scrollIsAtLeft,
   scrollIsAtRight,
@@ -53,13 +54,13 @@ useTabsDrag(props, emit);
     <span
       v-show="showScrollButton"
       :class="{
-        'text-muted-foreground hover:bg-muted cursor-pointer': !scrollIsAtLeft,
+        'cursor-pointer text-muted-foreground hover:bg-muted': !scrollIsAtLeft,
         'pointer-events-none opacity-30': scrollIsAtLeft,
       }"
       class="border-r px-2"
       @click="scrollDirection('left')"
     >
-      <ChevronLeft class="size-4 h-full" />
+      <ChevronsLeft class="size-4 h-full" />
     </span>
 
     <div
@@ -69,7 +70,7 @@ useTabsDrag(props, emit);
       class="size-full flex-1 overflow-hidden"
     >
       <VbenScrollbar
-        ref="_scrollbarRef"
+        ref="scrollbarRef"
         :shadow-bottom="false"
         :shadow-top="false"
         class="h-full"
@@ -94,13 +95,13 @@ useTabsDrag(props, emit);
     <span
       v-show="showScrollButton"
       :class="{
-        'text-muted-foreground hover:bg-muted cursor-pointer': !scrollIsAtRight,
+        'cursor-pointer text-muted-foreground hover:bg-muted': !scrollIsAtRight,
         'pointer-events-none opacity-30': scrollIsAtRight,
       }"
-      class="text-muted-foreground hover:bg-muted cursor-pointer border-l px-2"
+      class="cursor-pointer border-l px-2 text-muted-foreground hover:bg-muted"
       @click="scrollDirection('right')"
     >
-      <ChevronRight class="size-4 h-full" />
+      <ChevronsRight class="size-4 h-full" />
     </span>
   </div>
 </template>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { CSSProperties } from 'vue';
 
-import { computed, useSlots, watchEffect } from 'vue';
+import { computed, shallowRef, useSlots, watchEffect } from 'vue';
 
 import { VbenScrollbar } from '@vben-core/shadcn-ui';
 
@@ -129,7 +129,8 @@ const extraVisible = defineModel<boolean>('extraVisible');
 const isLocked = useScrollLock(document.body);
 const slots = useSlots();
 
-// const asideRef = shallowRef<HTMLDivElement | null>();
+// @ts-expect-error unused
+const asideRef = shallowRef<HTMLDivElement | null>();
 
 const hiddenSideStyle = computed((): CSSProperties => calcMenuWidthStyle(true));
 
@@ -279,7 +280,7 @@ function handleMouseleave() {
       theme,
       {
         'bg-sidebar-deep': isSidebarMixed,
-        'border-border bg-sidebar border-r': !isSidebarMixed,
+        'border-r border-border bg-sidebar': !isSidebarMixed,
       },
     ]"
     :style="style"
@@ -307,7 +308,7 @@ function handleMouseleave() {
     >
       <button
         type="button"
-        class="border-border text-foreground/80 hover:border-primary hover:text-primary bg-accent inline-flex max-w-[120px] items-center justify-center rounded border border-dashed px-2 py-1 text-xs"
+        class="inline-flex max-w-[120px] items-center justify-center rounded border border-dashed border-border bg-accent px-2 py-1 text-xs text-foreground/80 hover:border-primary hover:text-primary"
         @click="emit('toggleExpandAllMenus')"
       >
         {{ expandAllMenusActive ? '收起所有菜单' : '展示所有菜单' }}
@@ -321,11 +322,12 @@ function handleMouseleave() {
     />
     <div
       v-if="isSidebarMixed"
+      ref="asideRef"
       :class="{
         'border-l': extraVisible,
       }"
       :style="extraStyle"
-      class="border-border bg-sidebar fixed top-0 h-full overflow-hidden border-r transition-all duration-200"
+      class="fixed top-0 h-full overflow-hidden border-r border-border bg-sidebar transition-all duration-200"
     >
       <SidebarCollapseButton
         v-if="isSidebarMixed && expandOnHover"
