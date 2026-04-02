@@ -142,7 +142,7 @@ async function handleDelete(id: number) {
 <template>
   <Page auto-content-height>
     <template #doc>
-      <DocAlert title="公众号素材" url="http://ruoyioffice.com/mp/material/" />
+      <DocAlert title="公众号素材" url="https://example.com/mp/material/" />
     </template>
     <Grid class="material-grid">
       <template #form-accountId>

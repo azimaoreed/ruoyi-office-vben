@@ -193,17 +193,17 @@ initDataSourceConfig();
     <template #doc>
       <DocAlert
         title="代码生成（单表）"
-        url="http://ruoyioffice.com/new-feature/"
+        url="https://example.com/new-feature/"
       />
       <DocAlert
         title="代码生成（树表）"
-        url="http://ruoyioffice.com/new-feature/tree/"
+        url="https://example.com/new-feature/tree/"
       />
       <DocAlert
         title="代码生成（主子表）"
-        url="http://ruoyioffice.com/new-feature/master-sub/"
+        url="https://example.com/new-feature/master-sub/"
       />
-      <DocAlert title="单元测试" url="http://ruoyioffice.com/unit-test/" />
+      <DocAlert title="单元测试" url="https://example.com/unit-test/" />
     </template>
 
     <ImportModal @success="handleRefresh" />

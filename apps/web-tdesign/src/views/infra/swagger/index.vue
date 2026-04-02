@@ -25,7 +25,7 @@ onMounted(async () => {
 <template>
   <Page auto-content-height>
     <template #doc>
-      <DocAlert title="接口文档" url="http://ruoyioffice.com/api-doc/" />
+      <DocAlert title="接口文档" url="https://example.com/api-doc/" />
     </template>
 
     <IFrame v-if="!loading" :src="src" />

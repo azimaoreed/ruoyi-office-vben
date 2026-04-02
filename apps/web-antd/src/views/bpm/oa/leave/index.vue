@@ -138,7 +138,7 @@ onActivated(() => {
     <template #doc>
       <DocAlert
         title="审批接入（业务表单）"
-        url="http://ruoyioffice.com/bpm/use-business-form/"
+        url="https://example.com/bpm/use-business-form/"
       />
     </template>
 

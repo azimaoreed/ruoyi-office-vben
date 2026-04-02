@@ -189,7 +189,7 @@ onMounted(async () => {
     <template #doc>
       <DocAlert
         title="WebSocket 实时通信"
-        url="http://ruoyioffice.com/websocket/"
+        url="https://example.com/websocket/"
       />
     </template>
 

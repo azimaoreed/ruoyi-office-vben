@@ -113,7 +113,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <template #doc>
       <DocAlert
         title="模版消息"
-        url="http://ruoyioffice.com/mp/message-template/"
+        url="https://example.com/mp/message-template/"
       />
     </template>
 

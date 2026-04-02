@@ -18,7 +18,7 @@ const src = ref(
     <template #doc>
       <DocAlert
         title="大屏设计器"
-        url="http://ruoyioffice.com/report/screen/"
+        url="https://example.com/report/screen/"
       />
     </template>
 

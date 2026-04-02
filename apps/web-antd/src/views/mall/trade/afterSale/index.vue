@@ -93,7 +93,7 @@ onMounted(() => {
     <template #doc>
       <DocAlert
         title="【交易】售后退款"
-        url="http://ruoyioffice.com/mall/trade-aftersale/"
+        url="https://example.com/mall/trade-aftersale/"
       />
     </template>
 

@@ -136,7 +136,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
 <template>
   <Page auto-content-height>
     <template #doc>
-      <DocAlert title="短信配置" url="http://ruoyioffice.com/sms/" />
+      <DocAlert title="短信配置" url="https://example.com/sms/" />
     </template>
 
     <FormModal @success="handleRefresh" />

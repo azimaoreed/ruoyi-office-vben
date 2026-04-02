@@ -113,7 +113,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <template #doc>
       <DocAlert
         title="【营销】优惠劵"
-        url="http://ruoyioffice.com/mall/promotion-coupon/"
+        url="https://example.com/mall/promotion-coupon/"
       />
     </template>
 

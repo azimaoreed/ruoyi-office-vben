@@ -18,7 +18,7 @@ defineProps<{ property: UserCardProperty }>();
         <ElAvatar :size="60">
           <IconifyIcon icon="ep:avatar" :size="60" />
         </ElAvatar>
-        <span class="text-[18px] font-bold">宇擎源码</span>
+        <span class="text-[18px] font-bold">项目团队</span>
       </div>
       <IconifyIcon icon="tdesign:qrcode" :size="20" />
     </div>

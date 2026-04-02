@@ -13,8 +13,8 @@
 - 演示地址【Vue3 + element-plus】：<http://dashboard-vue3.yudao.iocoder.cn>
 - 演示地址【Vue3 + vben5(ant-design-vue)】：<http://dashboard-vben.yudao.iocoder.cn>
 - 演示地址【Vue2 + element-ui】：<http://dashboard.yudao.iocoder.cn>
-- 启动文档：<http://ruoyioffice.com/quick-start/>
-- 视频教程：<http://ruoyioffice.com/video/>
+- 启动文档：<https://example.com/quick-start/>
+- 视频教程：<https://example.com/video/>
 
 ## 🐯 平台简介
 
@@ -213,7 +213,7 @@
 
 ### 商城系统
 
-演示地址：<http://ruoyioffice.com/mall-preview/>
+演示地址：<https://example.com/mall-preview/>
 
 ![功能图](/.gitee/image/common/mall-feature.png)
 
@@ -221,19 +221,19 @@
 
 ### ERP 系统
 
-演示地址：<http://ruoyioffice.com/erp-preview/>
+演示地址：<https://example.com/erp-preview/>
 
 ![功能图](/.gitee/image/common/erp-feature.png)
 
 ### CRM 系统
 
-演示地址：<http://ruoyioffice.com/crm-preview/>
+演示地址：<https://example.com/crm-preview/>
 
 ![功能图](/.gitee/image/common/crm-feature.png)
 
 ### AI 大模型
 
-演示地址：<http://ruoyioffice.com/ai-preview/>
+演示地址：<https://example.com/ai-preview/>
 
 ![功能图](/.gitee/image/common/ai-feature.png)
 

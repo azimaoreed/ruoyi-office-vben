@@ -73,7 +73,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <template #doc>
       <DocAlert
         title="支付宝、微信退款接入"
-        url="http://ruoyioffice.com/pay/refund-demo/"
+        url="https://example.com/pay/refund-demo/"
       />
     </template>
     <DetailModal @success="handleRefresh" />

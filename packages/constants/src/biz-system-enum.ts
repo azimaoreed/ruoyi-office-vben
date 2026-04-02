@@ -59,7 +59,7 @@ export const SystemUserSocialTypeEnum = {
 };
 
 /**
- * Created by 宇擎源码
+ * Created by 项目团队
  *
  * 枚举类
  */

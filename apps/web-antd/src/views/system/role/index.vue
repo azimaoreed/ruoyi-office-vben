@@ -151,9 +151,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <template #doc>
       <DocAlert
         title="功能权限"
-        url="http://ruoyioffice.com/resource-permission"
+        url="https://example.com/resource-permission"
       />
-      <DocAlert title="数据权限" url="http://ruoyioffice.com/data-permission" />
+      <DocAlert title="数据权限" url="https://example.com/data-permission" />
     </template>
 
     <FormModal @success="handleRefresh" />

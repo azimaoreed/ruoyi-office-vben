@@ -194,11 +194,11 @@ const [Grid, gridApi] = useVbenVxeGrid({
 <template>
   <Page auto-content-height>
     <template #doc>
-      <DocAlert title="用户体系" url="http://ruoyioffice.com/user-center/" />
-      <DocAlert title="三方登陆" url="http://ruoyioffice.com/social-user/" />
+      <DocAlert title="用户体系" url="https://example.com/user-center/" />
+      <DocAlert title="三方登陆" url="https://example.com/social-user/" />
       <DocAlert
         title="Excel 导入导出"
-        url="http://ruoyioffice.com/excel-import-and-export/"
+        url="https://example.com/excel-import-and-export/"
       />
     </template>
 

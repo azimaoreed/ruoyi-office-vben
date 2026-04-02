@@ -100,9 +100,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <template #doc>
       <DocAlert
         title="功能权限"
-        url="http://ruoyioffice.com/resource-permission"
+        url="https://example.com/resource-permission"
       />
-      <DocAlert title="菜单路由" url="http://ruoyioffice.com/vue3/route/" />
+      <DocAlert title="菜单路由" url="https://example.com/vue3/route/" />
     </template>
 
     <FormModal @success="handleRefresh" />

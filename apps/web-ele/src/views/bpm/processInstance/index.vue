@@ -131,7 +131,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <template #doc>
       <DocAlert
         title="流程发起、取消、重新发起"
-        url="http://ruoyioffice.com/bpm/process-instance"
+        url="https://example.com/bpm/process-instance"
       />
     </template>
 

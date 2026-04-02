@@ -16,14 +16,14 @@ defineOptions({
 
     <div class="mt-4 flex w-full justify-between">
       <a
-        href="http://ruoyioffice.com/"
+        href="https://example.com/"
         target="_blank"
         class="text-primary hover:text-primary/80 text-sm"
       >
         📚 开发指南
       </a>
       <a
-        href="http://ruoyioffice.com/video/"
+        href="https://example.com/video/"
         target="_blank"
         class="text-primary hover:text-primary/80 text-sm"
       >

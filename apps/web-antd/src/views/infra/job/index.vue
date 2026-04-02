@@ -184,9 +184,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
 <template>
   <Page auto-content-height>
     <template #doc>
-      <DocAlert title="定时任务" url="http://ruoyioffice.com/job/" />
-      <DocAlert title="异步任务" url="http://ruoyioffice.com/async-task/" />
-      <DocAlert title="消息队列" url="http://ruoyioffice.com/message-queue/" />
+      <DocAlert title="定时任务" url="https://example.com/job/" />
+      <DocAlert title="异步任务" url="https://example.com/async-task/" />
+      <DocAlert title="消息队列" url="https://example.com/message-queue/" />
     </template>
 
     <FormModal @success="handleRefresh" />

@@ -16,7 +16,7 @@ function handleDictTypeSelect(dictType: string) {
 <template>
   <Page auto-content-height>
     <template #doc>
-      <DocAlert title="字典管理" url="http://ruoyioffice.com/system-dict/" />
+      <DocAlert title="字典管理" url="https://example.com/system-dict/" />
     </template>
 
     <div class="flex h-full">

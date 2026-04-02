@@ -120,7 +120,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <template #doc>
       <DocAlert
         title="【商品】商品评价"
-        url="http://ruoyioffice.com/mall/product-comment/"
+        url="https://example.com/mall/product-comment/"
       />
     </template>
     <FormModal @success="handleRefresh" />

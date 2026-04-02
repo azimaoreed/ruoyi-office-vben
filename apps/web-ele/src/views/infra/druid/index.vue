@@ -24,10 +24,10 @@ onMounted(async () => {
 <template>
   <Page auto-content-height>
     <template #doc>
-      <DocAlert title="数据库 MyBatis" url="http://ruoyioffice.com/mybatis/" />
+      <DocAlert title="数据库 MyBatis" url="https://example.com/mybatis/" />
       <DocAlert
         title="多数据源（读写分离）"
-        url="http://ruoyioffice.com/dynamic-datasource/"
+        url="https://example.com/dynamic-datasource/"
       />
     </template>
 

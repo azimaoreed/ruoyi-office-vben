@@ -83,7 +83,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <template #doc>
       <DocAlert
         title="会员用户、标签、分组"
-        url="http://ruoyioffice.com/member/user/"
+        url="https://example.com/member/user/"
       />
     </template>
     <FormModal @success="handleRefresh" />

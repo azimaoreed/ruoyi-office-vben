@@ -57,7 +57,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
 <template>
   <Page auto-content-height>
     <template #doc>
-      <DocAlert title="地区 & IP" url="http://ruoyioffice.com/area-and-ip/" />
+      <DocAlert title="地区 & IP" url="https://example.com/area-and-ip/" />
     </template>
 
     <FormModal @success="handleRefresh" />

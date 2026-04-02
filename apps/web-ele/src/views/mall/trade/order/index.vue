@@ -96,11 +96,11 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <template #doc>
       <DocAlert
         title="【交易】交易订单"
-        url="http://ruoyioffice.com/mall/trade-order/"
+        url="https://example.com/mall/trade-order/"
       />
       <DocAlert
         title="【交易】购物车"
-        url="http://ruoyioffice.com/mall/trade-cart/"
+        url="https://example.com/mall/trade-cart/"
       />
     </template>
 

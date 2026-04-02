@@ -91,7 +91,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
 <template>
   <Page auto-content-height>
     <template #doc>
-      <DocAlert title="系统日志" url="http://ruoyioffice.com/system-log/" />
+      <DocAlert title="系统日志" url="https://example.com/system-log/" />
     </template>
 
     <DetailModal @success="handleRefresh" />

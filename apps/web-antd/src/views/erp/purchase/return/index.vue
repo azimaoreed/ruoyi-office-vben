@@ -137,7 +137,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <template #doc>
       <DocAlert
         title="【采购】采购订单、入库、退货"
-        url="http://ruoyioffice.com/erp/purchase/"
+        url="https://example.com/erp/purchase/"
       />
     </template>
     <FormModal @success="handleRefresh" />

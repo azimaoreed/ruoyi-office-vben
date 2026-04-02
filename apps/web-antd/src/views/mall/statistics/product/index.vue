@@ -13,7 +13,7 @@ defineOptions({ name: 'ProductStatistics' });
     <template #doc>
       <DocAlert
         title="【统计】会员、商品、交易统计"
-        url="http://ruoyioffice.com/mall/statistics/"
+        url="https://example.com/mall/statistics/"
       />
     </template>
 

@@ -85,7 +85,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <template #doc>
       <DocAlert
         title="会员等级、积分、签到"
-        url="http://ruoyioffice.com/member/level/"
+        url="https://example.com/member/level/"
       />
     </template>
 

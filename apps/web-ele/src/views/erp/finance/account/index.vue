@@ -119,7 +119,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <template #doc>
       <DocAlert
         title="【财务】采购付款、销售收款"
-        url="http://ruoyioffice.com/sale/finance-payment-receipt/"
+        url="https://example.com/sale/finance-payment-receipt/"
       />
     </template>
 

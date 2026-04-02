@@ -32,8 +32,8 @@ onMounted(() => {
 <template>
   <Page auto-content-height>
     <template #doc>
-      <DocAlert title="Redis 缓存" url="http://ruoyioffice.com/redis-cache/" />
-      <DocAlert title="本地缓存" url="http://ruoyioffice.com/local-cache/" />
+      <DocAlert title="Redis 缓存" url="https://example.com/redis-cache/" />
+      <DocAlert title="本地缓存" url="https://example.com/local-cache/" />
     </template>
 
     <NCard title="Redis 概览">

@@ -122,7 +122,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <template #doc>
       <DocAlert
         title="【库存】产品库存、库存明细"
-        url="http://ruoyioffice.com/erp/stock/"
+        url="https://example.com/erp/stock/"
       />
     </template>
 

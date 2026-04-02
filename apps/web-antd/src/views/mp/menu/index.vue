@@ -297,7 +297,7 @@ function menuToBackend(menu: any) {
 <template>
   <Page auto-content-height>
     <template #doc>
-      <DocAlert title="公众号菜单" url="http://ruoyioffice.com/mp/menu/" />
+      <DocAlert title="公众号菜单" url="https://example.com/mp/menu/" />
     </template>
 
     <!-- 搜索工作栏 -->

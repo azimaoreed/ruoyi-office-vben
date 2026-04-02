@@ -74,15 +74,15 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <template #doc>
       <DocAlert
         title="支付宝支付接入"
-        url="http://ruoyioffice.com/pay/alipay-pay-demo/"
+        url="https://example.com/pay/alipay-pay-demo/"
       />
       <DocAlert
         title="微信公众号支付接入"
-        url="http://ruoyioffice.com/pay/wx-pub-pay-demo/"
+        url="https://example.com/pay/wx-pub-pay-demo/"
       />
       <DocAlert
         title="微信小程序支付接入"
-        url="http://ruoyioffice.com/pay/wx-lite-pay-demo/"
+        url="https://example.com/pay/wx-lite-pay-demo/"
       />
     </template>
     <DetailModal @success="handleRefresh" />

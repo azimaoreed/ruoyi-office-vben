@@ -75,14 +75,14 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <template #doc>
       <DocAlert
         title="审批通过、不通过、驳回"
-        url="http://ruoyioffice.com/bpm/task-todo-done/"
+        url="https://example.com/bpm/task-todo-done/"
       />
-      <DocAlert title="审批加签、减签" url="http://ruoyioffice.com/bpm/sign/" />
+      <DocAlert title="审批加签、减签" url="https://example.com/bpm/sign/" />
       <DocAlert
         title="审批转办、委派、抄送"
-        url="http://ruoyioffice.com/bpm/task-delegation-and-cc/"
+        url="https://example.com/bpm/task-delegation-and-cc/"
       />
-      <DocAlert title="审批加签、减签" url="http://ruoyioffice.com/bpm/sign/" />
+      <DocAlert title="审批加签、减签" url="https://example.com/bpm/sign/" />
     </template>
 
     <Grid table-title="已办任务">

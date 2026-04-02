@@ -114,7 +114,7 @@ onMounted(async () => {
     <template #doc>
       <DocAlert
         title="【营销】秒杀活动"
-        url="http://ruoyioffice.com/mall/promotion-seckill/"
+        url="https://example.com/mall/promotion-seckill/"
       />
     </template>
 

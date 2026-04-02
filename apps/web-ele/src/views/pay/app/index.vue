@@ -135,7 +135,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
 <template>
   <Page auto-content-height>
     <template #doc>
-      <DocAlert title="支付功能开启" url="http://ruoyioffice.com/pay/build/" />
+      <DocAlert title="支付功能开启" url="https://example.com/pay/build/" />
     </template>
 
     <AppFormModal @success="handleRefresh" />

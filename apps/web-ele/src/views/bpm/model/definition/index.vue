@@ -92,7 +92,7 @@ onMounted(() => {
   <Page auto-content-height>
     <FormCreateDetailModal />
     <template #doc>
-      <DocAlert title="工作流手册" url="http://ruoyioffice.com/bpm/" />
+      <DocAlert title="工作流手册" url="https://example.com/bpm/" />
     </template>
     <Grid table-title="流程定义列表">
       <template #startUsers="{ row }">
