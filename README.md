@@ -292,6 +292,53 @@ MySQL / PostgreSQL / Oracle / 达梦 / 人大金仓 / SQL Server，**全面适�
 </tr>
 </table>
 
+## 🐳 Docker Compose 部署
+
+当前仓库是前端 monorepo，默认生产应用为 `apps/web-antd`。已经补充了 `docker-compose.yml` 与多阶段构建镜像，执行一次即可完成前端容器部署：
+
+```bash
+cp .env.docker .env
+docker compose up -d --build
+```
+
+默认访问地址：
+
+- 前端首页：`http://localhost:8080/web/`
+- 后端接口代理：`http://localhost:8080/admin-api`
+
+### 部署前提
+
+需要保证后端服务已经可访问。默认会把接口代理到宿主机的 `http://host.docker.internal:48080`，如果你的后端不在这个地址，请修改根目录 `.env` 中的参数：
+
+```bash
+APP_NAME=web-antd
+WEB_PORT=8080
+BACKEND_SCHEMA=http
+BACKEND_HOST=host.docker.internal
+BACKEND_PORT=48080
+```
+
+如果后端本身也运行在 Docker 中，建议把前后端加入同一个 Docker Network，然后把 `BACKEND_HOST` 改成后端服务名。
+
+### 目录说明
+
+- `docker-compose.yml`：容器编排入口，支持 `docker compose up -d --build`
+- `scripts/deploy/Dockerfile`：Node + pnpm 构建前端，Nginx 提供静态资源
+- `scripts/deploy/default.conf.template`：Nginx 路由与反向代理配置
+
+### 常用命令
+
+```bash
+# 查看容器日志
+docker compose logs -f
+
+# 停止并删除容器
+docker compose down
+
+# 重新构建指定前端应用
+APP_NAME=web-antd docker compose up -d --build
+```
+
 ---
 
 ## 📸 系统截图

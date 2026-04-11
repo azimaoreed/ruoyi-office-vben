@@ -35,9 +35,23 @@ async function loadLayout() {
   loading.value = true;
   try {
     const layoutItems = await getHomePageLayoutList(props.pageId);
+    const hasNotice = layoutItems.some(
+      (item) => item.componentCode === 'workbench_notice',
+    );
+    const visibleLayoutItems = layoutItems.filter(
+      (item) => item.componentCode !== 'workbench_notice',
+    );
+
+    if (hasNotice) {
+      visibleLayoutItems.forEach((item) => {
+        if (item.positionX === 0 && item.width === 16) {
+          item.width = 24;
+        }
+      });
+    }
 
     // 转换为 GridLayoutItem 格式
-    layout.value = layoutItems.map((item) => ({
+    layout.value = visibleLayoutItems.map((item) => ({
       i: `item-${item.id}`,
       x: item.positionX,
       y: item.positionY,
@@ -51,8 +65,8 @@ async function loadLayout() {
     }));
 
     // 尝试从第一个组件的配置中恢复全局配置（临时方案）
-    const firstItem = layoutItems[0];
-    if (layoutItems.length > 0 && firstItem?.config) {
+    const firstItem = visibleLayoutItems[0];
+    if (visibleLayoutItems.length > 0 && firstItem?.config) {
       try {
         const firstConfig = JSON.parse(firstItem.config);
         if (firstConfig._globalMargin !== undefined) {

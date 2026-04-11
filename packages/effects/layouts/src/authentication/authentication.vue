@@ -104,7 +104,12 @@ const logoSrc = computed(() => {
     </slot>
 
     <!-- 系统介绍 -->
-    <div v-if="!authPanelCenter" class="relative hidden w-0 flex-1 lg:block">
+    <div
+      v-if="
+        !authPanelCenter && (Boolean(sloganImage) || !!pageTitle || !!pageDescription)
+      "
+      class="relative hidden w-0 flex-1 lg:block"
+    >
       <div
         class="bg-background-deep absolute inset-0 h-full w-full dark:bg-[#070709]"
       >

@@ -11,6 +11,8 @@ defineOptions({
   name: 'Help',
 });
 
+const outsourcingQrCodeUrl = 'https://static.yudao.iocoder.cn/mp/xinyu370.jpeg';
+
 const keys = useMagicKeys();
 whenever(keys['Alt+KeyH']!, () => {
   modalApi.open();
@@ -90,7 +92,7 @@ const [Modal, modalApi] = useVbenModal({
       <div class="mt-2 flex justify-start">
         <p class="w-24 p-2">软件外包:</p>
         <img
-          src="/wx-xingyu.png"
+          :src="outsourcingQrCodeUrl"
           alt="数舵科技"
           class="cursor-pointer"
           width="80%"
