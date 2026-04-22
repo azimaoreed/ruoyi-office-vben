@@ -1,0 +1,224 @@
+name: Frontend Deploy Test
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontend-deploy-test
+  cancel-in-progress: true
+
+env:
+  APP_NAME: ruoyi-office-web-antd
+  DEPLOY_ROOT: ${{ vars.TEST_NGINX_DEPLOY_ROOT || '/data/nginx' }}
+  NGINX_CONTAINER_NAME: ${{ vars.TEST_NGINX_CONTAINER_NAME || 'nginx' }}
+  NGINX_HTTP_PORT: ${{ vars.TEST_NGINX_HTTP_PORT || '80' }}
+
+jobs:
+  build:
+    name: Build Frontend Artifact
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Generate version tag
+        id: version
+        run: |
+          SHORT_SHA="${GITHUB_SHA::7}"
+          DATE="$(date -u +%Y%m%d)"
+          TAG="test-${DATE}-${SHORT_SHA}"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+
+      - name: Build workspace packages
+        run: pnpm -r --filter "./packages/**" --filter "./internal/**" build
+
+      - name: Build web-antd
+        working-directory: apps/web-antd
+        run: pnpm build
+
+      - name: Package frontend artifact
+        run: |
+          tar -czf web-antd-dist.tar.gz -C apps/web-antd/dist .
+
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-antd-dist-${{ steps.version.outputs.tag }}
+          path: web-antd-dist.tar.gz
+          retention-days: 7
+
+      - name: Write build summary
+        run: |
+          echo "## Frontend Test Build" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Tag | \`${{ steps.version.outputs.tag }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Artifact | \`web-antd-dist.tar.gz\` |" >> "$GITHUB_STEP_SUMMARY"
+
+  deploy:
+    name: Deploy to Test Server
+    runs-on: ubuntu-latest
+    needs: build
+    environment: test
+    env:
+      TEST_SERVER_HOST: ${{ secrets.TEST_SERVER_HOST || vars.TEST_SERVER_HOST }}
+      TEST_SERVER_USER: ${{ secrets.TEST_SERVER_USER || vars.TEST_SERVER_USER }}
+      TEST_SERVER_PORT: ${{ secrets.TEST_SERVER_PORT || vars.TEST_SERVER_PORT || '22' }}
+      TEST_SERVER_SSH_KEY: ${{ secrets.TEST_SERVER_SSH_KEY }}
+      TEST_FRONTEND_API_PROXY_PASS: ${{ secrets.TEST_FRONTEND_API_PROXY_PASS || vars.TEST_FRONTEND_API_PROXY_PASS }}
+
+    steps:
+      - name: Validate deploy inputs
+        run: |
+          set -euo pipefail
+          missing=0
+          for key in TEST_SERVER_HOST TEST_SERVER_USER TEST_SERVER_SSH_KEY TEST_FRONTEND_API_PROXY_PASS; do
+            if [ -z "${!key:-}" ]; then
+              echo "ERROR: Missing required value: ${key}"
+              missing=1
+            fi
+          done
+          if [ "${missing}" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: web-antd-dist-${{ needs.build.outputs.tag }}
+
+      - name: Upload artifact to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ env.TEST_SERVER_HOST }}
+          username: ${{ env.TEST_SERVER_USER }}
+          key: ${{ env.TEST_SERVER_SSH_KEY }}
+          port: ${{ env.TEST_SERVER_PORT }}
+          source: web-antd-dist.tar.gz
+          target: /tmp/
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.TEST_SERVER_HOST }}
+          username: ${{ env.TEST_SERVER_USER }}
+          key: ${{ env.TEST_SERVER_SSH_KEY }}
+          port: ${{ env.TEST_SERVER_PORT }}
+          script_stop: true
+          command_timeout: 20m
+          script: |
+            set -euo pipefail
+
+            DEPLOY_ROOT="${{ env.DEPLOY_ROOT }}"
+            WEB_ROOT="${DEPLOY_ROOT}/html/web"
+            CONF_ROOT="${DEPLOY_ROOT}/conf/conf.d"
+            LOG_ROOT="${DEPLOY_ROOT}/logs"
+            ARCHIVE="/tmp/web-antd-dist.tar.gz"
+            CONTAINER_NAME="${{ env.NGINX_CONTAINER_NAME }}"
+            HTTP_PORT="${{ env.NGINX_HTTP_PORT }}"
+            API_PROXY_PASS="${{ env.TEST_FRONTEND_API_PROXY_PASS }}"
+
+            mkdir -p "${CONF_ROOT}" "${LOG_ROOT}" "${WEB_ROOT}"
+            rm -rf "${WEB_ROOT:?}/"*
+            tar -xzf "${ARCHIVE}" -C "${WEB_ROOT}"
+
+            cat > "${CONF_ROOT}/ruoyi-office.conf" <<EOF
+            server {
+                listen 80;
+                server_name _;
+
+                charset utf-8;
+
+                gzip on;
+                gzip_vary on;
+                gzip_min_length 1024;
+                gzip_comp_level 6;
+                gzip_types text/plain text/css text/xml text/javascript
+                           application/json application/javascript application/xml+rss
+                           application/x-javascript image/svg+xml;
+
+                location = / {
+                    return 302 /web;
+                }
+
+                location = /web {
+                    return 301 /web/;
+                }
+
+                location /web/ {
+                    alias /usr/share/nginx/html/web/;
+                    index index.html;
+                    try_files \$uri \$uri/ /web/index.html;
+                }
+
+                location ~* ^/web/(.+)\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+                    root /usr/share/nginx/html;
+                    expires 30d;
+                    add_header Cache-Control "public, immutable";
+                    access_log off;
+                }
+
+                location /admin-api {
+                    proxy_pass ${API_PROXY_PASS};
+                    proxy_set_header Host \$host;
+                    proxy_set_header X-Real-IP \$remote_addr;
+                    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto \$scheme;
+                    proxy_http_version 1.1;
+                    proxy_set_header Upgrade \$http_upgrade;
+                    proxy_set_header Connection "upgrade";
+                    proxy_connect_timeout 60s;
+                    proxy_send_timeout 60s;
+                    proxy_read_timeout 60s;
+                }
+            }
+            EOF
+
+            if docker ps --format '{{.Names}}' | grep -Fxq "${CONTAINER_NAME}"; then
+              docker exec "${CONTAINER_NAME}" nginx -t
+              docker exec "${CONTAINER_NAME}" nginx -s reload
+            else
+              if docker ps -a --format '{{.Names}}' | grep -Fxq "${CONTAINER_NAME}"; then
+                docker rm -f "${CONTAINER_NAME}"
+              fi
+
+              docker run -d \
+                --name "${CONTAINER_NAME}" \
+                --restart always \
+                -p "${HTTP_PORT}:80" \
+                -v "${DEPLOY_ROOT}/conf/conf.d:/etc/nginx/conf.d" \
+                -v "${DEPLOY_ROOT}/html:/usr/share/nginx/html" \
+                -v "${DEPLOY_ROOT}/logs:/var/log/nginx" \
+                nginx:latest
+
+              docker exec "${CONTAINER_NAME}" nginx -t
+            fi
+
+            curl -I --max-time 15 "http://127.0.0.1:${HTTP_PORT}/web/" | \
+              grep -Eq "HTTP/.* (200|301|302)"
+
+            rm -f "${ARCHIVE}"
+
+      - name: Write deploy summary
+        run: |
+          echo "## Frontend Test Deploy" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Tag | \`${{ needs.build.outputs.tag }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Server | \`${{ env.TEST_SERVER_HOST }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Path | \`${{ env.DEPLOY_ROOT }}/html/web\` |" >> "$GITHUB_STEP_SUMMARY"

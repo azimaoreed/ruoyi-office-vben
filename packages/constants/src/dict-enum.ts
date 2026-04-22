@@ -25,6 +25,7 @@ const SYSTEM_DICT = {
   SYSTEM_SOCIAL_TYPE: 'system_social_type',
   SCHEDULE_TYPE: 'schedule_type', // 日程类型
   SCHEDULE_CATEGORY: 'schedule_category', // 日程分类
+  SYSTEM_DEPT_ORG_TYPE: 'system_dept_org_type', // 日程分类
 } as const;
 
 /** ========== INFRA - 基础设施模块 ========== */

@@ -134,10 +134,10 @@ function openStartDeptSelect() {
 }
 
 /** 处理部门选择确认 */
-function handleDeptSelectConfirm(depts: SystemDeptApi.Dept[]) {
+function handleDeptSelectConfirm(dept: SystemDeptApi.Dept) {
   modelData.value = {
     ...modelData.value,
-    startDeptIds: depts.map((d) => d.id),
+    startDeptIds: dept.id ? [dept.id] : [],
   };
 }
 

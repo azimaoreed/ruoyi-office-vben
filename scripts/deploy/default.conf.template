@@ -1,0 +1,67 @@
+server {
+  listen ${NGINX_PORT};
+  server_name _;
+
+  charset utf-8;
+  client_max_body_size 100m;
+
+  location = / {
+    return 301 /web/;
+  }
+
+  location = /web {
+    return 301 /web/;
+  }
+
+  location = /web/ {
+    root /usr/share/nginx/html;
+    try_files /index.html =404;
+    index index.html;
+  }
+
+  location /web/admin-api/ {
+    rewrite ^/web(/admin-api/.*)$ $1 break;
+    proxy_pass ${BACKEND_SCHEMA}://${BACKEND_HOST}:${BACKEND_PORT};
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
+  location /admin-api/ {
+    proxy_pass ${BACKEND_SCHEMA}://${BACKEND_HOST}:${BACKEND_PORT};
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
+  location /web/infra/ws {
+    rewrite ^/web(/infra/ws.*)$ $1 break;
+    proxy_pass ${BACKEND_SCHEMA}://${BACKEND_HOST}:${BACKEND_PORT};
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
+  location /infra/ws {
+    proxy_pass ${BACKEND_SCHEMA}://${BACKEND_HOST}:${BACKEND_PORT};
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
+  location ~ ^/web/(.*)$ {
+    root /usr/share/nginx/html;
+    try_files /$1 /index.html =404;
+    index index.html;
+  }
+}
