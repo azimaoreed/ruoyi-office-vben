@@ -30,6 +30,7 @@ import {
   COMPARISON_OPERATORS,
   ConditionType,
   FieldPermissionType,
+  ModifyProcessResumeStrategy,
   NODE_DEFAULT_NAME,
   RejectHandlerType,
   RejectReasonType,
@@ -169,6 +170,11 @@ export type UserTaskFormType = {
   formDept?: string; // 表单内部门字段
   formUser?: string; // 表单内用户字段
   maxRemindCount?: number;
+  modifyProcessButtonName?: string;
+  modifyProcessChildProcessDefinitionKey?: string;
+  modifyProcessEnable?: boolean;
+  modifyProcessReasonTypes?: RejectReasonType[];
+  modifyProcessResumeStrategy?: ModifyProcessResumeStrategy;
   postIds?: number[]; // 岗位
   reasonRequire: boolean;
   rejectHandlerType?: RejectHandlerType;
@@ -251,6 +257,17 @@ export function useNodeForm(nodeType: BpmNodeTypeEnum) {
         RejectReasonType.RISK,
         RejectReasonType.OTHER,
       ],
+      modifyProcessEnable: false,
+      modifyProcessButtonName: '发起修改申请',
+      modifyProcessChildProcessDefinitionKey: '',
+      modifyProcessReasonTypes: [
+        RejectReasonType.SUPPLEMENT,
+        RejectReasonType.MODIFY,
+        RejectReasonType.RISK,
+        RejectReasonType.OTHER,
+      ],
+      modifyProcessResumeStrategy:
+        ModifyProcessResumeStrategy.CONTINUE_LAST_ACTIVE_NODE,
       assignStartUserHandlerType: AssignStartUserHandlerType.START_USER_AUDIT,
       returnNodeId: '',
       timeoutHandlerEnable: false,

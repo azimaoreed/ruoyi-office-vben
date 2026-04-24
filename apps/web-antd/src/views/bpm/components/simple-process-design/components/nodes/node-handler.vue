@@ -14,6 +14,7 @@ import {
   AssignEmptyHandlerType,
   AssignStartUserHandlerType,
   ConditionType,
+  ModifyProcessResumeStrategy,
   DEFAULT_CONDITION_GROUP_VALUE,
   NODE_DEFAULT_NAME,
   RejectHandlerType,
@@ -75,6 +76,19 @@ function addNode(type: number) {
           RejectReasonType.RISK,
           RejectReasonType.OTHER,
         ],
+      },
+      modifyProcessSetting: {
+        enable: false,
+        buttonName: '发起修改申请',
+        childProcessDefinitionKey: '',
+        reasonTypes: [
+          RejectReasonType.SUPPLEMENT,
+          RejectReasonType.MODIFY,
+          RejectReasonType.RISK,
+          RejectReasonType.OTHER,
+        ],
+        resumeStrategy:
+          ModifyProcessResumeStrategy.CONTINUE_LAST_ACTIVE_NODE,
       },
       timeoutHandler: {
         enable: false,

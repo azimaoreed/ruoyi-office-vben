@@ -3,6 +3,7 @@ import type { FormInstance } from 'ant-design-vue';
 import type { Rule } from 'ant-design-vue/es/form';
 
 import type { BpmProcessInstanceApi } from '#/api/bpm/processInstance';
+import type { SimpleFlowNode } from '#/views/bpm/components/simple-process-design';
 
 import { computed, nextTick, reactive, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
@@ -58,6 +59,7 @@ const props = defineProps<{
   normalFormApi: any; // 流程表单 formCreate Api
   processDefinition: any; // 流程定义信息
   processInstance: any; // 流程实例信息
+  processModelView?: any; // 流程模型视图
   userOptions: UserApi.SystemUserApi.User[];
   writableFields: string[]; // 流程表单可以编辑的字段
   beforeApproval?: () => Promise<boolean>; // 审批前的业务表单处理函数
@@ -114,19 +116,36 @@ const REJECT_REASON_TYPE_OPTIONS = [
   { label: '风险校正', value: TaskApi.BpmTaskRejectReasonTypeEnum.RISK },
   { label: '其他', value: TaskApi.BpmTaskRejectReasonTypeEnum.OTHER },
 ];
-const MODIFY_PROCESS_FALLBACK_CONFIG = Object.freeze({
-  buttonName: '申请修改设计',
-  childProcessDefinitionKey: 'modify_design_process',
-  resumeStrategy:
-    TaskApi.BpmModifyChildProcessResumeStrategyEnum
-      .CONTINUE_LAST_ACTIVE_NODE,
-  allowedReasonTypes: [
-    TaskApi.BpmTaskRejectReasonTypeEnum.MODIFY,
-    TaskApi.BpmTaskRejectReasonTypeEnum.SUPPLEMENT,
-    TaskApi.BpmTaskRejectReasonTypeEnum.RISK,
-    TaskApi.BpmTaskRejectReasonTypeEnum.OTHER,
-  ],
+function findSimpleFlowNodeById(
+  node: null | SimpleFlowNode | undefined,
+  nodeId: string,
+): null | SimpleFlowNode {
+  if (!node) {
+    return null;
+  }
+  if (node.id === nodeId) {
+    return node;
+  }
+  for (const child of node.conditionNodes || []) {
+    const matchNode = findSimpleFlowNodeById(child, nodeId);
+    if (matchNode) {
+      return matchNode;
+    }
+  }
+  return findSimpleFlowNodeById(node.childNode, nodeId);
+}
+
+const currentRunningNode = computed(() => {
+  const taskDefinitionKey = runningTask.value?.taskDefinitionKey;
+  const simpleModel = props.processModelView?.simpleModel as
+    | SimpleFlowNode
+    | undefined;
+  if (!taskDefinitionKey || !simpleModel) {
+    return null;
+  }
+  return findSimpleFlowNodeById(simpleModel, taskDefinitionKey);
 });
+
 const modifyProcessConfig = computed(() => {
   if (!runningTask.value || !isHandleTaskStatus()) {
     return null;
@@ -134,8 +153,26 @@ const modifyProcessConfig = computed(() => {
   if (runningTask.value.nodeType === BpmNodeTypeEnum.TRANSACTOR_NODE) {
     return null;
   }
-  // TASK-12 先用前端兜底配置打通入口，TASK-13 再切到设计器持久化配置。
-  return MODIFY_PROCESS_FALLBACK_CONFIG;
+  const modifyProcessSetting = currentRunningNode.value?.modifyProcessSetting;
+  if (
+    !modifyProcessSetting?.enable ||
+    !modifyProcessSetting.childProcessDefinitionKey
+  ) {
+    return null;
+  }
+  return {
+    buttonName: modifyProcessSetting.buttonName || '发起修改申请',
+    childProcessDefinitionKey: modifyProcessSetting.childProcessDefinitionKey,
+    resumeStrategy:
+      modifyProcessSetting.resumeStrategy ??
+      TaskApi.BpmModifyChildProcessResumeStrategyEnum
+        .CONTINUE_LAST_ACTIVE_NODE,
+    allowedReasonTypes:
+      modifyProcessSetting.reasonTypes &&
+      modifyProcessSetting.reasonTypes.length > 0
+        ? modifyProcessSetting.reasonTypes
+        : REJECT_REASON_TYPE_OPTIONS.map((item) => item.value),
+  };
 });
 const modifyProcessReasonTypeOptions = computed(() =>
   REJECT_REASON_TYPE_OPTIONS.filter((item) =>
@@ -1138,12 +1175,6 @@ defineExpose({ loadTodoTask });
               :rules="modifyProcessFormRule"
               label-width="100px"
             >
-              <Alert
-                class="mb-3"
-                message="当前阶段先使用默认修改子流程配置，TASK-13 会切到设计器配置。"
-                type="info"
-                show-icon
-              />
               <FormItem label="修改子流程">
                 <div class="text-[13px] text-gray-500">
                   {{ modifyProcessConfig.childProcessDefinitionKey }}

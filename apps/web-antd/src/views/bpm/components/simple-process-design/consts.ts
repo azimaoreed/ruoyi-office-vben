@@ -152,6 +152,18 @@ export enum RejectReasonType {
   OTHER = 4,
 }
 
+// 修改申请子流程恢复策略
+export enum ModifyProcessResumeStrategy {
+  /**
+   * 继续当前主流程节点
+   */
+  CONTINUE_LAST_ACTIVE_NODE = 1,
+  /**
+   * 回到指定节点
+   */
+  RETURN_TO_TARGET_NODE = 2,
+}
+
 // 用户任务超时处理类型枚举
 export enum TimeoutHandlerType {
   /**
@@ -462,6 +474,22 @@ export type RejectHandler = {
 };
 
 /**
+ * 修改申请子流程配置
+ */
+export type ModifyProcessSetting = {
+  // 是否启用
+  enable: boolean;
+  // 按钮名称
+  buttonName?: string;
+  // 子流程定义 Key
+  childProcessDefinitionKey?: string;
+  // 允许的原因分类
+  reasonTypes?: RejectReasonType[];
+  // 恢复策略
+  resumeStrategy?: ModifyProcessResumeStrategy;
+};
+
+/**
  * 审批超时结构定义
  */
 export type TimeoutHandler = {
@@ -652,6 +680,8 @@ export interface SimpleFlowNode {
   triggerSetting?: TriggerSetting;
   // 子流程
   childProcessSetting?: ChildProcessSetting;
+  // 修改申请子流程
+  modifyProcessSetting?: ModifyProcessSetting;
 }
 
 /**
@@ -789,6 +819,16 @@ export const REJECT_REASON_TYPES: DictDataType[] = [
   { label: '修改调整', value: RejectReasonType.MODIFY as any },
   { label: '风险校正', value: RejectReasonType.RISK as any },
   { label: '其他', value: RejectReasonType.OTHER as any },
+];
+export const MODIFY_PROCESS_RESUME_STRATEGIES: DictDataType[] = [
+  {
+    label: '子流程通过后继续当前节点',
+    value: ModifyProcessResumeStrategy.CONTINUE_LAST_ACTIVE_NODE as any,
+  },
+  {
+    label: '子流程通过后回到指定驳回节点',
+    value: ModifyProcessResumeStrategy.RETURN_TO_TARGET_NODE as any,
+  },
 ];
 export const ASSIGN_EMPTY_HANDLER_TYPES: DictDataType[] = [
   { label: '自动通过', value: 1 },
