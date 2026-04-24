@@ -684,21 +684,22 @@ async function handleReject() {
   try {
     if (!rejectFormRef.value) return;
     await rejectFormRef.value.validate();
+    const continueAfterModify =
+      rejectForm.rejectMode ===
+      TaskApi.BpmTaskRejectModeEnum.CONTINUE_AFTER_MODIFY;
+    const updatedVariables = getUpdatedProcessInstanceVariables();
     const data: TaskApi.BpmTaskApi.RejectTaskReq = {
       id: runningTask.value.id,
       reason: rejectForm.rejectDetail,
       rejectMode: rejectForm.rejectMode,
       rejectReasonType: rejectForm.rejectReasonType,
       rejectDetail: rejectForm.rejectDetail,
-      variables: getUpdatedProcessInstanceVariables(),
+      variables: updatedVariables,
     };
     if (isReturnAndReplayRejectMode.value) {
       data.targetTaskDefinitionKey = rejectForm.targetTaskDefinitionKey;
     }
-    if (
-      rejectForm.rejectMode ===
-      TaskApi.BpmTaskRejectModeEnum.CONTINUE_AFTER_MODIFY
-    ) {
+    if (continueAfterModify) {
       if (!modifyProcessConfig.value) {
         message.warning('当前节点未配置修改申请子流程');
         return;
@@ -706,18 +707,13 @@ async function handleReject() {
       data.childProcessDefinitionKey =
         modifyProcessConfig.value.childProcessDefinitionKey;
       data.resumeStrategy = modifyProcessConfig.value.resumeStrategy;
-      data.modifyPayload = getUpdatedProcessInstanceVariables();
+      data.modifyPayload = updatedVariables;
     }
     await TaskApi.rejectTask(data);
     popOverVisible.value.reject = false;
     resetRejectForm();
     rejectFormRef.value.clearValidate?.();
-    message.success(
-      rejectForm.rejectMode ===
-        TaskApi.BpmTaskRejectModeEnum.CONTINUE_AFTER_MODIFY
-        ? '已发起修改申请'
-        : '驳回成功',
-    );
+    message.success(continueAfterModify ? '已发起修改申请' : '驳回成功');
     // 操作成功后自动关闭当前页面
     await closeCurrentTab();
   } finally {
