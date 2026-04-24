@@ -32,6 +32,8 @@ import {
   FieldPermissionType,
   NODE_DEFAULT_NAME,
   RejectHandlerType,
+  RejectReasonType,
+  RejectTargetType,
 } from './consts';
 
 export function useWatchNode(props: {
@@ -170,6 +172,8 @@ export type UserTaskFormType = {
   postIds?: number[]; // 岗位
   reasonRequire: boolean;
   rejectHandlerType?: RejectHandlerType;
+  rejectReasonTypes?: RejectReasonType[];
+  rejectTargetType?: RejectTargetType;
   returnNodeId?: string;
   roleIds?: number[]; // 角色
   signEnable: boolean;
@@ -240,6 +244,13 @@ export function useNodeForm(nodeType: BpmNodeTypeEnum) {
       approveMethod: ApproveMethodType.SEQUENTIAL_APPROVE,
       approveRatio: 100,
       rejectHandlerType: RejectHandlerType.FINISH_PROCESS,
+      rejectTargetType: RejectTargetType.RUNTIME_SELECTABLE,
+      rejectReasonTypes: [
+        RejectReasonType.SUPPLEMENT,
+        RejectReasonType.MODIFY,
+        RejectReasonType.RISK,
+        RejectReasonType.OTHER,
+      ],
       assignStartUserHandlerType: AssignStartUserHandlerType.START_USER_AUDIT,
       returnNodeId: '',
       timeoutHandlerEnable: false,

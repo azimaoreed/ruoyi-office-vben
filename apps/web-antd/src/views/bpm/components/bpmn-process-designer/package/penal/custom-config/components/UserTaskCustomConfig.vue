@@ -41,6 +41,10 @@ import {
   OPERATION_BUTTON_NAME,
   REJECT_HANDLER_TYPES,
   RejectHandlerType,
+  REJECT_REASON_TYPES,
+  REJECT_TARGET_TYPES,
+  RejectReasonType,
+  RejectTargetType,
 } from '#/views/bpm/components/simple-process-design/consts';
 import { useFormFieldsPermission } from '#/views/bpm/components/simple-process-design/helpers';
 
@@ -66,8 +70,12 @@ const assignStartUserHandlerType = ref<any>();
 // 审批人拒绝时
 const rejectHandlerTypeEl = ref<any>();
 const rejectHandlerType = ref<any>();
+const rejectTargetTypeEl = ref<any>();
+const rejectTargetType = ref<any>();
 const returnNodeIdEl = ref<any>();
 const returnNodeId = ref<any>();
+const rejectReasonTypesEl = ref<any>();
+const rejectReasonTypes = ref<number[]>([]);
 const returnTaskList = ref<any[]>([]);
 
 // 审批人为空时
@@ -157,6 +165,23 @@ const elExtensionElements = ref<any>();
 const otherExtensions = ref<any>();
 const bpmnElement = ref<any>();
 const bpmnInstances = () => (window as any)?.bpmnInstances;
+const ALL_REJECT_REASON_TYPES = [
+  RejectReasonType.SUPPLEMENT,
+  RejectReasonType.MODIFY,
+  RejectReasonType.RISK,
+  RejectReasonType.OTHER,
+];
+
+function normalizeRejectReasonTypes(value?: string) {
+  if (!value) {
+    return [...ALL_REJECT_REASON_TYPES];
+  }
+  const parsedList = value
+    .split(',')
+    .map((item) => Number(item))
+    .filter((item) => !Number.isNaN(item));
+  return parsedList.length > 0 ? parsedList : [...ALL_REJECT_REASON_TYPES];
+}
 
 const resetCustomConfigList = () => {
   bpmnElement.value = bpmnInstances().bpmnElement;
@@ -197,6 +222,14 @@ const resetCustomConfigList = () => {
     )?.[0] ||
     bpmnInstances().moddle.create(`${prefix}:RejectHandlerType`, { value: 1 });
   rejectHandlerType.value = rejectHandlerTypeEl.value.value;
+  rejectTargetTypeEl.value =
+    elExtensionElements.value.values?.find(
+      (ex: any) => ex.$type === `${prefix}:RejectTargetType`,
+    )?.[0] ||
+    bpmnInstances().moddle.create(`${prefix}:RejectTargetType`, {
+      value: RejectTargetType.RUNTIME_SELECTABLE,
+    });
+  rejectTargetType.value = rejectTargetTypeEl.value.value;
   returnNodeIdEl.value =
     elExtensionElements.value.values?.find(
       (ex: any) => ex.$type === `${prefix}:RejectReturnTaskId`,
@@ -205,6 +238,16 @@ const resetCustomConfigList = () => {
       value: '',
     });
   returnNodeId.value = returnNodeIdEl.value.value;
+  rejectReasonTypesEl.value =
+    elExtensionElements.value.values?.find(
+      (ex: any) => ex.$type === `${prefix}:RejectReasonTypes`,
+    )?.[0] ||
+    bpmnInstances().moddle.create(`${prefix}:RejectReasonTypes`, {
+      value: ALL_REJECT_REASON_TYPES.join(','),
+    });
+  rejectReasonTypes.value = normalizeRejectReasonTypes(
+    rejectReasonTypesEl.value.value,
+  );
 
   // 审批人为空时
   assignEmptyHandlerTypeEl.value =
@@ -285,7 +328,9 @@ const resetCustomConfigList = () => {
       (ex: any) =>
         ex.$type !== `${prefix}:AssignStartUserHandlerType` &&
         ex.$type !== `${prefix}:RejectHandlerType` &&
+        ex.$type !== `${prefix}:RejectTargetType` &&
         ex.$type !== `${prefix}:RejectReturnTaskId` &&
+        ex.$type !== `${prefix}:RejectReasonTypes` &&
         ex.$type !== `${prefix}:AssignEmptyHandlerType` &&
         ex.$type !== `${prefix}:AssignEmptyUserIds` &&
         ex.$type !== `${prefix}:ButtonsSetting` &&
@@ -307,8 +352,32 @@ const updateAssignStartUserHandlerType = () => {
 
 const updateRejectHandlerType = () => {
   rejectHandlerTypeEl.value.value = rejectHandlerType.value;
+  if (rejectHandlerType.value === RejectHandlerType.RETURN_AND_REPLAY) {
+    rejectTargetType.value ??= RejectTargetType.RUNTIME_SELECTABLE;
+    rejectTargetTypeEl.value.value = rejectTargetType.value;
+    if (
+      rejectTargetType.value === RejectTargetType.FIXED_NODE &&
+      !returnNodeId.value
+    ) {
+      returnNodeId.value = returnTaskList.value[0]?.id;
+    }
+  } else {
+    rejectTargetType.value = undefined;
+    rejectTargetTypeEl.value.value = undefined;
+    returnNodeId.value = '';
+  }
+  returnNodeIdEl.value.value = returnNodeId.value;
 
-  returnNodeId.value = returnTaskList.value[0]?.id;
+  updateElementExtensions();
+};
+
+const updateRejectTargetType = () => {
+  rejectTargetTypeEl.value.value = rejectTargetType.value;
+  if (rejectTargetType.value === RejectTargetType.FIXED_NODE) {
+    returnNodeId.value ||= returnTaskList.value[0]?.id;
+  } else {
+    returnNodeId.value = '';
+  }
   returnNodeIdEl.value.value = returnNodeId.value;
 
   updateElementExtensions();
@@ -316,6 +385,12 @@ const updateRejectHandlerType = () => {
 
 const updateReturnNodeId = () => {
   returnNodeIdEl.value.value = returnNodeId.value;
+
+  updateElementExtensions();
+};
+
+const updateRejectReasonTypes = () => {
+  rejectReasonTypesEl.value.value = (rejectReasonTypes.value || []).join(',');
 
   updateElementExtensions();
 };
@@ -338,7 +413,9 @@ const updateElementExtensions = () => {
       ...otherExtensions.value,
       assignStartUserHandlerTypeEl.value,
       rejectHandlerTypeEl.value,
+      rejectTargetTypeEl.value,
       returnNodeIdEl.value,
+      rejectReasonTypesEl.value,
       assignEmptyHandlerTypeEl.value,
       assignEmptyUserIdsEl.value,
       approveType.value,
@@ -463,11 +540,7 @@ onMounted(async () => {
 
     <Divider orientation="left">审批人拒绝时</Divider>
     <Form.Item name="rejectHandlerType" label="处理方式">
-      <RadioGroup
-        v-model:value="rejectHandlerType"
-        :disabled="returnTaskList.length === 0"
-        @change="updateRejectHandlerType"
-      >
+      <RadioGroup v-model:value="rejectHandlerType" @change="updateRejectHandlerType">
         <Radio
           v-for="(item, index) in REJECT_HANDLER_TYPES"
           :key="index"
@@ -478,9 +551,31 @@ onMounted(async () => {
       </RadioGroup>
     </Form.Item>
     <Form.Item
-      v-if="rejectHandlerType === RejectHandlerType.RETURN_USER_TASK"
+      v-if="rejectHandlerType === RejectHandlerType.RETURN_AND_REPLAY"
+      name="rejectTargetType"
+      label="退回目标范围"
+    >
+      <RadioGroup v-model:value="rejectTargetType" @change="updateRejectTargetType">
+        <div class="flex flex-col gap-2">
+          <div v-for="(item, index) in REJECT_TARGET_TYPES" :key="index">
+            <Radio
+              :key="item.value"
+              :value="item.value"
+              :disabled="item.value === RejectTargetType.EXPRESSION_NODE"
+            >
+              {{ item.label }}
+            </Radio>
+          </div>
+        </div>
+      </RadioGroup>
+    </Form.Item>
+    <Form.Item
+      v-if="
+        rejectHandlerType === RejectHandlerType.RETURN_AND_REPLAY &&
+        rejectTargetType === RejectTargetType.FIXED_NODE
+      "
       name="returnNodeId"
-      label="驳回节点"
+      label="固定退回节点"
     >
       <Select
         v-model:value="returnNodeId"
@@ -495,6 +590,23 @@ onMounted(async () => {
           :value="item.id"
         >
           {{ item.name }}
+        </SelectOption>
+      </Select>
+    </Form.Item>
+    <Form.Item name="rejectReasonTypes" label="允许原因分类">
+      <Select
+        v-model:value="rejectReasonTypes"
+        allow-clear
+        mode="multiple"
+        style="width: 100%"
+        @change="updateRejectReasonTypes"
+      >
+        <SelectOption
+          v-for="item in REJECT_REASON_TYPES"
+          :key="item.value"
+          :value="item.value"
+        >
+          {{ item.label }}
         </SelectOption>
       </Select>
     </Form.Item>

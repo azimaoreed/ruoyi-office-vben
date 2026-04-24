@@ -17,6 +17,8 @@ import {
   DEFAULT_CONDITION_GROUP_VALUE,
   NODE_DEFAULT_NAME,
   RejectHandlerType,
+  RejectReasonType,
+  RejectTargetType,
 } from '../../consts';
 
 defineOptions({
@@ -66,6 +68,13 @@ function addNode(type: number) {
       // 超时处理
       rejectHandler: {
         type: RejectHandlerType.FINISH_PROCESS,
+        targetType: RejectTargetType.RUNTIME_SELECTABLE,
+        reasonTypes: [
+          RejectReasonType.SUPPLEMENT,
+          RejectReasonType.MODIFY,
+          RejectReasonType.RISK,
+          RejectReasonType.OTHER,
+        ],
       },
       timeoutHandler: {
         enable: false,

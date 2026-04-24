@@ -107,9 +107,49 @@ export enum RejectHandlerType {
    */
   FINISH_PROCESS = 1,
   /**
-   * 驳回到指定节点
+   * 退回重走
    */
-  RETURN_USER_TASK = 2,
+  RETURN_AND_REPLAY = 2,
+  /**
+   * 修改后继续
+   */
+  CONTINUE_AFTER_MODIFY = 3,
+}
+
+// 审批驳回目标范围
+export enum RejectTargetType {
+  /**
+   * 固定节点
+   */
+  FIXED_NODE = 1,
+  /**
+   * 运行时选择
+   */
+  RUNTIME_SELECTABLE = 2,
+  /**
+   * 表达式节点
+   */
+  EXPRESSION_NODE = 3,
+}
+
+// 审批驳回原因分类
+export enum RejectReasonType {
+  /**
+   * 补充资料
+   */
+  SUPPLEMENT = 1,
+  /**
+   * 修改调整
+   */
+  MODIFY = 2,
+  /**
+   * 风险校正
+   */
+  RISK = 3,
+  /**
+   * 其他
+   */
+  OTHER = 4,
 }
 
 // 用户任务超时处理类型枚举
@@ -411,8 +451,12 @@ export type ConditionSetting = {
  * 审批拒绝结构定义
  */
 export type RejectHandler = {
+  // 允许的原因分类
+  reasonTypes?: RejectReasonType[];
   // 退回节点 Id
   returnNodeId?: string;
+  // 驳回目标范围
+  targetType?: RejectTargetType;
   // 审批拒绝类型
   type: RejectHandlerType;
 };
@@ -726,8 +770,25 @@ export const TIMEOUT_HANDLER_TYPES: DictDataType[] = [
 ];
 export const REJECT_HANDLER_TYPES: DictDataType[] = [
   { label: '终止流程', value: RejectHandlerType.FINISH_PROCESS as any },
-  { label: '驳回到指定节点', value: RejectHandlerType.RETURN_USER_TASK as any },
-  // { label: '结束任务', value: RejectHandlerType.FINISH_TASK }
+  { label: '退回重走', value: RejectHandlerType.RETURN_AND_REPLAY as any },
+  { label: '修改后继续', value: RejectHandlerType.CONTINUE_AFTER_MODIFY as any },
+];
+export const REJECT_TARGET_TYPES: DictDataType[] = [
+  { label: '固定节点', value: RejectTargetType.FIXED_NODE as any },
+  {
+    label: '运行时选择',
+    value: RejectTargetType.RUNTIME_SELECTABLE as any,
+  },
+  {
+    label: '表达式节点（暂不支持）',
+    value: RejectTargetType.EXPRESSION_NODE as any,
+  },
+];
+export const REJECT_REASON_TYPES: DictDataType[] = [
+  { label: '补充资料', value: RejectReasonType.SUPPLEMENT as any },
+  { label: '修改调整', value: RejectReasonType.MODIFY as any },
+  { label: '风险校正', value: RejectReasonType.RISK as any },
+  { label: '其他', value: RejectReasonType.OTHER as any },
 ];
 export const ASSIGN_EMPTY_HANDLER_TYPES: DictDataType[] = [
   { label: '自动通过', value: 1 },

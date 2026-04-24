@@ -57,6 +57,10 @@ import {
   OPERATION_BUTTON_NAME,
   REJECT_HANDLER_TYPES,
   RejectHandlerType,
+  REJECT_REASON_TYPES,
+  REJECT_TARGET_TYPES,
+  RejectReasonType,
+  RejectTargetType,
   TIME_UNIT_TYPES,
   TIMEOUT_HANDLER_TYPES,
   TimeoutHandlerType,
@@ -189,6 +193,12 @@ const formRules: Record<string, Rule[]> = reactive({
   approveRatio: [
     { required: true, message: '通过比例不能为空', trigger: 'blur' },
   ],
+  rejectTargetType: [
+    { required: true, message: '退回目标范围不能为空', trigger: 'change' },
+  ],
+  rejectReasonTypes: [
+    { required: true, message: '原因分类不能为空', trigger: 'change' },
+  ],
   returnNodeId: [
     { required: true, message: '驳回节点不能为空', trigger: 'change' },
   ],
@@ -242,14 +252,64 @@ function handleExpressionSelected(row: any) {
   configForm.value.expression = row?.expression ?? '';
 }
 
+const ALL_REJECT_REASON_TYPES = [
+  RejectReasonType.SUPPLEMENT,
+  RejectReasonType.MODIFY,
+  RejectReasonType.RISK,
+  RejectReasonType.OTHER,
+];
+
+function applyDefaultRejectConfig() {
+  configForm.value.rejectTargetType ??= RejectTargetType.RUNTIME_SELECTABLE;
+  if (
+    !configForm.value.rejectReasonTypes ||
+    configForm.value.rejectReasonTypes.length === 0
+  ) {
+    configForm.value.rejectReasonTypes = [...ALL_REJECT_REASON_TYPES];
+  }
+  if (
+    configForm.value.rejectTargetType === RejectTargetType.FIXED_NODE &&
+    !configForm.value.returnNodeId
+  ) {
+    configForm.value.returnNodeId = returnTaskList.value[0]?.id;
+  }
+}
+
 /** 审批方式改变 */
 function approveMethodChanged() {
-  configForm.value.rejectHandlerType = RejectHandlerType.FINISH_PROCESS;
   if (configForm.value.approveMethod === ApproveMethodType.APPROVE_BY_RATIO) {
     configForm.value.approveRatio = 100;
   }
   formRef.value.clearValidate('approveRatio');
 }
+
+function rejectHandlerTypeChanged() {
+  if (
+    configForm.value.rejectHandlerType !== RejectHandlerType.RETURN_AND_REPLAY
+  ) {
+    configForm.value.rejectTargetType = undefined;
+    configForm.value.returnNodeId = '';
+    formRef.value.clearValidate(['rejectTargetType', 'returnNodeId']);
+    return;
+  }
+  configForm.value.rejectTargetType ??= RejectTargetType.RUNTIME_SELECTABLE;
+  if (
+    configForm.value.rejectTargetType === RejectTargetType.FIXED_NODE &&
+    !configForm.value.returnNodeId
+  ) {
+    configForm.value.returnNodeId = returnTaskList.value[0]?.id;
+  }
+}
+
+function rejectTargetTypeChanged() {
+  if (configForm.value.rejectTargetType === RejectTargetType.FIXED_NODE) {
+    configForm.value.returnNodeId ||= returnTaskList.value[0]?.id;
+    return;
+  }
+  configForm.value.returnNodeId = '';
+  formRef.value.clearValidate('returnNodeId');
+}
+
 // 审批拒绝 可退回的节点
 const returnTaskList = ref<SimpleFlowNode[]>([]);
 // 审批人超时未处理设置
@@ -329,7 +389,9 @@ async function saveConfig() {
   // 设置拒绝处理
   currentNode.value.rejectHandler = {
     type: configForm.value.rejectHandlerType!,
+    targetType: configForm.value.rejectTargetType,
     returnNodeId: configForm.value.returnNodeId,
+    reasonTypes: configForm.value.rejectReasonTypes,
   };
   // 设置超时处理
   currentNode.value.timeoutHandler = {
@@ -408,11 +470,15 @@ function showUserTaskNodeConfig(node: SimpleFlowNode) {
     configForm.value.approveRatio = node.approveRatio!;
   }
   // 2.3 设置审批拒绝处理
-  configForm.value.rejectHandlerType = node.rejectHandler?.type;
+  configForm.value.rejectHandlerType =
+    node.rejectHandler?.type ?? RejectHandlerType.FINISH_PROCESS;
+  configForm.value.rejectTargetType = node.rejectHandler?.targetType;
   configForm.value.returnNodeId = node.rejectHandler?.returnNodeId;
+  configForm.value.rejectReasonTypes = node.rejectHandler?.reasonTypes;
   const matchNodeList: SimpleFlowNode[] = [];
   emits('findReturnTaskNodes', matchNodeList);
   returnTaskList.value = matchNodeList;
+  applyDefaultRejectConfig();
   // 2.4 设置审批超时处理
   configForm.value.timeoutHandlerEnable = node.timeoutHandler?.enable;
   if (node.timeoutHandler?.enable && node.timeoutHandler?.timeDuration) {
@@ -921,6 +987,7 @@ onMounted(() => {
                 <RadioGroup
                   v-model:value="configForm.rejectHandlerType"
                   class="w-full"
+                  @change="rejectHandlerTypeChanged"
                 >
                   <Row :gutter="24">
                     <Col
@@ -939,9 +1006,41 @@ onMounted(() => {
               <FormItem
                 v-if="
                   configForm.rejectHandlerType ===
-                  RejectHandlerType.RETURN_USER_TASK
+                  RejectHandlerType.RETURN_AND_REPLAY
                 "
-                label="驳回节点"
+                label="退回目标范围"
+                name="rejectTargetType"
+              >
+                <RadioGroup
+                  v-model:value="configForm.rejectTargetType"
+                  @change="rejectTargetTypeChanged"
+                >
+                  <Row :gutter="[0, 8]">
+                    <Col
+                      :span="24"
+                      v-for="item in REJECT_TARGET_TYPES"
+                      :key="item.value"
+                    >
+                      <Radio
+                        :value="item.value"
+                        :disabled="
+                          item.value === RejectTargetType.EXPRESSION_NODE
+                        "
+                      >
+                        {{ item.label }}
+                      </Radio>
+                    </Col>
+                  </Row>
+                </RadioGroup>
+              </FormItem>
+
+              <FormItem
+                v-if="
+                  configForm.rejectHandlerType ===
+                    RejectHandlerType.RETURN_AND_REPLAY &&
+                  configForm.rejectTargetType === RejectTargetType.FIXED_NODE
+                "
+                label="固定退回节点"
                 name="returnNodeId"
               >
                 <Select v-model:value="configForm.returnNodeId" clearable>
@@ -952,6 +1051,27 @@ onMounted(() => {
                     :value="item.id"
                   >
                     {{ item.name }}
+                  </SelectOption>
+                </Select>
+              </FormItem>
+
+              <FormItem
+                label="允许原因分类"
+                name="rejectReasonTypes"
+                extra="默认勾选全部原因分类，可按业务限制可选项"
+              >
+                <Select
+                  v-model:value="configForm.rejectReasonTypes"
+                  mode="multiple"
+                  clearable
+                >
+                  <SelectOption
+                    v-for="item in REJECT_REASON_TYPES"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  >
+                    {{ item.label }}
                   </SelectOption>
                 </Select>
               </FormItem>
