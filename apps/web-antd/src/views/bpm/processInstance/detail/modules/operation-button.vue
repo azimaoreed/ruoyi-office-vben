@@ -83,6 +83,7 @@ const formLoading = ref(false); // 表单加载中
 const popOverVisible: any = ref({
   approve: false,
   reject: false,
+  modifyProcess: false,
   transfer: false,
   delegate: false,
   addSign: false,
@@ -113,6 +114,34 @@ const REJECT_REASON_TYPE_OPTIONS = [
   { label: '风险校正', value: TaskApi.BpmTaskRejectReasonTypeEnum.RISK },
   { label: '其他', value: TaskApi.BpmTaskRejectReasonTypeEnum.OTHER },
 ];
+const MODIFY_PROCESS_FALLBACK_CONFIG = Object.freeze({
+  buttonName: '申请修改设计',
+  childProcessDefinitionKey: 'modify_design_process',
+  resumeStrategy:
+    TaskApi.BpmModifyChildProcessResumeStrategyEnum
+      .CONTINUE_LAST_ACTIVE_NODE,
+  allowedReasonTypes: [
+    TaskApi.BpmTaskRejectReasonTypeEnum.MODIFY,
+    TaskApi.BpmTaskRejectReasonTypeEnum.SUPPLEMENT,
+    TaskApi.BpmTaskRejectReasonTypeEnum.RISK,
+    TaskApi.BpmTaskRejectReasonTypeEnum.OTHER,
+  ],
+});
+const modifyProcessConfig = computed(() => {
+  if (!runningTask.value || !isHandleTaskStatus()) {
+    return null;
+  }
+  if (runningTask.value.nodeType === BpmNodeTypeEnum.TRANSACTOR_NODE) {
+    return null;
+  }
+  // TASK-12 先用前端兜底配置打通入口，TASK-13 再切到设计器持久化配置。
+  return MODIFY_PROCESS_FALLBACK_CONFIG;
+});
+const modifyProcessReasonTypeOptions = computed(() =>
+  REJECT_REASON_TYPE_OPTIONS.filter((item) =>
+    modifyProcessConfig.value?.allowedReasonTypes.includes(item.value),
+  ),
+);
 
 // ========== 审批信息 ==========
 const runningTask = ref<any>(); // 运行中的任务
@@ -196,6 +225,36 @@ const rejectFormRule: any = computed(() => {
       },
     ],
   } as Record<string, Rule[]>;
+});
+
+// 修改申请子流程表单
+const modifyProcessFormRef = ref<FormInstance>();
+const modifyProcessForm = reactive({
+  reasonType: TaskApi.BpmTaskRejectReasonTypeEnum.MODIFY,
+  reasonDetail: '',
+  modifyPayloadText: '',
+});
+const modifyProcessFormRule: Record<string, Rule[]> = reactive({
+  reasonType: [
+    { required: true, message: '原因分类不能为空', trigger: 'change' },
+  ],
+  reasonDetail: [
+    { required: true, message: '原因说明不能为空', trigger: 'blur' },
+  ],
+  modifyPayloadText: [
+    {
+      trigger: 'blur',
+      validator: async (_rule: Rule, value: string) => {
+        if (!value) return Promise.resolve();
+        try {
+          JSON.parse(value);
+          return Promise.resolve();
+        } catch {
+          return Promise.reject(new Error('启动参数需为合法 JSON'));
+        }
+      },
+    },
+  ],
 });
 
 // 抄送表单
@@ -307,6 +366,14 @@ function resetRejectForm() {
   rejectForm.rejectDetail = '';
 }
 
+function resetModifyProcessForm() {
+  modifyProcessForm.reasonType =
+    modifyProcessReasonTypeOptions.value[0]?.value ??
+    TaskApi.BpmTaskRejectReasonTypeEnum.MODIFY;
+  modifyProcessForm.reasonDetail = '';
+  modifyProcessForm.modifyPayloadText = '';
+}
+
 watch(
   () => rejectForm.rejectMode,
   (rejectMode) => {
@@ -337,6 +404,9 @@ async function openPopover(type: string) {
     returnList.value = await TaskApi.getTaskListByReturn(runningTask.value.id);
     resetRejectForm();
   }
+  if (type === 'modifyProcess') {
+    resetModifyProcessForm();
+  }
   Object.keys(popOverVisible.value).forEach((item) => {
     if (popOverVisible.value[item]) popOverVisible.value[item] = item === type;
   });
@@ -348,6 +418,9 @@ async function openPopover(type: string) {
 function closePopover(type: string, formRef: any | FormInstance) {
   if (type === 'reject') {
     resetRejectForm();
+    formRef?.clearValidate?.();
+  } else if (type === 'modifyProcess') {
+    resetModifyProcessForm();
     formRef?.clearValidate?.();
   } else if (formRef) {
     formRef.resetFields();
@@ -504,6 +577,48 @@ async function handleReject() {
     rejectFormRef.value.clearValidate?.();
     message.success('驳回成功');
     // 操作成功后自动关闭当前页面
+    await closeCurrentTab();
+  } finally {
+    formLoading.value = false;
+  }
+}
+
+/** 处理发起修改申请子流程 */
+async function handleModifyProcess() {
+  formLoading.value = true;
+  try {
+    if (!modifyProcessFormRef.value || !modifyProcessConfig.value) return;
+    await modifyProcessFormRef.value.validate();
+    const valid = await validateNormalForm();
+    if (!valid) {
+      message.warning('表单校验不通过，请先完善表单!!');
+      return;
+    }
+
+    const modifyPayload = {
+      ...getUpdatedProcessInstanceVariables(),
+    } as Record<string, any>;
+    if (modifyProcessForm.modifyPayloadText) {
+      Object.assign(
+        modifyPayload,
+        JSON.parse(modifyProcessForm.modifyPayloadText),
+      );
+    }
+
+    await TaskApi.startModifyChildProcess({
+      id: runningTask.value.id,
+      childProcessDefinitionKey:
+        modifyProcessConfig.value.childProcessDefinitionKey,
+      reasonType: modifyProcessForm.reasonType,
+      reasonDetail: modifyProcessForm.reasonDetail,
+      modifyPayload:
+        Object.keys(modifyPayload).length > 0 ? modifyPayload : undefined,
+      resumeStrategy: modifyProcessConfig.value.resumeStrategy,
+    });
+    popOverVisible.value.modifyProcess = false;
+    resetModifyProcessForm();
+    modifyProcessFormRef.value.clearValidate?.();
+    message.success('已发起修改申请');
     await closeCurrentTab();
   } finally {
     formLoading.value = false;
@@ -993,6 +1108,82 @@ defineExpose({ loadTodoTask });
                     }}
                   </Button>
                   <Button @click="closePopover('reject', rejectFormRef)">
+                    取消
+                  </Button>
+                </Space>
+              </FormItem>
+            </Form>
+          </div>
+        </template>
+      </Popover>
+
+      <!-- 【申请修改设计】按钮 -->
+      <Popover
+        v-model:open="popOverVisible.modifyProcess"
+        placement="top"
+        :overlay-style="{ width: '420px' }"
+        trigger="click"
+        v-if="modifyProcessConfig"
+      >
+        <Button @click="openPopover('modifyProcess')">
+          {{ modifyProcessConfig.buttonName }}
+        </Button>
+        <template #content>
+          <div class="flex flex-1 flex-col px-5 pt-5" v-loading="formLoading">
+            <Form
+              layout="vertical"
+              class="mb-auto"
+              ref="modifyProcessFormRef"
+              :model="modifyProcessForm"
+              :rules="modifyProcessFormRule"
+              label-width="100px"
+            >
+              <Alert
+                class="mb-3"
+                message="当前阶段先使用默认修改子流程配置，TASK-13 会切到设计器配置。"
+                type="info"
+                show-icon
+              />
+              <FormItem label="修改子流程">
+                <div class="text-[13px] text-gray-500">
+                  {{ modifyProcessConfig.childProcessDefinitionKey }}
+                </div>
+              </FormItem>
+              <FormItem label="原因分类" name="reasonType">
+                <Select v-model:value="modifyProcessForm.reasonType">
+                  <SelectOption
+                    v-for="item in modifyProcessReasonTypeOptions"
+                    :key="item.value"
+                    :value="item.value"
+                  >
+                    {{ item.label }}
+                  </SelectOption>
+                </Select>
+              </FormItem>
+              <FormItem label="原因说明" name="reasonDetail">
+                <Textarea
+                  v-model:value="modifyProcessForm.reasonDetail"
+                  placeholder="请输入修改申请说明"
+                  :rows="4"
+                />
+              </FormItem>
+              <FormItem label="启动参数(JSON)" name="modifyPayloadText">
+                <Textarea
+                  v-model:value="modifyProcessForm.modifyPayloadText"
+                  placeholder='例如：{"returnNode":"Activity_Filing","modifyType":"filing_related"}'
+                  :rows="4"
+                />
+              </FormItem>
+              <FormItem>
+                <Space>
+                  <Button type="primary" @click="handleModifyProcess">
+                    {{ modifyProcessConfig.buttonName }}
+                  </Button>
+                  <Button
+                    @click="
+                      closePopover('modifyProcess', modifyProcessFormRef)
+                    "
+                  >
                     取消
                   </Button>
                 </Space>

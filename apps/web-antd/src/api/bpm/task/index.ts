@@ -17,6 +17,11 @@ export enum BpmTaskRejectReasonTypeEnum {
   OTHER = 4,
 }
 
+export enum BpmModifyChildProcessResumeStrategyEnum {
+  CONTINUE_LAST_ACTIVE_NODE = 1,
+  RETURN_TO_TARGET_NODE = 2,
+}
+
 export namespace BpmTaskApi {
   /** BPM 流程监听器 */
   export interface Task {
@@ -71,6 +76,15 @@ export namespace BpmTaskApi {
     name: string;
     taskDefinitionKey: string;
   }
+
+  export interface StartModifyChildProcessReq {
+    id: string;
+    childProcessDefinitionKey: string;
+    reasonType?: BpmTaskRejectReasonTypeEnum;
+    reasonDetail: string;
+    modifyPayload?: Record<string, any>;
+    resumeStrategy: BpmModifyChildProcessResumeStrategyEnum;
+  }
 }
 
 /** 查询待办任务分页 */
@@ -103,6 +117,13 @@ export const approveTask = async (data: any) => {
 /** 驳回任务 */
 export const rejectTask = async (data: BpmTaskApi.RejectTaskReq) => {
   return await requestClient.put('/bpm/task/reject', data);
+};
+
+/** 发起修改申请子流程 */
+export const startModifyChildProcess = async (
+  data: BpmTaskApi.StartModifyChildProcessReq,
+) => {
+  return await requestClient.put('/bpm/task/start-modify-child-process', data);
 };
 
 /** 根据流程实例 ID 查询任务列表 */
