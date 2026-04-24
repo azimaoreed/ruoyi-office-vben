@@ -85,6 +85,14 @@ export namespace BpmTaskApi {
     modifyPayload?: Record<string, any>;
     resumeStrategy: BpmModifyChildProcessResumeStrategyEnum;
   }
+
+  export interface CopyTaskReq {
+    id: string;
+    copyUserIds?: number[];
+    copyRoleIds?: number[];
+    copyDeptIds?: number[];
+    reason?: string;
+  }
 }
 
 /** 查询待办任务分页 */
@@ -161,7 +169,7 @@ export const signDeleteTask = async (data: any) => {
 };
 
 // 抄送
-export const copyTask = async (data: any) => {
+export const copyTask = async (data: BpmTaskApi.CopyTaskReq) => {
   return await requestClient.put('/bpm/task/copy', data);
 };
 

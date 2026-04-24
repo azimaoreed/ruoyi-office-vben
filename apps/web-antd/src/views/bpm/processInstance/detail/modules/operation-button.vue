@@ -43,6 +43,8 @@ import {
   getNextApprovalNodes,
 } from '#/api/bpm/processInstance';
 import * as TaskApi from '#/api/bpm/task';
+import * as DeptApi from '#/api/system/dept';
+import * as RoleApi from '#/api/system/role';
 import * as UserApi from '#/api/system/user';
 import { setConfAndFields2 } from '#/components/form-create';
 import { useFooterLeft } from '#/utils/useFooterLeft';
@@ -298,11 +300,46 @@ const modifyProcessFormRule: Record<string, Rule[]> = reactive({
 const copyFormRef = ref<FormInstance>();
 const copyForm = reactive({
   copyUserIds: [],
+  copyRoleIds: [],
+  copyDeptIds: [],
   copyReason: '',
 });
+const copyRoleOptions = ref<RoleApi.SystemRoleApi.Role[]>([]);
+const copyDeptOptions = ref<DeptApi.SystemDeptApi.Dept[]>([]);
+function hasCopyTarget() {
+  return (
+    copyForm.copyUserIds.length > 0 ||
+    copyForm.copyRoleIds.length > 0 ||
+    copyForm.copyDeptIds.length > 0
+  );
+}
 const copyFormRule: Record<string, Rule[]> = reactive({
   copyUserIds: [
-    { required: true, message: '抄送人不能为空', trigger: 'change' },
+    {
+      trigger: 'change',
+      validator: async () =>
+        hasCopyTarget()
+          ? Promise.resolve()
+          : Promise.reject(new Error('抄送对象不能为空')),
+    },
+  ],
+  copyRoleIds: [
+    {
+      trigger: 'change',
+      validator: async () =>
+        hasCopyTarget()
+          ? Promise.resolve()
+          : Promise.reject(new Error('抄送对象不能为空')),
+    },
+  ],
+  copyDeptIds: [
+    {
+      trigger: 'change',
+      validator: async () =>
+        hasCopyTarget()
+          ? Promise.resolve()
+          : Promise.reject(new Error('抄送对象不能为空')),
+    },
   ],
 });
 
@@ -443,6 +480,16 @@ async function openPopover(type: string) {
   }
   if (type === 'modifyProcess') {
     resetModifyProcessForm();
+  }
+  if (type === 'copy') {
+    if (copyRoleOptions.value.length === 0 || copyDeptOptions.value.length === 0) {
+      const [roleList, deptList] = await Promise.all([
+        RoleApi.getSimpleRoleList(),
+        DeptApi.getSimpleDeptList(),
+      ]);
+      copyRoleOptions.value = roleList;
+      copyDeptOptions.value = deptList;
+    }
   }
   Object.keys(popOverVisible.value).forEach((item) => {
     if (popOverVisible.value[item]) popOverVisible.value[item] = item === type;
@@ -674,6 +721,8 @@ async function handleCopy() {
       id: runningTask.value.id,
       reason: copyForm.copyReason,
       copyUserIds: copyForm.copyUserIds,
+      copyRoleIds: copyForm.copyRoleIds,
+      copyDeptIds: copyForm.copyDeptIds,
     };
     await TaskApi.copyTask(data);
     copyFormRef.value.resetFields();
@@ -1264,6 +1313,42 @@ defineExpose({ loadTodoTask });
                     :value="item.id"
                   >
                     {{ item.nickname }}
+                  </SelectOption>
+                </Select>
+              </FormItem>
+              <FormItem label="抄送角色" name="copyRoleIds">
+                <Select
+                  v-model:value="copyForm.copyRoleIds"
+                  :allow-clear="true"
+                  style="width: 100%"
+                  mode="multiple"
+                  placeholder="请选择抄送角色"
+                >
+                  <SelectOption
+                    v-for="item in copyRoleOptions"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id"
+                  >
+                    {{ item.name }}
+                  </SelectOption>
+                </Select>
+              </FormItem>
+              <FormItem label="抄送部门" name="copyDeptIds">
+                <Select
+                  v-model:value="copyForm.copyDeptIds"
+                  :allow-clear="true"
+                  style="width: 100%"
+                  mode="multiple"
+                  placeholder="请选择抄送部门"
+                >
+                  <SelectOption
+                    v-for="item in copyDeptOptions"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id"
+                  >
+                    {{ item.name }}
                   </SelectOption>
                 </Select>
               </FormItem>
