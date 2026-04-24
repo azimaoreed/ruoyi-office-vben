@@ -655,7 +655,7 @@ function useTimeoutHandler() {
     if (configForm.value.timeoutHandlerEnable) {
       timeUnit.value = 2;
       configForm.value.timeDuration = 6;
-      configForm.value.timeoutHandlerType = 1;
+      configForm.value.timeoutHandlerType = TimeoutHandlerType.REMINDER;
       configForm.value.maxRemindCount = 1;
     }
   };
@@ -1311,7 +1311,7 @@ onMounted(() => {
                 name="maxRemindCount"
                 v-if="
                   configForm.timeoutHandlerEnable &&
-                  configForm.timeoutHandlerType === 1
+                  configForm.timeoutHandlerType === TimeoutHandlerType.REMINDER
                 "
                 label-align="left"
                 :label-col="{ span: 6 }"

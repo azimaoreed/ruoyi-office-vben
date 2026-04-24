@@ -167,6 +167,10 @@ export enum ModifyProcessResumeStrategy {
 // 用户任务超时处理类型枚举
 export enum TimeoutHandlerType {
   /**
+   * 自动提醒
+   */
+  REMINDER = 1,
+  /**
    * 自动同意
    */
   APPROVE = 2,
@@ -175,9 +179,17 @@ export enum TimeoutHandlerType {
    */
   REJECT = 3,
   /**
-   * 自动提醒
+   * 自动转办给流程管理员
    */
-  REMINDER = 1,
+  TRANSFER = 4,
+  /**
+   * 自动跳过
+   */
+  SKIP = 5,
+  /**
+   * 自动终止流程
+   */
+  TERMINATE = 6,
 }
 
 // 用户任务的审批人为空时，处理类型枚举
@@ -794,9 +806,15 @@ export const TIME_UNIT_TYPES: DictDataType[] = [
 ];
 // 超时处理执行动作类型
 export const TIMEOUT_HANDLER_TYPES: DictDataType[] = [
-  { label: '自动提醒', value: 1 },
-  { label: '自动同意', value: 2 },
-  { label: '自动拒绝', value: 3 },
+  { label: '自动提醒', value: TimeoutHandlerType.REMINDER as any },
+  { label: '自动同意', value: TimeoutHandlerType.APPROVE as any },
+  { label: '自动拒绝', value: TimeoutHandlerType.REJECT as any },
+  {
+    label: '自动转办（流程管理员）',
+    value: TimeoutHandlerType.TRANSFER as any,
+  },
+  { label: '自动跳过', value: TimeoutHandlerType.SKIP as any },
+  { label: '自动终止流程', value: TimeoutHandlerType.TERMINATE as any },
 ];
 export const REJECT_HANDLER_TYPES: DictDataType[] = [
   { label: '终止流程', value: RejectHandlerType.FINISH_PROCESS as any },
