@@ -70,6 +70,9 @@ export namespace BpmTaskApi {
     rejectReasonType: BpmTaskRejectReasonTypeEnum;
     rejectDetail: string;
     variables?: Record<string, any>;
+    childProcessDefinitionKey?: string;
+    modifyPayload?: Record<string, any>;
+    resumeStrategy?: BpmModifyChildProcessResumeStrategyEnum;
   }
 
   export interface ReturnTaskNode {

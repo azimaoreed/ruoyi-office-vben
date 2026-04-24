@@ -97,18 +97,19 @@ const popOverVisible: any = ref({
 }); // 气泡卡是否展示
 const returnList = ref<TaskApi.BpmTaskApi.ReturnTaskNode[]>([]); // 可重走的目标节点
 
-const REJECT_MODE_OPTIONS = [
+const REJECT_MODE_OPTIONS = computed(() => [
   { label: '终止流程', value: TaskApi.BpmTaskRejectModeEnum.FINISH_PROCESS },
   {
     label: '退回重走',
     value: TaskApi.BpmTaskRejectModeEnum.RETURN_AND_REPLAY,
+    disabled: returnList.value.length === 0,
   },
   {
-    label: '修改后继续（暂未开放）',
+    label: '修改后继续',
     value: TaskApi.BpmTaskRejectModeEnum.CONTINUE_AFTER_MODIFY,
-    disabled: true,
+    disabled: !modifyProcessConfig.value,
   },
-];
+]);
 const REJECT_REASON_TYPE_OPTIONS = [
   {
     label: '补充资料',
@@ -181,6 +182,20 @@ const modifyProcessReasonTypeOptions = computed(() =>
     modifyProcessConfig.value?.allowedReasonTypes.includes(item.value),
   ),
 );
+const rejectReasonTypeOptions = computed(() => {
+  if (
+    rejectForm.rejectMode === TaskApi.BpmTaskRejectModeEnum.CONTINUE_AFTER_MODIFY
+  ) {
+    return modifyProcessReasonTypeOptions.value;
+  }
+  const allowedReasonTypes = currentRunningNode.value?.rejectHandler?.reasonTypes;
+  if (!allowedReasonTypes || allowedReasonTypes.length === 0) {
+    return REJECT_REASON_TYPE_OPTIONS;
+  }
+  return REJECT_REASON_TYPE_OPTIONS.filter((item) =>
+    allowedReasonTypes.includes(item.value),
+  );
+});
 
 // ========== 审批信息 ==========
 const runningTask = ref<any>(); // 运行中的任务
@@ -425,6 +440,22 @@ const isReturnAndReplayRejectMode = computed(
 );
 
 function getDefaultRejectMode() {
+  const nodeRejectMode = currentRunningNode.value?.rejectHandler?.type;
+  if (
+    nodeRejectMode === TaskApi.BpmTaskRejectModeEnum.CONTINUE_AFTER_MODIFY &&
+    modifyProcessConfig.value
+  ) {
+    return nodeRejectMode;
+  }
+  if (
+    nodeRejectMode === TaskApi.BpmTaskRejectModeEnum.RETURN_AND_REPLAY &&
+    returnList.value.length > 0
+  ) {
+    return nodeRejectMode;
+  }
+  if (nodeRejectMode === TaskApi.BpmTaskRejectModeEnum.FINISH_PROCESS) {
+    return nodeRejectMode;
+  }
   if (returnList.value.length > 0) {
     return TaskApi.BpmTaskRejectModeEnum.RETURN_AND_REPLAY;
   }
@@ -436,7 +467,9 @@ function resetRejectForm() {
   rejectForm.rejectMode = getDefaultRejectMode();
   rejectForm.targetTaskDefinitionKey =
     returnList.value[0]?.taskDefinitionKey || undefined;
-  rejectForm.rejectReasonType = TaskApi.BpmTaskRejectReasonTypeEnum.OTHER;
+  rejectForm.rejectReasonType =
+    rejectReasonTypeOptions.value[0]?.value ??
+    TaskApi.BpmTaskRejectReasonTypeEnum.OTHER;
   rejectForm.rejectDetail = '';
 }
 
@@ -456,9 +489,16 @@ watch(
         rejectForm.targetTaskDefinitionKey ||
         returnList.value[0]?.taskDefinitionKey ||
         undefined;
-      return;
     }
-    rejectForm.targetTaskDefinitionKey = undefined;
+    if (rejectMode !== TaskApi.BpmTaskRejectModeEnum.RETURN_AND_REPLAY) {
+      rejectForm.targetTaskDefinitionKey = undefined;
+    }
+    rejectForm.rejectReasonType =
+      rejectReasonTypeOptions.value.find(
+        (item) => item.value === rejectForm.rejectReasonType,
+      )?.value ??
+      rejectReasonTypeOptions.value[0]?.value ??
+      TaskApi.BpmTaskRejectReasonTypeEnum.OTHER;
   },
 );
 
@@ -655,11 +695,29 @@ async function handleReject() {
     if (isReturnAndReplayRejectMode.value) {
       data.targetTaskDefinitionKey = rejectForm.targetTaskDefinitionKey;
     }
+    if (
+      rejectForm.rejectMode ===
+      TaskApi.BpmTaskRejectModeEnum.CONTINUE_AFTER_MODIFY
+    ) {
+      if (!modifyProcessConfig.value) {
+        message.warning('当前节点未配置修改申请子流程');
+        return;
+      }
+      data.childProcessDefinitionKey =
+        modifyProcessConfig.value.childProcessDefinitionKey;
+      data.resumeStrategy = modifyProcessConfig.value.resumeStrategy;
+      data.modifyPayload = getUpdatedProcessInstanceVariables();
+    }
     await TaskApi.rejectTask(data);
     popOverVisible.value.reject = false;
     resetRejectForm();
     rejectFormRef.value.clearValidate?.();
-    message.success('驳回成功');
+    message.success(
+      rejectForm.rejectMode ===
+        TaskApi.BpmTaskRejectModeEnum.CONTINUE_AFTER_MODIFY
+        ? '已发起修改申请'
+        : '驳回成功',
+    );
     // 操作成功后自动关闭当前页面
     await closeCurrentTab();
   } finally {
@@ -1131,17 +1189,7 @@ defineExpose({ loadTodoTask });
                 <Select
                   v-model:value="rejectForm.rejectMode"
                   style="width: 100%"
-                  :options="
-                    REJECT_MODE_OPTIONS.map((item) => ({
-                      ...item,
-                      disabled:
-                        item.value ===
-                          TaskApi.BpmTaskRejectModeEnum.RETURN_AND_REPLAY &&
-                        returnList.length === 0
-                          ? true
-                          : item.disabled,
-                    }))
-                  "
+                  :options="REJECT_MODE_OPTIONS"
                 />
               </FormItem>
               <FormItem
@@ -1168,7 +1216,7 @@ defineExpose({ loadTodoTask });
                 <Select
                   v-model:value="rejectForm.rejectReasonType"
                   style="width: 100%"
-                  :options="REJECT_REASON_TYPE_OPTIONS"
+                  :options="rejectReasonTypeOptions"
                 />
               </FormItem>
               <FormItem label="原因说明" name="rejectDetail">
