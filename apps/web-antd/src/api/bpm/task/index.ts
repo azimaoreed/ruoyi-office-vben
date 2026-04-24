@@ -4,6 +4,19 @@ import type { BpmProcessInstanceApi } from '../processInstance';
 
 import { requestClient } from '#/api/request';
 
+export enum BpmTaskRejectModeEnum {
+  FINISH_PROCESS = 1,
+  RETURN_AND_REPLAY = 2,
+  CONTINUE_AFTER_MODIFY = 3,
+}
+
+export enum BpmTaskRejectReasonTypeEnum {
+  SUPPLEMENT = 1,
+  MODIFY = 2,
+  RISK = 3,
+  OTHER = 4,
+}
+
 export namespace BpmTaskApi {
   /** BPM 流程监听器 */
   export interface Task {
@@ -43,6 +56,21 @@ export namespace BpmTaskApi {
     reasonRequire: any; // 原因设置
     nodeType: any; // 节点类型
   }
+
+  export interface RejectTaskReq {
+    id: string;
+    reason?: string;
+    rejectMode: BpmTaskRejectModeEnum;
+    targetTaskDefinitionKey?: string;
+    rejectReasonType: BpmTaskRejectReasonTypeEnum;
+    rejectDetail: string;
+    variables?: Record<string, any>;
+  }
+
+  export interface ReturnTaskNode {
+    name: string;
+    taskDefinitionKey: string;
+  }
 }
 
 /** 查询待办任务分页 */
@@ -73,7 +101,7 @@ export const approveTask = async (data: any) => {
 };
 
 /** 驳回任务 */
-export const rejectTask = async (data: any) => {
+export const rejectTask = async (data: BpmTaskApi.RejectTaskReq) => {
   return await requestClient.put('/bpm/task/reject', data);
 };
 
@@ -86,12 +114,9 @@ export const getTaskListByProcessInstanceId = async (id: string) => {
 
 /** 获取所有可退回的节点 */
 export const getTaskListByReturn = async (id: string) => {
-  return await requestClient.get(`/bpm/task/list-by-return?id=${id}`);
-};
-
-/** 退回 */
-export const returnTask = async (data: any) => {
-  return await requestClient.put('/bpm/task/return', data);
+  return await requestClient.get<BpmTaskApi.ReturnTaskNode[]>(
+    `/bpm/task/list-by-return?id=${id}`,
+  );
 };
 
 // 委派

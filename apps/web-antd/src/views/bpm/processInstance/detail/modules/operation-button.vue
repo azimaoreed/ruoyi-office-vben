@@ -86,12 +86,33 @@ const popOverVisible: any = ref({
   transfer: false,
   delegate: false,
   addSign: false,
-  return: false,
   copy: false,
   cancel: false,
   deleteSign: false,
 }); // 气泡卡是否展示
-const returnList = ref([] as any); // 退回节点
+const returnList = ref<TaskApi.BpmTaskApi.ReturnTaskNode[]>([]); // 可重走的目标节点
+
+const REJECT_MODE_OPTIONS = [
+  { label: '终止流程', value: TaskApi.BpmTaskRejectModeEnum.FINISH_PROCESS },
+  {
+    label: '退回重走',
+    value: TaskApi.BpmTaskRejectModeEnum.RETURN_AND_REPLAY,
+  },
+  {
+    label: '修改后继续（暂未开放）',
+    value: TaskApi.BpmTaskRejectModeEnum.CONTINUE_AFTER_MODIFY,
+    disabled: true,
+  },
+];
+const REJECT_REASON_TYPE_OPTIONS = [
+  {
+    label: '补充资料',
+    value: TaskApi.BpmTaskRejectReasonTypeEnum.SUPPLEMENT,
+  },
+  { label: '修改调整', value: TaskApi.BpmTaskRejectReasonTypeEnum.MODIFY },
+  { label: '风险校正', value: TaskApi.BpmTaskRejectReasonTypeEnum.RISK },
+  { label: '其他', value: TaskApi.BpmTaskRejectReasonTypeEnum.OTHER },
+];
 
 // ========== 审批信息 ==========
 const runningTask = ref<any>(); // 运行中的任务
@@ -132,15 +153,45 @@ const approveReasonRule: Record<string, any> = computed(() => {
 
 // 拒绝表单
 const rejectFormRef = ref<FormInstance>();
-const rejectReasonForm = reactive({
-  reason: '',
+const rejectForm = reactive<TaskApi.BpmTaskApi.RejectTaskReq>({
+  id: '',
+  rejectMode: TaskApi.BpmTaskRejectModeEnum.FINISH_PROCESS,
+  targetTaskDefinitionKey: undefined,
+  rejectReasonType: TaskApi.BpmTaskRejectReasonTypeEnum.OTHER,
+  rejectDetail: '',
 });
-const rejectReasonRule: any = computed(() => {
+const rejectFormRule: any = computed(() => {
   return {
-    reason: [
+    rejectMode: [
       {
-        required: reasonRequire.value,
-        message: '审批意见不能为空',
+        required: true,
+        message: '驳回模式不能为空',
+        trigger: 'change',
+      },
+    ],
+    targetTaskDefinitionKey: [
+      {
+        required:
+          rejectForm.rejectMode ===
+          TaskApi.BpmTaskRejectModeEnum.RETURN_AND_REPLAY,
+        message: '退回节点不能为空',
+        trigger: 'change',
+      },
+    ],
+    rejectReasonType: [
+      {
+        required: true,
+        message: '原因分类不能为空',
+        trigger: 'change',
+      },
+    ],
+    rejectDetail: [
+      {
+        required:
+          reasonRequire.value ||
+          rejectForm.rejectMode ===
+            TaskApi.BpmTaskRejectModeEnum.RETURN_AND_REPLAY,
+        message: '原因说明不能为空',
         trigger: 'blur',
       },
     ],
@@ -211,21 +262,6 @@ const deleteSignFormRule: Record<string, Rule[]> = reactive({
   reason: [{ required: true, message: '审批意见不能为空', trigger: 'blur' }],
 });
 
-// 退回表单
-const returnFormRef = ref<FormInstance>();
-const returnForm = reactive({
-  targetTaskDefinitionKey: undefined,
-  returnReason: '',
-});
-const returnFormRule: Record<string, Rule[]> = reactive({
-  targetTaskDefinitionKey: [
-    { required: true, message: '退回节点不能为空', trigger: 'change' },
-  ],
-  returnReason: [
-    { required: true, message: '退回理由不能为空', trigger: 'blur' },
-  ],
-});
-
 // 取消表单
 const cancelFormRef = ref<FormInstance>();
 
@@ -250,6 +286,41 @@ watch(
   },
 );
 
+const isReturnAndReplayRejectMode = computed(
+  () =>
+    rejectForm.rejectMode === TaskApi.BpmTaskRejectModeEnum.RETURN_AND_REPLAY,
+);
+
+function getDefaultRejectMode() {
+  if (returnList.value.length > 0) {
+    return TaskApi.BpmTaskRejectModeEnum.RETURN_AND_REPLAY;
+  }
+  return TaskApi.BpmTaskRejectModeEnum.FINISH_PROCESS;
+}
+
+function resetRejectForm() {
+  rejectForm.id = runningTask.value?.id || '';
+  rejectForm.rejectMode = getDefaultRejectMode();
+  rejectForm.targetTaskDefinitionKey =
+    returnList.value[0]?.taskDefinitionKey || undefined;
+  rejectForm.rejectReasonType = TaskApi.BpmTaskRejectReasonTypeEnum.OTHER;
+  rejectForm.rejectDetail = '';
+}
+
+watch(
+  () => rejectForm.rejectMode,
+  (rejectMode) => {
+    if (rejectMode === TaskApi.BpmTaskRejectModeEnum.RETURN_AND_REPLAY) {
+      rejectForm.targetTaskDefinitionKey =
+        rejectForm.targetTaskDefinitionKey ||
+        returnList.value[0]?.taskDefinitionKey ||
+        undefined;
+      return;
+    }
+    rejectForm.targetTaskDefinitionKey = undefined;
+  },
+);
+
 /** 弹出气泡卡 */
 async function openPopover(type: string) {
   if (type === 'approve') {
@@ -261,13 +332,10 @@ async function openPopover(type: string) {
     }
     initNextAssigneesFormField();
   }
-  if (type === 'return') {
-    // 获取退回节点
+  if (type === 'reject') {
+    // 获取可退回节点，用于“退回重走”模式
     returnList.value = await TaskApi.getTaskListByReturn(runningTask.value.id);
-    if (returnList.value.length === 0) {
-      message.warning('当前没有可退回的节点');
-      return;
-    }
+    resetRejectForm();
   }
   Object.keys(popOverVisible.value).forEach((item) => {
     if (popOverVisible.value[item]) popOverVisible.value[item] = item === type;
@@ -278,7 +346,10 @@ async function openPopover(type: string) {
 
 /** 关闭气泡卡 */
 function closePopover(type: string, formRef: any | FormInstance) {
-  if (formRef) {
+  if (type === 'reject') {
+    resetRejectForm();
+    formRef?.clearValidate?.();
+  } else if (formRef) {
     formRef.resetFields();
   }
   if (popOverVisible.value[type]) popOverVisible.value[type] = false;
@@ -351,8 +422,8 @@ function validateNextAssignees() {
   return true;
 }
 
-/** 处理审批通过和不通过的操作 */
-async function handleAudit(pass: boolean, formRef: FormInstance | undefined) {
+/** 处理审批通过 */
+async function handleApprove(formRef: FormInstance | undefined) {
   formLoading.value = true;
   try {
     // 校验表单
@@ -365,55 +436,73 @@ async function handleAudit(pass: boolean, formRef: FormInstance | undefined) {
       return;
     }
 
-    if (pass) {
-      // 审批通过前，先调用业务表单的预处理方法
-      if (props.beforeApproval) {
-        const canApprove = await props.beforeApproval();
-        if (!canApprove) {
-          return; // 如果业务表单处理失败，则不继续审批
-        }
+    // 审批通过前，先调用业务表单的预处理方法
+    if (props.beforeApproval) {
+      const canApprove = await props.beforeApproval();
+      if (!canApprove) {
+        return; // 如果业务表单处理失败，则不继续审批
       }
-      const nextAssigneesValid = validateNextAssignees();
-      if (!nextAssigneesValid) return;
-      const variables = getUpdatedProcessInstanceVariables();
-      // 审批通过数据
-      const data = {
-        id: runningTask.value.id,
-        reason: approveReasonForm.reason,
-        variables, // 审批通过, 把修改的字段值赋于流程实例变量
-        nextAssignees: approveReasonForm.nextAssignees, // 下个自选节点选择的审批人信息
-      } as any;
-      // 签名
-      if (runningTask.value.signEnable) {
-        data.signPicUrl = approveReasonForm.signPicUrl;
-      }
-      // 多表单处理，并且有额外的 approveForm 表单，需要校验 + 拼接到 data 表单里提交
-      // TODO 芋艿 任务有多表单这里要如何处理，会和可编辑的字段冲突
-      const formCreateApi = approveFormFApi.value;
-      if (Object.keys(formCreateApi)?.length > 0) {
-        await formCreateApi.validate();
-        data.variables = approveForm.value.value;
-      }
-      await TaskApi.approveTask(data);
-      popOverVisible.value.approve = false;
-      nextAssigneesActivityNode.value = [];
-      // 清理 Timeline 组件中的自定义审批人数据
-      if (nextAssigneesTimelineRef.value) {
-        nextAssigneesTimelineRef.value.batchSetCustomApproveUsers({});
-      }
-      message.success('审批通过成功');
-    } else {
-      // 审批不通过数据
-      const data = {
-        id: runningTask.value.id,
-        reason: rejectReasonForm.reason,
-      };
-      await TaskApi.rejectTask(data);
-      popOverVisible.value.reject = false;
-      message.success('审批不通过成功');
     }
+    const nextAssigneesValid = validateNextAssignees();
+    if (!nextAssigneesValid) return;
+    const variables = getUpdatedProcessInstanceVariables();
+    // 审批通过数据
+    const data = {
+      id: runningTask.value.id,
+      reason: approveReasonForm.reason,
+      variables, // 审批通过, 把修改的字段值赋于流程实例变量
+      nextAssignees: approveReasonForm.nextAssignees, // 下个自选节点选择的审批人信息
+    } as any;
+    // 签名
+    if (runningTask.value.signEnable) {
+      data.signPicUrl = approveReasonForm.signPicUrl;
+    }
+    // 多表单处理，并且有额外的 approveForm 表单，需要校验 + 拼接到 data 表单里提交
+    // TODO 芋艿 任务有多表单这里要如何处理，会和可编辑的字段冲突
+    const formCreateApi = approveFormFApi.value;
+    if (Object.keys(formCreateApi)?.length > 0) {
+      await formCreateApi.validate();
+      data.variables = approveForm.value.value;
+    }
+    await TaskApi.approveTask(data);
+    popOverVisible.value.approve = false;
+    nextAssigneesActivityNode.value = [];
+    // 清理 Timeline 组件中的自定义审批人数据
+    if (nextAssigneesTimelineRef.value) {
+      nextAssigneesTimelineRef.value.batchSetCustomApproveUsers({});
+    }
+    message.success('审批通过成功');
     // 重置表单
     formRef.resetFields();
+    // 操作成功后自动关闭当前页面
+    await closeCurrentTab();
+  } finally {
+    formLoading.value = false;
+  }
+}
+
+/** 处理统一驳回 */
+async function handleReject() {
+  formLoading.value = true;
+  try {
+    if (!rejectFormRef.value) return;
+    await rejectFormRef.value.validate();
+    const data: TaskApi.BpmTaskApi.RejectTaskReq = {
+      id: runningTask.value.id,
+      reason: rejectForm.rejectDetail,
+      rejectMode: rejectForm.rejectMode,
+      rejectReasonType: rejectForm.rejectReasonType,
+      rejectDetail: rejectForm.rejectDetail,
+      variables: getUpdatedProcessInstanceVariables(),
+    };
+    if (isReturnAndReplayRejectMode.value) {
+      data.targetTaskDefinitionKey = rejectForm.targetTaskDefinitionKey;
+    }
+    await TaskApi.rejectTask(data);
+    popOverVisible.value.reject = false;
+    resetRejectForm();
+    rejectFormRef.value.clearValidate?.();
+    message.success('驳回成功');
     // 操作成功后自动关闭当前页面
     await closeCurrentTab();
   } finally {
@@ -519,31 +608,6 @@ async function handlerAddSign(type: string) {
   }
 }
 
-/** 处理退回 */
-async function handleReturn() {
-  formLoading.value = true;
-  try {
-    // 1.1 校验表单
-    if (!returnFormRef.value) return;
-    await returnFormRef.value.validate();
-    // 1.2 提交退回
-    const data = {
-      id: runningTask.value.id,
-      reason: returnForm.returnReason,
-      targetTaskDefinitionKey: returnForm.targetTaskDefinitionKey,
-    };
-
-    await TaskApi.returnTask(data);
-    popOverVisible.value.return = false;
-    returnFormRef.value.resetFields();
-    message.success('操作成功');
-    // 操作成功后自动关闭当前页面
-    await closeCurrentTab();
-  } finally {
-    formLoading.value = false;
-  }
-}
-
 /** 处理取消 */
 async function handleCancel() {
   formLoading.value = true;
@@ -556,7 +620,7 @@ async function handleCancel() {
       props.processInstance.id,
       cancelForm.cancelReason,
     );
-    popOverVisible.value.return = false;
+    popOverVisible.value.cancel = false;
     message.success('操作成功');
     cancelFormRef.value.resetFields();
     // 操作成功后自动关闭当前页面
@@ -812,7 +876,7 @@ defineExpose({ loadTodoTask });
                   <Button
                     :disabled="formLoading"
                     type="primary"
-                    @click="handleAudit(true, approveFormRef)"
+                    @click="handleApprove(approveFormRef)"
                   >
                     {{
                       getButtonDisplayName(
@@ -830,11 +894,11 @@ defineExpose({ loadTodoTask });
         </template>
       </Popover>
 
-      <!-- 【退回】按钮 - 改为拒绝样式 -->
+      <!-- 【驳回】按钮 -->
       <Popover
-        v-model:open="popOverVisible.return"
+        v-model:open="popOverVisible.reject"
         placement="top"
-        :overlay-style="{ width: '400px' }"
+        :overlay-style="{ width: '420px' }"
         trigger="click"
         v-if="
           runningTask &&
@@ -842,7 +906,7 @@ defineExpose({ loadTodoTask });
           isShowButton(BpmTaskOperationButtonTypeEnum.REJECT)
         "
       >
-        <Button danger type="primary" @click="openPopover('return')">
+        <Button danger type="primary" @click="openPopover('reject')">
           {{ getButtonDisplayName(BpmTaskOperationButtonTypeEnum.REJECT) }}
         </Button>
         <template #content>
@@ -850,14 +914,42 @@ defineExpose({ loadTodoTask });
             <Form
               layout="vertical"
               class="mb-auto"
-              ref="returnFormRef"
-              :model="returnForm"
-              :rules="returnFormRule"
+              ref="rejectFormRef"
+              :model="rejectForm"
+              :rules="rejectFormRule"
               label-width="100px"
             >
-              <FormItem label="退回节点" name="targetTaskDefinitionKey">
+              <Alert
+                v-if="returnList.length === 0"
+                class="mb-4"
+                message="当前没有可重走的历史节点，本次仅支持终止流程。"
+                type="info"
+                show-icon
+              />
+              <FormItem label="驳回模式" name="rejectMode">
                 <Select
-                  v-model:value="returnForm.targetTaskDefinitionKey"
+                  v-model:value="rejectForm.rejectMode"
+                  style="width: 100%"
+                  :options="
+                    REJECT_MODE_OPTIONS.map((item) => ({
+                      ...item,
+                      disabled:
+                        item.value ===
+                          TaskApi.BpmTaskRejectModeEnum.RETURN_AND_REPLAY &&
+                        returnList.length === 0
+                          ? true
+                          : item.disabled,
+                    }))
+                  "
+                />
+              </FormItem>
+              <FormItem
+                v-if="isReturnAndReplayRejectMode"
+                label="目标节点"
+                name="targetTaskDefinitionKey"
+              >
+                <Select
+                  v-model:value="rejectForm.targetTaskDefinitionKey"
                   :allow-clear="true"
                   style="width: 100%"
                 >
@@ -871,12 +963,19 @@ defineExpose({ loadTodoTask });
                   </SelectOption>
                 </Select>
               </FormItem>
-              <FormItem label="退回理由" name="returnReason">
+              <FormItem label="原因分类" name="rejectReasonType">
+                <Select
+                  v-model:value="rejectForm.rejectReasonType"
+                  style="width: 100%"
+                  :options="REJECT_REASON_TYPE_OPTIONS"
+                />
+              </FormItem>
+              <FormItem label="原因说明" name="rejectDetail">
                 <Textarea
-                  v-model:value="returnForm.returnReason"
+                  v-model:value="rejectForm.rejectDetail"
                   allow-clear
-                  placeholder="请输入退回理由"
-                  :rows="3"
+                  placeholder="请输入驳回原因说明"
+                  :rows="4"
                 />
               </FormItem>
               <FormItem>
@@ -885,7 +984,7 @@ defineExpose({ loadTodoTask });
                     :disabled="formLoading"
                     danger
                     type="primary"
-                    @click="handleReturn()"
+                    @click="handleReject()"
                   >
                     {{
                       getButtonDisplayName(
@@ -893,62 +992,10 @@ defineExpose({ loadTodoTask });
                       )
                     }}
                   </Button>
-                  <Button @click="closePopover('return', returnFormRef)">
+                  <Button @click="closePopover('reject', rejectFormRef)">
                     取消
                   </Button>
                 </Space>
-              </FormItem>
-            </Form>
-          </div>
-        </template>
-      </Popover>
-
-      <!-- 【拒绝】按钮 - 已隐藏 -->
-      <Popover
-        v-model:open="popOverVisible.reject"
-        placement="top"
-        :overlay-style="{ minWidth: '400px' }"
-        trigger="click"
-        v-if="false"
-      >
-        <Button danger type="primary" @click="openPopover('reject')">
-          {{ getButtonDisplayName(BpmTaskOperationButtonTypeEnum.REJECT) }}
-        </Button>
-        <template #content>
-          <!-- 审批表单 -->
-          <div class="flex flex-1 flex-col px-5 pt-5" v-loading="formLoading">
-            <Form
-              layout="vertical"
-              class="mb-auto"
-              ref="rejectFormRef"
-              :model="rejectReasonForm"
-              :rules="rejectReasonRule"
-              label-width="100px"
-            >
-              <FormItem label="审批意见" name="reason">
-                <Textarea
-                  v-model:value="rejectReasonForm.reason"
-                  placeholder="请输入审批意见"
-                  :rows="4"
-                />
-              </FormItem>
-              <FormItem>
-                <Button
-                  :disabled="formLoading"
-                  danger
-                  type="primary"
-                  @click="handleAudit(false, rejectFormRef)"
-                >
-                  {{
-                    getButtonDisplayName(BpmTaskOperationButtonTypeEnum.REJECT)
-                  }}
-                </Button>
-                <Button
-                  class="ml-2"
-                  @click="closePopover('reject', rejectFormRef)"
-                >
-                  取消
-                </Button>
               </FormItem>
             </Form>
           </div>
