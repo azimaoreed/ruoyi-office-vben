@@ -39,7 +39,7 @@ COPY . /app
 
 # 安装依赖
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-RUN pnpm --dir /app/apps/${APP_NAME} build
+RUN pnpm run build --filter=@vben/${APP_NAME}
 
 RUN echo "Builder Success"
 
