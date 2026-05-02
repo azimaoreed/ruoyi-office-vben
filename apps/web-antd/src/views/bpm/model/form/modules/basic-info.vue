@@ -26,7 +26,7 @@ import {
 } from 'ant-design-vue';
 
 import { ImageUpload } from '#/components/upload';
-import { DeptSelectModal } from '#/views/system/dept/components';
+import DeptSelectModal from '#/views/system/dept/components/select-modal.vue';
 import { UserSelectModal } from '#/views/system/user/components';
 
 const props = defineProps({
@@ -134,10 +134,13 @@ function openStartDeptSelect() {
 }
 
 /** 处理部门选择确认 */
-function handleDeptSelectConfirm(dept: SystemDeptApi.Dept) {
+function handleDeptSelectConfirm(deptList: SystemDeptApi.Dept[]) {
+  selectedStartDepts.value = deptList;
   modelData.value = {
     ...modelData.value,
-    startDeptIds: dept.id ? [dept.id] : [],
+    startDeptIds: deptList
+      .map((dept) => dept.id)
+      .filter((id): id is number => id !== undefined),
   };
 }
 
