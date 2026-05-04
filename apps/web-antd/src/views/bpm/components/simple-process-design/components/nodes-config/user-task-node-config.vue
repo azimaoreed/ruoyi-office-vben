@@ -6,6 +6,8 @@ import type { ComponentPublicInstance, Ref } from 'vue';
 import type { ButtonSetting, SimpleFlowNode } from '../../consts';
 import type { UserTaskFormType } from '../../helpers';
 
+import type { SystemUserApi } from '#/api/system/user';
+
 import { computed, nextTick, onMounted, reactive, ref, watchEffect } from 'vue';
 
 import { useVbenDrawer, useVbenModal } from '@vben/common-ui';
@@ -58,9 +60,9 @@ import {
   MULTI_LEVEL_DEPT,
   OPERATION_BUTTON_NAME,
   REJECT_HANDLER_TYPES,
-  RejectHandlerType,
   REJECT_REASON_TYPES,
   REJECT_TARGET_TYPES,
+  RejectHandlerType,
   RejectReasonType,
   RejectTargetType,
   TIME_UNIT_TYPES,
@@ -243,6 +245,26 @@ const {
   getShowText,
 } = useNodeForm(currentNode.value.type);
 const configForm = tempConfigForm as Ref<UserTaskFormType>;
+
+function getUserSelectLabel(user: SystemUserApi.User) {
+  return (user.nickname || user.username || '').trim();
+}
+
+function getUserPostNames(user: SystemUserApi.User) {
+  if (user.postNames?.length) {
+    return user.postNames.join('、');
+  }
+  const postIds = user.postIds?.map(String) || [];
+  if (postIds.length === 0) {
+    return '';
+  }
+  return postOptions.value
+    .filter(
+      (post) => post.id !== undefined && postIds.includes(String(post.id)),
+    )
+    .map((post) => post.name)
+    .join('、');
+}
 
 // 改变审批人设置策略
 function changeCandidateStrategy() {
@@ -898,14 +920,32 @@ onMounted(() => {
                 v-model:value="configForm.userIds"
                 clearable
                 mode="multiple"
+                option-label-prop="label"
+                show-search
+                option-filter-prop="label"
               >
                 <SelectOption
                   v-for="item in userOptions"
                   :key="item.id"
-                  :label="item.nickname"
+                  :label="getUserSelectLabel(item)"
                   :value="item.id"
                 >
-                  {{ item.nickname }}
+                  <div class="user-select-option">
+                    <div class="user-select-option__name">
+                      {{ getUserSelectLabel(item) }}
+                    </div>
+                    <div class="user-select-option__meta">
+                      <TypographyText type="secondary">
+                        用户名：{{ item.username || '-' }}
+                      </TypographyText>
+                      <TypographyText type="secondary">
+                        所属部门：{{ item.deptName || '-' }}
+                      </TypographyText>
+                      <TypographyText type="secondary">
+                        职务：{{ getUserPostNames(item) || '-' }}
+                      </TypographyText>
+                    </div>
+                  </div>
                 </SelectOption>
               </Select>
             </FormItem>
@@ -1355,14 +1395,32 @@ onMounted(() => {
                 v-model:value="configForm.assignEmptyHandlerUserIds"
                 clearable
                 mode="multiple"
+                option-label-prop="label"
+                show-search
+                option-filter-prop="label"
               >
                 <SelectOption
                   v-for="item in userOptions"
                   :key="item.id"
-                  :label="item.nickname"
+                  :label="getUserSelectLabel(item)"
                   :value="item.id"
                 >
-                  {{ item.nickname }}
+                  <div class="user-select-option">
+                    <div class="user-select-option__name">
+                      {{ getUserSelectLabel(item) }}
+                    </div>
+                    <div class="user-select-option__meta">
+                      <TypographyText type="secondary">
+                        用户名：{{ item.username || '-' }}
+                      </TypographyText>
+                      <TypographyText type="secondary">
+                        所属部门：{{ item.deptName || '-' }}
+                      </TypographyText>
+                      <TypographyText type="secondary">
+                        职务：{{ getUserPostNames(item) || '-' }}
+                      </TypographyText>
+                    </div>
+                  </div>
                 </SelectOption>
               </Select>
             </FormItem>
@@ -1562,3 +1620,20 @@ onMounted(() => {
 
   <ExpressionSelectModal @select="handleExpressionSelected" />
 </template>
+
+<style scoped>
+.user-select-option {
+  line-height: 1.4;
+}
+
+.user-select-option__name {
+  font-weight: 500;
+}
+
+.user-select-option__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: 12px;
+}
+</style>
