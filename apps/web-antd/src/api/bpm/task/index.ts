@@ -5,16 +5,16 @@ import type { BpmProcessInstanceApi } from '../processInstance';
 import { requestClient } from '#/api/request';
 
 export enum BpmTaskRejectModeEnum {
+  CONTINUE_AFTER_MODIFY = 3,
   FINISH_PROCESS = 1,
   RETURN_AND_REPLAY = 2,
-  CONTINUE_AFTER_MODIFY = 3,
 }
 
 export enum BpmTaskRejectReasonTypeEnum {
-  SUPPLEMENT = 1,
   MODIFY = 2,
-  RISK = 3,
   OTHER = 4,
+  RISK = 3,
+  SUPPLEMENT = 1,
 }
 
 export enum BpmModifyChildProcessResumeStrategyEnum {
@@ -89,6 +89,40 @@ export namespace BpmTaskApi {
     resumeStrategy: BpmModifyChildProcessResumeStrategyEnum;
   }
 
+  export interface ModifyRequest {
+    id: number;
+    processInstanceId: string;
+    processDefinitionId: string;
+    taskId: string;
+    taskDefinitionKey: string;
+    applicantUserId: number;
+    acceptUserId?: number;
+    childProcessDefinitionKey: string;
+    childProcessInstanceId?: string;
+    parentChildLinkId?: number;
+    reasonType?: BpmTaskRejectReasonTypeEnum;
+    reasonDetail: string;
+    modifyPayloadJson?: string;
+    status: number;
+    acceptReason?: string;
+    rejectReason?: string;
+    createTime?: string;
+  }
+
+  export interface ModifyRequestCreateReq {
+    processInstanceId: string;
+    taskId?: string;
+    reasonType?: BpmTaskRejectReasonTypeEnum;
+    reasonDetail: string;
+    modifyPayload?: Record<string, any>;
+    childProcessDefinitionKey?: string;
+    resumeStrategy?: BpmModifyChildProcessResumeStrategyEnum;
+  }
+
+  export interface ModifyRequestHandleReq {
+    reason?: string;
+  }
+
   export interface CopyTaskReq {
     id: string;
     copyUserIds?: number[];
@@ -135,6 +169,47 @@ export const startModifyChildProcess = async (
   data: BpmTaskApi.StartModifyChildProcessReq,
 ) => {
   return await requestClient.put('/bpm/task/start-modify-child-process', data);
+};
+
+/** 提交通用修改申请 */
+export const createModifyRequest = async (
+  data: BpmTaskApi.ModifyRequestCreateReq,
+) => {
+  return await requestClient.post('/bpm/modify-request/create', data);
+};
+
+/** 查询任务下待接受的修改申请 */
+export const getPendingModifyRequestListByTaskId = async (taskId: string) => {
+  return await requestClient.get<BpmTaskApi.ModifyRequest[]>(
+    '/bpm/modify-request/pending-by-task',
+    { params: { taskId } },
+  );
+};
+
+/** 查询流程实例下的修改申请 */
+export const getModifyRequestListByProcessInstanceId = async (
+  processInstanceId: string,
+) => {
+  return await requestClient.get<BpmTaskApi.ModifyRequest[]>(
+    '/bpm/modify-request/list-by-process-instance',
+    { params: { processInstanceId } },
+  );
+};
+
+/** 接受通用修改申请 */
+export const acceptModifyRequest = async (
+  id: number,
+  data: BpmTaskApi.ModifyRequestHandleReq,
+) => {
+  return await requestClient.put(`/bpm/modify-request/${id}/accept`, data);
+};
+
+/** 拒绝通用修改申请 */
+export const rejectModifyRequest = async (
+  id: number,
+  data: BpmTaskApi.ModifyRequestHandleReq,
+) => {
+  return await requestClient.put(`/bpm/modify-request/${id}/reject`, data);
 };
 
 /** 根据流程实例 ID 查询任务列表 */

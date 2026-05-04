@@ -103,6 +103,10 @@ export enum OperationButtonType {
 // 审批拒绝类型枚举
 export enum RejectHandlerType {
   /**
+   * 修改后继续
+   */
+  CONTINUE_AFTER_MODIFY = 3,
+  /**
    * 结束流程
    */
   FINISH_PROCESS = 1,
@@ -110,14 +114,14 @@ export enum RejectHandlerType {
    * 退回重走
    */
   RETURN_AND_REPLAY = 2,
-  /**
-   * 修改后继续
-   */
-  CONTINUE_AFTER_MODIFY = 3,
 }
 
 // 审批驳回目标范围
 export enum RejectTargetType {
+  /**
+   * 表达式节点
+   */
+  EXPRESSION_NODE = 3,
   /**
    * 固定节点
    */
@@ -126,30 +130,26 @@ export enum RejectTargetType {
    * 运行时选择
    */
   RUNTIME_SELECTABLE = 2,
-  /**
-   * 表达式节点
-   */
-  EXPRESSION_NODE = 3,
 }
 
 // 审批驳回原因分类
 export enum RejectReasonType {
   /**
-   * 补充资料
-   */
-  SUPPLEMENT = 1,
-  /**
    * 修改调整
    */
   MODIFY = 2,
+  /**
+   * 其他
+   */
+  OTHER = 4,
   /**
    * 风险校正
    */
   RISK = 3,
   /**
-   * 其他
+   * 补充资料
    */
-  OTHER = 4,
+  SUPPLEMENT = 1,
 }
 
 // 修改申请子流程恢复策略
@@ -167,10 +167,6 @@ export enum ModifyProcessResumeStrategy {
 // 用户任务超时处理类型枚举
 export enum TimeoutHandlerType {
   /**
-   * 自动提醒
-   */
-  REMINDER = 1,
-  /**
    * 自动同意
    */
   APPROVE = 2,
@@ -179,9 +175,9 @@ export enum TimeoutHandlerType {
    */
   REJECT = 3,
   /**
-   * 自动转办给流程管理员
+   * 自动提醒
    */
-  TRANSFER = 4,
+  REMINDER = 1,
   /**
    * 自动跳过
    */
@@ -190,6 +186,10 @@ export enum TimeoutHandlerType {
    * 自动终止流程
    */
   TERMINATE = 6,
+  /**
+   * 自动转办给流程管理员
+   */
+  TRANSFER = 4,
 }
 
 // 用户任务的审批人为空时，处理类型枚举
@@ -489,16 +489,51 @@ export type RejectHandler = {
  * 修改申请子流程配置
  */
 export type ModifyProcessSetting = {
-  // 是否启用
-  enable: boolean;
   // 按钮名称
   buttonName?: string;
   // 子流程定义 Key
   childProcessDefinitionKey?: string;
+  // 是否启用
+  enable: boolean;
   // 允许的原因分类
   reasonTypes?: RejectReasonType[];
   // 恢复策略
   resumeStrategy?: ModifyProcessResumeStrategy;
+  // 子流程变量回写主流程变量映射
+  variableMappings?: ModifyVariableMapping[];
+};
+
+export type ModifyVariableMapping = {
+  // 子流程变量名
+  childVariable?: string;
+  // 主流程变量名
+  parentVariable?: string;
+};
+
+/**
+ * 流程级通用修改申请配置
+ */
+export type ModifyRequestSetting = {
+  // 允许申请人参数
+  applicantParam?: string;
+  // 允许申请人策略
+  applicantStrategy?: CandidateStrategy;
+  // 按钮名称
+  buttonName?: string;
+  // 子流程定义 Key
+  childProcessDefinitionKey?: string;
+  // 是否启用
+  enable: boolean;
+  // 生效节点 Id
+  nodeIds?: string[];
+  // 节点范围类型：1 全部节点，2 指定节点，3 排除节点
+  nodeScopeType?: number;
+  // 允许的原因分类
+  reasonTypes?: RejectReasonType[];
+  // 恢复策略
+  resumeStrategy?: ModifyProcessResumeStrategy;
+  // 子流程变量回写主流程变量映射
+  variableMappings?: ModifyVariableMapping[];
 };
 
 /**
@@ -694,6 +729,8 @@ export interface SimpleFlowNode {
   childProcessSetting?: ChildProcessSetting;
   // 修改申请子流程
   modifyProcessSetting?: ModifyProcessSetting;
+  // 流程级通用修改申请
+  modifyRequestSetting?: ModifyRequestSetting;
 }
 
 /**
@@ -819,7 +856,10 @@ export const TIMEOUT_HANDLER_TYPES: DictDataType[] = [
 export const REJECT_HANDLER_TYPES: DictDataType[] = [
   { label: '终止流程', value: RejectHandlerType.FINISH_PROCESS as any },
   { label: '退回重走', value: RejectHandlerType.RETURN_AND_REPLAY as any },
-  { label: '修改后继续', value: RejectHandlerType.CONTINUE_AFTER_MODIFY as any },
+  {
+    label: '修改后继续',
+    value: RejectHandlerType.CONTINUE_AFTER_MODIFY as any,
+  },
 ];
 export const REJECT_TARGET_TYPES: DictDataType[] = [
   { label: '固定节点', value: RejectTargetType.FIXED_NODE as any },

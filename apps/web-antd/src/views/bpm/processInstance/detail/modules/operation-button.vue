@@ -57,6 +57,7 @@ defineOptions({ name: 'ProcessInstanceBtnContainer' });
 // 定义 success 事件，用于操作成功后的回调
 
 const props = defineProps<{
+  beforeApproval?: () => Promise<boolean>; // 审批前的业务表单处理函数
   normalForm: any; // 流程表单 formCreate
   normalFormApi: any; // 流程表单 formCreate Api
   processDefinition: any; // 流程定义信息
@@ -64,7 +65,6 @@ const props = defineProps<{
   processModelView?: any; // 流程模型视图
   userOptions: UserApi.SystemUserApi.User[];
   writableFields: string[]; // 流程表单可以编辑的字段
-  beforeApproval?: () => Promise<boolean>; // 审批前的业务表单处理函数
 }>(); // 当前登录的编号
 const emit = defineEmits(['success']);
 
@@ -87,6 +87,8 @@ const formLoading = ref(false); // 表单加载中
 const popOverVisible: any = ref({
   approve: false,
   reject: false,
+  modifyRequest: false,
+  pendingModifyRequest: false,
   modifyProcess: false,
   transfer: false,
   delegate: false,
@@ -119,6 +121,10 @@ const REJECT_REASON_TYPE_OPTIONS = [
   { label: '风险校正', value: TaskApi.BpmTaskRejectReasonTypeEnum.RISK },
   { label: '其他', value: TaskApi.BpmTaskRejectReasonTypeEnum.OTHER },
 ];
+const MODIFY_PROCESS_PAYLOAD_PLACEHOLDER =
+  '例如：{"returnNode":"Activity_Filing","modifyType":"filing_related"}';
+const MODIFY_REQUEST_PAYLOAD_PLACEHOLDER =
+  '例如：{"modifyType":"filing_related"}';
 function findSimpleFlowNodeById(
   node: null | SimpleFlowNode | undefined,
   nodeId: string,
@@ -166,34 +172,67 @@ const modifyProcessConfig = computed(() => {
   return {
     buttonName: modifyProcessSetting.buttonName || '发起修改申请',
     childProcessDefinitionKey: modifyProcessSetting.childProcessDefinitionKey,
-    resumeStrategy:
-      modifyProcessSetting.resumeStrategy ??
+    resumeStrategy: (modifyProcessSetting.resumeStrategy ??
       TaskApi.BpmModifyChildProcessResumeStrategyEnum
-        .CONTINUE_LAST_ACTIVE_NODE,
+        .CONTINUE_LAST_ACTIVE_NODE) as TaskApi.BpmModifyChildProcessResumeStrategyEnum,
     allowedReasonTypes:
       modifyProcessSetting.reasonTypes &&
       modifyProcessSetting.reasonTypes.length > 0
-        ? modifyProcessSetting.reasonTypes
+        ? (modifyProcessSetting.reasonTypes as number[])
+        : REJECT_REASON_TYPE_OPTIONS.map((item) => item.value),
+  };
+});
+const modifyRequestConfig = computed(() => {
+  if (
+    props.processInstance?.status !== BpmProcessInstanceStatus.RUNNING ||
+    !props.processModelView?.simpleModel?.modifyRequestSetting?.enable
+  ) {
+    return null;
+  }
+  const setting = props.processModelView.simpleModel.modifyRequestSetting;
+  if (!setting.childProcessDefinitionKey) {
+    return null;
+  }
+  return {
+    buttonName: setting.buttonName || '提交修改申请',
+    childProcessDefinitionKey: setting.childProcessDefinitionKey,
+    resumeStrategy: (setting.resumeStrategy ??
+      TaskApi.BpmModifyChildProcessResumeStrategyEnum
+        .CONTINUE_LAST_ACTIVE_NODE) as TaskApi.BpmModifyChildProcessResumeStrategyEnum,
+    allowedReasonTypes:
+      setting.reasonTypes && setting.reasonTypes.length > 0
+        ? (setting.reasonTypes as number[])
         : REJECT_REASON_TYPE_OPTIONS.map((item) => item.value),
   };
 });
 const modifyProcessReasonTypeOptions = computed(() =>
   REJECT_REASON_TYPE_OPTIONS.filter((item) =>
-    modifyProcessConfig.value?.allowedReasonTypes.includes(item.value),
+    modifyProcessConfig.value?.allowedReasonTypes.includes(
+      item.value as number,
+    ),
+  ),
+);
+const modifyRequestReasonTypeOptions = computed(() =>
+  REJECT_REASON_TYPE_OPTIONS.filter((item) =>
+    modifyRequestConfig.value?.allowedReasonTypes.includes(
+      item.value as number,
+    ),
   ),
 );
 const rejectReasonTypeOptions = computed(() => {
   if (
-    rejectForm.rejectMode === TaskApi.BpmTaskRejectModeEnum.CONTINUE_AFTER_MODIFY
+    rejectForm.rejectMode ===
+    TaskApi.BpmTaskRejectModeEnum.CONTINUE_AFTER_MODIFY
   ) {
     return modifyProcessReasonTypeOptions.value;
   }
-  const allowedReasonTypes = currentRunningNode.value?.rejectHandler?.reasonTypes;
+  const allowedReasonTypes =
+    currentRunningNode.value?.rejectHandler?.reasonTypes;
   if (!allowedReasonTypes || allowedReasonTypes.length === 0) {
     return REJECT_REASON_TYPE_OPTIONS;
   }
   return REJECT_REASON_TYPE_OPTIONS.filter((item) =>
-    allowedReasonTypes.includes(item.value),
+    allowedReasonTypes.includes(item.value as any),
   );
 });
 
@@ -206,7 +245,6 @@ const nodeTypeName = ref('审批'); // 节点类型名称
 // 审批通过意见表单
 const reasonRequire = ref();
 const approveFormRef = ref<FormInstance>();
-const approveSignFormRef = ref();
 const nextAssigneesActivityNode = ref<BpmProcessInstanceApi.ApprovalNodeInfo[]>(
   [],
 ); // 下一个审批节点信息
@@ -299,12 +337,42 @@ const modifyProcessFormRule: Record<string, Rule[]> = reactive({
     {
       trigger: 'blur',
       validator: async (_rule: Rule, value: string) => {
-        if (!value) return Promise.resolve();
+        if (!value) return;
         try {
           JSON.parse(value);
-          return Promise.resolve();
         } catch {
-          return Promise.reject(new Error('启动参数需为合法 JSON'));
+          throw new Error('启动参数需为合法 JSON');
+        }
+      },
+    },
+  ],
+});
+
+// 通用修改申请表单
+const modifyRequestFormRef = ref<FormInstance>();
+const modifyRequestForm = reactive({
+  reasonType: TaskApi.BpmTaskRejectReasonTypeEnum.MODIFY,
+  reasonDetail: '',
+  modifyPayloadText: '',
+  handleReason: '',
+});
+const pendingModifyRequests = ref<TaskApi.BpmTaskApi.ModifyRequest[]>([]);
+const modifyRequestFormRule: Record<string, Rule[]> = reactive({
+  reasonType: [
+    { required: true, message: '原因分类不能为空', trigger: 'change' },
+  ],
+  reasonDetail: [
+    { required: true, message: '原因说明不能为空', trigger: 'blur' },
+  ],
+  modifyPayloadText: [
+    {
+      trigger: 'blur',
+      validator: async (_rule: Rule, value: string) => {
+        if (!value) return;
+        try {
+          JSON.parse(value);
+        } catch {
+          throw new Error('启动参数需为合法 JSON');
         }
       },
     },
@@ -440,7 +508,9 @@ const isReturnAndReplayRejectMode = computed(
 );
 
 function getDefaultRejectMode() {
-  const nodeRejectMode = currentRunningNode.value?.rejectHandler?.type;
+  const nodeRejectMode = currentRunningNode.value?.rejectHandler?.type as
+    | TaskApi.BpmTaskRejectModeEnum
+    | undefined;
   if (
     nodeRejectMode === TaskApi.BpmTaskRejectModeEnum.CONTINUE_AFTER_MODIFY &&
     modifyProcessConfig.value
@@ -479,6 +549,15 @@ function resetModifyProcessForm() {
     TaskApi.BpmTaskRejectReasonTypeEnum.MODIFY;
   modifyProcessForm.reasonDetail = '';
   modifyProcessForm.modifyPayloadText = '';
+}
+
+function resetModifyRequestForm() {
+  modifyRequestForm.reasonType =
+    modifyRequestReasonTypeOptions.value[0]?.value ??
+    TaskApi.BpmTaskRejectReasonTypeEnum.MODIFY;
+  modifyRequestForm.reasonDetail = '';
+  modifyRequestForm.modifyPayloadText = '';
+  modifyRequestForm.handleReason = '';
 }
 
 watch(
@@ -521,15 +600,19 @@ async function openPopover(type: string) {
   if (type === 'modifyProcess') {
     resetModifyProcessForm();
   }
-  if (type === 'copy') {
-    if (copyRoleOptions.value.length === 0 || copyDeptOptions.value.length === 0) {
-      const [roleList, deptList] = await Promise.all([
-        RoleApi.getSimpleRoleList(),
-        DeptApi.getSimpleDeptList(),
-      ]);
-      copyRoleOptions.value = roleList;
-      copyDeptOptions.value = deptList;
-    }
+  if (type === 'modifyRequest' || type === 'pendingModifyRequest') {
+    resetModifyRequestForm();
+  }
+  if (
+    type === 'copy' &&
+    (copyRoleOptions.value.length === 0 || copyDeptOptions.value.length === 0)
+  ) {
+    const [roleList, deptList] = await Promise.all([
+      RoleApi.getSimpleRoleList(),
+      DeptApi.getSimpleDeptList(),
+    ]);
+    copyRoleOptions.value = roleList;
+    copyDeptOptions.value = deptList;
   }
   Object.keys(popOverVisible.value).forEach((item) => {
     if (popOverVisible.value[item]) popOverVisible.value[item] = item === type;
@@ -540,14 +623,31 @@ async function openPopover(type: string) {
 
 /** 关闭气泡卡 */
 function closePopover(type: string, formRef: any | FormInstance) {
-  if (type === 'reject') {
-    resetRejectForm();
-    formRef?.clearValidate?.();
-  } else if (type === 'modifyProcess') {
-    resetModifyProcessForm();
-    formRef?.clearValidate?.();
-  } else if (formRef) {
-    formRef.resetFields();
+  switch (type) {
+    case 'modifyProcess': {
+      resetModifyProcessForm();
+      formRef?.clearValidate?.();
+
+      break;
+    }
+    case 'modifyRequest':
+    case 'pendingModifyRequest': {
+      resetModifyRequestForm();
+      formRef?.clearValidate?.();
+
+      break;
+    }
+    case 'reject': {
+      resetRejectForm();
+      formRef?.clearValidate?.();
+
+      break;
+    }
+    default: {
+      if (formRef) {
+        formRef.resetFields();
+      }
+    }
   }
   if (popOverVisible.value[type]) popOverVisible.value[type] = false;
   nextAssigneesActivityNode.value = [];
@@ -763,6 +863,93 @@ async function handleModifyProcess() {
   }
 }
 
+function getReasonTypeLabel(reasonType?: TaskApi.BpmTaskRejectReasonTypeEnum) {
+  return (
+    REJECT_REASON_TYPE_OPTIONS.find((item) => item.value === reasonType)
+      ?.label || '未分类'
+  );
+}
+
+function getUserLabel(userId?: number) {
+  if (!userId) {
+    return '-';
+  }
+  return (
+    props.userOptions.find((item) => item.id === userId)?.nickname ||
+    String(userId)
+  );
+}
+
+function parseModifyRequestPayload() {
+  if (!modifyRequestForm.modifyPayloadText) {
+    return undefined;
+  }
+  return JSON.parse(modifyRequestForm.modifyPayloadText);
+}
+
+/** 提交通用修改申请 */
+async function handleCreateModifyRequest() {
+  formLoading.value = true;
+  try {
+    if (!modifyRequestFormRef.value || !modifyRequestConfig.value) return;
+    await modifyRequestFormRef.value.validate();
+    await TaskApi.createModifyRequest({
+      processInstanceId: props.processInstance.id,
+      taskId: runningTask.value?.id,
+      reasonType: modifyRequestForm.reasonType,
+      reasonDetail: modifyRequestForm.reasonDetail,
+      modifyPayload: parseModifyRequestPayload(),
+      childProcessDefinitionKey:
+        modifyRequestConfig.value.childProcessDefinitionKey,
+      resumeStrategy: modifyRequestConfig.value.resumeStrategy,
+    });
+    popOverVisible.value.modifyRequest = false;
+    resetModifyRequestForm();
+    modifyRequestFormRef.value.clearValidate?.();
+    message.success('修改申请已提交，等待当前节点审批人接受');
+    reload();
+  } finally {
+    formLoading.value = false;
+  }
+}
+
+/** 接受通用修改申请并启动修改子流程 */
+async function handleAcceptModifyRequest(
+  item: TaskApi.BpmTaskApi.ModifyRequest,
+) {
+  formLoading.value = true;
+  try {
+    await TaskApi.acceptModifyRequest(item.id, {
+      reason: modifyRequestForm.handleReason,
+    });
+    popOverVisible.value.pendingModifyRequest = false;
+    resetModifyRequestForm();
+    pendingModifyRequests.value = [];
+    message.success('已接受修改申请，并启动修改子流程');
+    await closeCurrentTab();
+  } finally {
+    formLoading.value = false;
+  }
+}
+
+/** 拒绝通用修改申请 */
+async function handleRejectModifyRequest(
+  item: TaskApi.BpmTaskApi.ModifyRequest,
+) {
+  formLoading.value = true;
+  try {
+    await TaskApi.rejectModifyRequest(item.id, {
+      reason: modifyRequestForm.handleReason,
+    });
+    popOverVisible.value.pendingModifyRequest = false;
+    resetModifyRequestForm();
+    await loadPendingModifyRequests();
+    message.success('已拒绝修改申请');
+  } finally {
+    formLoading.value = false;
+  }
+}
+
 /** 处理抄送 */
 async function handleCopy() {
   formLoading.value = true;
@@ -929,6 +1116,15 @@ function reload() {
   emit('success');
 }
 
+async function loadPendingModifyRequests() {
+  pendingModifyRequests.value = [];
+  if (!runningTask.value?.id || !isHandleTaskStatus()) {
+    return;
+  }
+  pendingModifyRequests.value =
+    await TaskApi.getPendingModifyRequestListByTaskId(runningTask.value.id);
+}
+
 /** 任务是否为处理中状态 */
 function isHandleTaskStatus() {
   let canHandle = false;
@@ -995,6 +1191,7 @@ function loadTodoTask(task: any) {
   } else {
     approveForm.value = {}; // 占位，避免为空
   }
+  void loadPendingModifyRequests();
 }
 
 /** 校验流程表单 */
@@ -1103,7 +1300,6 @@ defineExpose({ loadTodoTask });
                 v-if="runningTask.signEnable"
                 label="签名"
                 name="signPicUrl"
-                ref="approveSignFormRef"
               >
                 <Button @click="openSignatureModal" type="primary">
                   {{ approveReasonForm.signPicUrl ? '重新签名' : '点击签名' }}
@@ -1294,7 +1490,7 @@ defineExpose({ loadTodoTask });
               <FormItem label="启动参数(JSON)" name="modifyPayloadText">
                 <Textarea
                   v-model:value="modifyProcessForm.modifyPayloadText"
-                  placeholder='例如：{"returnNode":"Activity_Filing","modifyType":"filing_related"}'
+                  :placeholder="MODIFY_PROCESS_PAYLOAD_PLACEHOLDER"
                   :rows="4"
                 />
               </FormItem>
@@ -1304,14 +1500,152 @@ defineExpose({ loadTodoTask });
                     {{ modifyProcessConfig.buttonName }}
                   </Button>
                   <Button
-                    @click="
-                      closePopover('modifyProcess', modifyProcessFormRef)
-                    "
+                    @click="closePopover('modifyProcess', modifyProcessFormRef)"
                   >
                     取消
                   </Button>
                 </Space>
               </FormItem>
+            </Form>
+          </div>
+        </template>
+      </Popover>
+
+      <!-- 【通用修改申请】按钮：非当前审批人也可按流程规则提交 -->
+      <Popover
+        v-model:open="popOverVisible.modifyRequest"
+        placement="top"
+        :overlay-style="{ width: '420px' }"
+        trigger="click"
+        v-if="modifyRequestConfig"
+      >
+        <Button @click="openPopover('modifyRequest')">
+          {{ modifyRequestConfig.buttonName }}
+        </Button>
+        <template #content>
+          <div class="flex flex-1 flex-col px-5 pt-5" v-loading="formLoading">
+            <Form
+              layout="vertical"
+              class="mb-auto"
+              ref="modifyRequestFormRef"
+              :model="modifyRequestForm"
+              :rules="modifyRequestFormRule"
+              label-width="100px"
+            >
+              <FormItem label="修改子流程">
+                <div class="text-[13px] text-gray-500">
+                  {{ modifyRequestConfig.childProcessDefinitionKey }}
+                </div>
+              </FormItem>
+              <FormItem label="原因分类" name="reasonType">
+                <Select v-model:value="modifyRequestForm.reasonType">
+                  <SelectOption
+                    v-for="item in modifyRequestReasonTypeOptions"
+                    :key="item.value"
+                    :value="item.value"
+                  >
+                    {{ item.label }}
+                  </SelectOption>
+                </Select>
+              </FormItem>
+              <FormItem label="原因说明" name="reasonDetail">
+                <Textarea
+                  v-model:value="modifyRequestForm.reasonDetail"
+                  placeholder="请输入需要修改的地方和原因"
+                  :rows="4"
+                />
+              </FormItem>
+              <FormItem label="启动参数(JSON)" name="modifyPayloadText">
+                <Textarea
+                  v-model:value="modifyRequestForm.modifyPayloadText"
+                  :placeholder="MODIFY_REQUEST_PAYLOAD_PLACEHOLDER"
+                  :rows="4"
+                />
+              </FormItem>
+              <FormItem>
+                <Space>
+                  <Button
+                    type="primary"
+                    :disabled="formLoading"
+                    @click="handleCreateModifyRequest"
+                  >
+                    提交
+                  </Button>
+                  <Button
+                    @click="closePopover('modifyRequest', modifyRequestFormRef)"
+                  >
+                    取消
+                  </Button>
+                </Space>
+              </FormItem>
+            </Form>
+          </div>
+        </template>
+      </Popover>
+
+      <!-- 【处理修改申请】按钮：当前节点审批人接受后才启动修改子流程 -->
+      <Popover
+        v-model:open="popOverVisible.pendingModifyRequest"
+        placement="top"
+        :overlay-style="{ width: '460px' }"
+        trigger="click"
+        v-if="
+          runningTask &&
+          isHandleTaskStatus() &&
+          pendingModifyRequests.length > 0
+        "
+      >
+        <Button danger @click="openPopover('pendingModifyRequest')">
+          待处理修改申请({{ pendingModifyRequests.length }})
+        </Button>
+        <template #content>
+          <div class="flex flex-1 flex-col px-5 pt-5" v-loading="formLoading">
+            <Form layout="vertical" class="mb-auto" label-width="100px">
+              <Card
+                v-for="item in pendingModifyRequests"
+                :key="item.id"
+                class="mb-3"
+                size="small"
+              >
+                <div class="mb-1 text-[13px]">
+                  申请人：{{ getUserLabel(item.applicantUserId) }}
+                </div>
+                <div class="mb-1 text-[13px]">
+                  原因分类：{{ getReasonTypeLabel(item.reasonType) }}
+                </div>
+                <div class="whitespace-pre-wrap text-[13px] text-gray-600">
+                  {{ item.reasonDetail }}
+                </div>
+                <div
+                  v-if="item.modifyPayloadJson"
+                  class="mt-2 break-all text-xs text-gray-500"
+                >
+                  启动参数：{{ item.modifyPayloadJson }}
+                </div>
+                <FormItem class="mt-3" label="处理意见">
+                  <Textarea
+                    v-model:value="modifyRequestForm.handleReason"
+                    placeholder="请输入接受或拒绝意见"
+                    :rows="3"
+                  />
+                </FormItem>
+                <Space>
+                  <Button
+                    type="primary"
+                    :disabled="formLoading"
+                    @click="handleAcceptModifyRequest(item)"
+                  >
+                    接受申请
+                  </Button>
+                  <Button
+                    danger
+                    :disabled="formLoading"
+                    @click="handleRejectModifyRequest(item)"
+                  >
+                    拒绝申请
+                  </Button>
+                </Space>
+              </Card>
             </Form>
           </div>
         </template>

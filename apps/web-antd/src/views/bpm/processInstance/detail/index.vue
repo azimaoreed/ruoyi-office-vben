@@ -10,11 +10,15 @@ import { Page } from '@vben/common-ui';
 import {
   BpmModelFormType,
   BpmModelType,
-  BpmProcessInstanceStatus,
-  DICT_TYPE,
   BpmNodeIdEnum,
-  BpmTaskStatusEnum,
+  BpmProcessInstanceStatus,
 } from '@vben/constants';
+import {
+  SvgBpmApproveIcon,
+  SvgBpmCancelIcon,
+  SvgBpmRejectIcon,
+  SvgBpmRunningIcon,
+} from '@vben/icons';
 import { useUserStore } from '@vben/stores';
 
 import { Card, Col, message, Row, TabPane, Tabs } from 'ant-design-vue';
@@ -26,12 +30,6 @@ import {
 import { getSimpleUserList } from '#/api/system/user';
 import { setConfAndFields2 } from '#/components/form-create';
 import { registerComponent } from '#/utils';
-import {
-  SvgBpmApproveIcon,
-  SvgBpmCancelIcon,
-  SvgBpmRejectIcon,
-  SvgBpmRunningIcon,
-} from '@vben/icons';
 
 import ProcessInstanceBpmnViewer from './modules/bpm-viewer.vue';
 import ProcessInstanceOperationButton from './modules/operation-button.vue';
@@ -119,6 +117,7 @@ const nodeKey = computed(
 const nodeKeyName = ref<string>(); // 节点名称
 const processModelView = ref<any>({}); // 流程模型视图
 const operationButtonRef = ref(); // 操作按钮组件 ref
+const todoTask = ref<any>(); // 当前登录人的待办任务
 const auditIconsMap: {
   [key: string]:
     | typeof SvgBpmApproveIcon
@@ -149,10 +148,10 @@ const businessFormRef = ref(); // 业务表单组件引用
 /** 获取详情 */
 async function getDetail() {
   // 获得审批详情
-  getApprovalDetail();
+  await getApprovalDetail();
 
   // 获得流程模型视图
-  getProcessModelView();
+  await getProcessModelView();
 }
 
 async function getApprovalDetail() {
@@ -216,7 +215,9 @@ async function getApprovalDetail() {
     activityNodes.value = data.activityNodes;
 
     // 获取待办任务显示操作按钮
-    operationButtonRef.value?.loadTodoTask(data.todoTask);
+    todoTask.value = data.todoTask;
+    await nextTick();
+    operationButtonRef.value?.loadTodoTask(todoTask.value);
   } catch {
     message.error('获取审批详情失败！');
   } finally {

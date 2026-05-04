@@ -51,7 +51,7 @@ export function useWatchNode(props: {
 }
 
 // 解析 formCreate 所有表单字段, 并返回
-function parseFormCreateFields(formFields?: string[]) {
+export function parseFormCreateFields(formFields?: string[]) {
   const result: Array<Record<string, any>> = [];
   if (formFields) {
     formFields.forEach((fieldStr: string) => {

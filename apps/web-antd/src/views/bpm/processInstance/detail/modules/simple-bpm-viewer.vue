@@ -56,6 +56,9 @@ watch(
       simpleModel.value = newModelView.simpleModel || {};
     }
   },
+  {
+    immediate: true,
+  },
 );
 
 /** 监控模型结构数据 */
@@ -65,6 +68,9 @@ watch(
     if (value) {
       simpleModel.value = JSON.parse(value);
     }
+  },
+  {
+    immediate: true,
   },
 );
 

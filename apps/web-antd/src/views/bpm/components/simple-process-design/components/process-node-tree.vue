@@ -33,7 +33,7 @@ const emits = defineEmits<{
   recursiveFindParentNode: [
     nodeList: SimpleFlowNode[],
     currentNode: SimpleFlowNode,
-    nodeType: number,
+    nodeTypes: number | number[],
   ];
   'update:flowNode': [node: SimpleFlowNode | undefined];
 }>();
@@ -46,15 +46,24 @@ const handleModelValueUpdate = (updateValue: any) => {
   emits('update:flowNode', updateValue);
 };
 
-const findParentNode = (nodeList: SimpleFlowNode[], nodeType: number) => {
-  emits('recursiveFindParentNode', nodeList, props.parentNode, nodeType);
+const findParentNode = (
+  nodeList: SimpleFlowNode[],
+  nodeTypes: number | number[],
+) => {
+  emits('recursiveFindParentNode', nodeList, props.parentNode, nodeTypes);
 };
+
+function matchesNodeType(type: number, nodeTypes: number | number[]) {
+  return Array.isArray(nodeTypes)
+    ? nodeTypes.includes(type)
+    : type === nodeTypes;
+}
 
 // 递归从父节点中查询匹配的节点
 function recursiveFindParentNode(
   nodeList: SimpleFlowNode[],
   findNode: SimpleFlowNode,
-  nodeType: number,
+  nodeTypes: number | number[],
 ) {
   if (!findNode) {
     return;
@@ -64,10 +73,10 @@ function recursiveFindParentNode(
     return;
   }
 
-  if (findNode.type === nodeType) {
+  if (matchesNodeType(findNode.type, nodeTypes)) {
     nodeList.push(findNode);
   }
-  emits('recursiveFindParentNode', nodeList, props.parentNode, nodeType);
+  emits('recursiveFindParentNode', nodeList, props.parentNode, nodeTypes);
 }
 </script>
 <template>

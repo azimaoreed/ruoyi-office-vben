@@ -27,7 +27,10 @@ const props = defineProps({
 });
 
 const emits = defineEmits<{
-  findParentNode: [nodeList: SimpleFlowNode[], nodeType: BpmNodeTypeEnum];
+  findParentNode: [
+    nodeList: SimpleFlowNode[],
+    nodeTypes: BpmNodeTypeEnum | BpmNodeTypeEnum[],
+  ];
   'update:flowNode': [node: SimpleFlowNode | undefined];
 }>();
 
@@ -75,7 +78,10 @@ function findReturnTaskNodes(
   matchNodeList: SimpleFlowNode[], // 匹配的节点
 ) {
   // 从父节点查找
-  emits('findParentNode', matchNodeList, BpmNodeTypeEnum.USER_TASK_NODE);
+  emits('findParentNode', matchNodeList, [
+    BpmNodeTypeEnum.USER_TASK_NODE,
+    BpmNodeTypeEnum.TRANSACTOR_NODE,
+  ]);
 }
 </script>
 <template>

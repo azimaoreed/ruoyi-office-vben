@@ -35,11 +35,11 @@ const props = defineProps({
 
 // 定义事件，更新父组件
 const emits = defineEmits<{
-  findParentNode: [nodeList: SimpleFlowNode[], nodeType: number];
+  findParentNode: [nodeList: SimpleFlowNode[], nodeTypes: number | number[]];
   recursiveFindParentNode: [
     nodeList: SimpleFlowNode[],
     currentNode: SimpleFlowNode,
-    nodeType: number,
+    nodeTypes: number | number[],
   ];
   'update:modelValue': [node: SimpleFlowNode | undefined];
 }>();
@@ -159,16 +159,20 @@ function moveNode(index: number, to: number) {
 function recursiveFindParentNode(
   nodeList: SimpleFlowNode[],
   node: SimpleFlowNode,
-  nodeType: number,
+  nodeTypes: number | number[],
 ) {
   if (!node || node.type === BpmNodeTypeEnum.START_USER_NODE) {
     return;
   }
-  if (node.type === nodeType) {
+  if (
+    Array.isArray(nodeTypes)
+      ? nodeTypes.includes(node.type)
+      : node.type === nodeTypes
+  ) {
     nodeList.push(node);
   }
   // 条件节点 (NodeType.CONDITION_NODE) 比较特殊。需要调用其父节点条件分支节点（NodeType.INCLUSIVE_BRANCH_NODE) 继续查找
-  emits('findParentNode', nodeList, nodeType);
+  emits('findParentNode', nodeList, nodeTypes);
 }
 </script>
 <template>
