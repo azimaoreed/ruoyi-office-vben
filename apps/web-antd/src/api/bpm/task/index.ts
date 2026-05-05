@@ -5,7 +5,6 @@ import type { BpmProcessInstanceApi } from '../processInstance';
 import { requestClient } from '#/api/request';
 
 export enum BpmTaskRejectModeEnum {
-  CONTINUE_AFTER_MODIFY = 3,
   FINISH_PROCESS = 1,
   RETURN_AND_REPLAY = 2,
 }
@@ -70,23 +69,17 @@ export namespace BpmTaskApi {
     rejectReasonType: BpmTaskRejectReasonTypeEnum;
     rejectDetail: string;
     variables?: Record<string, any>;
-    childProcessDefinitionKey?: string;
-    modifyPayload?: Record<string, any>;
-    resumeStrategy?: BpmModifyChildProcessResumeStrategyEnum;
+  }
+
+  export interface ReturnTaskReq {
+    id: string;
+    reason: string;
+    targetTaskDefinitionKey?: string;
   }
 
   export interface ReturnTaskNode {
     name: string;
     taskDefinitionKey: string;
-  }
-
-  export interface StartModifyChildProcessReq {
-    id: string;
-    childProcessDefinitionKey: string;
-    reasonType?: BpmTaskRejectReasonTypeEnum;
-    reasonDetail: string;
-    modifyPayload?: Record<string, any>;
-    resumeStrategy: BpmModifyChildProcessResumeStrategyEnum;
   }
 
   export interface ModifyRequest {
@@ -164,13 +157,6 @@ export const rejectTask = async (data: BpmTaskApi.RejectTaskReq) => {
   return await requestClient.put('/bpm/task/reject', data);
 };
 
-/** 发起修改申请子流程 */
-export const startModifyChildProcess = async (
-  data: BpmTaskApi.StartModifyChildProcessReq,
-) => {
-  return await requestClient.put('/bpm/task/start-modify-child-process', data);
-};
-
 /** 提交通用修改申请 */
 export const createModifyRequest = async (
   data: BpmTaskApi.ModifyRequestCreateReq,
@@ -224,6 +210,11 @@ export const getTaskListByReturn = async (id: string) => {
   return await requestClient.get<BpmTaskApi.ReturnTaskNode[]>(
     `/bpm/task/list-by-return?id=${id}`,
   );
+};
+
+/** 退回任务 */
+export const returnTask = async (data: BpmTaskApi.ReturnTaskReq) => {
+  return await requestClient.put('/bpm/task/return', data);
 };
 
 // 委派

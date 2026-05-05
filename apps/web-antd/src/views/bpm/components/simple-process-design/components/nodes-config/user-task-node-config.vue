@@ -55,8 +55,6 @@ import {
   CandidateStrategy,
   DEFAULT_BUTTON_SETTING,
   FieldPermissionType,
-  MODIFY_PROCESS_RESUME_STRATEGIES,
-  ModifyProcessResumeStrategy,
   MULTI_LEVEL_DEPT,
   OPERATION_BUTTON_NAME,
   REJECT_HANDLER_TYPES,
@@ -206,18 +204,6 @@ const formRules: Record<string, Rule[]> = reactive({
   returnNodeId: [
     { required: true, message: '驳回节点不能为空', trigger: 'change' },
   ],
-  modifyProcessButtonName: [
-    { required: true, message: '按钮名称不能为空', trigger: 'blur' },
-  ],
-  modifyProcessChildProcessDefinitionKey: [
-    { required: true, message: '子流程 Key 不能为空', trigger: 'blur' },
-  ],
-  modifyProcessReasonTypes: [
-    { required: true, message: '原因分类不能为空', trigger: 'change' },
-  ],
-  modifyProcessResumeStrategy: [
-    { required: true, message: '恢复策略不能为空', trigger: 'change' },
-  ],
   timeoutHandlerEnable: [{ required: true }],
   timeoutHandlerType: [{ required: true }],
   timeDuration: [
@@ -346,31 +332,6 @@ function rejectTargetTypeChanged() {
   formRef.value.clearValidate('returnNodeId');
 }
 
-function applyDefaultModifyProcessConfig() {
-  configForm.value.modifyProcessButtonName ||= '发起修改申请';
-  configForm.value.modifyProcessResumeStrategy ??=
-    ModifyProcessResumeStrategy.CONTINUE_LAST_ACTIVE_NODE;
-  if (
-    !configForm.value.modifyProcessReasonTypes ||
-    configForm.value.modifyProcessReasonTypes.length === 0
-  ) {
-    configForm.value.modifyProcessReasonTypes = [...ALL_REJECT_REASON_TYPES];
-  }
-}
-
-function modifyProcessSettingChanged() {
-  if (!configForm.value.modifyProcessEnable) {
-    formRef.value.clearValidate([
-      'modifyProcessButtonName',
-      'modifyProcessChildProcessDefinitionKey',
-      'modifyProcessReasonTypes',
-      'modifyProcessResumeStrategy',
-    ]);
-    return;
-  }
-  applyDefaultModifyProcessConfig();
-}
-
 // 审批拒绝 可退回的节点
 const returnTaskList = ref<SimpleFlowNode[]>([]);
 // 审批人超时未处理设置
@@ -454,21 +415,6 @@ async function saveConfig() {
     returnNodeId: configForm.value.returnNodeId,
     reasonTypes: configForm.value.rejectReasonTypes,
   };
-  currentNode.value.modifyProcessSetting = {
-    enable: !!configForm.value.modifyProcessEnable,
-    buttonName: configForm.value.modifyProcessEnable
-      ? configForm.value.modifyProcessButtonName
-      : undefined,
-    childProcessDefinitionKey: configForm.value.modifyProcessEnable
-      ? configForm.value.modifyProcessChildProcessDefinitionKey
-      : undefined,
-    reasonTypes: configForm.value.modifyProcessEnable
-      ? configForm.value.modifyProcessReasonTypes
-      : undefined,
-    resumeStrategy: configForm.value.modifyProcessEnable
-      ? configForm.value.modifyProcessResumeStrategy
-      : undefined,
-  };
   // 设置超时处理
   currentNode.value.timeoutHandler = {
     enable: configForm.value.timeoutHandlerEnable!,
@@ -551,21 +497,10 @@ function showUserTaskNodeConfig(node: SimpleFlowNode) {
   configForm.value.rejectTargetType = node.rejectHandler?.targetType;
   configForm.value.returnNodeId = node.rejectHandler?.returnNodeId;
   configForm.value.rejectReasonTypes = node.rejectHandler?.reasonTypes;
-  configForm.value.modifyProcessEnable =
-    node.modifyProcessSetting?.enable ?? false;
-  configForm.value.modifyProcessButtonName =
-    node.modifyProcessSetting?.buttonName ?? '发起修改申请';
-  configForm.value.modifyProcessChildProcessDefinitionKey =
-    node.modifyProcessSetting?.childProcessDefinitionKey ?? '';
-  configForm.value.modifyProcessReasonTypes =
-    node.modifyProcessSetting?.reasonTypes;
-  configForm.value.modifyProcessResumeStrategy =
-    node.modifyProcessSetting?.resumeStrategy;
   const matchNodeList: SimpleFlowNode[] = [];
   emits('findReturnTaskNodes', matchNodeList);
   returnTaskList.value = matchNodeList;
   applyDefaultRejectConfig();
-  applyDefaultModifyProcessConfig();
   // 2.4 设置审批超时处理
   configForm.value.timeoutHandlerEnable = node.timeoutHandler?.enable;
   if (node.timeoutHandler?.enable && node.timeoutHandler?.timeDuration) {
@@ -1180,86 +1115,6 @@ onMounted(() => {
                   </SelectOption>
                 </Select>
               </FormItem>
-            </div>
-
-            <div v-if="currentNode.type === BpmNodeTypeEnum.USER_TASK_NODE">
-              <Divider content-position="left">允许发起修改申请</Divider>
-              <FormItem
-                label="启用开关"
-                label-align="left"
-                :label-col="{ span: 6 }"
-                :wrapper-col="{ span: 4 }"
-              >
-                <Switch
-                  v-model:checked="configForm.modifyProcessEnable"
-                  checked-children="开"
-                  un-checked-children="关"
-                  @change="modifyProcessSettingChanged"
-                />
-              </FormItem>
-              <template v-if="configForm.modifyProcessEnable">
-                <FormItem
-                  label="按钮名称"
-                  name="modifyProcessButtonName"
-                  extra="运行时审批详情页会展示该名称"
-                >
-                  <Input
-                    v-model:value="configForm.modifyProcessButtonName"
-                    placeholder="请输入按钮名称"
-                  />
-                </FormItem>
-                <FormItem
-                  label="修改子流程 Key"
-                  name="modifyProcessChildProcessDefinitionKey"
-                >
-                  <Input
-                    v-model:value="
-                      configForm.modifyProcessChildProcessDefinitionKey
-                    "
-                    placeholder="请输入子流程定义 Key"
-                  />
-                </FormItem>
-                <FormItem
-                  label="默认恢复策略"
-                  name="modifyProcessResumeStrategy"
-                >
-                  <RadioGroup
-                    v-model:value="configForm.modifyProcessResumeStrategy"
-                  >
-                    <Row :gutter="[0, 8]">
-                      <Col
-                        :span="24"
-                        v-for="item in MODIFY_PROCESS_RESUME_STRATEGIES"
-                        :key="item.value"
-                      >
-                        <Radio :value="item.value">
-                          {{ item.label }}
-                        </Radio>
-                      </Col>
-                    </Row>
-                  </RadioGroup>
-                </FormItem>
-                <FormItem
-                  label="允许原因分类"
-                  name="modifyProcessReasonTypes"
-                  extra="运行时弹窗仅允许选择这里配置的原因分类"
-                >
-                  <Select
-                    v-model:value="configForm.modifyProcessReasonTypes"
-                    mode="multiple"
-                    clearable
-                  >
-                    <SelectOption
-                      v-for="item in REJECT_REASON_TYPES"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    >
-                      {{ item.label }}
-                    </SelectOption>
-                  </Select>
-                </FormItem>
-              </template>
             </div>
 
             <div v-if="currentNode.type === BpmNodeTypeEnum.USER_TASK_NODE">

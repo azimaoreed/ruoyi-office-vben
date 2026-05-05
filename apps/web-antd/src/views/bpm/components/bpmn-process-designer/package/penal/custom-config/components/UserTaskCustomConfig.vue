@@ -38,8 +38,6 @@ import {
   AssignEmptyHandlerType,
   DEFAULT_BUTTON_SETTING,
   FieldPermissionType,
-  MODIFY_PROCESS_RESUME_STRATEGIES,
-  ModifyProcessResumeStrategy,
   OPERATION_BUTTON_NAME,
   REJECT_HANDLER_TYPES,
   RejectHandlerType,
@@ -79,18 +77,6 @@ const returnNodeId = ref<any>();
 const rejectReasonTypesEl = ref<any>();
 const rejectReasonTypes = ref<number[]>([]);
 const returnTaskList = ref<any[]>([]);
-
-// 允许发起修改申请
-const modifyProcessEnableEl = ref<any>();
-const modifyProcessEnable = ref(false);
-const modifyProcessButtonNameEl = ref<any>();
-const modifyProcessButtonName = ref('');
-const modifyProcessChildProcessDefinitionKeyEl = ref<any>();
-const modifyProcessChildProcessDefinitionKey = ref('');
-const modifyProcessResumeStrategyEl = ref<any>();
-const modifyProcessResumeStrategy = ref<any>();
-const modifyProcessReasonTypesEl = ref<any>();
-const modifyProcessReasonTypes = ref<number[]>([]);
 
 // 审批人为空时
 const assignEmptyHandlerTypeEl = ref<any>();
@@ -185,8 +171,6 @@ const ALL_REJECT_REASON_TYPES = [
   RejectReasonType.RISK,
   RejectReasonType.OTHER,
 ];
-const DEFAULT_MODIFY_PROCESS_BUTTON_NAME = '发起修改申请';
-
 function normalizeRejectReasonTypes(value?: string) {
   if (!value) {
     return [...ALL_REJECT_REASON_TYPES];
@@ -196,10 +180,6 @@ function normalizeRejectReasonTypes(value?: string) {
     .map((item) => Number(item))
     .filter((item) => !Number.isNaN(item));
   return parsedList.length > 0 ? parsedList : [...ALL_REJECT_REASON_TYPES];
-}
-
-function normalizeBoolean(value: unknown) {
-  return value === true || value === 'true';
 }
 
 const resetCustomConfigList = () => {
@@ -266,60 +246,6 @@ const resetCustomConfigList = () => {
     });
   rejectReasonTypes.value = normalizeRejectReasonTypes(
     rejectReasonTypesEl.value.value,
-  );
-
-  // 允许发起修改申请
-  modifyProcessEnableEl.value =
-    elExtensionElements.value.values?.find(
-      (ex: any) => ex.$type === `${prefix}:ModifyProcessEnable`,
-    ) ||
-    bpmnInstances().moddle.create(`${prefix}:ModifyProcessEnable`, {
-      value: false,
-    });
-  modifyProcessEnable.value = normalizeBoolean(
-    modifyProcessEnableEl.value.value,
-  );
-  modifyProcessButtonNameEl.value =
-    elExtensionElements.value.values?.find(
-      (ex: any) => ex.$type === `${prefix}:ModifyProcessButtonName`,
-    ) ||
-    bpmnInstances().moddle.create(`${prefix}:ModifyProcessButtonName`, {
-      value: DEFAULT_MODIFY_PROCESS_BUTTON_NAME,
-    });
-  modifyProcessButtonName.value =
-    modifyProcessButtonNameEl.value.value || DEFAULT_MODIFY_PROCESS_BUTTON_NAME;
-  modifyProcessChildProcessDefinitionKeyEl.value =
-    elExtensionElements.value.values?.find(
-      (ex: any) =>
-        ex.$type === `${prefix}:ModifyProcessChildProcessDefinitionKey`,
-    ) ||
-    bpmnInstances().moddle.create(
-      `${prefix}:ModifyProcessChildProcessDefinitionKey`,
-      {
-        value: '',
-      },
-    );
-  modifyProcessChildProcessDefinitionKey.value =
-    modifyProcessChildProcessDefinitionKeyEl.value.value || '';
-  modifyProcessResumeStrategyEl.value =
-    elExtensionElements.value.values?.find(
-      (ex: any) => ex.$type === `${prefix}:ModifyProcessResumeStrategy`,
-    ) ||
-    bpmnInstances().moddle.create(`${prefix}:ModifyProcessResumeStrategy`, {
-      value: ModifyProcessResumeStrategy.CONTINUE_LAST_ACTIVE_NODE,
-    });
-  modifyProcessResumeStrategy.value =
-    modifyProcessResumeStrategyEl.value.value ??
-    ModifyProcessResumeStrategy.CONTINUE_LAST_ACTIVE_NODE;
-  modifyProcessReasonTypesEl.value =
-    elExtensionElements.value.values?.find(
-      (ex: any) => ex.$type === `${prefix}:ModifyProcessReasonTypes`,
-    ) ||
-    bpmnInstances().moddle.create(`${prefix}:ModifyProcessReasonTypes`, {
-      value: ALL_REJECT_REASON_TYPES.join(','),
-    });
-  modifyProcessReasonTypes.value = normalizeRejectReasonTypes(
-    modifyProcessReasonTypesEl.value.value,
   );
 
   // 审批人为空时
@@ -404,11 +330,6 @@ const resetCustomConfigList = () => {
         ex.$type !== `${prefix}:RejectTargetType` &&
         ex.$type !== `${prefix}:RejectReturnTaskId` &&
         ex.$type !== `${prefix}:RejectReasonTypes` &&
-        ex.$type !== `${prefix}:ModifyProcessEnable` &&
-        ex.$type !== `${prefix}:ModifyProcessButtonName` &&
-        ex.$type !== `${prefix}:ModifyProcessChildProcessDefinitionKey` &&
-        ex.$type !== `${prefix}:ModifyProcessResumeStrategy` &&
-        ex.$type !== `${prefix}:ModifyProcessReasonTypes` &&
         ex.$type !== `${prefix}:AssignEmptyHandlerType` &&
         ex.$type !== `${prefix}:AssignEmptyUserIds` &&
         ex.$type !== `${prefix}:ButtonsSetting` &&
@@ -473,53 +394,6 @@ const updateRejectReasonTypes = () => {
   updateElementExtensions();
 };
 
-const updateModifyProcessEnable = () => {
-  modifyProcessEnableEl.value.value = modifyProcessEnable.value;
-  if (modifyProcessEnable.value) {
-    modifyProcessButtonName.value ||= DEFAULT_MODIFY_PROCESS_BUTTON_NAME;
-    modifyProcessButtonNameEl.value.value = modifyProcessButtonName.value;
-    modifyProcessResumeStrategy.value ??=
-      ModifyProcessResumeStrategy.CONTINUE_LAST_ACTIVE_NODE;
-    modifyProcessResumeStrategyEl.value.value =
-      modifyProcessResumeStrategy.value;
-    if (!modifyProcessReasonTypes.value?.length) {
-      modifyProcessReasonTypes.value = [...ALL_REJECT_REASON_TYPES];
-      modifyProcessReasonTypesEl.value.value =
-        modifyProcessReasonTypes.value.join(',');
-    }
-  }
-
-  updateElementExtensions();
-};
-
-const updateModifyProcessButtonName = () => {
-  modifyProcessButtonName.value ||= DEFAULT_MODIFY_PROCESS_BUTTON_NAME;
-  modifyProcessButtonNameEl.value.value = modifyProcessButtonName.value;
-
-  updateElementExtensions();
-};
-
-const updateModifyProcessChildProcessDefinitionKey = () => {
-  modifyProcessChildProcessDefinitionKeyEl.value.value =
-    modifyProcessChildProcessDefinitionKey.value;
-
-  updateElementExtensions();
-};
-
-const updateModifyProcessResumeStrategy = () => {
-  modifyProcessResumeStrategyEl.value.value = modifyProcessResumeStrategy.value;
-
-  updateElementExtensions();
-};
-
-const updateModifyProcessReasonTypes = () => {
-  modifyProcessReasonTypesEl.value.value = (
-    modifyProcessReasonTypes.value || []
-  ).join(',');
-
-  updateElementExtensions();
-};
-
 const updateAssignEmptyHandlerType = () => {
   assignEmptyHandlerTypeEl.value.value = assignEmptyHandlerType.value;
 
@@ -541,11 +415,6 @@ const updateElementExtensions = () => {
       rejectTargetTypeEl.value,
       returnNodeIdEl.value,
       rejectReasonTypesEl.value,
-      modifyProcessEnableEl.value,
-      modifyProcessButtonNameEl.value,
-      modifyProcessChildProcessDefinitionKeyEl.value,
-      modifyProcessResumeStrategyEl.value,
-      modifyProcessReasonTypesEl.value,
       assignEmptyHandlerTypeEl.value,
       assignEmptyUserIdsEl.value,
       approveType.value,
@@ -746,71 +615,6 @@ onMounted(async () => {
         </SelectOption>
       </Select>
     </Form.Item>
-
-    <Divider orientation="left">允许发起修改申请</Divider>
-    <Form.Item name="modifyProcessEnable" label="启用开关">
-      <Switch
-        v-model:checked="modifyProcessEnable"
-        checked-children="开"
-        un-checked-children="关"
-        @change="updateModifyProcessEnable"
-      />
-    </Form.Item>
-    <template v-if="modifyProcessEnable">
-      <Form.Item name="modifyProcessButtonName" label="按钮名称">
-        <Input
-          v-model:value="modifyProcessButtonName"
-          placeholder="请输入按钮名称"
-          @blur="updateModifyProcessButtonName"
-          @press-enter="updateModifyProcessButtonName"
-        />
-      </Form.Item>
-      <Form.Item
-        name="modifyProcessChildProcessDefinitionKey"
-        label="修改子流程 Key"
-      >
-        <Input
-          v-model:value="modifyProcessChildProcessDefinitionKey"
-          placeholder="请输入子流程定义 Key"
-          @blur="updateModifyProcessChildProcessDefinitionKey"
-          @press-enter="updateModifyProcessChildProcessDefinitionKey"
-        />
-      </Form.Item>
-      <Form.Item name="modifyProcessResumeStrategy" label="默认恢复策略">
-        <RadioGroup
-          v-model:value="modifyProcessResumeStrategy"
-          @change="updateModifyProcessResumeStrategy"
-        >
-          <div class="flex flex-col gap-2">
-            <div
-              v-for="item in MODIFY_PROCESS_RESUME_STRATEGIES"
-              :key="item.value"
-            >
-              <Radio :value="item.value">
-                {{ item.label }}
-              </Radio>
-            </div>
-          </div>
-        </RadioGroup>
-      </Form.Item>
-      <Form.Item name="modifyProcessReasonTypes" label="允许原因分类">
-        <Select
-          v-model:value="modifyProcessReasonTypes"
-          allow-clear
-          mode="multiple"
-          style="width: 100%"
-          @change="updateModifyProcessReasonTypes"
-        >
-          <SelectOption
-            v-for="item in REJECT_REASON_TYPES"
-            :key="item.value"
-            :value="item.value"
-          >
-            {{ item.label }}
-          </SelectOption>
-        </Select>
-      </Form.Item>
-    </template>
 
     <Divider orientation="left">审批人为空时</Divider>
     <Form.Item name="assignEmptyHandlerType">

@@ -47,12 +47,19 @@ const tabs = computed(() => [
   { key: 'copy', label: '抄送我的', count: statistics.value.copy },
 ]);
 
+const listRoutePathMap: Record<TabKey, string> = {
+  myBill: '/bpm/task/my',
+  todo: '/bpm/task/todo',
+  done: '/bpm/task/done',
+  copy: '/bpm/task/copy',
+};
+
 // 格式化摘要
 function formatSummary(summary: any) {
   if (!summary || !Array.isArray(summary) || summary.length === 0) {
     return '-';
   }
-  return summary
+  const text = summary
     .map((item: any) => {
       const key = item?.key;
       const value = item?.value ?? '';
@@ -60,7 +67,9 @@ function formatSummary(summary: any) {
         ? `${key}: ${value}`
         : `${value}`;
     })
+    .filter((item: string) => item.trim().length > 0)
     .join(', ');
+  return text || '-';
 }
 
 // 获取列定义
@@ -140,8 +149,8 @@ const columns = computed(() => {
       title: '摘要',
       dataIndex: ['processInstance', 'summary'],
       key: 'summary',
-      width: 200,
-      ellipsis: true,
+      width: 260,
+      customCell: () => ({ class: 'summary-cell' }),
       customRender: ({ record }: any) => {
         if (tab === 'copy') {
           return formatSummary(record.summary);
@@ -150,6 +159,21 @@ const columns = computed(() => {
           return formatSummary(record.summary);
         }
         return formatSummary(record.processInstance?.summary);
+      },
+    },
+    {
+      title: '发起人',
+      dataIndex: ['processInstance', 'startUser', 'nickname'],
+      key: 'startUser',
+      width: 100,
+      customRender: ({ record }: any) => {
+        if (tab === 'copy') {
+          return record.startUser?.nickname || '-';
+        }
+        if (tab === 'myBill') {
+          return record.startUser?.nickname || '-';
+        }
+        return record.processInstance?.startUser?.nickname || '-';
       },
     },
     {
@@ -191,15 +215,8 @@ const columns = computed(() => {
 
   switch (tab) {
     case 'copy': {
-      // 抄送我的：发起人、抄送节点、抄送时间
+      // 抄送我的：抄送节点、抄送时间
       specialColumns.push(
-        {
-          title: '发起人',
-          dataIndex: ['startUser', 'nickname'],
-          key: 'startUser',
-          width: 100,
-          customRender: ({ record }: any) => record.startUser?.nickname || '-',
-        },
         {
           title: '抄送节点',
           dataIndex: 'activityName',
@@ -249,25 +266,16 @@ const columns = computed(() => {
       break;
     }
     case 'myBill': {
-      // 我的单据：发起人、发起时间
-      specialColumns.push(
-        {
-          title: '发起人',
-          dataIndex: ['startUser', 'nickname'],
-          key: 'startUser',
-          width: 100,
-          customRender: ({ record }: any) => record.startUser?.nickname || '-',
+      // 我的单据：发起时间
+      specialColumns.push({
+        title: '发起时间',
+        dataIndex: 'createTime',
+        key: 'createTime',
+        width: 160,
+        customRender: ({ text }: any) => {
+          return text ? new Date(text).toLocaleString('zh-CN') : '-';
         },
-        {
-          title: '发起时间',
-          dataIndex: 'createTime',
-          key: 'createTime',
-          width: 160,
-          customRender: ({ text }: any) => {
-            return text ? new Date(text).toLocaleString('zh-CN') : '-';
-          },
-        },
-      );
+      });
 
       break;
     }
@@ -300,12 +308,19 @@ const columns = computed(() => {
   const actionColumn = {
     title: '操作',
     key: 'action',
-    width: 100,
+    width: 110,
     fixed: 'right' as const,
   };
 
   return [...baseColumns, ...specialColumns, actionColumn];
 });
+
+const tableScrollX = computed(() =>
+  columns.value.reduce(
+    (total, column) => total + (Number(column.width) || 120),
+    0,
+  ),
+);
 
 // 加载数据
 async function loadData(tab: TabKey) {
@@ -366,7 +381,7 @@ function handleBillCodeClick(record: any) {
     case 'done': {
       // 已办任务：跳转到流程实例详情
       router.push({
-        name: 'BpmProcessInstanceDetail',
+        path: '/bpm/process-instance/detail',
         query: {
           id: record.processInstance?.id,
           taskId: record.id,
@@ -378,7 +393,7 @@ function handleBillCodeClick(record: any) {
     case 'myBill': {
       // 我的单据：跳转到流程实例详情
       router.push({
-        name: 'BpmProcessInstanceDetail',
+        path: '/bpm/process-instance/detail',
         query: { id: record.id },
       });
 
@@ -387,7 +402,7 @@ function handleBillCodeClick(record: any) {
     case 'todo': {
       // 待办任务：跳转到待办办理页
       router.push({
-        name: 'BpmProcessInstanceTodoDetail',
+        path: '/bpm/process-instance/todo-detail',
         query: {
           id: record.processInstance?.id,
           taskId: record.id,
@@ -409,13 +424,13 @@ function handleProcess(record: any) {
   if (tab === 'myBill') {
     // 我的单据：跳转到流程实例详情
     router.push({
-      name: 'BpmProcessInstanceDetail',
+      path: '/bpm/process-instance/detail',
       query: { id: record.id },
     });
   } else if (tab === 'todo') {
     // 待办任务：跳转到待办办理页
     router.push({
-      name: 'BpmProcessInstanceTodoDetail',
+      path: '/bpm/process-instance/todo-detail',
       query: {
         id: record.processInstance?.id,
         taskId: record.id,
@@ -433,7 +448,7 @@ function handleDetail(record: any) {
   if (tab === 'done') {
     // 已办任务：跳转到流程实例详情
     router.push({
-      name: 'BpmProcessInstanceDetail',
+      path: '/bpm/process-instance/detail',
       query: {
         id: record.processInstance?.id,
         taskId: record.id,
@@ -442,7 +457,7 @@ function handleDetail(record: any) {
   } else if (tab === 'copy') {
     // 抄送我的：跳转到流程实例详情
     router.push({
-      name: 'BpmProcessInstanceDetail',
+      path: '/bpm/process-instance/detail',
       query: {
         id: record.processInstanceId,
         ...(record.activityId && { activityId: record.activityId }),
@@ -453,17 +468,7 @@ function handleDetail(record: any) {
 
 // 查看更多
 function handleViewMore() {
-  const routeNameMap: Record<TabKey, string> = {
-    myBill: 'BpmProcessInstanceMy',
-    todo: 'BpmTodoTask',
-    done: 'BpmDoneTask',
-    copy: 'BpmCopyTask',
-  };
-
-  const routeName = routeNameMap[activeTab.value];
-  if (routeName) {
-    router.push({ name: routeName });
-  }
+  router.push({ path: listRoutePathMap[activeTab.value] });
 }
 
 // 初始化
@@ -544,7 +549,7 @@ onMounted(async () => {
         :data-source="taskList"
         :loading="loading"
         :pagination="false"
-        :scroll="{ x: 1200, y: 350 }"
+        :scroll="{ x: tableScrollX, y: 350 }"
         size="small"
         row-key="id"
       >
@@ -641,6 +646,12 @@ onMounted(async () => {
 
 .task-table-wrapper :deep(.ant-table-cell) {
   padding: 6px 8px !important;
+}
+
+.task-table-wrapper :deep(.summary-cell) {
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.4;
 }
 
 /* 优化操作列固定阴影效果，使其更柔和 */

@@ -16,6 +16,11 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const hiddenComponentCodes = new Set([
+  'workbench_notice',
+  'workbench_schedule',
+]);
+
 const loading = ref(false);
 const layout = ref<GridLayoutItem[]>([]);
 const layoutConfig = ref<Partial<LayoutConfig>>({
@@ -35,14 +40,14 @@ async function loadLayout() {
   loading.value = true;
   try {
     const layoutItems = await getHomePageLayoutList(props.pageId);
-    const hasNotice = layoutItems.some(
-      (item) => item.componentCode === 'workbench_notice',
+    const hasHiddenComponent = layoutItems.some((item) =>
+      hiddenComponentCodes.has(item.componentCode),
     );
     const visibleLayoutItems = layoutItems.filter(
-      (item) => item.componentCode !== 'workbench_notice',
+      (item) => !hiddenComponentCodes.has(item.componentCode),
     );
 
-    if (hasNotice) {
+    if (hasHiddenComponent) {
       visibleLayoutItems.forEach((item) => {
         if (item.positionX === 0 && item.width === 16) {
           item.width = 24;

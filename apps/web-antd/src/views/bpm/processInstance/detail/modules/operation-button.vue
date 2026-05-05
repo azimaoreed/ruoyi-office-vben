@@ -89,7 +89,7 @@ const popOverVisible: any = ref({
   reject: false,
   modifyRequest: false,
   pendingModifyRequest: false,
-  modifyProcess: false,
+  returnTask: false,
   transfer: false,
   delegate: false,
   addSign: false,
@@ -106,11 +106,6 @@ const REJECT_MODE_OPTIONS = computed(() => [
     value: TaskApi.BpmTaskRejectModeEnum.RETURN_AND_REPLAY,
     disabled: returnList.value.length === 0,
   },
-  {
-    label: '修改后继续',
-    value: TaskApi.BpmTaskRejectModeEnum.CONTINUE_AFTER_MODIFY,
-    disabled: !modifyProcessConfig.value,
-  },
 ]);
 const REJECT_REASON_TYPE_OPTIONS = [
   {
@@ -121,8 +116,6 @@ const REJECT_REASON_TYPE_OPTIONS = [
   { label: '风险校正', value: TaskApi.BpmTaskRejectReasonTypeEnum.RISK },
   { label: '其他', value: TaskApi.BpmTaskRejectReasonTypeEnum.OTHER },
 ];
-const MODIFY_PROCESS_PAYLOAD_PLACEHOLDER =
-  '例如：{"returnNode":"Activity_Filing","modifyType":"filing_related"}';
 const MODIFY_REQUEST_PAYLOAD_PLACEHOLDER =
   '例如：{"modifyType":"filing_related"}';
 function findSimpleFlowNodeById(
@@ -155,33 +148,6 @@ const currentRunningNode = computed(() => {
   return findSimpleFlowNodeById(simpleModel, taskDefinitionKey);
 });
 
-const modifyProcessConfig = computed(() => {
-  if (!runningTask.value || !isHandleTaskStatus()) {
-    return null;
-  }
-  if (runningTask.value.nodeType === BpmNodeTypeEnum.TRANSACTOR_NODE) {
-    return null;
-  }
-  const modifyProcessSetting = currentRunningNode.value?.modifyProcessSetting;
-  if (
-    !modifyProcessSetting?.enable ||
-    !modifyProcessSetting.childProcessDefinitionKey
-  ) {
-    return null;
-  }
-  return {
-    buttonName: modifyProcessSetting.buttonName || '发起修改申请',
-    childProcessDefinitionKey: modifyProcessSetting.childProcessDefinitionKey,
-    resumeStrategy: (modifyProcessSetting.resumeStrategy ??
-      TaskApi.BpmModifyChildProcessResumeStrategyEnum
-        .CONTINUE_LAST_ACTIVE_NODE) as TaskApi.BpmModifyChildProcessResumeStrategyEnum,
-    allowedReasonTypes:
-      modifyProcessSetting.reasonTypes &&
-      modifyProcessSetting.reasonTypes.length > 0
-        ? (modifyProcessSetting.reasonTypes as number[])
-        : REJECT_REASON_TYPE_OPTIONS.map((item) => item.value),
-  };
-});
 const modifyRequestConfig = computed(() => {
   if (
     props.processInstance?.status !== BpmProcessInstanceStatus.RUNNING ||
@@ -205,13 +171,6 @@ const modifyRequestConfig = computed(() => {
         : REJECT_REASON_TYPE_OPTIONS.map((item) => item.value),
   };
 });
-const modifyProcessReasonTypeOptions = computed(() =>
-  REJECT_REASON_TYPE_OPTIONS.filter((item) =>
-    modifyProcessConfig.value?.allowedReasonTypes.includes(
-      item.value as number,
-    ),
-  ),
-);
 const modifyRequestReasonTypeOptions = computed(() =>
   REJECT_REASON_TYPE_OPTIONS.filter((item) =>
     modifyRequestConfig.value?.allowedReasonTypes.includes(
@@ -220,12 +179,6 @@ const modifyRequestReasonTypeOptions = computed(() =>
   ),
 );
 const rejectReasonTypeOptions = computed(() => {
-  if (
-    rejectForm.rejectMode ===
-    TaskApi.BpmTaskRejectModeEnum.CONTINUE_AFTER_MODIFY
-  ) {
-    return modifyProcessReasonTypeOptions.value;
-  }
   const allowedReasonTypes =
     currentRunningNode.value?.rejectHandler?.reasonTypes;
   if (!allowedReasonTypes || allowedReasonTypes.length === 0) {
@@ -319,34 +272,19 @@ const rejectFormRule: any = computed(() => {
   } as Record<string, Rule[]>;
 });
 
-// 修改申请子流程表单
-const modifyProcessFormRef = ref<FormInstance>();
-const modifyProcessForm = reactive({
-  reasonType: TaskApi.BpmTaskRejectReasonTypeEnum.MODIFY,
-  reasonDetail: '',
-  modifyPayloadText: '',
+// 退回表单
+const returnFormRef = ref<FormInstance>();
+const returnForm = reactive<TaskApi.BpmTaskApi.ReturnTaskReq>({
+  id: '',
+  targetTaskDefinitionKey: undefined,
+  reason: '',
 });
-const modifyProcessFormRule: Record<string, Rule[]> = reactive({
-  reasonType: [
-    { required: true, message: '原因分类不能为空', trigger: 'change' },
+const returnFormRule: Record<string, Rule[]> = {
+  targetTaskDefinitionKey: [
+    { required: true, message: '退回节点不能为空', trigger: 'change' },
   ],
-  reasonDetail: [
-    { required: true, message: '原因说明不能为空', trigger: 'blur' },
-  ],
-  modifyPayloadText: [
-    {
-      trigger: 'blur',
-      validator: async (_rule: Rule, value: string) => {
-        if (!value) return;
-        try {
-          JSON.parse(value);
-        } catch {
-          throw new Error('启动参数需为合法 JSON');
-        }
-      },
-    },
-  ],
-});
+  reason: [{ required: true, message: '退回意见不能为空', trigger: 'blur' }],
+};
 
 // 通用修改申请表单
 const modifyRequestFormRef = ref<FormInstance>();
@@ -512,12 +450,6 @@ function getDefaultRejectMode() {
     | TaskApi.BpmTaskRejectModeEnum
     | undefined;
   if (
-    nodeRejectMode === TaskApi.BpmTaskRejectModeEnum.CONTINUE_AFTER_MODIFY &&
-    modifyProcessConfig.value
-  ) {
-    return nodeRejectMode;
-  }
-  if (
     nodeRejectMode === TaskApi.BpmTaskRejectModeEnum.RETURN_AND_REPLAY &&
     returnList.value.length > 0
   ) {
@@ -543,12 +475,11 @@ function resetRejectForm() {
   rejectForm.rejectDetail = '';
 }
 
-function resetModifyProcessForm() {
-  modifyProcessForm.reasonType =
-    modifyProcessReasonTypeOptions.value[0]?.value ??
-    TaskApi.BpmTaskRejectReasonTypeEnum.MODIFY;
-  modifyProcessForm.reasonDetail = '';
-  modifyProcessForm.modifyPayloadText = '';
+function resetReturnForm() {
+  returnForm.id = runningTask.value?.id || '';
+  returnForm.targetTaskDefinitionKey =
+    returnList.value[0]?.taskDefinitionKey || undefined;
+  returnForm.reason = '';
 }
 
 function resetModifyRequestForm() {
@@ -597,8 +528,9 @@ async function openPopover(type: string) {
     returnList.value = await TaskApi.getTaskListByReturn(runningTask.value.id);
     resetRejectForm();
   }
-  if (type === 'modifyProcess') {
-    resetModifyProcessForm();
+  if (type === 'returnTask') {
+    returnList.value = await TaskApi.getTaskListByReturn(runningTask.value.id);
+    resetReturnForm();
   }
   if (type === 'modifyRequest' || type === 'pendingModifyRequest') {
     resetModifyRequestForm();
@@ -624,12 +556,6 @@ async function openPopover(type: string) {
 /** 关闭气泡卡 */
 function closePopover(type: string, formRef: any | FormInstance) {
   switch (type) {
-    case 'modifyProcess': {
-      resetModifyProcessForm();
-      formRef?.clearValidate?.();
-
-      break;
-    }
     case 'modifyRequest':
     case 'pendingModifyRequest': {
       resetModifyRequestForm();
@@ -641,6 +567,11 @@ function closePopover(type: string, formRef: any | FormInstance) {
       resetRejectForm();
       formRef?.clearValidate?.();
 
+      break;
+    }
+    case 'returnTask': {
+      resetReturnForm();
+      formRef?.clearValidate?.();
       break;
     }
     default: {
@@ -784,9 +715,6 @@ async function handleReject() {
   try {
     if (!rejectFormRef.value) return;
     await rejectFormRef.value.validate();
-    const continueAfterModify =
-      rejectForm.rejectMode ===
-      TaskApi.BpmTaskRejectModeEnum.CONTINUE_AFTER_MODIFY;
     const updatedVariables = getUpdatedProcessInstanceVariables();
     const data: TaskApi.BpmTaskApi.RejectTaskReq = {
       id: runningTask.value.id,
@@ -799,21 +727,11 @@ async function handleReject() {
     if (isReturnAndReplayRejectMode.value) {
       data.targetTaskDefinitionKey = rejectForm.targetTaskDefinitionKey;
     }
-    if (continueAfterModify) {
-      if (!modifyProcessConfig.value) {
-        message.warning('当前节点未配置修改申请子流程');
-        return;
-      }
-      data.childProcessDefinitionKey =
-        modifyProcessConfig.value.childProcessDefinitionKey;
-      data.resumeStrategy = modifyProcessConfig.value.resumeStrategy;
-      data.modifyPayload = updatedVariables;
-    }
     await TaskApi.rejectTask(data);
     popOverVisible.value.reject = false;
     resetRejectForm();
     rejectFormRef.value.clearValidate?.();
-    message.success(continueAfterModify ? '已发起修改申请' : '驳回成功');
+    message.success('驳回成功');
     // 操作成功后自动关闭当前页面
     await closeCurrentTab();
   } finally {
@@ -821,42 +739,21 @@ async function handleReject() {
   }
 }
 
-/** 处理发起修改申请子流程 */
-async function handleModifyProcess() {
+/** 处理退回 */
+async function handleReturn() {
   formLoading.value = true;
   try {
-    if (!modifyProcessFormRef.value || !modifyProcessConfig.value) return;
-    await modifyProcessFormRef.value.validate();
-    const valid = await validateNormalForm();
-    if (!valid) {
-      message.warning('表单校验不通过，请先完善表单!!');
-      return;
-    }
-
-    const modifyPayload = {
-      ...getUpdatedProcessInstanceVariables(),
-    } as Record<string, any>;
-    if (modifyProcessForm.modifyPayloadText) {
-      Object.assign(
-        modifyPayload,
-        JSON.parse(modifyProcessForm.modifyPayloadText),
-      );
-    }
-
-    await TaskApi.startModifyChildProcess({
+    if (!returnFormRef.value) return;
+    await returnFormRef.value.validate();
+    await TaskApi.returnTask({
       id: runningTask.value.id,
-      childProcessDefinitionKey:
-        modifyProcessConfig.value.childProcessDefinitionKey,
-      reasonType: modifyProcessForm.reasonType,
-      reasonDetail: modifyProcessForm.reasonDetail,
-      modifyPayload:
-        Object.keys(modifyPayload).length > 0 ? modifyPayload : undefined,
-      resumeStrategy: modifyProcessConfig.value.resumeStrategy,
+      targetTaskDefinitionKey: returnForm.targetTaskDefinitionKey,
+      reason: returnForm.reason,
     });
-    popOverVisible.value.modifyProcess = false;
-    resetModifyProcessForm();
-    modifyProcessFormRef.value.clearValidate?.();
-    message.success('已发起修改申请');
+    popOverVisible.value.returnTask = false;
+    resetReturnForm();
+    returnFormRef.value.clearValidate?.();
+    message.success('退回成功');
     await closeCurrentTab();
   } finally {
     formLoading.value = false;
@@ -1443,65 +1340,77 @@ defineExpose({ loadTodoTask });
         </template>
       </Popover>
 
-      <!-- 【申请修改设计】按钮 -->
+      <!-- 【退回】按钮 -->
       <Popover
-        v-model:open="popOverVisible.modifyProcess"
+        v-model:open="popOverVisible.returnTask"
         placement="top"
         :overlay-style="{ width: '420px' }"
         trigger="click"
-        v-if="modifyProcessConfig"
+        v-if="
+          runningTask &&
+          isHandleTaskStatus() &&
+          isShowButton(BpmTaskOperationButtonTypeEnum.RETURN)
+        "
       >
-        <Button @click="openPopover('modifyProcess')">
-          {{ modifyProcessConfig.buttonName }}
+        <Button danger @click="openPopover('returnTask')">
+          {{ getButtonDisplayName(BpmTaskOperationButtonTypeEnum.RETURN) }}
         </Button>
         <template #content>
           <div class="flex flex-1 flex-col px-5 pt-5" v-loading="formLoading">
             <Form
               layout="vertical"
               class="mb-auto"
-              ref="modifyProcessFormRef"
-              :model="modifyProcessForm"
-              :rules="modifyProcessFormRule"
+              ref="returnFormRef"
+              :model="returnForm"
+              :rules="returnFormRule"
               label-width="100px"
             >
-              <FormItem label="修改子流程">
-                <div class="text-[13px] text-gray-500">
-                  {{ modifyProcessConfig.childProcessDefinitionKey }}
-                </div>
-              </FormItem>
-              <FormItem label="原因分类" name="reasonType">
-                <Select v-model:value="modifyProcessForm.reasonType">
+              <Alert
+                v-if="returnList.length === 0"
+                class="mb-4"
+                message="当前没有可退回的历史节点。"
+                type="info"
+                show-icon
+              />
+              <FormItem label="退回节点" name="targetTaskDefinitionKey">
+                <Select
+                  v-model:value="returnForm.targetTaskDefinitionKey"
+                  :allow-clear="true"
+                  style="width: 100%"
+                >
                   <SelectOption
-                    v-for="item in modifyProcessReasonTypeOptions"
-                    :key="item.value"
-                    :value="item.value"
+                    v-for="item in returnList"
+                    :key="item.taskDefinitionKey"
+                    :label="item.name"
+                    :value="item.taskDefinitionKey"
                   >
-                    {{ item.label }}
+                    {{ item.name }}
                   </SelectOption>
                 </Select>
               </FormItem>
-              <FormItem label="原因说明" name="reasonDetail">
+              <FormItem label="退回意见" name="reason">
                 <Textarea
-                  v-model:value="modifyProcessForm.reasonDetail"
-                  placeholder="请输入修改申请说明"
-                  :rows="4"
-                />
-              </FormItem>
-              <FormItem label="启动参数(JSON)" name="modifyPayloadText">
-                <Textarea
-                  v-model:value="modifyProcessForm.modifyPayloadText"
-                  :placeholder="MODIFY_PROCESS_PAYLOAD_PLACEHOLDER"
+                  v-model:value="returnForm.reason"
+                  allow-clear
+                  placeholder="请输入退回意见"
                   :rows="4"
                 />
               </FormItem>
               <FormItem>
                 <Space>
-                  <Button type="primary" @click="handleModifyProcess">
-                    {{ modifyProcessConfig.buttonName }}
-                  </Button>
                   <Button
-                    @click="closePopover('modifyProcess', modifyProcessFormRef)"
+                    :disabled="formLoading || returnList.length === 0"
+                    danger
+                    type="primary"
+                    @click="handleReturn()"
                   >
+                    {{
+                      getButtonDisplayName(
+                        BpmTaskOperationButtonTypeEnum.RETURN,
+                      )
+                    }}
+                  </Button>
+                  <Button @click="closePopover('returnTask', returnFormRef)">
                     取消
                   </Button>
                 </Space>
