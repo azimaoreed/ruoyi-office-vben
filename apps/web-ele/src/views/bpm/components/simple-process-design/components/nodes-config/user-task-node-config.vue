@@ -6,14 +6,18 @@ import type { ComponentPublicInstance, Ref } from 'vue';
 import type { ButtonSetting, SimpleFlowNode } from '../../consts';
 import type { UserTaskFormType } from '../../helpers';
 
+import type { SystemUserApi } from '#/api/system/user';
+
 import { computed, nextTick, onMounted, reactive, ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';
 import {
   BpmModelFormType,
   BpmNodeTypeEnum,
+  DICT_TYPE,
   ProcessVariableEnum,
 } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 import { IconifyIcon } from '@vben/icons';
 import { cloneDeep } from '@vben/utils';
 
@@ -205,6 +209,31 @@ const {
   getShowText,
 } = useNodeForm(currentNode.value.type);
 const configForm = tempConfigForm as Ref<UserTaskFormType>;
+const jobPostOptions = getDictOptions(DICT_TYPE.HRM_JOB_POST);
+const jobPositionOptions = getDictOptions(DICT_TYPE.HRM_JOB_POSITION);
+
+function getUserSelectLabel(user: SystemUserApi.User) {
+  return (user.nickname || user.username || '').trim();
+}
+
+function getDictLabel(
+  options: Array<{ label?: string; value?: boolean | number | string }>,
+  value?: boolean | number | string,
+) {
+  if (value === undefined || value === null || value === '') {
+    return '';
+  }
+  const option = options.find((item) => String(item.value) === String(value));
+  return option?.label || String(value);
+}
+
+function getUserJobPost(user: SystemUserApi.User) {
+  return getDictLabel(jobPostOptions, user.jobPost);
+}
+
+function getUserJobPosition(user: SystemUserApi.User) {
+  return getDictLabel(jobPositionOptions, user.jobPosition);
+}
 
 // 改变审批人设置策略
 function changeCandidateStrategy() {
@@ -729,9 +758,21 @@ onMounted(() => {
                 <ElOption
                   v-for="item in userOptions"
                   :key="item.id"
-                  :label="item.nickname"
+                  :label="getUserSelectLabel(item)"
                   :value="item.id!"
-                />
+                >
+                  <div class="user-select-option">
+                    <div class="user-select-option__name">
+                      {{ getUserSelectLabel(item) }}
+                    </div>
+                    <div class="user-select-option__meta">
+                      <span>用户名：{{ item.username || '-' }}</span>
+                      <span>所属部门：{{ item.deptName || '-' }}</span>
+                      <span>职位：{{ getUserJobPost(item) || '-' }}</span>
+                      <span>职务：{{ getUserJobPosition(item) || '-' }}</span>
+                    </div>
+                  </div>
+                </ElOption>
               </ElSelect>
             </ElFormItem>
             <ElFormItem
@@ -1003,9 +1044,21 @@ onMounted(() => {
                 <ElOption
                   v-for="item in userOptions"
                   :key="item.id"
-                  :label="item.nickname"
+                  :label="getUserSelectLabel(item)"
                   :value="item.id!"
-                />
+                >
+                  <div class="user-select-option">
+                    <div class="user-select-option__name">
+                      {{ getUserSelectLabel(item) }}
+                    </div>
+                    <div class="user-select-option__meta">
+                      <span>用户名：{{ item.username || '-' }}</span>
+                      <span>所属部门：{{ item.deptName || '-' }}</span>
+                      <span>职位：{{ getUserJobPost(item) || '-' }}</span>
+                      <span>职务：{{ getUserJobPosition(item) || '-' }}</span>
+                    </div>
+                  </div>
+                </ElOption>
               </ElSelect>
             </ElFormItem>
 
@@ -1178,3 +1231,20 @@ onMounted(() => {
     </ElTabs>
   </Drawer>
 </template>
+
+<style scoped>
+.user-select-option {
+  line-height: 1.4;
+}
+
+.user-select-option__name {
+  font-weight: 500;
+}
+
+.user-select-option__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: 12px;
+}
+</style>

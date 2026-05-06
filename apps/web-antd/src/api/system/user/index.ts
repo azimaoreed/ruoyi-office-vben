@@ -12,6 +12,8 @@ export namespace SystemUserApi {
     deptName?: string;
     postIds?: Array<number | string>;
     postNames?: string[];
+    jobPost?: string;
+    jobPosition?: string;
     email: string;
     mobile: string;
     sex: number;

@@ -14,8 +14,10 @@ import { useVbenDrawer, useVbenModal } from '@vben/common-ui';
 import {
   BpmModelFormType,
   BpmNodeTypeEnum,
+  DICT_TYPE,
   ProcessVariableEnum,
 } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 import { IconifyIcon } from '@vben/icons';
 import { cloneDeep } from '@vben/utils';
 
@@ -231,25 +233,30 @@ const {
   getShowText,
 } = useNodeForm(currentNode.value.type);
 const configForm = tempConfigForm as Ref<UserTaskFormType>;
+const jobPostOptions = getDictOptions(DICT_TYPE.HRM_JOB_POST);
+const jobPositionOptions = getDictOptions(DICT_TYPE.HRM_JOB_POSITION);
 
 function getUserSelectLabel(user: SystemUserApi.User) {
   return (user.nickname || user.username || '').trim();
 }
 
-function getUserPostNames(user: SystemUserApi.User) {
-  if (user.postNames?.length) {
-    return user.postNames.join('、');
-  }
-  const postIds = user.postIds?.map(String) || [];
-  if (postIds.length === 0) {
+function getDictLabel(
+  options: Array<{ label?: string; value?: boolean | number | string }>,
+  value?: boolean | number | string,
+) {
+  if (value === undefined || value === null || value === '') {
     return '';
   }
-  return postOptions.value
-    .filter(
-      (post) => post.id !== undefined && postIds.includes(String(post.id)),
-    )
-    .map((post) => post.name)
-    .join('、');
+  const option = options.find((item) => String(item.value) === String(value));
+  return option?.label || String(value);
+}
+
+function getUserJobPost(user: SystemUserApi.User) {
+  return getDictLabel(jobPostOptions, user.jobPost);
+}
+
+function getUserJobPosition(user: SystemUserApi.User) {
+  return getDictLabel(jobPositionOptions, user.jobPosition);
 }
 
 // 改变审批人设置策略
@@ -877,7 +884,10 @@ onMounted(() => {
                         所属部门：{{ item.deptName || '-' }}
                       </TypographyText>
                       <TypographyText type="secondary">
-                        职务：{{ getUserPostNames(item) || '-' }}
+                        职位：{{ getUserJobPost(item) || '-' }}
+                      </TypographyText>
+                      <TypographyText type="secondary">
+                        职务：{{ getUserJobPosition(item) || '-' }}
                       </TypographyText>
                     </div>
                   </div>
@@ -1272,7 +1282,10 @@ onMounted(() => {
                         所属部门：{{ item.deptName || '-' }}
                       </TypographyText>
                       <TypographyText type="secondary">
-                        职务：{{ getUserPostNames(item) || '-' }}
+                        职位：{{ getUserJobPost(item) || '-' }}
+                      </TypographyText>
+                      <TypographyText type="secondary">
+                        职务：{{ getUserJobPosition(item) || '-' }}
                       </TypographyText>
                     </div>
                   </div>

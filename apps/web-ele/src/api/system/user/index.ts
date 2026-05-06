@@ -9,7 +9,11 @@ export namespace SystemUserApi {
     username: string;
     nickname: string;
     deptId: number;
-    postIds: string[];
+    deptName?: string;
+    postIds: Array<number | string>;
+    postNames?: string[];
+    jobPost?: string;
+    jobPosition?: string;
     email: string;
     mobile: string;
     sex: number;
