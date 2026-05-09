@@ -57,6 +57,7 @@ defineOptions({ name: 'ProcessInstanceBtnContainer' });
 // 定义 success 事件，用于操作成功后的回调
 
 const props = defineProps<{
+  activityNodes: BpmProcessInstanceApi.ApprovalNodeInfo[]; // 审批节点信息
   beforeApproval?: () => Promise<boolean>; // 审批前的业务表单处理函数
   normalForm: any; // 流程表单 formCreate
   normalFormApi: any; // 流程表单 formCreate Api
@@ -116,8 +117,6 @@ const REJECT_REASON_TYPE_OPTIONS = [
   { label: '风险校正', value: TaskApi.BpmTaskRejectReasonTypeEnum.RISK },
   { label: '其他', value: TaskApi.BpmTaskRejectReasonTypeEnum.OTHER },
 ];
-const MODIFY_REQUEST_PAYLOAD_PLACEHOLDER =
-  '例如：{"modifyType":"filing_related"}';
 function findSimpleFlowNodeById(
   node: null | SimpleFlowNode | undefined,
   nodeId: string,
@@ -194,6 +193,44 @@ const runningTask = ref<any>(); // 运行中的任务
 const approveForm = ref<any>({}); // 审批通过时，额外的补充信息
 const approveFormFApi = ref<any>({}); // approveForms 的 fAPi
 const nodeTypeName = ref('审批'); // 节点类型名称
+const modifyRequestTaskOptions = computed(() => {
+  const options: Array<{ label: string; value: string }> = [];
+  const taskIds = new Set<string>();
+
+  function addTaskOption(activityName: string, task: any) {
+    const taskId =
+      task?.id === null || task?.id === undefined ? '' : String(task.id);
+    if (!taskId || taskIds.has(taskId)) {
+      return;
+    }
+    const assigneeName =
+      task.assigneeUser?.nickname || task.ownerUser?.nickname || '未分配';
+    taskIds.add(taskId);
+    options.push({
+      label: `${activityName} / ${assigneeName}`,
+      value: taskId,
+    });
+  }
+
+  for (const activity of props.activityNodes || []) {
+    const tasks = activity.tasks || [];
+    tasks
+      .filter(
+        (task: any) =>
+          task.status === BpmTaskStatusEnum.RUNNING ||
+          (activity.status === BpmTaskStatusEnum.RUNNING &&
+            task.status !== BpmTaskStatusEnum.APPROVE &&
+            task.status !== BpmTaskStatusEnum.REJECT &&
+            task.status !== BpmTaskStatusEnum.CANCEL),
+      )
+      .forEach((task: any) => addTaskOption(activity.name, task));
+  }
+
+  if (runningTask.value?.id && isHandleTaskStatus()) {
+    addTaskOption(runningTask.value.name || '当前任务', runningTask.value);
+  }
+  return options;
+});
 
 // 审批通过意见表单
 const reasonRequire = ref();
@@ -291,29 +328,19 @@ const modifyRequestFormRef = ref<FormInstance>();
 const modifyRequestForm = reactive({
   reasonType: TaskApi.BpmTaskRejectReasonTypeEnum.MODIFY,
   reasonDetail: '',
-  modifyPayloadText: '',
+  taskId: undefined as string | undefined,
   handleReason: '',
 });
 const pendingModifyRequests = ref<TaskApi.BpmTaskApi.ModifyRequest[]>([]);
 const modifyRequestFormRule: Record<string, Rule[]> = reactive({
+  taskId: [
+    { required: true, message: '当前审批节点不能为空', trigger: 'change' },
+  ],
   reasonType: [
     { required: true, message: '原因分类不能为空', trigger: 'change' },
   ],
   reasonDetail: [
     { required: true, message: '原因说明不能为空', trigger: 'blur' },
-  ],
-  modifyPayloadText: [
-    {
-      trigger: 'blur',
-      validator: async (_rule: Rule, value: string) => {
-        if (!value) return;
-        try {
-          JSON.parse(value);
-        } catch {
-          throw new Error('启动参数需为合法 JSON');
-        }
-      },
-    },
   ],
 });
 
@@ -487,7 +514,10 @@ function resetModifyRequestForm() {
     modifyRequestReasonTypeOptions.value[0]?.value ??
     TaskApi.BpmTaskRejectReasonTypeEnum.MODIFY;
   modifyRequestForm.reasonDetail = '';
-  modifyRequestForm.modifyPayloadText = '';
+  modifyRequestForm.taskId =
+    modifyRequestTaskOptions.value.length === 1
+      ? modifyRequestTaskOptions.value[0]?.value
+      : undefined;
   modifyRequestForm.handleReason = '';
 }
 
@@ -532,7 +562,14 @@ async function openPopover(type: string) {
     returnList.value = await TaskApi.getTaskListByReturn(runningTask.value.id);
     resetReturnForm();
   }
-  if (type === 'modifyRequest' || type === 'pendingModifyRequest') {
+  if (type === 'modifyRequest') {
+    if (modifyRequestTaskOptions.value.length === 0) {
+      message.warning('当前没有可提交修改申请的审批节点');
+      return;
+    }
+    resetModifyRequestForm();
+  }
+  if (type === 'pendingModifyRequest') {
     resetModifyRequestForm();
   }
   if (
@@ -777,13 +814,6 @@ function getUserLabel(userId?: number) {
   );
 }
 
-function parseModifyRequestPayload() {
-  if (!modifyRequestForm.modifyPayloadText) {
-    return undefined;
-  }
-  return JSON.parse(modifyRequestForm.modifyPayloadText);
-}
-
 /** 提交通用修改申请 */
 async function handleCreateModifyRequest() {
   formLoading.value = true;
@@ -792,10 +822,9 @@ async function handleCreateModifyRequest() {
     await modifyRequestFormRef.value.validate();
     await TaskApi.createModifyRequest({
       processInstanceId: props.processInstance.id,
-      taskId: runningTask.value?.id,
+      taskId: modifyRequestForm.taskId,
       reasonType: modifyRequestForm.reasonType,
       reasonDetail: modifyRequestForm.reasonDetail,
-      modifyPayload: parseModifyRequestPayload(),
       childProcessDefinitionKey:
         modifyRequestConfig.value.childProcessDefinitionKey,
       resumeStrategy: modifyRequestConfig.value.resumeStrategy,
@@ -1446,6 +1475,24 @@ defineExpose({ loadTodoTask });
                   {{ modifyRequestConfig.childProcessDefinitionKey }}
                 </div>
               </FormItem>
+              <FormItem label="当前审批节点" name="taskId">
+                <Select
+                  v-model:value="modifyRequestForm.taskId"
+                  :disabled="modifyRequestTaskOptions.length <= 1"
+                  placeholder="请选择要提交给哪个当前审批节点"
+                >
+                  <SelectOption
+                    v-for="item in modifyRequestTaskOptions"
+                    :key="item.value"
+                    :value="item.value"
+                  >
+                    {{ item.label }}
+                  </SelectOption>
+                </Select>
+                <div class="mt-1 text-xs text-gray-500">
+                  存在并行审批时，可选择由哪个当前节点审批人处理本次修改申请。
+                </div>
+              </FormItem>
               <FormItem label="原因分类" name="reasonType">
                 <Select v-model:value="modifyRequestForm.reasonType">
                   <SelectOption
@@ -1461,13 +1508,6 @@ defineExpose({ loadTodoTask });
                 <Textarea
                   v-model:value="modifyRequestForm.reasonDetail"
                   placeholder="请输入需要修改的地方和原因"
-                  :rows="4"
-                />
-              </FormItem>
-              <FormItem label="启动参数(JSON)" name="modifyPayloadText">
-                <Textarea
-                  v-model:value="modifyRequestForm.modifyPayloadText"
-                  :placeholder="MODIFY_REQUEST_PAYLOAD_PLACEHOLDER"
                   :rows="4"
                 />
               </FormItem>
@@ -1524,12 +1564,6 @@ defineExpose({ loadTodoTask });
                 </div>
                 <div class="whitespace-pre-wrap text-[13px] text-gray-600">
                   {{ item.reasonDetail }}
-                </div>
-                <div
-                  v-if="item.modifyPayloadJson"
-                  class="mt-2 break-all text-xs text-gray-500"
-                >
-                  启动参数：{{ item.modifyPayloadJson }}
                 </div>
                 <FormItem class="mt-3" label="处理意见">
                   <Textarea
